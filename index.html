@@ -3648,6 +3648,8 @@
                         ws.send('{"m":1,"r":2}');
                         game.visible = false;
                         lobby.visible = true;
+                        delete lobby.seat_;
+                        delete lobby.tableid_;
                     }
                 });
                 this.addChild(view);
