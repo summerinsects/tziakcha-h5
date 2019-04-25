@@ -113,7 +113,6 @@
 
         PIXI.loader.add([
             'img/ui/checkbox_normal.png',
-            'img/ui/checkbox_press.png',
             'img/ui/checkbox_tick.png',
 
             'img/tiles/tile_standing1.png',
@@ -5025,10 +5024,6 @@
                 let bg = new PIXI.Sprite(PIXI.loader.resources['img/ui/checkbox_normal.png'].texture);
                 this.addChild(bg);
 
-                let hl = this.hl_ = new PIXI.Sprite(PIXI.loader.resources['img/ui/checkbox_press.png'].texture)
-                this.addChild(hl);
-                hl.visible = false;
-
                 let tk = this.tk_ = new PIXI.Sprite(PIXI.loader.resources['img/ui/checkbox_tick.png'].texture)
                 this.addChild(tk);
                 tk.visible = false;
@@ -5040,16 +5035,21 @@
                 let width = bg.width + 5 + text.width;
                 let height = Math.max(bg.height, text.height);
                 bg.anchor.y = .5;
-                hl.anchor.y = .5;
                 tk.anchor.y = .5;
                 text.anchor.y = .5;
                 bg.y = height * .5;
-                hl.y = height * .5;
                 tk.y = height * .5;
                 text.y = height * .5;
 
                 this.width = width;
                 this.height = height;
+
+                let fg = this.fg_ = new PIXI.Graphics();
+                fg.beginFill(0xFFFFFF, .25);
+                fg.drawRect(0, 0, width, height);
+                fg.endFill();
+                this.addChild(fg);
+                fg.visible = false;
 
                 function clk() {
                     let tk = this.tk_;
@@ -5058,8 +5058,8 @@
                         callback(this);
                     }
                 }
-                function hlt() { this.hl_.visible = true; }
-                function nml() { this.hl_.visible = false; }
+                function hlt() { this.fg_.visible = true; }
+                function nml() { this.fg_.visible = false; }
 
                 this.interactive = true;
                 this.on('click', clk);
@@ -5069,15 +5069,6 @@
                 this.on('touchstart', hlt);
                 this.on('touchendoutside', nml);
                 this.on('touchend', nml);
-
-                //{
-                //let graph = new PIXI.Graphics();
-                //graph.lineStyle(2, 0x0000FF, 1);
-                //graph.beginFill(0x00FFBB, .25);
-                //graph.drawRect(0, 0, width, height);
-                //graph.endFill();
-                //this.addChild(graph);
-                //}
             }
 
             isSelected() {
