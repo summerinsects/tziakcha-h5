@@ -6944,17 +6944,22 @@
 
                 let defcfg = JSON.parse(localStorage.getItem('default_config')) || {};
 
-                ctrls[0].text = defcfg['t'] || '';
-                ctrls[1][defcfg['n'] || 0].setSelected(true);
-                ctrls[2][defcfg['r30'] || 2].setSelected(true);
-                ctrls[3][defcfg['r12'] || 1].setSelected(true);
-                ctrls[4][defcfg['s'] || 0].setSelected(true);
-                ctrls[5][defcfg['o'] || 1].setSelected(true);
-                ctrls[6][defcfg['fa'] || 0].setSelected(true);
-                ctrls[7][defcfg['fc'] || 1].setSelected(true);
-                ctrls[8][defcfg['i'] || 0].setSelected(true);
-                ctrls[9][defcfg['r'] || 0].setSelected(true);
-                ctrls[10][defcfg['a'] || 1].setSelected(true);
+                function dv(v, d) {
+                    if (v != undefined) return v;
+                    return d;
+                }
+
+                ctrls[0].text = dv(defcfg['t'], '');
+                ctrls[1][dv(defcfg['n'], 0)].setSelected(true);
+                ctrls[2][dv(defcfg['r30'], 2)].setSelected(true);
+                ctrls[3][dv(defcfg['r12'], 1)].setSelected(true);
+                ctrls[4][dv(defcfg['s'], 0)].setSelected(true);
+                ctrls[5][dv(defcfg['o'], 1)].setSelected(true);
+                ctrls[6][dv(defcfg['fa'], 0)].setSelected(true);
+                ctrls[7][dv(defcfg['fc'], 1)].setSelected(true);
+                ctrls[8][dv(defcfg['i'], 0)].setSelected(true);
+                ctrls[9][dv(defcfg['r'], 0)].setSelected(true);
+                ctrls[10][dv(defcfg['a'], 1)].setSelected(true);
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
