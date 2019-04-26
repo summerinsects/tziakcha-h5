@@ -6485,6 +6485,9 @@
 
                 this._enable(this.prevBtn_, false);
                 this._enable(this.nextBtn_, false);
+
+                let root = this.root_ = new PIXI.Container();
+                container.addChild(root);
             }
 
             onmessage(resp) {
@@ -6509,7 +6512,7 @@
 
                     let tv;
                     while (tv = this.tables_.pop()) {
-                        this.container_.removeChild(tv);
+                        this.root_.removeChild(tv);
                     }
 
                     let ts = resp['t'];
@@ -6517,7 +6520,7 @@
                         let t = ts[i];
                         tv = new TableInfoView(t, (id, s, p)=>{ this._callback(id, s, p); });
                         tv.x = 10;
-                        this.container_.addChild(tv);
+                        this.root_.addChild(tv);
                         this.tables_.push(tv);
 
                         tv.refresh(this.tableid_, this.seat_);
@@ -6530,7 +6533,7 @@
                     let t = resp['t'];
                     let tv = new TableInfoView(t, (id, s, p)=>{ this._callback(id, s, p); });
                     tv.x = 10;
-                    this.container_.addChild(tv);
+                    this.root_.addChild(tv);
                     this.tables_.push(tv);
 
                     tv.refresh(this.tableid_, this.seat_);
@@ -6711,7 +6714,7 @@
                     let tbs = this.tables_;
                     let tv = tbs[i];
                     tbs.splice(i, 1);
-                    this.container_.removeChild(tv);
+                    this.root_.removeChild(tv);
                     this._refresh();
                 }
             }
