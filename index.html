@@ -475,12 +475,7 @@
 
                     PIXI.loader.resources[r == 8 ? 'snd/14-chow-m.wav' : 'snd/16-pung-m.wav'].sound.play();
                     let idx = (resp['v'] + 4 - pool.seat_) & 3;
-                    switch (idx) {
-                    case 0: pool.showCallText(0, r == 8 ? '吃' : '碰'); break;
-                    case 1: pool.showCallText(1, r == 8 ? '吃' : '碰'); break;
-                    case 2: pool.showCallText(2, r == 8 ? '吃' : '碰'); break;
-                    case 3: pool.showCallText(3, r == 8 ? '吃' : '碰'); break;
-                    }
+                    pool.showCallText(idx, r == 8 ? '吃' : '碰');
 
                     let p = resp['p'];
                     if (p != undefined) {
@@ -502,12 +497,7 @@
 
                     PIXI.loader.resources['snd/18-kong-m.wav'].sound.play();
                     let idx = (resp['v'] + 4 - pool.seat_) & 3;
-                    switch (idx) {
-                    case 0: pool.showCallText(0, '杠'); break;
-                    case 1: pool.showCallText(1, '杠'); break;
-                    case 2: pool.showCallText(2, '杠'); break;
-                    case 3: pool.showCallText(3, '杠'); break;
-                    }
+                    pool.showCallText(idx, '杠');
 
                     let p = resp['p'];
                     if (p == undefined) {
@@ -5724,7 +5714,7 @@
                     let v = table[f];
                     let c = ((v >> 8) & 0xFF) + 1;
 
-                    let t = new PIXI.Text(FAN_NAME[f] + ' ' + ((c == 1) ? ((v & 0xFF) + '番') : ((v & 0xFF) + '番x' + c)), {
+                    let t = new PIXI.Text(FAN_NAME[f] + ' ' + ((c == 1) ? ((v & 0xFF) + '番') : ((v & 0xFF) + '番 \u00D7' + c)), {
                         fontFamily: 'Arial',
                         fontSize: 22,
                         fill: '#99ffff'
