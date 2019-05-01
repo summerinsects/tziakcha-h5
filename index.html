@@ -123,7 +123,10 @@
             'img/tiles/tiles_pool3.png',
             'img/tiles/tiles_standing.png',
 
-            'snd/01-start.wav',
+            'fnt/STXingkai.png',
+            'fnt/STXingkai.fnt',
+
+            //'snd/01-start.wav',
             'snd/05-draw.wav',
             'snd/06-discard.wav',
             'snd/08-inquire.wav',
@@ -2214,14 +2217,7 @@
 
             showCallText(n, s) {
                 let pos = this.callTextPos_[n];
-                let text = new PIXI.Text(s, {
-                    fontFamily: 'STXingkai,KaiTi',
-                    fontWeight:'bold',
-                    fontSize: 100,
-                    fill: '#ffffff',
-                    stroke: '#000000',
-                    strokeThickness: 8,
-                });
+                let text = new PIXI.extras.BitmapText(s, { font:'128px STXingkai' });
                 text.anchor.set(.5);
                 text.x = pos['x'];
                 text.y = pos['y'];
@@ -3738,14 +3734,7 @@
                         }
 
                         let pos = this.callTextPos_[n1];
-                        let text = new PIXI.Text('点炮', {
-                            fontFamily: 'STXingkai,KaiTi',
-                            fontWeight:'bold',
-                            fontSize: 100,
-                            fill: '#ffffff',
-                            stroke: '#000000',
-                            strokeThickness: 8,
-                        });
+                        let text = new PIXI.extras.BitmapText('点炮', { font:'128px STXingkai' });
                         text.anchor.set(.5);
                         text.x = pos['x'];
                         text.y = pos['y'];
@@ -3756,14 +3745,7 @@
                     if (wp != undefined) {
                         let n0 = (wp + 4 - this.seat_) & 3;
                         let pos = this.callTextPos_[n0];
-                        let text = new PIXI.Text('和', {
-                            fontFamily: 'STXingkai,KaiTi',
-                            fontWeight:'bold',
-                            fontSize: 100,
-                            fill: '#ffffff',
-                            stroke: '#000000',
-                            strokeThickness: 8,
-                        });
+                        let text = new PIXI.extras.BitmapText('和', { font:'128px STXingkai' });
                         text.anchor.set(.5);
                         text.x = pos['x'];
                         text.y = pos['y'];
@@ -5138,13 +5120,7 @@
                 this.addChild(fg);
                 fg.visible = false;
 
-                let text = this.face_ = new PIXI.Text('', {
-                    fontFamily: 'STXingkai,KaiTi',
-                    fontSize: 80,
-                    fill: '#ffffff',
-                    stroke: '#0066ff',
-                    strokeThickness: 2,
-                });
+                let text = this.face_ = new PIXI.extras.BitmapText('', { font:'100px STXingkai' });
                 text.anchor.set(.5);
                 text.x = 75;
                 text.y = 75;
