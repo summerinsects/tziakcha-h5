@@ -123,6 +123,8 @@
             'img/tiles/tiles_pool3.png',
             'img/tiles/tiles_standing.png',
 
+            'fnt/SourceHanSansBold.png',
+            'fnt/SourceHanSansBold.fnt',
             'fnt/STXingkai.png',
             'fnt/STXingkai.fnt',
 
@@ -701,19 +703,7 @@
                 graph.y = MAX_HEIGHT * .5;
 
                 // 当前打：X风X
-                let text = this.roundText_ = new PIXI.Text('', /*new PIXI.TextStyle*/{
-                    fontFamily: 'Arial',
-                    fontSize: 50,
-                    fontWeight:'bold',
-                    fill: '#ffffff',
-                    stroke: '#0066ff',
-                    strokeThickness: 2,
-                    //dropShadow: true,
-                    //dropShadowColor: '#000000',
-                    //dropShadowBlur: 4,
-                    //dropShadowAngle: Math.PI / 6,
-                    //dropShadowDistance: 6,
-                });
+                let text = this.roundText_ = new PIXI.extras.BitmapText('', { font: '80px SourceHanSansBold' });
                 text.anchor.set(.5);
                 text.x = CENTER_WIDTH * .5;
                 text.y = CENTER_HEIGHT * .5 - 25;
@@ -5491,14 +5481,7 @@
 
                 {
                     let rd = detail['r'];
-                    let t = new PIXI.Text(WIND[rd >> 2] + '风' + WIND[rd & 3], {
-                        fontFamily: 'Arial',
-                        fontSize: 36,
-                        fontWeight:'bold',
-                        fill: '#ffffff',
-                        stroke: '#0066ff',
-                        strokeThickness: 2,
-                    });
+                    let t = new PIXI.extras.BitmapText(WIND[rd >> 2] + '风' + WIND[rd & 3], { font: '48px SourceHanSansBold' });
                     this.addChild(t);
                     t.anchor.set(.5);
                     t.x = width * .5;
@@ -5520,14 +5503,7 @@
                     g.x = cx[i] - w0 * .5;
                     g.y = cy[i] - h0 * .5;
 
-                    let t = new PIXI.Text(WIND[ri], {
-                        fontFamily: 'Arial',
-                        fontSize: 48,
-                        fontWeight:'bold',
-                        fill: '#DCDCDC',
-                        //stroke: '#0066ff',
-                        //strokeThickness: 2,
-                    });
+                    let t = new PIXI.extras.BitmapText(WIND[ri], { font: '64px SourceHanSansBold'});
                     this.addChild(t);
                     t.anchor.y = .5;
                     t.x = cx[i] - w0 * .5 + 10;
