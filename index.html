@@ -7068,11 +7068,22 @@
                     t.x = xx + 55;
                     t.y = 100;
                     this.addChild(t);
+                    t.w_ = gapX - 60;
                     name[i] = t;
+                    TableInfoView.scaleName(t);
                 }
 
                 this.name_ = name;
                 this.tick_ = tick;
+            }
+
+            static scaleName(t) {
+                if (t.width > t.w_) {
+                    t.scale.set(t.w_ / t.width);
+                }
+                else {
+                    t.scale.set(1);
+                }
             }
 
             refresh(id, seat) {
@@ -7099,7 +7110,9 @@
             }
 
             sitDown(s, n) {
-                this.name_[s].text = n;
+                let t = this.name_[s];
+                t.text = n;
+                TableInfoView.scaleName(t);
             }
 
             standUp(s) {
