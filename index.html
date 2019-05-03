@@ -6689,7 +6689,7 @@
                 }
 
                 let s = page * 4, e = s + 4;
-                tbs.sort((a, b)=>{ return a.time_ < b.time_; });
+                tbs.sort((a, b)=>{ return b.time_ - a.time_; });
 
                 for (let k = 0, len = tbs.length; k < len; ++k) {
                     let tv = tbs[k];
