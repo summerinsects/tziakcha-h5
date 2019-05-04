@@ -8,22 +8,10 @@
 </head>
 <body>
     <script src="js/pixi.min.js"></script>
-    <script src="js/pixi-ui.min.js"></script>
+    <script src="js/PIXI.TextInput.min.js"></script>
     <script src="js/pixi-sound.js"></script>
     <script src="js/pixi-action.js"></script>
     <script>
-        Array.prototype.shuffle = function(beg, end) {
-            for (let i = beg, len = this.length; i < end && i < len; ++i) {
-                let j = parseInt(Math.random() * (end - beg)) + beg;
-                if (i != j) {
-                    let t = this[i];
-                    this[i] = this[j];
-                    this[j] = t;
-                }
-            }
-            return this;
-        };
-
         const all_tiles = [
             0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2,
             3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5,
@@ -45,6 +33,16 @@
         function is_promoted_kong(p) { return (p & 0x0300) == 0x0300; }
         function lo_byte(w) { return w & 0xFF; }
         function hi_byte(w) { return (w >> 8) & 0xFF; }
+        function shuffle_array(arr, beg, end) {
+            for (let i = beg, len = arr.length; i < end && i < len; ++i) {
+                let j = parseInt(Math.random() * (end - beg)) + beg;
+                if (i != j) {
+                    let t = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = t;
+                }
+            }
+        };
 
         console.log('location.search', location.search);
 
@@ -61,7 +59,6 @@
             app.renderer.resize(window.innerWidth, window.innerHeight);
         };
 
-        PIXI.UI.Ticker.disabled = true;
         //function animate(time) {
         //    window.requestAnimationFrame(animate);
         //    app.renderer.render(app.stage);
@@ -1467,7 +1464,7 @@
                         z = this.getChildIndex(standing[0]);
                         //for (let i = 0; i < 14; ++i) { console.log('bs 3 z', i, this.getChildIndex(standing[i])); }
 
-                        standing.shuffle(0, 13);
+                        shuffle_array(standing, 0, 13);
                         for (let i = 0; i < 14; ++i) {
                             let sp = standing[i];
                             this.setChildIndex(sp, z + i);
@@ -1483,7 +1480,7 @@
                         z = this.getChildIndex(standing[0]);
                         //for (let i = 0; i < 14; ++i) { console.log('bs 2 z', i, this.getChildIndex(standing[i])); }
 
-                        standing.shuffle(0, 13);
+                        shuffle_array(standing, 0, 13);
                         for (let i = 0; i < 14; ++i) {
                             let sp = standing[i];
                             this.setChildIndex(sp, z + i);
@@ -1500,7 +1497,7 @@
                         let x = standing[0].x;
                         //for (let i = 0; i < 14; ++i) { console.log('bs 1 z', i, this.getChildIndex(standing[i])); }
 
-                        standing.shuffle(0, 13);
+                        shuffle_array(standing, 0, 13);
                         for (let i = 0; i < 14; ++i) {
                             let sp = standing[i];
                             this.setChildIndex(sp, z - i);
@@ -6541,6 +6538,7 @@
                         localStorage.setItem('password', pw);
                     }
                     this.container_.removeChild(this.uv_);
+                    this.uv_.removeChildren();
                     delete this.uv_;
                 });
                 this.container_.addChild(uv);
@@ -6578,6 +6576,7 @@
                     }
 
                     this.container_.removeChild(this.ctv_);
+                    this.ctv_.removeChildren();
                     delete this.ctv_;
                 });
                 this.container_.addChild(ctv);
@@ -6600,6 +6599,7 @@
                                 ws.send('{"m":1,"r":4,"v":' + id + ',"s":' + s + ',"p":"' + p + '"}');
                             }
                             this.container_.removeChild(this.pv_);
+                            this.pv_.removeChildren();
                             delete this.pv_;
                         });
                         this.container_.addChild(pv);
@@ -6779,11 +6779,6 @@
                 bg.drawRect(0, 0, LOBBY_WIDTH, LOBBY_HEIGHT);
                 bg.endFill();
 
-                let stage = new PIXI.UI.Stage(LOBBY_WIDTH, LOBBY_HEIGHT);
-                stage.minWidth = LOBBY_WIDTH;
-                stage.minHeight = LOBBY_HEIGHT;
-                this.addChild(stage);
-
                 let t = new PIXI.Text('创建牌桌', {
                     fontFamily: 'Arial',
                     fontSize: 40,
@@ -6865,23 +6860,15 @@
                         ctrls[i] = btns;
                     }
                     else {
-                        let textInput = new PIXI.UI.TextInput({
-                            value: '',
-                            style: { fill: '#000000', fontSize: 20, fontFamily: 'Calibri' },
-                            background: new PIXI.UI.Sprite(PIXI.Texture.WHITE),
-                            width: LOBBY_WIDTH - xx - gap,
-                            height: gapY - 5,
-                            padding: 6,
-                            paddingLeft: 10,
-                            //tabIndex: 1
+                        let textInput = new PIXI.TextInput({
+                            fontSize: '20px',
+                            width: (LOBBY_WIDTH - xx - gap * 2) + 'px',
+                            height: (gapY - 15) + 'px',
+                            padding: '6px',
                         });
                         textInput.x = xx;
                         textInput.y = yy - (gapY - 5) * .5;
-                        textInput.background.alpha = .5;
-                        textInput.on('focusChanged', function (focus) {
-                            textInput.background.alpha = focus ? 1 : .5;
-                        });
-                        stage.addChild(textInput);
+                        this.addChild(textInput);
                         ctrls[i] = textInput;
                     }
                 }
@@ -7157,11 +7144,6 @@
                 bg.drawRect((LOBBY_WIDTH - width2) * .5, (LOBBY_HEIGHT - height2) * .5, width2, height2);
                 bg.endFill();
 
-                let stage = new PIXI.UI.Stage(LOBBY_WIDTH, LOBBY_HEIGHT);
-                stage.minWidth = LOBBY_WIDTH;
-                stage.minHeight = LOBBY_HEIGHT;
-                this.addChild(stage);
-
                 let t = new PIXI.Text('请输入密码', {
                     fontFamily: 'Arial',
                     fontSize: 32,
@@ -7174,23 +7156,16 @@
                 t.x = LOBBY_WIDTH * .5;
                 t.y = (LOBBY_HEIGHT - height2) * .5 + 40;
 
-                let textInput = new PIXI.UI.TextInput({
-                    value: '',
-                    style: { fill: '#000000', fontSize: 20, fontFamily: 'Calibri' },
-                    background: new PIXI.UI.Sprite(PIXI.Texture.WHITE),
-                    width: 200,
-                    height: 40,
-                    padding: 6,
-                    paddingLeft: 10,
-                    //tabIndex: 1
+                let textInput = new PIXI.TextInput({
+                    fontSize: '20px',
+                    width: '200px',
+                    height: '30px',
+                    padding: '6px',
+                    paddingLeft: '10px',
                 });
                 textInput.x = LOBBY_WIDTH * .5 - 100;
                 textInput.y = LOBBY_HEIGHT * .5 - 20;
-                textInput.background.alpha = .5;
-                textInput.on('focusChanged', function (focus) {
-                    textInput.background.alpha = focus ? 1 : .5;
-                });
-                stage.addChild(textInput);
+                this.addChild(textInput);
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
@@ -7238,11 +7213,6 @@
                 bg.drawRect((LOBBY_WIDTH - width2) * .5, (LOBBY_HEIGHT - height2) * .5, width2, height2);
                 bg.endFill();
 
-                let stage = new PIXI.UI.Stage(LOBBY_WIDTH, LOBBY_HEIGHT);
-                stage.minWidth = LOBBY_WIDTH;
-                stage.minHeight = LOBBY_HEIGHT;
-                this.addChild(stage);
-
                 let t = new PIXI.Text('登录', {
                     fontFamily: 'Arial',
                     fontSize: 32,
@@ -7272,23 +7242,16 @@
                     t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
                     t.y = yy;
 
-                    let textInput = new PIXI.UI.TextInput({
-                        value: '',
-                        style: { fill: '#000000', fontSize: 20, fontFamily: 'Calibri' },
-                        background: new PIXI.UI.Sprite(PIXI.Texture.WHITE),
-                        width: 300,
-                        height: 40,
-                        padding: 6,
-                        paddingLeft: 10,
-                        //tabIndex: 1
+                    let textInput = new PIXI.TextInput({
+                        fontSize: '20px',
+                        width: '280px',
+                        height: '30px',
+                        padding: '6px',
+                        paddingLeft: '10px',
                     });
                     textInput.x = (LOBBY_WIDTH + width2) * .5 - 300 - gap - 10;
                     textInput.y = yy - 20;
-                    textInput.background.alpha = .5;
-                    textInput.on('focusChanged', function (focus) {
-                        textInput.background.alpha = focus ? 1 : .5;
-                    });
-                    stage.addChild(textInput);
+                    this.addChild(textInput);
                     textInputs[i] = textInput;
                     textInput.text = plh[i] || '';
                 }
