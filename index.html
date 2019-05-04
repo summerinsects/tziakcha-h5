@@ -7098,6 +7098,11 @@
                 else {
                     btn.visible = false;
                     delete this.seat_;
+
+                    let nm = this.name_;
+                    for (let i = 0; i < 4; ++i) {
+                        nm[i].style.fill = '#ffffff';
+                    }
                 }
             }
 
