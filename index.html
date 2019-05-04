@@ -6331,6 +6331,16 @@
             }
         }
 
+        function scaleText(t, w) {
+            let w0 = t.width / t.scale.x;
+            if (w0 > w) {
+                t.scale.set(w / w0);
+            }
+            else {
+                t.scale.set(1);
+            }
+        }
+
         const LOBBY_WIDTH = 680, LOBBY_HEIGHT = 700;
 
         function bytes_len(s) {
@@ -6447,7 +6457,9 @@
                     }
                     break;
                 case 2: {
-                    this.nameBtn_.face_.text = resp['n'] || '';
+                    let t = this.nameBtn_.face_;
+                    t.text = resp['n'] || '';
+                    scaleText(t, 115);
 
                     let tv;
                     while (tv = this.tables_.pop()) {
@@ -6499,7 +6511,9 @@
                     break;
                 }
                 case 9: {
-                    this.nameBtn_.face_.text = resp['u'];
+                    let t = this.nameBtn_.face_;
+                    t.text = resp['u'];
+                    scaleText(t, 115);
                     break;
                 }
                 case 10:
@@ -7057,20 +7071,11 @@
                     this.addChild(t);
                     t.w_ = gapX - 50;
                     name[i] = t;
-                    TableInfoView.scaleName(t);
+                    scaleText(t, t.w_);
                 }
 
                 this.name_ = name;
                 this.tick_ = tick;
-            }
-
-            static scaleName(t) {
-                if (t.width > t.w_) {
-                    t.scale.set(t.w_ / t.width);
-                }
-                else {
-                    t.scale.set(1);
-                }
             }
 
             refresh(id, seat) {
@@ -7099,7 +7104,7 @@
             sitDown(s, n) {
                 let t = this.name_[s];
                 t.text = n;
-                TableInfoView.scaleName(t);
+                scaleText(t, t.w_);
             }
 
             standUp(s) {
