@@ -5852,6 +5852,7 @@
                     t.anchor.set(.5);
                     t.x = 180 + 140 * i;
                     t.y = 90;
+                    scaleText(t, 130);
 
                     t = ttt[i] = new PIXI.Text('', {
                         fontFamily: 'Arial',
@@ -6069,6 +6070,7 @@
                     t.anchor.set(.5);
                     t.x = xps2[0];
                     t.y = yps1[i];
+                    scaleText(t, 110);
 
                     for (let k = 0; k <= i; ++k) {
                         let dt = pls[i - k]['s'] - pls[i + 1]['s'];
@@ -6092,6 +6094,7 @@
                             t.anchor.set(.5);
                             t.x = xps2[l + 1];
                             t.y = yps2[i] + 40 * k;
+                            if (l == 0) scaleText(t, 110);
                         }
                     }
                 }
