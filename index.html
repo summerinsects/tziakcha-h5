@@ -1545,7 +1545,7 @@
                         style.fill = '#dedede';
                         //style.stroke = '#0066ff';
                     } else {
-                        style.fill = '#99ffff';
+                        style.fill = '#5cdbd3';
                         //style.stroke = '#ffffff';
                     }
                 }
@@ -5462,7 +5462,7 @@
                     let t = new PIXI.Text(FAN_NAME[f] + ' ' + ((c == 1) ? ((v & 0xFF) + '番') : ((v & 0xFF) + '番 \u00D7 ' + c)), {
                         fontFamily: 'Arial',
                         fontSize: 22,
-                        fill: '#99ffff'
+                        fill: '#5cdbd3'
                     });
                     this.addChild(t);
                     t.x = x0;
@@ -5666,7 +5666,7 @@
                     let t = new PIXI.Text(FAN_NAME[f] + ' ' + ((c == 1) ? ((v & 0xFF) + '番') : ((v & 0xFF) + '番 \u00D7' + c)), {
                         fontFamily: 'Arial',
                         fontSize: 22,
-                        fill: '#99ffff'
+                        fill: '#5cdbd3'
                     });
                     this.addChild(t);
                     t.x = x0;
@@ -7095,7 +7095,7 @@
                     //console.log('seat', seat);
                     let nm = this.name_;
                     for (let i = 0; i < 4; ++i) {
-                        nm[i].style.fill = (seat != i) ? '#ffffff' : '#99ffff';
+                        nm[i].style.fill = (seat != i) ? '#ffffff' : '#5cdbd3';
                     }
                 }
                 else {
