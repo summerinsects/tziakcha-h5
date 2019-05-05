@@ -3189,15 +3189,6 @@
                 }
 
                 let standing = this.standing_[0];
-                let ext = (3 * WIDTH_02 * HAND_SCALE) - (WIDTH_02 * (type != 2 ? 2 : 3) + WIDTH_13 + GAP_T);
-
-                // 已有的副露往右
-                let prev = this.packs_[0];
-                for (let i = 0, len = prev.length; i < len; ++i) {
-                    let sp = prev[i];
-                    sp.runAction(new PIXI.action.MoveTo(sp.x + ext, sp.y, DISCARD_DT));
-                }
-
                 let idx1, idx2, idx3;
 
                 // 生成一组副露
@@ -3263,7 +3254,7 @@
                 if (type == 2) this.packs_[0].push(t3);
 
                 // 动画
-                let xx = standing[hidden + 3].x - GAP_T;
+                let xx = this.openPos_[0];
                 let yy = standing[0].y;
 
                 // 来源牌
@@ -3276,19 +3267,19 @@
                     t1.x = standing[idx1].x; t1.y = yy - HEIGHT_02F * HAND_SCALE; t1.scale.set(HAND_SCALE);
                     t2.x = standing[idx2].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
                     if (type != 2) {
-                        t0.runAction(new PIXI.action.MoveTo(xx - WIDTH_02 * 2 - WIDTH_13, yy - HEIGHT_13F, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx - WIDTH_02 * 2, yy - HEIGHT_02F, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx - WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
+                        t0.runAction(new PIXI.action.MoveTo(xx, yy - HEIGHT_13F, DISCARD_DT));
+                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_13, yy - HEIGHT_02F, DISCARD_DT));
+                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
 
                         t1.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
                         t2.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
                     }
                     else {
                         t3.x = standing[idx3].x; t3.y = yy - HEIGHT_02F * HAND_SCALE; t3.scale.set(HAND_SCALE);
-                        t0.runAction(new PIXI.action.MoveTo(xx - WIDTH_02 * 3 - WIDTH_13, yy - HEIGHT_13F, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx - WIDTH_02 * 3, yy - HEIGHT_02F, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx - WIDTH_02 * 2, yy - HEIGHT_02F, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(xx - WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
+                        t0.runAction(new PIXI.action.MoveTo(xx, yy - HEIGHT_13F, DISCARD_DT));
+                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_13, yy - HEIGHT_02F, DISCARD_DT));
+                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
+                        t3.runAction(new PIXI.action.MoveTo(xx + WIDTH_13 + WIDTH_02 * 2, yy - HEIGHT_02F, DISCARD_DT));
 
                         t1.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
                         t2.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
@@ -3300,19 +3291,19 @@
                     if (req) t1.x = req.x, t1.y = req.y;
                     t2.x = standing[idx2].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
                     if (type != 2) {
-                        t0.runAction(new PIXI.action.MoveTo(xx - WIDTH_02 * 2 - WIDTH_13, yy - HEIGHT_02F, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx - WIDTH_02 - WIDTH_13, yy - HEIGHT_13F, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx - WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
+                        t0.runAction(new PIXI.action.MoveTo(xx, yy - HEIGHT_02F, DISCARD_DT));
+                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_02, yy - HEIGHT_13F, DISCARD_DT));
+                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 + WIDTH_13, yy - HEIGHT_02F, DISCARD_DT));
 
                         t0.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
                         t2.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
                     }
                     else {
                         t3.x = standing[idx3].x; t3.y = yy - HEIGHT_02F * HAND_SCALE; t3.scale.set(HAND_SCALE);
-                        t0.runAction(new PIXI.action.MoveTo(xx - WIDTH_02 * 3 - WIDTH_13, yy - HEIGHT_02F, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx - WIDTH_02 * 2 - WIDTH_13, yy - HEIGHT_13F, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx - WIDTH_02 * 2, yy - HEIGHT_02F, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(xx - WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
+                        t0.runAction(new PIXI.action.MoveTo(xx, yy - HEIGHT_02F, DISCARD_DT));
+                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_02, yy - HEIGHT_13F, DISCARD_DT));
+                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 + WIDTH_13, yy - HEIGHT_02F, DISCARD_DT));
+                        t3.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 2 + WIDTH_13, yy - HEIGHT_02F, DISCARD_DT));
 
                         t0.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
                         t2.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
@@ -3324,9 +3315,9 @@
                     t1.x = standing[idx2].x; t1.y = yy - HEIGHT_02F * HAND_SCALE; t1.scale.set(HAND_SCALE);
                     if (type != 2) {
                         if (req) t2.x = req.x, t2.y = req.y;
-                        t0.runAction(new PIXI.action.MoveTo(xx - WIDTH_13 - WIDTH_02 * 2, yy - HEIGHT_02F, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx - WIDTH_13 - WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx - WIDTH_13, yy - HEIGHT_13F, DISCARD_DT));
+                        t0.runAction(new PIXI.action.MoveTo(xx, yy - HEIGHT_02F, DISCARD_DT));
+                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
+                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 2, yy - HEIGHT_13F, DISCARD_DT));
 
                         t0.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
                         t1.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
@@ -3334,10 +3325,10 @@
                     else {
                         t2.x = standing[idx3].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
                         if (req) t3.x = req.x, t3.y = req.y;
-                        t0.runAction(new PIXI.action.MoveTo(xx - WIDTH_13 - WIDTH_02 * 3, yy - HEIGHT_02F, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx - WIDTH_13 - WIDTH_02 * 2, yy - HEIGHT_02F, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx - WIDTH_13 - WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(xx - WIDTH_13, yy - HEIGHT_13F, DISCARD_DT));
+                        t0.runAction(new PIXI.action.MoveTo(xx, yy - HEIGHT_02F, DISCARD_DT));
+                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
+                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 2, yy - HEIGHT_02F, DISCARD_DT));
+                        t3.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 3, yy - HEIGHT_13F, DISCARD_DT));
 
                         t0.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
                         t1.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
@@ -3349,8 +3340,15 @@
 
                 this.packData_[0].push(pack);
                 this._shrink0(0, hidden + 3, [idx1, idx2, idx3]);
-                if (type == 2) standing[13].visible = false;
-                else { this.turn_ = this.seat_; this.addCD(this.cfg_['r30']); }
+                if (type != 2) {
+                    this.openPos_[0] = xx + WIDTH_13 + WIDTH_02 * 2 + GAP_T;
+                    this.turn_ = this.seat_;
+                    this.addCD(this.cfg_['r30']);
+                }
+                else {
+                    this.openPos_[0] = xx + WIDTH_13 + WIDTH_02 * 3 + GAP_T;
+                    standing[13].visible = false;
+                }
                 this._refreshTurn();
 
                 PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
@@ -3365,15 +3363,6 @@
                 }
 
                 let standing = this.standing_[0];
-                let ext = (3 * WIDTH_02 * HAND_SCALE) - (WIDTH_02 * 4 + GAP_T);
-
-                // 已有的副露往右
-                let prev = this.packs_[0];
-                for (let i = 0, len = prev.length; i < len; ++i) {
-                    let sp = prev[i];
-                    sp.runAction(new PIXI.action.MoveTo(sp.x + ext, sp.y, DISCARD_DT));
-                }
-
                 let tile = pack_get_tile(pack);
 
                 let idx = [0, 0, 0, 0];
@@ -3384,7 +3373,7 @@
 
                 // 生成一组副露
                 let z = this.getChildIndex(standing[13]);
-                let xx = standing[hidden + 3].x - GAP_T;
+                let xx = this.openPos_[0];
                 let yy = standing[0].y;
 
                 for (let i = 0; i < 4; ++i) {
@@ -3395,9 +3384,10 @@
                     t.x = standing[idx[3 - i]].x;
                     t.y = yy - HEIGHT_02F * HAND_SCALE;
                     t.scale.set(HAND_SCALE);
-                    t.runAction(new PIXI.action.MoveTo(xx - WIDTH_02 * (i + 1), yy - HEIGHT_02F, DISCARD_DT));
+                    t.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * i, yy - HEIGHT_02F, DISCARD_DT));
                     t.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
                 }
+                this.openPos_[0] = xx + WIDTH_02 * 4 + GAP_T;
 
                 this.stopFlower_ = true;
 
@@ -4058,13 +4048,6 @@
                         }
                     }
 
-                    // 已有的副露往右
-                    let prev = this.packs_[0];
-                    for (let i = 0, len = prev.length; i < len; ++i) {
-                        let sp = prev[i];
-                        sp.x += ext;
-                    }
-
                     // 生成一组副露
                     let t0, t1, t2, t3;
                     let hz = 0;
@@ -4113,76 +4096,86 @@
                     if (t3 != undefined) this.packs_[0].push(t3);
 
                     // 不是动画
-                    let xx = standing[hidden + 3].x - GAP_T;
+                    let xx = this.openPos_[0];
                     let yy = standing[0].y;
 
                     switch (hz) {
                     case 0:
                         if (t3 == undefined) {
-                            t0.position.set(xx - WIDTH_02 * 2 - WIDTH_13, yy - HEIGHT_13F);
-                            t1.position.set(xx - WIDTH_02 * 2, yy - HEIGHT_02F);
-                            t2.position.set(xx - WIDTH_02, yy - HEIGHT_02F);
+                            t0.position.set(xx, yy - HEIGHT_13F);
+                            t1.position.set(xx + WIDTH_13, yy - HEIGHT_02F);
+                            t2.position.set(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F);
                         }
                         else {
-                            t0.position.set(xx - WIDTH_02 * 3 - WIDTH_13, yy - HEIGHT_13F);
-                            t1.position.set(xx - WIDTH_02 * 3, yy - HEIGHT_02F);
-                            t2.position.set(xx - WIDTH_02 * 2, yy - HEIGHT_02F);
-                            t3.position.set(xx - WIDTH_02, yy - HEIGHT_02F);
+                            t0.position.set(xx, yy - HEIGHT_13F);
+                            t1.position.set(xx + WIDTH_13, yy - HEIGHT_02F);
+                            t2.position.set(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F);
+                            t3.position.set(xx + WIDTH_13 + WIDTH_02 * 2, yy - HEIGHT_02F);
                         }
                         break;
                     case 1:
                         if (t3 == undefined) {
-                            t0.position.set(xx - WIDTH_02 * 2 - WIDTH_13, yy - HEIGHT_02F);
-                            t1.position.set(xx - WIDTH_02 - WIDTH_13, yy - HEIGHT_13F);
-                            t2.position.set(xx - WIDTH_02, yy - HEIGHT_02F);
+                            t0.position.set(xx, yy - HEIGHT_02F);
+                            t1.position.set(xx + WIDTH_02, yy - HEIGHT_13F);
+                            t2.position.set(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F);
                         }
                         else {
-                            t0.position.set(xx - WIDTH_02 * 3 - WIDTH_13, yy - HEIGHT_02F);
-                            t1.position.set(xx - WIDTH_02 * 2 - WIDTH_13, yy - HEIGHT_13F);
-                            t2.position.set(xx - WIDTH_02 * 2, yy - HEIGHT_02F);
-                            t3.position.set(xx - WIDTH_02, yy - HEIGHT_02F);
+                            t0.position.set(xx, yy - HEIGHT_02F);
+                            t1.position.set(xx + WIDTH_02, yy - HEIGHT_13F);
+                            t2.position.set(xx + WIDTH_02 + WIDTH_13, yy - HEIGHT_02F);
+                            t3.position.set(xx + WIDTH_02 * 2 + WIDTH_13, yy - HEIGHT_02F);
                         }
                         break;
                     case 2:
                         if (t3 == undefined) {
-                            t0.position.set(xx - WIDTH_13 - WIDTH_02 * 2, yy - HEIGHT_02F);
-                            t1.position.set(xx - WIDTH_13 - WIDTH_02, yy - HEIGHT_02F);
-                            t2.position.set(xx - WIDTH_13, yy - HEIGHT_13F);
+                            t0.position.set(xx, yy - HEIGHT_02F);
+                            t1.position.set(xx + WIDTH_02, yy - HEIGHT_02F);
+                            t2.position.set(xx + WIDTH_02 * 2, yy - HEIGHT_13F);
                         }
                         else {
-                            t0.position.set(xx - WIDTH_13 - WIDTH_02 * 3, yy - HEIGHT_02F);
-                            t1.position.set(xx - WIDTH_13 - WIDTH_02 * 2, yy - HEIGHT_02F);
-                            t2.position.set(xx - WIDTH_13 - WIDTH_02, yy - HEIGHT_02F);
-                            t3.position.set(xx - WIDTH_13, yy - HEIGHT_13F);
+                            t0.position.set(xx, yy - HEIGHT_02F);
+                            t1.position.set(xx + WIDTH_02, yy - HEIGHT_02F);
+                            t2.position.set(xx + WIDTH_02 + WIDTH_13, yy - HEIGHT_02F);
+                            t3.position.set(xx + WIDTH_02 * 2 + WIDTH_13, yy - HEIGHT_13F);
                         }
                         break;
                     case 3:
-                        t0.position.set(xx - WIDTH_02 * 4, yy - HEIGHT_02F);
-                        t1.position.set(xx - WIDTH_02 * 3, yy - HEIGHT_02F);
-                        t2.position.set(xx - WIDTH_02 * 2, yy - HEIGHT_02F);
-                        t3.position.set(xx - WIDTH_02, yy - HEIGHT_02F);
+                        t0.position.set(xx, yy - HEIGHT_02F);
+                        t1.position.set(xx + WIDTH_02, yy - HEIGHT_02F);
+                        t2.position.set(xx + WIDTH_02 * 2, yy - HEIGHT_02F);
+                        t3.position.set(xx + WIDTH_02 * 3, yy - HEIGHT_02F);
                         break;
                     case 4:
-                        t0.position.set(xx - WIDTH_02 * 2 - WIDTH_13, yy - HEIGHT_13F);
-                        t1.position.set(xx - WIDTH_02 * 2 - WIDTH_13, yy - HEIGHT_13F - HEIGHT_13);
-                        t2.position.set(xx - WIDTH_02 * 2, yy - HEIGHT_02F);
-                        t3.position.set(xx - WIDTH_02, yy - HEIGHT_02F);
+                        t0.position.set(xx, yy - HEIGHT_13F);
+                        t1.position.set(xx, yy - HEIGHT_13F - HEIGHT_13);
+                        t2.position.set(xx + WIDTH_13, yy - HEIGHT_02F);
+                        t3.position.set(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F);
                         break;
                     case 5:
-                        t0.position.set(xx - WIDTH_02 * 2 - WIDTH_13, yy - HEIGHT_02F);
-                        t1.position.set(xx - WIDTH_02 - WIDTH_13, yy - HEIGHT_13F);
-                        t2.position.set(xx - WIDTH_02 - WIDTH_13, yy - HEIGHT_13F - HEIGHT_13);
-                        t3.position.set(xx - WIDTH_02, yy - HEIGHT_02F);
+                        t0.position.set(xx, yy - HEIGHT_02F);
+                        t1.position.set(xx + WIDTH_02, yy - HEIGHT_13F);
+                        t2.position.set(xx + WIDTH_02, yy - HEIGHT_13F - HEIGHT_13);
+                        t3.position.set(xx + WIDTH_02 + WIDTH_13, yy - HEIGHT_02F);
                         break;
                     case 6:
-                        t0.position.set(xx - WIDTH_13 - WIDTH_02 * 2, yy - HEIGHT_02F);
-                        t1.position.set(xx - WIDTH_13 - WIDTH_02, yy - HEIGHT_02F);
-                        t2.position.set(xx - WIDTH_13, yy - HEIGHT_13F);
-                        t3.position.set(xx - WIDTH_13, yy - HEIGHT_13F - HEIGHT_13);
+                        t0.position.set(xx, yy - HEIGHT_02F);
+                        t1.position.set(xx + WIDTH_02, yy - HEIGHT_02F);
+                        t2.position.set(xx + WIDTH_02 + WIDTH_13, yy - HEIGHT_13F);
+                        t3.position.set(xx + WIDTH_02 + WIDTH_13, yy - HEIGHT_13F - HEIGHT_13);
                         break;
                     }
 
                     this.packData_[0].push(pack);
+
+                    if (hz < 3) {
+                        this.openPos_[0] = xx + WIDTH_13 + WIDTH_02 * (t3 == undefined ? 2 : 3) + GAP_T;
+                    }
+                    else if (hz == 3) {
+                        this.openPos_[0] = xx + WIDTH_02 * 4 + GAP_T;
+                    }
+                    else {
+                        this.openPos_[0] = xx + WIDTH_13 + WIDTH_02 * 2 + GAP_T;
+                    }
                 }
 
                 // 下家手牌
