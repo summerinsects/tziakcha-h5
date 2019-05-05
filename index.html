@@ -1212,7 +1212,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, 120, 60, ()=>{
-                    this.showHistory();
+                    this.toggleHistory();
                 });
                 this.addChild(btn);
                 btn.y = MAX_HEIGHT - 220;
@@ -1224,7 +1224,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, 120, 60, ()=>{
-                    this.showChase();
+                    this.toggleChase();
                 });
                 this.addChild(btn);
                 btn.x = MAX_WIDTH - 120;
@@ -3560,10 +3560,11 @@
                 view.y = (this.height - view.height) * .5;
             }
 
-            showHistory() {
+            toggleHistory() {
                 if (this.historyView_) {
                     this.removeChild(this.historyView_);
                     this.historyView_ = null;
+                    return;
                 }
 
                 let view = new HistoryView(this.players_, this.rd_ + (this.rdfsh_ ? 1 : 0), this.cfg_['i'], ()=>{
@@ -3578,10 +3579,11 @@
                 this.historyView_ = view;
             }
 
-            showChase() {
+            toggleChase() {
                 if (this.chaseView_) {
                     this.removeChild(this.chaseView_);
                     this.chaseView_ = null;
+                    return;
                 }
 
                 let view = new ChaseView(this.players_, ()=>{
