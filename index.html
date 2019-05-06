@@ -4951,7 +4951,9 @@
             }
 
             setName(s) {
-                this.nameText_.text = s;
+                let t = this.nameText_;
+                t.text = s;
+                scaleText(t, 210);
             }
 
             getName() {
@@ -5441,6 +5443,7 @@
                     t.anchor.x = .5;
                     t.x = width * .5;
                     t.y = y;
+                    scaleText(t, width - gap * 2);
 
                     y += t.height + gap;
                 }
@@ -5525,6 +5528,7 @@
                     t.anchor.set(.5);
                     t.x = cx[i];
                     t.y = cy[i] - 30;
+                    scaleText(t, w0 - 10);
 
                     let xx = cx[i] + 25;
                     if (ss == undefined) {
@@ -5770,6 +5774,7 @@
                     t.anchor.set(.5);
                     t.x = x2;
                     t.y = yy;
+                    scaleText(t, 280);
 
                     t = new PIXI.Text(i > 0 ? players[i - 1]['s'] : '总分', {
                         fontFamily: 'Arial',
