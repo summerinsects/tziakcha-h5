@@ -603,6 +603,7 @@
                 }
                 case 17: {  // 对局结束
                     pool.rp_ = resp['p'];
+                    pool.rpt_ = resp['t'];
                     break;
                 }
                 case 18: {  // 离线/上线
@@ -3604,11 +3605,12 @@
                     this.resultView_ = null;
                 }
 
-                let view = new ResultView(this.rp_, ()=>{
+                let view = new ResultView(this.rp_, this.rpt_, ()=>{
                     if (this.resultView_) {
                         this.removeChild(this.resultView_);
                         this.resultView_ = null;
                         delete this.rp_;
+                        delete this.rpt_;
                         ws.send('{"m":1,"r":2}');
                         game.visible = false;
                         lobby.visible = true;
@@ -5698,8 +5700,18 @@
             }
         }
 
+        function fmt_date(ud) {
+            let y = ud.getUTCFullYear(),
+                m = ud.getUTCMonth() + 1,
+                d = ud.getUTCDate(),
+                h = ud.getUTCHours(),
+                mm = ud.getUTCMinutes(),
+                s = ud.getUTCSeconds();
+            return y + '-' + (m < 10 ? ('0' + m) : m) + '-' + (d < 10 ? ('0' + d) : d) + ' ' + (h < 10 ? ('0' + h) : h) + ':' + (mm < 10 ? ('0' + mm) : mm) + ':' + (s < 10 ? ('0' + s) : s);
+        }
+
         class ResultView extends PIXI.Container {
-            constructor(players, callback) {
+            constructor(players, tm, callback) {
                 super();
 
                 const width = 600, height = 540, gap = 50;
@@ -5788,6 +5800,18 @@
                     t.x = x3;
                     t.y = yy;
                 }
+
+                t = new PIXI.Text(fmt_date(new Date(tm + 28800000)), {
+                    fontFamily: 'Arial',
+                    fontSize: 20,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2, 
+                });
+                this.addChild(t);
+                t.anchor.set(.5);
+                t.x = width * .5;
+                t.y = height - 100;
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('OK', {
