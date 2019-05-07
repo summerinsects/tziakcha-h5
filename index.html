@@ -5633,7 +5633,7 @@
         }
 
         class FalseWinView extends PIXI.Container {
-            constructor(f, table) {
+            constructor(fn, table) {
                 super();
 
                 const width = 500, gap = 20;
@@ -5643,7 +5643,7 @@
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
 
-                let t = new PIXI.Text(f + '番错和', {
+                let t = new PIXI.Text(fn + '番错和', {
                     fontFamily: 'Arial',
                     fontSize: 26,
                     fill: '#ffffff',
