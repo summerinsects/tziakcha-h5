@@ -120,6 +120,13 @@
             'img/tiles/tiles_pool3.png',
             'img/tiles/tiles_standing.png',
 
+            'img/dice/1.png',
+            'img/dice/2.png',
+            'img/dice/3.png',
+            'img/dice/4.png',
+            'img/dice/5.png',
+            'img/dice/6.png',
+
             'fnt/SourceHanSansBold.png',
             'fnt/SourceHanSansBold.fnt',
             'fnt/STXingkai.png',
@@ -1380,19 +1387,57 @@
                 this.openPier_ = {'dir':dir, 'off':off, 'down':false};
                 this.remainCnt_ = 144;
 
+                // 骰子
+                let dss = [null, null];
+                for (let i = 0; i < 2; ++i) {
+                    let ds = createDice(d[i]);
+                    this.addChild(ds);
+                    ds.x = 580 - 25 + i * 50;
+                    ds.y = 450 - 25 + i * 50;
+                    dss[i] = ds;
+                }
+
+                let dir2 = (d[0] + d[1] - 1 + 4) & 3;
+                this.runAction(new PIXI.action.Sequence([
+                    new PIXI.action.DelayTime(1),
+                    new PIXI.action.CallFunc(()=>{
+                        this.removeChild(dss[0]);
+                        this.removeChild(dss[1]);
+                        this.turn_ = dir2;
+                        this._refreshTurn();
+
+                        for (let i = 0; i < 2; ++i) {
+                            let ds = createDice(d[i + 2]);
+                            this.addChild(ds);
+                            ds.x = 580 - 25 + i * 50;
+                            ds.y = 450 - 25 + i * 50;
+                            dss[i] = ds;
+                        }
+                    }),
+                    new PIXI.action.DelayTime(1),
+                    new PIXI.action.CallFunc(()=>{
+                        this.removeChild(dss[0]);
+                        this.removeChild(dss[1]);
+                        this.turn_ = 0;
+                        this._refreshTurn();
+                    })
+                ]));
+
+                const DICE_TIME = 2;
+
                 // 每人3手*4张
                 for (let i = 0; i < 12; ++i) {
                     for (let k = 0; k < 2; ++k) {
                         let sp1 = this.walls_[dir][off * 2];
                         sp1.runAction(new PIXI.action.Sequence([
-                            new PIXI.action.DelayTime(i * DRAW_DT),
+                            new PIXI.action.DelayTime(DICE_TIME + i * DRAW_DT),
                             new PIXI.action.CallFunc(()=>{
                                 this._drawEffect((i + 4 - seat) & 3, sp1, (i & 0xFC) + k * 2);
                             })
                         ]));
                         let sp2 = this.walls_[dir][off * 2 + 1];
                         sp2.runAction(new PIXI.action.Sequence([
-                            new PIXI.action.DelayTime(i * DRAW_DT),
+                            new PIXI.action.DelayTime(DICE_TIME + i * DRAW_DT),
                             new PIXI.action.CallFunc(()=>{
                                 this._drawEffect((i + 4 - seat) & 3, sp2, (i & 0xFC) + k * 2 + 1);
                             })
@@ -1409,14 +1454,14 @@
                 // 跳牌
                 let sp1 = this.walls_[dir][off * 2];
                 sp1.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(12 * DRAW_DT),
+                    new PIXI.action.DelayTime(DICE_TIME + 12 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
                         this._drawEffect((4 - seat) & 3, sp1, 12);
                     })
                 ]));
                 let sp2 = this.walls_[dir][off * 2 + 1];
                 sp2.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(13 * DRAW_DT),
+                    new PIXI.action.DelayTime(DICE_TIME + 13 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
                         this._drawEffect((5 - seat) & 3, sp2, 12);
                     })
@@ -1428,14 +1473,14 @@
                 }
                 let sp3 = this.walls_[dir][off * 2];
                 sp3.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(14 * DRAW_DT),
+                    new PIXI.action.DelayTime(DICE_TIME + 14 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
                         this._drawEffect((6 - seat) & 3, sp3, 12);
                     })
                 ]));
                 let sp4 = this.walls_[dir][off * 2 + 1];
                 sp4.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(15 * DRAW_DT),
+                    new PIXI.action.DelayTime(DICE_TIME + 15 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
                         this._drawEffect((7 - seat) & 3, sp4, 12);
                     })
@@ -1447,7 +1492,7 @@
                 }
                 let sp5 = this.walls_[dir][off * 2];
                 sp5.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(12 * DRAW_DT),
+                    new PIXI.action.DelayTime(DICE_TIME + 12 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
                         this._drawEffect((4 - seat) & 3, sp5, 13);
                     })
@@ -1467,7 +1512,7 @@
                 }
 
                 this.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(18 * DRAW_DT),
+                    new PIXI.action.DelayTime(DICE_TIME + 18 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
                         let standing, origin, z;
 
@@ -1541,7 +1586,7 @@
 
                 if (this.option_.status()[0] && this.seat_ == 0) {
                     this.runAction(new PIXI.action.Sequence([
-                        new PIXI.action.DelayTime(18 * DRAW_DT),
+                        new PIXI.action.DelayTime(DICE_TIME + 18 * DRAW_DT),
                         new PIXI.action.DelayTime(SORT_DT + .1),
                         new PIXI.action.CallFunc(()=>{
                             ws.send('{"m":2,"r":1,"v":0}');
@@ -4839,6 +4884,28 @@
         function createStandingTile3() {
             let tex = PIXI.loader.resources['img/tiles/tile_standing3.png'].texture;
             return new PIXI.Sprite(tex);
+        }
+
+        const rcs = [
+            new PIXI.Rectangle(2, 2, 72, 200), new PIXI.Rectangle(76, 2, 90, 200), new PIXI.Rectangle(168, 2, 70, 200),
+            new PIXI.Rectangle(240, 2, 70, 200), new PIXI.Rectangle(312, 2, 70, 200), new PIXI.Rectangle(384, 2, 70, 200),
+            new PIXI.Rectangle(2, 204, 70, 200), new PIXI.Rectangle(74, 204, 70, 200), new PIXI.Rectangle(146, 204, 58, 200),
+        ];
+
+        function createDice(n) {
+            let tex = PIXI.loader.resources['img/dice/' + n + '.png'].texture;
+            let frames = [];
+            for (let i = 0; i < 9; ++i) {
+                let f = new PIXI.Texture(tex, rcs[i]);
+                frames.push(f);
+            }
+            let asp = new PIXI.extras.AnimatedSprite(frames);
+            asp.x = 100;
+            asp.y = 100;
+            asp.animationSpeed = 0.4;
+            asp.loop = false;
+            asp.play();
+            return asp;
         }
 
         class OptionPanel extends PIXI.Container {
