@@ -1269,6 +1269,18 @@
                     ab.visible = false;
                 }
                 this.actionBtns_ = actionBtns;
+
+                let view = this.historyView_ = new HistoryView();
+                this.addChild(view);
+                view.x = (MAX_WIDTH - view.width) * .5;
+                view.y = (MAX_HEIGHT - view.height) * .5;
+                view.visible = false;
+
+                view = this.chaseView_ = new ChaseView();
+                this.addChild(view);
+                view.x = (MAX_WIDTH - view.width) * .5;
+                view.y = (MAX_HEIGHT - view.height) * .5;
+                view.visible = false;
             }
 
             setupPool(t) {
@@ -3562,41 +3574,23 @@
             }
 
             toggleHistory() {
-                if (this.historyView_) {
-                    this.removeChild(this.historyView_);
-                    this.historyView_ = null;
-                    return;
+                let hv = this.historyView_;
+                if (hv.visible) {
+                    hv.visible = false;
                 }
-
-                let view = new HistoryView(this.players_, this.rd_ + (this.rdfsh_ ? 1 : 0), this.cfg_['i'], ()=>{
-                    if (this.historyView_) {
-                        this.removeChild(this.historyView_);
-                        this.historyView_ = null;
-                    }
-                });
-                this.addChild(view);
-                view.x = (this.width - view.width) * .5;
-                view.y = (this.height - view.height) * .5;
-                this.historyView_ = view;
+                else {
+                    hv.show(this.players_, this.rd_ + (this.rdfsh_ ? 1 : 0), this.cfg_['i']);
+                }
             }
 
             toggleChase() {
-                if (this.chaseView_) {
-                    this.removeChild(this.chaseView_);
-                    this.chaseView_ = null;
-                    return;
+                let cv = this.chaseView_;
+                if (cv.visible) {
+                    cv.visible = false;
                 }
-
-                let view = new ChaseView(this.players_, ()=>{
-                    if (this.chaseView_) {
-                        this.removeChild(this.chaseView_);
-                        this.chaseView_ = null;
-                    }
-                });
-                this.addChild(view);
-                view.x = (this.width - view.width) * .5;
-                view.y = (this.height - view.height) * .5;
-                this.chaseView_ = view;
+                else {
+                    cv.show(this.players_);
+                }
             }
 
             showResult() {
@@ -5801,7 +5795,7 @@
                     t.y = yy;
                 }
 
-                t = new PIXI.Text(fmt_date(new Date(tm + 28800000)), {
+                t = new PIXI.Text(fmt_date(new Date(tm + 28800000)) + ' UTC+08:00', {
                     fontFamily: 'Arial',
                     fontSize: 20,
                     fill: '#ffffff',
@@ -5828,7 +5822,7 @@
         }
 
         class HistoryView extends PIXI.Container {
-            constructor(players, rd, is, callback) {
+            constructor() {
                 super();
 
                 const width = 710, height = 920;
@@ -5864,9 +5858,20 @@
                 bg.lineTo(width - 40, 70);
                 bg.lineTo(40, 70);
 
-                let ttt = new Array(4);
+                t = new PIXI.Text('昵称', {
+                    fontFamily: 'Arial',
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    fill: '#DCDCDC',
+                });
+                this.addChild(t);
+                t.anchor.set(.5);
+                t.x = 75;
+                t.y = 90;
+
+                let ntt = new Array(4), ttt = new Array(4);
                 for (let i = 0; i < 4; ++i) {
-                    t = new PIXI.Text(players[i]['n'], {
+                    t = ntt[i] = new PIXI.Text('', {
                         fontFamily: 'Arial',
                         fontSize: 20,
                         fontWeight: 'bold',
@@ -5876,7 +5881,6 @@
                     t.anchor.set(.5);
                     t.x = 180 + 140 * i;
                     t.y = 90;
-                    scaleText(t, 130);
 
                     t = ttt[i] = new PIXI.Text('', {
                         fontFamily: 'Arial',
@@ -5889,6 +5893,19 @@
                     t.x = 180 + 140 * i;
                     t.y = 810;
                 }
+                this.ntt_ = ntt;
+                this.ttt_ = ttt;
+
+                t = new PIXI.Text('盘序', {
+                    fontFamily: 'Arial',
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    fill: '#DCDCDC',
+                });
+                this.addChild(t);
+                t.anchor.set(.5);
+                t.x = 75;
+                t.y = 130;
 
                 for (let i = 0; i < 8; ++i) {
                     t = new PIXI.Text(i & 1 ? '累计' : '本盘', {
@@ -5906,9 +5923,7 @@
                 bg.moveTo(40, 110);
                 bg.lineTo(width - 40, 110);
 
-                let rss = [players[0]['rs'], players[1]['rs'], players[2]['rs'], players[3]['rs']];
-                let rps = [players[0]['rp'], players[1]['rp'], players[2]['rp'], players[3]['rp']];
-                let tl = [is, is, is, is];
+                let rtt = new Array(16);
                 for (let i = 0; i < 16; ++i) {
                     let yy = 170 + i * 40;
                     t = new PIXI.Text(WIND[i >> 2] + '风' + WIND[i & 3], {
@@ -5922,6 +5937,70 @@
                     t.x = 75;
                     t.y = yy;
 
+                    rtt[i] = new Array(8);
+                    for (let k = 0; k < 8; ++k) {
+                        t = rtt[i][k] = new PIXI.Text('', {
+                            fontFamily: 'Arial',
+                            fontSize: 20,
+                            fontWeight: 'bold'
+                        });
+                        this.addChild(t);
+                        t.anchor.set(.5);
+                        t.x = 145 + k * 70;
+                        t.y = yy;
+                    }
+
+                    bg.moveTo(40, yy - 20);
+                    bg.lineTo(width - 40, yy - 20);
+                }
+                this.rtt_ = rtt;
+
+                t = new PIXI.Text('合计', {
+                    fontFamily: 'Arial',
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    fill: '#DCDCDC',
+                });
+                this.addChild(t);
+                t.anchor.set(.5);
+                t.x = 75;
+                t.y = 810;
+
+                bg.moveTo(40, 790);
+                bg.lineTo(width - 40, 790);
+
+                for (let i = 0; i < 4; ++i) {
+                    let xx = 110 + 140 * i;
+                    bg.moveTo(xx, 70);
+                    bg.lineTo(xx, 830);
+                    xx += 70;
+                    bg.moveTo(xx, 110);
+                    bg.lineTo(xx, 790);
+                }
+
+                const btnWidth = 120, btnHeight = 50;
+                let btn = new TextButton('OK', {
+                    fontFamily: 'Arial',
+                    fontSize: 36,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                }, btnWidth, btnHeight, ()=>{ this.visible = false; });
+                this.addChild(btn);
+                btn.x = (width - btnWidth) * .5;
+                btn.y = height - btnHeight - 20;
+            }
+
+            show(players, rd, is) {
+                this.visible = true;
+
+                let ntt = this.ntt_, ttt = this.ttt_, rtt = this.rtt_;
+
+                let rss = [players[0]['rs'], players[1]['rs'], players[2]['rs'], players[3]['rs']];
+                let rps = [players[0]['rp'], players[1]['rp'], players[2]['rp'], players[3]['rp']];
+                let tl = [is, is, is, is];
+
+                for (let i = 0; i < 16; ++i) {
                     let rssi = [rss[0][i], rss[1][i], rss[2][i], rss[3][i]];
                     let rspi = [rps[0][i], rps[1][i], rps[2][i], rps[3][i]];
                     let sd = (rssi[0] != -8 && rssi[1] != -8 && rssi[2] != -8 && rssi[3] != -8);
@@ -5942,63 +6021,26 @@
                             }
                             tx = rr;
                         }
-                        t = new PIXI.Text(tx, {
-                            fontFamily: 'Arial',
-                            fontSize: 20,
-                            fontWeight: 'bold',
-                            fill: cl,
-                        });
-                        this.addChild(t);
-                        t.anchor.set(.5);
-                        t.x = 145 + k * 70;
-                        t.y = yy;
+
+                        let t = rtt[i][k];
+                        t.text = tx;
+                        t.style.fill = cl;
                     }
-
-                    bg.moveTo(40, yy - 20);
-                    bg.lineTo(width - 40, yy - 20);
                 }
-
-                t = new PIXI.Text('合计', {
-                    fontFamily: 'Arial',
-                    fontSize: 20,
-                    fontWeight: 'bold',
-                    fill: '#DCDCDC',
-                });
-                this.addChild(t);
-                t.anchor.set(.5);
-                t.x = 75;
-                t.y = 810;
-
-                bg.moveTo(40, 790);
-                bg.lineTo(width - 40, 790);
 
                 for (let i = 0; i < 4; ++i) {
-                    ttt[i].text = tl[i];
+                    let t = ntt[i];
+                    t.text = players[i]['n'];
+                    scaleText(t, 130);
 
-                    let xx = 110 + 140 * i;
-                    bg.moveTo(xx, 70);
-                    bg.lineTo(xx, 830);
-                    xx += 70;
-                    bg.moveTo(xx, 110);
-                    bg.lineTo(xx, 790);
+                    t = ttt[i];
+                    t.text = tl[i];
                 }
-
-                const btnWidth = 120, btnHeight = 50;
-                let btn = new TextButton('OK', {
-                    fontFamily: 'Arial',
-                    fontSize: 36,
-                    fill: '#ffffff',
-                    stroke: '#0066ff',
-                    strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(); });
-                this.addChild(btn);
-                btn.x = (width - btnWidth) * .5;
-                btn.y = height - btnHeight - 20;
             }
         }
 
         class ChaseView extends PIXI.Container {
-            constructor(players, callback) {
+            constructor() {
                 super();
 
                 const width = 640, height = 660;
@@ -6073,18 +6115,11 @@
                     t.y = 90;
                 }
 
-                let pls = [
-                    {'n':players[0]['n'],'s':players[0]['s']},
-                    {'n':players[1]['n'],'s':players[1]['s']},
-                    {'n':players[2]['n'],'s':players[2]['s']},
-                    {'n':players[3]['n'],'s':players[3]['s']}
-                ];
-                pls.sort(function(a, b) { return b['s'] - a['s']; });
-
                 const yps1 = [170, 270, 410];
                 const yps2 = [170, 250, 370];
+                let texts = [[null, new Array(1)], [null, new Array(2)], [null, new Array(3)]];
                 for (let i = 0; i < 3; ++i) {
-                    t = new PIXI.Text(pls[i + 1]['n'], {
+                    t = new PIXI.Text('', {
                         fontFamily: 'Arial',
                         fontSize: 20,
                         fontWeight: 'bold',
@@ -6094,21 +6129,12 @@
                     t.anchor.set(.5);
                     t.x = xps2[0];
                     t.y = yps1[i];
-                    scaleText(t, 110);
+                    texts[i][0] = t;
 
                     for (let k = 0; k <= i; ++k) {
-                        let dt = pls[i - k]['s'] - pls[i + 1]['s'];
-                        let sd = 8, dd = 8, od = 8;
-                        if (dt > 32) {
-                            let oo = dt - 32;
-                            sd = Math.max((oo >> 2) + 1, 8);
-                            dd = Math.max((oo >> 1) + 1, 8);
-                            od = Math.max(oo + 1, 8);
-                        }
-
-                        let ctt = [pls[i - k]['n'], dt, sd, dd, od];
+                        texts[i][1][k] = new Array(5);
                         for (let l = 0; l < 5; ++l) {
-                            t = new PIXI.Text(ctt[l], {
+                            t = new PIXI.Text('', {
                                 fontFamily: 'Arial',
                                 fontSize: 20,
                                 fontWeight: 'bold',
@@ -6118,10 +6144,11 @@
                             t.anchor.set(.5);
                             t.x = xps2[l + 1];
                             t.y = yps2[i] + 40 * k;
-                            if (l == 0) scaleText(t, 110);
+                            texts[i][1][k][l] = t;
                         }
                     }
                 }
+                this.texts_ = texts;
 
                 t = new PIXI.Text('自摸：(分差-32) / 4\n对点：(分差-32) / 2\n旁点：(分差-32)', {
                     fontFamily: 'Arial',
@@ -6142,10 +6169,48 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(); });
+                }, btnWidth, btnHeight, ()=>{ this.visible = false; });
                 this.addChild(btn);
                 btn.x = (width - btnWidth) * .5;
                 btn.y = height - btnHeight - 20;
+            }
+
+            show(players) {
+                this.visible = true;
+
+                let pls = [
+                    {'n':players[0]['n'],'s':players[0]['s']},
+                    {'n':players[1]['n'],'s':players[1]['s']},
+                    {'n':players[2]['n'],'s':players[2]['s']},
+                    {'n':players[3]['n'],'s':players[3]['s']}
+                ];
+                pls.sort(function(a, b) { return b['s'] - a['s']; });
+
+                let t;
+                let texts = this.texts_;
+                for (let i = 0; i < 3; ++i) {
+                    t = texts[i][0];
+                    t.text = pls[i + 1]['n'];
+                    scaleText(t, 110);
+
+                    for (let k = 0; k <= i; ++k) {
+                        let dt = pls[i - k]['s'] - pls[i + 1]['s'];
+                        let sd = 8, dd = 8, od = 8;
+                        if (dt > 32) {
+                            let oo = dt - 32;
+                            sd = Math.max((oo >> 2) + 1, 8);
+                            dd = Math.max((oo >> 1) + 1, 8);
+                            od = Math.max(oo + 1, 8);
+                        }
+
+                        let ctt = [pls[i - k]['n'], dt, sd, dd, od];
+                        for (let l = 0; l < 5; ++l) {
+                            t = texts[i][1][k][l];
+                            t.text = ctt[l];
+                            if (l == 0) scaleText(t, 110);
+                        }
+                    }
+                }
             }
         }
 
