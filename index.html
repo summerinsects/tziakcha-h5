@@ -112,13 +112,13 @@
             'img/ui/checkbox_normal.png',
             'img/ui/checkbox_tick.png',
 
-            'img/tiles/tile_standing1.png',
-            'img/tiles/tile_standing3.png',
-            'img/tiles/tiles_pool0.png',
-            'img/tiles/tiles_pool1.png',
-            'img/tiles/tiles_pool2.png',
-            'img/tiles/tiles_pool3.png',
-            'img/tiles/tiles_standing.png',
+            'img/tiles/standing1.png',
+            'img/tiles/standing3.png',
+            'img/tiles/pool0.png',
+            'img/tiles/pool1.png',
+            'img/tiles/pool2.png',
+            'img/tiles/pool3.png',
+            'img/tiles/standing0.png',
 
             'img/dice/1.png',
             'img/dice/2.png',
@@ -4712,7 +4712,7 @@
         class StandingTile extends PIXI.Sprite {
             constructor(t, callback) {
                 let ti = all_tiles[t];
-                let tex = PIXI.loader.resources['img/tiles/tiles_standing.png'].texture.clone();
+                let tex = PIXI.loader.resources['img/tiles/standing0.png'].texture.clone();
                 tex.frame = new PIXI.Rectangle(
                     (WIDTH_02 + 2) * (ti & 0xF) + 2, (HEIGHT_02F + 2) * ((ti & 0xF0) >> 4) + 2,
                     WIDTH_02, HEIGHT_02F);
@@ -4775,7 +4775,7 @@
         class PoolTile0 extends PoolTile {
             constructor(t) {
                 let ti = all_tiles[t];
-                let tex = PIXI.loader.resources['img/tiles/tiles_pool0.png'].texture.clone();
+                let tex = PIXI.loader.resources['img/tiles/pool0.png'].texture.clone();
                 tex.frame = new PIXI.Rectangle(
                     (WIDTH_02 + 2) * (ti & 0xF) + 2, (HEIGHT_02F + 2) * ((ti & 0xF0) >> 4) + 2,
                     WIDTH_02, HEIGHT_02F);
@@ -4790,7 +4790,7 @@
         class PoolTile1 extends PoolTile {
             constructor(t) {
                 let ti = all_tiles[t];
-                let tex = PIXI.loader.resources['img/tiles/tiles_pool1.png'].texture.clone();
+                let tex = PIXI.loader.resources['img/tiles/pool1.png'].texture.clone();
                 tex.frame = new PIXI.Rectangle(
                     (WIDTH_13 + 2) * (ti & 0xF) + 2, (HEIGHT_13F + 2) * ((ti & 0xF0) >> 4) + 2,
                     WIDTH_13, HEIGHT_13F);
@@ -4805,7 +4805,7 @@
         class PoolTile2 extends PoolTile {
             constructor(t) {
                 let ti = all_tiles[t];
-                let tex = PIXI.loader.resources['img/tiles/tiles_pool2.png'].texture.clone();
+                let tex = PIXI.loader.resources['img/tiles/pool2.png'].texture.clone();
                 tex.frame = new PIXI.Rectangle(
                     (WIDTH_02 + 2) * (ti & 0xF) + 2, (HEIGHT_02F + 2) * ((ti & 0xF0) >> 4) + 2,
                     WIDTH_02, HEIGHT_02F);
@@ -4820,7 +4820,7 @@
         class PoolTile3 extends PoolTile {
             constructor(t) {
                 let ti = all_tiles[t];
-                let tex = PIXI.loader.resources['img/tiles/tiles_pool3.png'].texture.clone();
+                let tex = PIXI.loader.resources['img/tiles/pool3.png'].texture.clone();
                 tex.frame = new PIXI.Rectangle(
                     (WIDTH_13 + 2) * (ti & 0xF) + 2, (HEIGHT_13F + 2) * ((ti & 0xF0) >> 4) + 2,
                     WIDTH_13, HEIGHT_13F);
@@ -4853,7 +4853,7 @@
         }
 
         function createWall02Tile() {
-            let tex = PIXI.loader.resources['img/tiles/tiles_pool0.png'].texture.clone();
+            let tex = PIXI.loader.resources['img/tiles/pool0.png'].texture.clone();
             tex.frame = new PIXI.Rectangle(
                 (WIDTH_02 + 2) * 8 + 2, (HEIGHT_02F + 2) * 4 + 2,
                 WIDTH_02, HEIGHT_02F);
@@ -4861,7 +4861,7 @@
         }
 
         function createWall13Tile() {
-            let tex = PIXI.loader.resources['img/tiles/tiles_pool1.png'].texture;
+            let tex = PIXI.loader.resources['img/tiles/pool1.png'].texture;
             tex.frame = new PIXI.Rectangle(
                 (WIDTH_13 + 2) * 8 + 2, (HEIGHT_13F + 2) * 4 + 2,
                 WIDTH_13, HEIGHT_13F);
@@ -4869,12 +4869,12 @@
         }
 
         function createStandingTile1() {
-            let tex = PIXI.loader.resources['img/tiles/tile_standing1.png'].texture;
+            let tex = PIXI.loader.resources['img/tiles/standing1.png'].texture;
             return new PIXI.Sprite(tex);
         }
 
         function createStandingTile2() {
-            let tex = PIXI.loader.resources['img/tiles/tiles_pool2.png'].texture.clone();
+            let tex = PIXI.loader.resources['img/tiles/pool2.png'].texture.clone();
             tex.frame = new PIXI.Rectangle(
                 (WIDTH_02 + 2) * 8 + 2, (HEIGHT_02F + 2) * 4 + 2,
                 WIDTH_02, HEIGHT_02F);
@@ -4882,7 +4882,7 @@
         }
 
         function createStandingTile3() {
-            let tex = PIXI.loader.resources['img/tiles/tile_standing3.png'].texture;
+            let tex = PIXI.loader.resources['img/tiles/standing3.png'].texture;
             return new PIXI.Sprite(tex);
         }
 
