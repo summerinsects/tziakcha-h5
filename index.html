@@ -1970,6 +1970,7 @@
                 let sp = new (cls[n])(t);
                 sp.x = src.x;
                 sp.y = src.y;
+                if (n == 1) sp.x -= (WIDTH_13 - WIDTH_13S);
                 this.activeTile_ = sp;
                 this.addChildAt(sp, this.getChildIndex(dst));
                 sp.dst_ = dst;
