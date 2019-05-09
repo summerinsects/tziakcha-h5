@@ -3623,6 +3623,7 @@
                     hv.visible = false;
                 }
                 else {
+                    this.setChildIndex(hv, this.children.length - 1);
                     hv.show(this.players_, this.rd_ + (this.rdfsh_ ? 1 : 0), this.cfg_['i']);
                 }
             }
@@ -3633,6 +3634,7 @@
                     cv.visible = false;
                 }
                 else {
+                    this.setChildIndex(cv, this.children.length - 1);
                     cv.show(this.players_);
                 }
             }
