@@ -1427,6 +1427,7 @@
                         sp1.runAction(new PIXI.action.Sequence([
                             new PIXI.action.DelayTime(DICE_TIME + i * DRAW_DT),
                             new PIXI.action.CallFunc(()=>{
+                                this.setTurn(i & 3);
                                 this._drawEffect((i + 4 - seat) & 3, sp1, (i & 0xFC) + k * 2);
                             })
                         ]));
@@ -1451,6 +1452,7 @@
                 sp1.runAction(new PIXI.action.Sequence([
                     new PIXI.action.DelayTime(DICE_TIME + 12 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
+                        this.setTurn(0);
                         this._drawEffect((4 - seat) & 3, sp1, 12);
                     })
                 ]));
@@ -1458,6 +1460,7 @@
                 sp2.runAction(new PIXI.action.Sequence([
                     new PIXI.action.DelayTime(DICE_TIME + 13 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
+                        this.setTurn(1);
                         this._drawEffect((5 - seat) & 3, sp2, 12);
                     })
                 ]));
@@ -1470,6 +1473,7 @@
                 sp3.runAction(new PIXI.action.Sequence([
                     new PIXI.action.DelayTime(DICE_TIME + 14 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
+                        this.setTurn(2);
                         this._drawEffect((6 - seat) & 3, sp3, 12);
                     })
                 ]));
@@ -1477,6 +1481,7 @@
                 sp4.runAction(new PIXI.action.Sequence([
                     new PIXI.action.DelayTime(DICE_TIME + 15 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
+                        this.setTurn(3);
                         this._drawEffect((7 - seat) & 3, sp4, 12);
                     })
                 ]));
@@ -1509,6 +1514,8 @@
                 this.runAction(new PIXI.action.Sequence([
                     new PIXI.action.DelayTime(DICE_TIME + 18 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
+                        this.setTurn(0);
+
                         let standing, origin, z;
 
                         // 上家
