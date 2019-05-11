@@ -108,6 +108,15 @@
             ws.send('{"m":4}');
         }
 
+        function play_snd(s) {
+            try {
+                PIXI.loader.resources[s].sound.play();
+            }
+            catch (e) {
+                console.log(e);
+            }
+        }
+
         PIXI.loader.add([
             'img/ui/checkbox_normal.png',
             'img/ui/checkbox_tick.png',
@@ -149,7 +158,7 @@
             loadingText.text = e.progress.toFixed(2) + '%';
         })
         .load(()=> {
-            //PIXI.loader.resources['snd/01-start.wav'].sound.play();
+            //play_snd('snd/01-start.wav');
             app.stage.removeChild(loadingText);
             delete loadingText;
 
@@ -415,7 +424,7 @@
                         return;
                     }
 
-                    PIXI.loader.resources['snd/12-flower-m.wav'].sound.play();
+                    play_snd('snd/12-flower-m.wav');
                     let v = resp['v'];
                     pool.turn_ = v;
                     if (v != pool.seat_) {
@@ -482,7 +491,7 @@
                         return;
                     }
 
-                    PIXI.loader.resources[r == 8 ? 'snd/14-chow-m.wav' : 'snd/16-pung-m.wav'].sound.play();
+                    play_snd(r == 8 ? 'snd/14-chow-m.wav' : 'snd/16-pung-m.wav');
                     let idx = (resp['v'] + 4 - pool.seat_) & 3;
                     pool.showCallText(idx, r == 8 ? '吃' : '碰');
 
@@ -504,7 +513,7 @@
                         return;
                     }
 
-                    PIXI.loader.resources['snd/18-kong-m.wav'].sound.play();
+                    play_snd('snd/18-kong-m.wav');
                     let idx = (resp['v'] + 4 - pool.seat_) & 3;
                     pool.showCallText(idx, '杠');
 
@@ -537,7 +546,7 @@
                         return;
                     }
 
-                    PIXI.loader.resources['snd/18-kong-m.wav'].sound.play();
+                    play_snd('snd/18-kong-m.wav');
                     let idx = (resp['v'] + 4 - pool.seat_) & 3;
                     switch (idx) {
                     case 0: pool.showCallText(0, '杠'); pool.ck0(resp['p']); break;
@@ -559,7 +568,7 @@
                     let cp = lo_byte(v);
                     let n = (wp + 4 - pool.seat_) & 3;
 
-                    PIXI.loader.resources['snd/20-win-m.wav'].sound.play();
+                    play_snd('snd/20-win-m.wav');
                     let detail = resp['d'];
                     if (detail == undefined) {
                         pool.showCallText(n, '和');
@@ -1808,7 +1817,7 @@
                 }
 
                 if (cnt > 0) {
-                    PIXI.loader.resources['snd/08-inquire.wav'].sound.play();
+                    play_snd('snd/08-inquire.wav');
                 }
             }
 
@@ -1826,7 +1835,7 @@
 
             // 抓牌效果
             _drawEffect(n, wall, idx) {
-                PIXI.loader.resources['snd/05-draw.wav'].sound.play();
+                play_snd('snd/05-draw.wav');
 
                 wall.visible = false;
                 let sp = (n % 2 == 0) ? createWall02Tile() : createWall13Tile();
@@ -1988,7 +1997,7 @@
             }
 
             discard123(n, t, h) {
-                PIXI.loader.resources['snd/06-discard.wav'].sound.play();
+                play_snd('snd/06-discard.wav');
                 this.removeBtns();
 
                 const ox = [10, 10, -10, -10];
@@ -2044,7 +2053,7 @@
             }
 
             discard0(t) {
-                PIXI.loader.resources['snd/06-discard.wav'].sound.play();
+                play_snd('snd/06-discard.wav');
 
                 this.removeCD();
                 this.removeBtns();
@@ -2655,7 +2664,7 @@
                 if (type == 2) standing[13].visible = false;
                 else this.setTurn((this.seat_ + 3) & 3);
 
-                PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
+                play_snd('snd/09-cpk.wav');
             }
 
             ck3(h) {
@@ -2700,7 +2709,7 @@
                 this._shrink3(ext, hidden + 3, idx);
                 standing[13].visible = false;
 
-                PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
+                play_snd('snd/09-cpk.wav');
             }
 
             pk3(pack, h) {
@@ -2751,7 +2760,7 @@
                     ]));
                 }
 
-                PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
+                play_snd('snd/09-cpk.wav');
             }
 
             cpk2(pack) {
@@ -2893,7 +2902,7 @@
                 if (type == 2) standing[13].visible = false;
                 else this.setTurn((this.seat_ + 2) & 3);
 
-                PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
+                play_snd('snd/09-cpk.wav');
             }
 
             ck2(h) {
@@ -2938,7 +2947,7 @@
                 this._shrink2(ext, hidden + 3, idx);
                 standing[13].visible = false;
 
-                PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
+                play_snd('snd/09-cpk.wav');
             }
 
             pk2(pack, h) {
@@ -2989,7 +2998,7 @@
                     ]));
                 }
 
-                PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
+                play_snd('snd/09-cpk.wav');
             }
 
             cpk1(pack) {
@@ -3134,7 +3143,7 @@
                 if (type == 2) standing[13].visible = false;
                 else this.setTurn((this.seat_ + 1) & 3);
 
-                PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
+                play_snd('snd/09-cpk.wav');
             }
 
             ck1(h) {
@@ -3181,7 +3190,7 @@
                 this._shrink1(ext, hidden, idx);
                 standing[13].visible = false;
 
-                PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
+                play_snd('snd/09-cpk.wav');
             }
 
             pk1(pack, h) {
@@ -3232,7 +3241,7 @@
                     ]));
                 }
 
-                PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
+                play_snd('snd/09-cpk.wav');
             }
 
             cpk0(pack) {
@@ -3410,7 +3419,7 @@
                     standing[13].visible = false;
                 }
 
-                PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
+                play_snd('snd/09-cpk.wav');
             }
 
             ck0(pack) {
@@ -3489,7 +3498,7 @@
                 }
                 standing[13].visible = false;
 
-                PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
+                play_snd('snd/09-cpk.wav');
             }
 
             pk0(pack) {
@@ -3555,7 +3564,7 @@
 
                 this.stopFlower_ = true;
 
-                PIXI.loader.resources['snd/09-cpk.wav'].sound.play();
+                play_snd('snd/09-cpk.wav');
             }
 
             showSettleView(hand, tile, table, detail) {
