@@ -314,7 +314,9 @@
                 pool.option_ = panel;
 
                 pool.y = 50;
+                panel.x = 10;
                 panel.y = pool.height + 70;
+                panel.scale.set(pool.width / (panel.width + 20));
                 this.containerWidth_ = this.width;
                 this.containerHeight_ = this.height;
 
@@ -4914,15 +4916,9 @@
                 let btns = new Array(7);
                 const btnTitle = ['自动补花', '不 吃', '不 碰', '不 杠', '只和自摸', '自动和牌', '自动摸打'];
                 for (let i = 0; i < 7; ++i) {
-                    let cb = new CheckBox(btnTitle[i], {
-                        fontFamily: 'Arial',
-                        fontSize: 30,
-                        fill: '#ffffff',
-                        stroke: '#0066ff',
-                        strokeThickness: 2,
-                    });
+                    let cb = new CheckBox(btnTitle[i]);
                     this.addChild(cb);
-                    cb.x = 180 * i + 10;
+                    cb.x = 200 * i;
                     btns[i] = cb;
                 }
                 this.btns_ = btns;
@@ -5037,7 +5033,7 @@
         }
 
         class CheckBox extends PIXI.Container {
-            constructor(str, style, callback) {
+            constructor(str, callback) {
                 super();
 
                 let bg = new PIXI.Sprite(PIXI.loader.resources['img/ui/checkbox_normal.png'].texture);
@@ -5047,7 +5043,13 @@
                 this.addChild(tk);
                 tk.visible = false;
 
-                let text = new PIXI.Text(str, style);
+                let text = this.text_ = new PIXI.Text(str, {
+                    fontFamily: 'Arial',
+                    fontSize: 30,
+                    fill: '#ffffff',
+                    stroke: '#000000',
+                    strokeThickness: 3,
+                });
                 this.addChild(text);
                 text.x = bg.width + 5;
 
@@ -5072,7 +5074,15 @@
 
                 function clk() {
                     let tk = this.tk_;
-                    tk.visible = !tk.visible;
+                    if (tk.visible) {
+                        tk.visible = false;
+                        this.text_.style.stroke = '#000000';
+                    }
+                    else {
+                        tk.visible = true;
+                        this.text_.style.stroke = '#0066ff';
+                    }
+
                     if (callback) {
                         callback(this);
                     }
@@ -5096,6 +5106,7 @@
 
             setSelected(s) {
                 this.tk_.visible = s;
+                this.text_.style.stroke = s ? '#0066ff' : '#000000';
             }
         }
 
@@ -7014,13 +7025,7 @@
                     if (opt != undefined) {
                         let btns = [];
                         for (let k = 0, len = opt.length; k < len; ++k) {
-                            let cb = new CheckBox(opt[k], {
-                                fontFamily: 'Arial',
-                                fontSize: 30,
-                                fill: '#ffffff',
-                                stroke: '#0066ff',
-                                strokeThickness: 2,
-                            }, ()=>{
+                            let cb = new CheckBox(opt[k], ()=>{
                                 for (let n = 0, len = opt.length; n < len; ++n) {
                                     btns[n].setSelected(n == k);
                                 }
