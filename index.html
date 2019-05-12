@@ -1655,7 +1655,7 @@
                 if (actions && actions.length > 0) {
                     if (this.isDiscarding_) {
                         if (this.turn_ != this.seat_) {
-                            this.addCD(this.cfg_[((this.turn_ + 1) & 3 == this.seat_) ? 'r30' : 'r12']);
+                            this.addCD(this.cfg_[(((this.turn_ + 1) & 3) == this.seat_) ? 'r30' : 'r12']);
                         }
                         else {
                             this.addCD(this.cfg_['r30']);
