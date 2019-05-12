@@ -395,7 +395,7 @@
                     pool.roundText_.text = WIND[h >> 2] + '风' + WIND[h & 3];
                     pool.sendHandTiles(resp['d'], resp['v']);
                     pool.isDiscarding_ = false;
-                    pool.step_ = 1;
+                    pool.step_ = 3;
                     break;
                 }
                 case 3: {  // 询问补花
@@ -504,6 +504,9 @@
                         case 3: pool.cpk3(p); break;
                         }
                     }
+                    else {
+                        pool.addBtns(resp['a']);
+                    }
                     break;
                 }
                 case 10: {  // 明杠
@@ -519,6 +522,7 @@
 
                     let p = resp['p'];
                     if (p == undefined) {
+                        pool.addBtns(resp['a']);
                     }
                     else if (!is_promoted_kong(p)) {
                         switch (idx) {
@@ -572,6 +576,7 @@
                     let detail = resp['d'];
                     if (detail == undefined) {
                         pool.showCallText(n, '和');
+                        pool.addBtns(resp['a']);
                         break;
                     }
 
@@ -598,7 +603,7 @@
                     break;
                 }
                 case 14: {  // 换位
-                    pool.step_ = 0;
+                    pool.step_ = 1;
                     let p = resp['p'];
                     let v = parseInt(resp['v']);
                     pool.seat_ = v;
