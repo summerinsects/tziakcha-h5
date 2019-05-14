@@ -1383,6 +1383,8 @@
                 this.rdfsh_ = false;
                 this.closeSettleView();
 
+                this.remainText_.text = '牌墙剩余：144';
+
                 let seat = this.seat_;
                 for (let i = 0; i < 4; ++i) {
                     let k = (seat + i) & 3;
@@ -2544,6 +2546,12 @@
                 }
 
                 let standing = this.standing_[3];
+                // type != 2:
+                //  HEIGHT_13 * 2 + HEIGHT_02 + GAP_T - HEIGHT_13 * 3
+                //  = HEIGHT_02 + GAP_T - HEIGHT_13
+                // type == 2:
+                //  HEIGHT_13 * 3 + HEIGHT_02 + GAP_T - HEIGHT_13 * 3
+                //  = HEIGHT_02 + GAP_T
                 let ext = (HEIGHT_02 - (type != 2 ? HEIGHT_13 : 0) + GAP_T) * .5;
 
                 // 立牌往下，已有的副露往上
@@ -2783,6 +2791,12 @@
                 }
 
                 let standing = this.standing_[2];
+                // type != 2:
+                //  WIDTH_02 * 2 + WIDTH_13 + GAP_T - WIDTH_02 * 3
+                //  = WIDTH_13 + GAP_T - WIDTH_02
+                // type == 2:
+                //  WIDTH_02 * 3 + WIDTH_13 + GAP_T - WIDTH_02 * 3
+                //  = WIDTH_13 + GAP_T
                 let ext = (WIDTH_13 - (type != 2 ? WIDTH_02 : 0) + GAP_T) * .5;
 
                 // 立牌往左，已有的副露往右
@@ -3021,6 +3035,12 @@
                 }
 
                 let standing = this.standing_[1];
+                // type != 2:
+                //  HEIGHT_13 * 2 + HEIGHT_02 + GAP_T - HEIGHT_13 * 3
+                //  = HEIGHT_02 + GAP_T - HEIGHT_13
+                // type == 2:
+                //  HEIGHT_13 * 3 + HEIGHT_02 + GAP_T - HEIGHT_13 * 3
+                //  = HEIGHT_02 + GAP_T
                 let ext = (HEIGHT_02 - (type != 2 ? HEIGHT_13 : 0) + GAP_T) * .5;
 
                 // 立牌往上，已有的副露往下
@@ -4423,7 +4443,13 @@
                     let type = pack_get_type(pack);
                     let tile = pack_get_tile(pack);
                     let hidden = this.packData_[2].length * 3;
-                    let ext = (WIDTH_13 - (type != 2 ? WIDTH_02 : 0) + GAP_T) * .5;
+                    let ext = (WIDTH_13 - WIDTH_02 + GAP_T) * .5;
+                    if (type == 2) {
+                        ext += WIDTH_02 * .5;
+                        if (pack_get_offer(pack) == 0) {
+                            ext -= (WIDTH_13 - WIDTH_02) * .5;
+                        }
+                    }
 
                     // 立牌往左，已有的副露往右
                     this.openPos_[2] -= ext;
@@ -4917,7 +4943,7 @@
             let asp = new PIXI.extras.AnimatedSprite(frames);
             asp.x = 100;
             asp.y = 100;
-            asp.animationSpeed = 0.4;
+            asp.animationSpeed = .4;
             asp.loop = false;
             asp.play();
             return asp;
