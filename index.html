@@ -633,6 +633,9 @@
                     pool.infoPanels_[idx].setConnection(resp['c']);
                     break;
                 }
+                case 19: // 超时
+                    pool.timeout_.visible = true;
+                    break;
                 default:
                     break;
                 }
@@ -1302,6 +1305,19 @@
                 view.x = (MAX_WIDTH - view.width) * .5;
                 view.y = (MAX_HEIGHT - view.height) * .5;
                 view.visible = false;
+
+                text = this.timeout_ = new PIXI.Text('你已超时，进入自动托管', {
+                    fontFamily: 'Arial',
+                    fontSize: 50,
+                    fill: '#dedede',
+                    //stroke: '#0066ff',
+                    //strokeThickness: 2,
+                });
+                text.anchor.set(.5);
+                this.addChild(text);
+                text.x = MAX_WIDTH * .5;
+                text.y = MAX_HEIGHT - 200;
+                text.visible = false;
             }
 
             setupPool(t) {
@@ -1377,6 +1393,7 @@
 
                 this.packData_ = [[], [], [], []];
                 this.stopFlower_ = false;
+                this.timeout_.visible = false;
             }
 
             sendHandTiles(d, h) {
