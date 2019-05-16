@@ -694,10 +694,10 @@
                 this.height = this.height_ = MAX_HEIGHT;
 
                 this.callTextPos_ = [
-                    {'x':MAX_WIDTH * .5, 'y':MAX_HEIGHT - 150},
-                    {'x':MAX_WIDTH - 150, 'y':MAX_HEIGHT * .5},
-                    {'x':MAX_WIDTH * .5, 'y':150},
-                    {'x':150, 'y':MAX_HEIGHT * .5}
+                    {'x':MAX_WIDTH * .5, 'y':MAX_HEIGHT - 120, 'ax':.5, 'ay':1},
+                    {'x':MAX_WIDTH - 80, 'y':MAX_HEIGHT * .5, 'ax':1, 'ay':.5},
+                    {'x':MAX_WIDTH * .5, 'y':80, 'ax':.5, 'ay':0},
+                    {'x':80, 'y':MAX_HEIGHT * .5, 'ax':0, 'ay':.5}
                 ];
 
                 {
@@ -2284,7 +2284,8 @@
             showCallText(n, s) {
                 let pos = this.callTextPos_[n];
                 let text = new PIXI.extras.BitmapText(s, { font:'128px STXingkai' });
-                text.anchor.set(.5);
+                text.anchor.x = pos['ax'];
+                text.anchor.y = pos['ay'];
                 text.x = pos['x'];
                 text.y = pos['y'];
                 this.addChild(text);
@@ -3792,7 +3793,8 @@
 
                         let pos = this.callTextPos_[n1];
                         let text = new PIXI.extras.BitmapText('点炮', { font:'128px STXingkai' });
-                        text.anchor.set(.5);
+                        text.anchor.x = pos['ax'];
+                        text.anchor.y = pos['ay'];
                         text.x = pos['x'];
                         text.y = pos['y'];
                         this.addChild(text);
@@ -3803,7 +3805,8 @@
                         let n0 = (wp + 4 - this.seat_) & 3;
                         let pos = this.callTextPos_[n0];
                         let text = new PIXI.extras.BitmapText('和', { font:'128px STXingkai' });
-                        text.anchor.set(.5);
+                        text.anchor.x = pos['ax'];
+                        text.anchor.y = pos['ay'];
                         text.x = pos['x'];
                         text.y = pos['y'];
                         this.addChild(text);
