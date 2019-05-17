@@ -408,11 +408,17 @@
                     let v = resp['v'];
                     pool.setTurn(v);
                     if (v != pool.seat_) {
+                        pool.removeCD();
                         pool.removeBtns();
                     }
                     else {
                         if (resp['f']) {
                             pool.addBtns([0x10000]);
+                            pool.addCD(pool.cfg_['r12']);
+                        }
+                        else {
+                            pool.removeCD();
+                            pool.removeBtns();
                         }
                     }
                     break;
@@ -429,9 +435,11 @@
                     pool.turn_ = v;
                     if (v != pool.seat_) {
                         pool.flower123((v + 4 - pool.seat_) & 3);
+                        pool.removeCD();
                     } else {
                         let t = resp['t'];
                         pool.flower0(lo_byte(t), hi_byte(t));
+                        pool.addCD(pool.cfg_[pool.isDiscarding_ ? 'r30' : 'r12']);
                         pool.addBtns(resp['a']);
                     }
                     break;
@@ -445,7 +453,12 @@
 
                     pool.isDiscarding_ = true;
                     pool.setTurn(0);
-                    if (pool.seat_ == 0) {
+                    if (pool.seat_ != 0) {
+                        pool.removeCD();
+                        pool.removeBtns();
+                    }
+                    else {
+                        pool.addCD(pool.cfg_['r30']);
                         pool.addBtns(resp['a']);
                     }
                     break;
@@ -462,6 +475,7 @@
                     pool.turn_ = v;
                     pool.draw((v + 4 - pool.seat_) & 3, hi_byte(t), lo_byte(t));
                     if (pool.seat_ == v) {
+                        pool.addCD(pool.cfg_['r30']);
                         pool.addBtns(resp['a']);
                     }
                     break;
@@ -476,7 +490,11 @@
                     let v = resp['v'];
                     if (v != pool.seat_) {
                         pool.discard123((v + 4 - pool.seat_) & 3, resp['t'], resp['h']);
-                        pool.addBtns(resp['a']);
+                        let a = resp['a'];
+                        if (a && a.length > 0) {
+                            pool.addCD(pool.cfg_[(((pool.turn_ + 1) & 3) == pool.seat_) ? 'r30' : 'r12']);
+                            pool.addBtns(a);
+                        }
                     } else {
                         pool.discard0(resp['t']);
                     }
@@ -505,6 +523,7 @@
                         }
                     }
                     else {
+                        pool.addCD(pool.cfg_['r12']);
                         pool.addBtns(resp['a']);
                     }
                     break;
@@ -522,7 +541,11 @@
 
                     let p = resp['p'];
                     if (p == undefined) {
-                        pool.addBtns(resp['a']);
+                        let a = resp['a'];
+                        if (a && a.length > 0) {
+                            pool.addCD(pool.cfg_['r12']);
+                            pool.addBtns(a);
+                        }
                     }
                     else if (!is_promoted_kong(p)) {
                         switch (idx) {
@@ -539,7 +562,11 @@
                         case 2: pool.pk2(p, false); break;
                         case 3: pool.pk3(p, false); break;
                         }
-                        pool.addBtns(resp['a']);
+                        let a = resp['a'];
+                        if (a && a.length > 0) {
+                            pool.addCD(pool.cfg_['r12']);
+                            pool.addBtns(a);
+                        }
                     }
                     break;
                 }
@@ -576,6 +603,7 @@
                     let detail = resp['d'];
                     if (detail == undefined) {
                         pool.showCallText(n, '和');
+                        pool.addCD(pool.cfg_['r12']);
                         pool.addBtns(resp['a']);
                         break;
                     }
@@ -649,8 +677,9 @@
             rightclick() {
                 let pool = this.pool_;
                 if (pool.actionBtns_[0].visible) {
-                    ws.send('{"m":2,"r":9,"v":0}');
                     pool.removeBtns();
+                    ws.send('{"m":2,"r":9,"v":0}');
+                    pool.removeCD();
                 }
             }
 
@@ -1676,28 +1705,6 @@
             }
 
             addBtns(actions) {
-                if (actions && actions.length > 0) {
-                    if (this.isDiscarding_) {
-                        if (this.turn_ != this.seat_) {
-                            this.addCD(this.cfg_[(((this.turn_ + 1) & 3) == this.seat_) ? 'r30' : 'r12']);
-                        }
-                        else {
-                            this.addCD(this.cfg_['r30']);
-                        }
-                    }
-                    else {
-                        this.addCD(this.cfg_['r12']);
-                    }
-                }
-                else {
-                    if (this.turn_ == this.seat_ && this.isDiscarding_) {
-                        this.addCD(this.cfg_['r30']);
-                    }
-                    else {
-                        this.removeCD();
-                    }
-                }
-
                 let status = this.option_.status();
 
                 if (!actions) {
@@ -2022,6 +2029,7 @@
 
             discard123(n, t, h) {
                 play_snd('snd/06-discard.wav');
+                this.removeCD();
                 this.removeBtns();
 
                 const ox = [10, 10, -10, -10];
@@ -2078,7 +2086,6 @@
 
             discard0(t) {
                 play_snd('snd/06-discard.wav');
-
                 this.removeCD();
                 this.removeBtns();
 
