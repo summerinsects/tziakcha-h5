@@ -1670,7 +1670,7 @@
                         style.fill = '#dedede';
                         //style.stroke = '#0066ff';
                     } else {
-                        style.fill = '#5cdbd3';
+                        style.fill = '#ff6a6a';
                         //style.stroke = '#ffffff';
                     }
                 }
@@ -2317,7 +2317,7 @@
                 text.scale.set(2);
                 text.runAction(new PIXI.action.Sequence([
                     new PIXI.action.Spawn([new PIXI.action.FadeIn(.1), new PIXI.action.ScaleTo(1, 1, .1)]),
-                    new PIXI.action.DelayTime(.8),
+                    new PIXI.action.DelayTime(1.3),
                     new PIXI.action.Spawn([new PIXI.action.FadeOut(.1), new PIXI.action.ScaleTo(2, 2, .1)]),
                     new PIXI.action.CallFunc(()=>{
                         this.removeChild(text);
