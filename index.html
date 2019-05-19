@@ -1665,14 +1665,7 @@
                 this.turn_ = t;
                 let n = (t + 4 - this.seat_) & 3;
                 for (let i = 0; i < 4; ++i) {
-                    let style = this.windTexts_[i].style;
-                    if (i != n) {
-                        style.fill = '#dedede';
-                        //style.stroke = '#0066ff';
-                    } else {
-                        style.fill = '#ff6a6a';
-                        //style.stroke = '#ffffff';
-                    }
+                    this.windTexts_[i].style.fill = (i != n) ? '#dedede' : '#ff6a6a';
                 }
             }
 
@@ -5593,7 +5586,7 @@
                 const frp = (width - gap * 2) / 3;
                 for (let f in table) {
                     let x0 = gap + (i % 3) * frp;
-                    let y0 = y + 35 * parseInt(i / 3);
+                    let y0 = y + 5 + 35 * parseInt(i / 3);
 
                     let v = table[f];
                     let c = ((v >> 8) & 0xFF) + 1;
@@ -5604,6 +5597,7 @@
                         fill: '#99ffff'
                     });
                     this.addChild(t);
+                    t.anchor.y = .5;
                     t.x = x0;
                     //t.x = frp + gap; t.anchor.x = 1;
                     t.y = y0;
