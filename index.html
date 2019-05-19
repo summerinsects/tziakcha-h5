@@ -7227,6 +7227,7 @@
                 bg.endFill();
 
                 let cfg = data['g'];
+                this.anonym_ = cfg['a'];
 
                 let t = new PIXI.Text(cfg['t'], {
                     fontFamily: 'Arial',
@@ -7302,7 +7303,7 @@
                     tick[i] = sp;
                     sp.visible = (ready & (1 << i));
 
-                    t = new PIXI.Text(p[i], {
+                    t = new PIXI.Text((!this.anonym_ || p[i].length == 0) ? p[i] : '匿名用户', {
                         fontFamily: 'Arial',
                         fontSize: 20,
                         fill: '#ffffff',
@@ -7352,7 +7353,7 @@
 
             sitDown(s, n) {
                 let t = this.name_[s];
-                t.text = n;
+                t.text = !this.anonym_ ? n : '匿名用户';
                 scaleText(t, t.w_);
             }
 
