@@ -2041,13 +2041,14 @@
 
                 if (this.activeTile_) {
                     console.log('active tile is not null', n);
-                    return;
+                    this.removeChild(this.activeTile_);
+                    this.activeTile_ = null;
                 }
 
                 let standing = this.standing_[n];
                 if (!standing[13].visible) {
                     console.log('standing 13 is not visible', n);
-                    return;
+                    standing[13].visible = true;
                 }
 
                 let dst = this._findPoolDest(n);
@@ -2280,6 +2281,7 @@
                 if (sp) {
                     let dst = sp.dst_;
                     if (dst) {
+                        // 普通打牌
                         sp.runAction(new PIXI.action.Sequence([
                             new PIXI.action.MoveTo(dst.x, dst.y, DISCARD_DT),
                             new PIXI.action.CallFunc(()=>{
@@ -2290,6 +2292,7 @@
                         ]));
                     }
                     else {
+                        // 加杠
                         sp.runAction(new PIXI.action.Sequence([
                             new PIXI.action.MoveTo(sp.dstx_, sp.dsty_, DISCARD_DT),
                             new PIXI.action.CallFunc(()=>{
