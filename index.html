@@ -6689,6 +6689,7 @@
                     case 7: this._error('你不在桌子上'); break;
                     case 8: this._error('你已在别处登录'); break;
                     case 9: this._error('用户名或密码过长'); break;
+                    case 10: this._error('该桌不允许游客账号加入'); break;
                     }
                     break;
                 case 2: {
@@ -7052,6 +7053,7 @@
                     '对局初始分',
                     '随机分配初始座位',
                     '对外隐藏玩家昵称',
+                    '允许游客加入',
                     '密码（可选）'];
                 const option = [
                     undefined,
@@ -7065,11 +7067,12 @@
                     ['0', '500'],
                     ['是', '否'],
                     ['是', '否'],
+                    ['是', '否'],
                     undefined
                 ];
 
-                let ctrls = new Array(12);
-                for (let i = 0; i < 12; ++i) {
+                let ctrls = new Array(13);
+                for (let i = 0; i < 13; ++i) {
                     let yy = offsetY + 40 * i;
                     t = new PIXI.Text(title[i], {
                         fontFamily: 'Arial',
@@ -7135,6 +7138,7 @@
                 ctrls[8][dv(defcfg['i'], 0)].setSelected(true);
                 ctrls[9][dv(defcfg['r'], 0)].setSelected(true);
                 ctrls[10][dv(defcfg['a'], 1)].setSelected(true);
+                ctrls[11][dv(defcfg['g'], 1)].setSelected(true);
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
@@ -7183,7 +7187,8 @@
                     'i':rv(ctrls[8], 0),
                     'r':rv(ctrls[9], 0),
                     'a':rv(ctrls[10], 1),
-                    'p':ctrls[11].text
+                    'g':rv(ctrls[11], 1),
+                    'p':ctrls[12].text
                 };
                 localStorage.setItem('default_config', JSON.stringify(cfg));
                 return cfg;
