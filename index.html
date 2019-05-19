@@ -1679,6 +1679,7 @@
                     t.stopAction(t.action_);
                     delete t.action_;
                 }
+                t.text = sec;
 
                 t.end_ = new Date().getTime() + sec * 1000;
                 t.action_ = t.runAction(new PIXI.action.Repeat(new PIXI.action.CallFunc(()=>{
@@ -1697,7 +1698,13 @@
             }
 
             removeCD() {
-                this.cd_.visible = false;
+                let cd = this.cd_;
+                let t = cd.text_;
+                if (t.action_) {
+                    t.stopAction(t.action_);
+                    delete t.action_;
+                }
+                cd.visible = false;
             }
 
             addBtns(actions) {
