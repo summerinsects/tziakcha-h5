@@ -1825,9 +1825,7 @@
                                 break;
                             default: {
                                 let view = new SelectionView(types[i], ab.data_, (a)=>{
-                                    if (a != 0) {
-                                        ws.send('{"m":2,"r":' + types[i] + ',"v":' + a + '}');
-                                    }
+                                    ws.send('{"m":2,"r":' + types[i] + ',"v":' + a + '}');
                                     this.removeBtns();
                                     this.removeCD();
                                 });
