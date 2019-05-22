@@ -1782,7 +1782,7 @@
                 }
 
                 if (status[6]) {  // 自动摸打
-                    if (!dict[6] && !dict[5] && this.turn_ == this.seat_) {
+                    if (!dict[6] && !dict[5] &&!dict[1] && this.turn_ == this.seat_) {
                         this.runAction(new PIXI.action.Sequence([
                             new PIXI.action.DelayTime(DISCARD_DT + 1),
                             new PIXI.action.CallFunc(()=>{
