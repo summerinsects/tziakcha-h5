@@ -393,7 +393,12 @@
                     pool.seat_ = parseInt(resp['p']);
                     let h = pool.rd_ = resp['h'];
                     pool.roundText_.text = WIND[h >> 2] + '风' + WIND[h & 3];
-                    pool.sendHandTiles(resp['d'], resp['v']);
+                    if (h & 3) {
+                        pool.sendHandTiles(resp['d'], resp['v']);
+                    }
+                    else {
+                        pool.sendHandTiles2(resp['d'], resp['v']);
+                    }
                     pool.isDiscarding_ = false;
                     pool.step_ = 3;
                     break;
@@ -1662,6 +1667,45 @@
                         })
                     ]));
                 }
+            }
+
+            sendHandTiles2(d, h) {
+                let ww = this.width_, hh = this.height_, w2 = 500, h2 = 400;
+
+                let bg = new PIXI.Graphics();
+                this.addChild(bg);
+
+                bg.beginFill(0, 0);
+                bg.drawRect(0, 0, ww, hh);
+                bg.endFill();
+
+                bg.lineStyle(2, 0xFFFFFF, 1);
+                bg.beginFill(0, .85);
+                bg.drawRect((ww - w2) * .5, (hh - h2) * .5, w2, h2);
+                bg.endFill();
+
+                let text = new PIXI.Text(WIND[this.rd_ >> 2] + '风圈', {
+                    fontFamily: 'Arial',
+                    fontSize: 128,
+                    fill: '#ffffff',
+                    fontWeight:'bold',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                text.anchor.set(.5);
+                text.x = ww * .5;
+                text.y = hh * .5;
+                bg.addChild(text);
+
+                bg.runAction(new PIXI.action.Sequence([
+                    new PIXI.action.DelayTime(1.8),
+                    new PIXI.action.FadeOut(.2)
+                ]));
+
+                this.runAction(new PIXI.action.Sequence([
+                    new PIXI.action.DelayTime(2),
+                    new PIXI.action.CallFunc(()=>{ this.removeChild(bg); this.sendHandTiles(d, h); })
+                ]));
             }
 
             setTurn(t) {
