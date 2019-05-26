@@ -3733,6 +3733,14 @@
                 view.scale.set(1.25);
                 view.x = (this.width - view.width) * .5;
                 view.y = (this.height - view.height) * .5;
+                if (this.turn_ == this.seat_) {
+                    this.runAction(new PIXI.action.Sequence([
+                        new PIXI.action.DelayTime(4),
+                        new PIXI.action.CallFunc(()=>{
+                            this.addCD(this.cfg_['r30']);
+                        })
+                    ]));
+                }
             }
 
             toggleHistory() {
