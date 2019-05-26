@@ -142,6 +142,7 @@
             'fnt/STXingkai.fnt',
 
             //'snd/01-start.wav',
+            'snd/03-cd.wav',
             'snd/05-draw.wav',
             'snd/06-discard.wav',
             'snd/08-inquire.wav',
@@ -1732,7 +1733,13 @@
                     let n = (t.end_ - new Date().getTime());
                     let s = parseInt(Math.round(n / 1000));
                     if (s > 0) {
-                        t.text = s;
+                        let tt = parseInt(t.text);
+                        if (tt != s) {
+                            t.text = s;
+                            if (s <= 3) {
+                                play_snd('snd/03-cd.wav');
+                            }
+                        }
                     }
                     else {
                         cd.visible = false;
