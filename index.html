@@ -6687,6 +6687,15 @@
                 container.addChild(btn);
                 btn.x = LOBBY_WIDTH - btnWidth;
 
+                btn = new TextButton('返回主页', {
+                    fontFamily: 'Arial',
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                }, btnWidth, btnHeight, ()=>{ window.open("http://www.tziakcha.xyz", "_blank"); });
+                container.addChild(btn);
+
                 btn = new TextButton('创建桌子', {
                     fontFamily: 'Arial',
                     fontSize: 24,
