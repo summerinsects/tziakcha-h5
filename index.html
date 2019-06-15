@@ -1877,7 +1877,11 @@
                                 this.removeCD();
                                 break;
                             default: {
-                                let view = new SelectionView(types[i], ab.data_, (a)=>{
+                                let view = this.selectionView_;
+                                if (view) {
+                                    this.removeChild(view);
+                                }
+                                view = new SelectionView(types[i], ab.data_, (a)=>{
                                     ws.send('{"m":2,"r":' + types[i] + ',"v":' + a + '}');
                                     this.removeBtns();
                                     this.removeCD();
