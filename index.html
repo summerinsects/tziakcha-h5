@@ -2217,10 +2217,11 @@
 
             _discard(sp) {
                 //this.discard0(sp);
-                if (this.standing_[0][13].visible) {
-                    ws.send('{"m":2,"r":2,"v":'+ sp.t_ + '}');
+                let t = sp.t_;
+                if (t != 0xFF && this.standing_[0][13].visible) {
+                    ws.send('{"m":2,"r":2,"v":' + t + '}');
+                    this.removeCD();
                 }
-                this.removeCD();
             }
 
             _click(sp) {
