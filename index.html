@@ -172,9 +172,6 @@
             game.visible = false;
 
             document.oncontextmenu = ()=>{
-                if (game.visible) {
-                    game.rightclick();
-                }
                 return false;
             };
 
@@ -334,6 +331,9 @@
                 this.addChild(piano);
                 piano.visible = false;
                 pool.piano_ = piano;
+
+                this.interactive = true;
+                this.on('rightclick', this.rightclick);
             }
 
             adapt() {
