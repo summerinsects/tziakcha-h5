@@ -612,6 +612,7 @@
                     let detail = resp['d'];
                     if (detail == undefined) {
                         pool.showCallText(n, '和');
+                        let a = resp['a'];
                         if (a && a.length > 0) {
                             pool.addCD(pool.cfg_['r12']);
                             pool.addBtns(a);
