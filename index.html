@@ -2094,11 +2094,7 @@
                 const oy = [10, -10, -10, 10];
                 const cls = [PoolTile0, PoolTile1, PoolTile2, PoolTile3];
 
-                if (this.activeTile_) {
-                    console.log('active tile is not null', n);
-                    this.removeChild(this.activeTile_);
-                    this.activeTile_ = null;
-                }
+                this.removeActive();
 
                 let standing = this.standing_[n];
                 if (!standing[13].visible) {
@@ -2147,6 +2143,8 @@
                 play_snd('snd/06-discard.wav');
                 this.removeCD();
                 this.removeBtns();
+
+                this.removeActive();
 
                 let standing = this.standing_[0];
                 if (!standing[13].visible) {
@@ -2364,6 +2362,26 @@
                         this.standing_[n][13].update(t);
                     }
                     !b ? this._drawTileF(n) : this._drawTileB(n, 13);
+                }
+            }
+
+            removeActive() {
+                let sp = this.activeTile_;
+                if (sp) {
+                    console.log('active tile is not null');
+
+                    let dst = sp.dst_;
+                    if (dst) {
+                        // 普通打牌
+                        dst.visible = true;
+                        this.removeChild(sp);
+                    }
+                    else {
+                        // 加杠
+                        sp.x = sp.dstx_;
+                        sp.y = sp.dsty_;
+                    }
+                    this.activeTile_ = null;
                 }
             }
 
