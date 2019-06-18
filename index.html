@@ -3779,6 +3779,12 @@
             }
 
             toggleChase() {
+                // this.seat_ = 0;
+                // this.players_[0]['n'] = '12';
+                // this.rp_ = [{'n':'123','s':123},{'n':'12','s':12},{'n':'-12','s':-12},{'n':'-123','s':-123}];
+                // this.rpt_ = 0;
+                // this.showResult();
+                // return;
                 let cv = this.chaseView_;
                 if (cv.visible) {
                     cv.visible = false;
@@ -3795,7 +3801,7 @@
                     this.resultView_ = null;
                 }
 
-                let view = new ResultView(this.rp_, this.rpt_, ()=>{
+                let view = new ResultView(this.players_[this.seat_]['n'], this.rp_, this.rpt_, ()=>{
                     if (this.resultView_) {
                         this.removeChild(this.resultView_);
                         this.resultView_ = null;
@@ -5940,7 +5946,7 @@
         }
 
         class ResultView extends PIXI.Container {
-            constructor(players, tm, callback) {
+            constructor(name, players, tm, callback) {
                 super();
 
                 const width = 600, height = 540, gap = 50;
@@ -5987,12 +5993,11 @@
                 t.x = width * .5;
                 t.y = 50;
 
-                let x1 = gap + 40;
-                let x2 = width * .5 + 40 - 60;
-                let x3 = width - gap - 60;
-                for (let i = 0; i < 5; ++i) {
-                    let yy = offsetY + gapY * (i + .5);
-                    t = new PIXI.Text(i > 0 ? i : '名次', {
+                const title = ['名次', '昵称', '分数'];
+                let xx = [gap + 40, width * .5 + 40 - 60, width - gap - 60];
+                let yy = offsetY + gapY * .5;
+                for (let i = 0; i < 3; ++i) {
+                    t = new PIXI.Text(title[i], {
                         fontFamily: 'Arial',
                         fontSize: 24,
                         fill: '#ffffff',
@@ -6001,33 +6006,25 @@
                     });
                     this.addChild(t);
                     t.anchor.set(.5);
-                    t.x = x1;
+                    t.x = xx[i];
                     t.y = yy;
+                }
 
-                    t = new PIXI.Text(i > 0 ? players[i - 1]['n'] : '昵称', {
-                        fontFamily: 'Arial',
-                        fontSize: 24,
-                        fill: '#ffffff',
-                        stroke: '#0066ff',
-                        strokeThickness: 2,
-                    });
-                    this.addChild(t);
-                    t.anchor.set(.5);
-                    t.x = x2;
-                    t.y = yy;
-                    scaleText(t, 280);
-
-                    t = new PIXI.Text(i > 0 ? players[i - 1]['s'] : '总分', {
-                        fontFamily: 'Arial',
-                        fontSize: 24,
-                        fill: '#ffffff',
-                        stroke: '#0066ff',
-                        strokeThickness: 2,
-                    });
-                    this.addChild(t);
-                    t.anchor.set(.5);
-                    t.x = x3;
-                    t.y = yy;
+                for (let k = 0; k < 4; ++k) {
+                    let yy = offsetY + gapY * (k + 1.5);
+                    let text = [k + 1, players[k]['n'], players[k]['s']];
+                    for (let i = 0; i < 3; ++i) {
+                        t = new PIXI.Text(text[i], {
+                            fontFamily: 'Arial',
+                            fontSize: 24,
+                            fill: (name != text[1]) ? '#ffffff' : '#5cdbd3'
+                        });
+                        this.addChild(t);
+                        t.anchor.set(.5);
+                        t.x = xx[i];
+                        t.y = yy;
+                        if (i == 1) scaleText(t, 280);
+                    }
                 }
 
                 t = new PIXI.Text(fmt_date(new Date(tm + 28800000)) + ' UTC+08:00', {
