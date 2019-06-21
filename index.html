@@ -440,11 +440,11 @@
                     let v = resp['v'];
                     pool.turn_ = v;
                     if (v != pool.seat_) {
-                        pool.flower123((v + 4 - pool.seat_) & 3);
+                        pool.flower123((v + 4 - pool.seat_) & 3, resp['h']);
                         pool.removeCD();
                     } else {
                         let t = resp['t'];
-                        pool.flower0(lo_byte(t), hi_byte(t));
+                        pool.flower0(lo_byte(t), hi_byte(t), resp['h']);
                         pool.addCD(pool.cfg_[pool.isDiscarding_ ? 'r30' : 'r12']);
                         pool.addBtns(resp['a']);
                     }
@@ -479,7 +479,7 @@
                     let v = resp['v'];
                     let t = resp['t'];
                     pool.turn_ = v;
-                    pool.draw((v + 4 - pool.seat_) & 3, hi_byte(t), lo_byte(t));
+                    pool.draw((v + 4 - pool.seat_) & 3, hi_byte(t), lo_byte(t), resp['h']);
                     if (pool.seat_ == v) {
                         pool.addCD(pool.cfg_['r30']);
                         pool.addBtns(resp['a']);
@@ -1504,6 +1504,7 @@
                             new PIXI.action.DelayTime(DICE_TIME + i * DRAW_DT),
                             new PIXI.action.CallFunc(()=>{
                                 this.setTurn(i & 3);
+                                --this.remainCnt_;
                                 this._drawEffect((i + 4 - seat) & 3, sp1, (i & 0xFC) + k * 2);
                             })
                         ]));
@@ -1511,6 +1512,7 @@
                         sp2.runAction(new PIXI.action.Sequence([
                             new PIXI.action.DelayTime(DICE_TIME + i * DRAW_DT),
                             new PIXI.action.CallFunc(()=>{
+                                --this.remainCnt_;
                                 this._drawEffect((i + 4 - seat) & 3, sp2, (i & 0xFC) + k * 2 + 1);
                             })
                         ]));
@@ -1529,6 +1531,7 @@
                     new PIXI.action.DelayTime(DICE_TIME + 12 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
                         this.setTurn(0);
+                        --this.remainCnt_;
                         this._drawEffect((4 - seat) & 3, sp1, 12);
                     })
                 ]));
@@ -1537,6 +1540,7 @@
                     new PIXI.action.DelayTime(DICE_TIME + 13 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
                         this.setTurn(1);
+                        --this.remainCnt_;
                         this._drawEffect((5 - seat) & 3, sp2, 12);
                     })
                 ]));
@@ -1550,6 +1554,7 @@
                     new PIXI.action.DelayTime(DICE_TIME + 14 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
                         this.setTurn(2);
+                        --this.remainCnt_;
                         this._drawEffect((6 - seat) & 3, sp3, 12);
                     })
                 ]));
@@ -1558,6 +1563,7 @@
                     new PIXI.action.DelayTime(DICE_TIME + 15 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
                         this.setTurn(3);
+                        --this.remainCnt_;
                         this._drawEffect((7 - seat) & 3, sp4, 12);
                     })
                 ]));
@@ -1570,6 +1576,7 @@
                 sp5.runAction(new PIXI.action.Sequence([
                     new PIXI.action.DelayTime(DICE_TIME + 12 * DRAW_DT),
                     new PIXI.action.CallFunc(()=>{
+                        --this.remainCnt_;
                         this._drawEffect((4 - seat) & 3, sp5, 13);
                     })
                 ]));
@@ -1952,8 +1959,6 @@
                     new PIXI.action.CallFunc(()=>{
                         this.removeChild(sp);
                         dst.visible = true;
-
-                        --this.remainCnt_;
                         this.remainText_.text = '牌墙剩余：' + this.remainCnt_;
                     })
                 ]));
@@ -2327,10 +2332,11 @@
                 }
             }
 
-            draw(n, b, t) {
+            draw(n, b, t, rm) {
                 this.removeBtns();
 
                 this.setTurn((this.seat_ + n) & 3);
+                this.remainCnt_ = rm;
 
                 let sp = this.activeTile_;
                 if (sp) {
@@ -2406,9 +2412,10 @@
                 ]));
             }
 
-            flower123(n) {
+            flower123(n, rm) {
                 this.showCallText(n, '花');
                 this.infoPanels_[n].setFlower(++this.flowers_[n]);
+                this.remainCnt_ = rm;
 
                 let standing = this.standing_[n];
                 if (standing[13].visible) {
@@ -2452,9 +2459,10 @@
                 }
             }
 
-            flower0(ot, nt) {
+            flower0(ot, nt, rm) {
                 this.showCallText(0, '花');
                 this.infoPanels_[0].setFlower(++this.flowers_[0]);
+                this.remainCnt_ = rm;
 
                 let idx = this._findIdx(0, ot);
                 if (idx == -1) {
