@@ -141,7 +141,7 @@
             'fnt/STXingkai.png',
             'fnt/STXingkai.fnt',
 
-            //'snd/01-start.wav',
+            'snd/01-start.wav',
             'snd/03-cd.wav',
             'snd/05-draw.wav',
             'snd/06-discard.wav',
@@ -1717,6 +1717,7 @@
                     new PIXI.action.DelayTime(2),
                     new PIXI.action.CallFunc(()=>{ this.removeChild(bg); this.sendHandTiles(d, h); })
                 ]));
+                play_snd('snd/01-start.wav');
             }
 
             setTurn(t) {
