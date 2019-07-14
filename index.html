@@ -5922,6 +5922,18 @@
                     ++i;
                 }
 
+                t = new PIXI.Text('你已错和，本盘失去和牌权', {
+                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontSize: 22,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                this.addChild(t);
+                t.anchor.x = .5;
+                t.x = width * .5;
+                t.y = 220;
+
                 let height = Math.max(y + 110, 340);
 
                 bg.lineStyle(2, 0xFFFFFF, 1);
