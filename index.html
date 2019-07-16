@@ -142,6 +142,7 @@
             'fnt/STXingkai.fnt',
 
             'snd/01-start.wav',
+            'snd/02-dice.wav',
             'snd/03-cd.wav',
             'snd/05-draw.wav',
             'snd/06-discard.wav',
@@ -152,14 +153,14 @@
             'snd/14-chow-m.wav',
             'snd/16-pung-m.wav',
             'snd/18-kong-m.wav',
-            'snd/20-win-m.wav'
+            'snd/20-win-m.wav',
+            'snd/24-dingdong.wav'
         ])
         .on('progress', (e)=>{
             console.log('loading progress:', e.progress);
             loadingText.text = e.progress.toFixed(2) + '%';
         })
         .load(()=> {
-            //play_snd('snd/01-start.wav');
             app.stage.removeChild(loadingText);
             delete loadingText;
 
@@ -1470,6 +1471,7 @@
                     dss[i] = ds;
                 }
 
+                play_snd('snd/02-dice.wav');
                 let dir2 = (d[0] + d[1] - 1 + 4) & 3;
                 this.runAction(new PIXI.action.Sequence([
                     new PIXI.action.DelayTime(1),
@@ -1477,6 +1479,7 @@
                         this.removeChild(dss[0]);
                         this.removeChild(dss[1]);
                         this.setTurn(dir2);
+                        play_snd('snd/02-dice.wav');
 
                         for (let i = 0; i < 2; ++i) {
                             let ds = createDice(d[i + 2]);
@@ -1717,7 +1720,7 @@
                     new PIXI.action.DelayTime(2),
                     new PIXI.action.CallFunc(()=>{ this.removeChild(bg); this.sendHandTiles(d, h); })
                 ]));
-                play_snd('snd/01-start.wav');
+                play_snd(this.rd_ ? 'snd/24-dingdong.wav' : 'snd/01-start.wav');
             }
 
             setTurn(t) {
