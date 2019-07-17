@@ -3786,7 +3786,7 @@
                 }
                 else {
                     this.setChildIndex(hv, this.children.length - 1);
-                    hv.show(this.players_, this.rd_ + (this.rdfsh_ ? 1 : 0), this.cfg_['i']);
+                    hv.show(this.players_, this.rd_ + (this.rdfsh_ ? 1 : 0), this.cfg_['i'], -this.cfg_['b']);
                 }
             }
 
@@ -6247,7 +6247,7 @@
                 btn.y = height - btnHeight - 20;
             }
 
-            show(players, rd, is) {
+            show(players, rd, is, nbp) {
                 this.visible = true;
 
                 let ntt = this.ntt_, ttt = this.ttt_, rtt = this.rtt_;
@@ -6259,7 +6259,7 @@
                 for (let i = 0; i < 16; ++i) {
                     let rssi = [rss[0][i], rss[1][i], rss[2][i], rss[3][i]];
                     let rspi = [rps[0][i], rps[1][i], rps[2][i], rps[3][i]];
-                    let sd = (rssi[0] != -8 && rssi[1] != -8 && rssi[2] != -8 && rssi[3] != -8);
+                    let sd = (rssi[0] != nbp && rssi[1] != nbp && rssi[2] != nbp && rssi[3] != nbp);
                     let tie = (rssi[0] == 0 && rssi[1] == 0 && rssi[2] == 0 && rssi[3] == 0);
                     for (let k = 0; k < 8; ++k) {
                         let tx = '', cl = '#DCDCDC';
@@ -6272,7 +6272,7 @@
                             }
                             else {
                                 if (!tie) {
-                                    cl = (rs < 0) ? ((rs == -8 || sd) ? '#00CD66' : '#00BFFF') : '#FF6A6A';
+                                    cl = (rs < 0) ? ((rs == nbp || sd) ? '#00CD66' : '#00BFFF') : '#FF6A6A';
                                 }
                             }
                             tx = rr;
