@@ -3813,7 +3813,7 @@
                     this.resultView_ = null;
                 }
 
-                let view = new ResultView(this.players_[this.seat_]['n'], this.rp_, this.rpt_, ()=>{
+                let view = new ResultView(this.cfg_['t'], this.players_[this.seat_]['n'], this.rp_, this.rpt_, ()=>{
                     if (this.resultView_) {
                         this.removeChild(this.resultView_);
                         this.resultView_ = null;
@@ -5970,11 +5970,11 @@
         }
 
         class ResultView extends PIXI.Container {
-            constructor(name, players, tm, callback) {
+            constructor(title, name, players, tm, callback) {
                 super();
 
                 const width = 600, height = 540, gap = 50;
-                const offsetY = 100, gapY = 60;
+                const offsetY = 110, gapY = 60;
 
                 this.width = width;
                 this.height = height;
@@ -6005,23 +6005,25 @@
                 bg.moveTo(width - gap - 120, offsetY);
                 bg.lineTo(width - gap - 120, offsetY + gapY * 5);
 
-                let t = new PIXI.Text('对战结果', {
+                let t = new PIXI.Text(title + '\n对战结果', {
                     fontFamily: 'Arial,Helvetica,sans-serif',
-                    fontSize: 40,
+                    fontSize: 32,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
+                    align: 'center'
                 });
                 this.addChild(t);
                 t.anchor.set(.5);
                 t.x = width * .5;
-                t.y = 50;
+                t.y = 60;
+                scaleText(t, width - 20);
 
-                const title = ['名次', '昵称', '分数'];
+                const ti = ['名次', '昵称', '分数'];
                 let xx = [gap + 40, width * .5 + 40 - 60, width - gap - 60];
                 let yy = offsetY + gapY * .5;
                 for (let i = 0; i < 3; ++i) {
-                    t = new PIXI.Text(title[i], {
+                    t = new PIXI.Text(ti[i], {
                         fontFamily: 'Arial,Helvetica,sans-serif',
                         fontSize: 24,
                         fill: '#ffffff',
@@ -6061,7 +6063,7 @@
                 this.addChild(t);
                 t.anchor.set(.5);
                 t.x = width * .5;
-                t.y = height - 110;
+                t.y = height - 105;
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('OK', {
