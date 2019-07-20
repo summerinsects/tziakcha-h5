@@ -7144,7 +7144,7 @@
             constructor(callback) {
                 super();
 
-                const gap = 30, offsetY = 100, gapY = 40;
+                const gap = 30, offsetY = 80, gapY = 35;
 
                 this.width = LOBBY_WIDTH;
                 this.height = LOBBY_HEIGHT;
@@ -7160,7 +7160,7 @@
 
                 let t = new PIXI.Text('创建牌桌', {
                     fontFamily: 'Arial,Helvetica,sans-serif',
-                    fontSize: 40,
+                    fontSize: 32,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -7173,6 +7173,8 @@
                 const title = [
                     '对局名称',
                     '类型',
+                    '起和番',
+                    '底分',
                     '出牌时限',
                     '鸣牌时限',
                     '战术鸣牌',
@@ -7187,6 +7189,8 @@
                 const option = [
                     undefined,
                     ['全庄', '半庄', '东风'],
+                    ['1番', '8番', '16番', '24番', '32番'],
+                    ['0', '8'],
                     ['5秒', '8秒', '10秒', '15秒'],
                     ['3秒', '5秒', '8秒', '10秒'],
                     ['有', '无'],
@@ -7200,12 +7204,12 @@
                     undefined
                 ];
 
-                let ctrls = new Array(13);
-                for (let i = 0; i < 13; ++i) {
-                    let yy = offsetY + 40 * i;
+                let ctrls = new Array(15);
+                for (let i = 0; i < 15; ++i) {
+                    let yy = offsetY + 35 * i;
                     t = new PIXI.Text(title[i], {
                         fontFamily: 'Arial,Helvetica,sans-serif',
-                        fontSize: 20,
+                        fontSize: 18,
                         fill: '#ffffff',
                         stroke: '#0066ff',
                         strokeThickness: 2,
@@ -7236,13 +7240,13 @@
                     }
                     else {
                         let textInput = new PIXI.TextInput({
-                            fontSize: '20px',
+                            fontSize: '18px',
                             width: (LOBBY_WIDTH - xx - gap * 2) + 'px',
-                            height: (gapY - 15) + 'px',
+                            height: '18px',
                             padding: '6px',
                         });
                         textInput.x = xx;
-                        textInput.y = yy - (gapY - 5) * .5;
+                        textInput.y = yy - 15;
                         this.addChild(textInput);
                         ctrls[i] = textInput;
                     }
@@ -7258,16 +7262,18 @@
 
                 ctrls[0].text = dv(defcfg['t'], '');
                 ctrls[1][dv(defcfg['n'], 0)].setSelected(true);
-                ctrls[2][dv(defcfg['r30'], 2)].setSelected(true);
-                ctrls[3][dv(defcfg['r12'], 1)].setSelected(true);
-                ctrls[4][dv(defcfg['s'], 0)].setSelected(true);
-                ctrls[5][dv(defcfg['o'], 1)].setSelected(true);
-                ctrls[6][dv(defcfg['fa'], 0)].setSelected(true);
-                ctrls[7][dv(defcfg['fc'], 1)].setSelected(true);
-                ctrls[8][dv(defcfg['i'], 0)].setSelected(true);
-                ctrls[9][dv(defcfg['r'], 0)].setSelected(true);
-                ctrls[10][dv(defcfg['a'], 1)].setSelected(true);
-                ctrls[11][dv(defcfg['g'], 1)].setSelected(true);
+                ctrls[2][dv(defcfg['l'], 1)].setSelected(true);
+                ctrls[3][dv(defcfg['b'], 1)].setSelected(true);
+                ctrls[4][dv(defcfg['r30'], 2)].setSelected(true);
+                ctrls[5][dv(defcfg['r12'], 1)].setSelected(true);
+                ctrls[6][dv(defcfg['s'], 0)].setSelected(true);
+                ctrls[7][dv(defcfg['o'], 1)].setSelected(true);
+                ctrls[8][dv(defcfg['fa'], 0)].setSelected(true);
+                ctrls[9][dv(defcfg['fc'], 1)].setSelected(true);
+                ctrls[10][dv(defcfg['i'], 0)].setSelected(true);
+                ctrls[11][dv(defcfg['r'], 0)].setSelected(true);
+                ctrls[12][dv(defcfg['a'], 1)].setSelected(true);
+                ctrls[13][dv(defcfg['g'], 1)].setSelected(true);
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
@@ -7307,17 +7313,19 @@
                 let cfg = {
                     't':ctrls[0].text.trim(),
                     'n':rv(ctrls[1], 0),
-                    'r30':rv(ctrls[2], 2),
-                    'r12':rv(ctrls[3], 1),
-                    's':rv(ctrls[4], 0),
-                    'o':rv(ctrls[5], 1),
-                    'fa':rv(ctrls[6], 0),
-                    'fc':rv(ctrls[7], 1),
-                    'i':rv(ctrls[8], 0),
-                    'r':rv(ctrls[9], 0),
-                    'a':rv(ctrls[10], 1),
-                    'g':rv(ctrls[11], 1),
-                    'p':ctrls[12].text
+                    'l':rv(ctrls[2], 1),
+                    'b':rv(ctrls[3], 1),
+                    'r30':rv(ctrls[4], 2),
+                    'r12':rv(ctrls[5], 1),
+                    's':rv(ctrls[6], 0),
+                    'o':rv(ctrls[7], 1),
+                    'fa':rv(ctrls[8], 0),
+                    'fc':rv(ctrls[9], 1),
+                    'i':rv(ctrls[10], 0),
+                    'r':rv(ctrls[11], 0),
+                    'a':rv(ctrls[12], 1),
+                    'g':rv(ctrls[13], 1),
+                    'p':ctrls[14].text
                 };
                 localStorage.setItem('default_config', JSON.stringify(cfg));
                 return cfg;
