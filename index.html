@@ -2488,7 +2488,12 @@
 
                 this.stopFlower_ = false;
 
-                if (idx == 13 || standing[13].visible) {
+                if (idx == 13) {
+                    this._drawTileB(0, 13);
+                    standing[13].update(nt);
+                }
+                else if (standing[13].visible) {
+                    standing[idx].t_ = 0xFF;
                     standing.sort(function(a, b) { return a.t_ - b.t_; });
 
                     for (let i = 0; i < 14; ++i) {
