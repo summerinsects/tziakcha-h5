@@ -203,9 +203,17 @@
                 // }
                 // ws.send('{"m":1,"r":6}');
                 ws.send('{"m":1,"r":2}');
-                let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
-                if (un && pw) {
-                    ws.send('{"m":1,"r":9,"u":"' + un + '","p":"' + pw + '"}');
+                //let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
+                //if (un && pw) {
+                //    ws.send('{"m":1,"r":9,"u":"' + un + '","p":"' + pw + '"}');
+                //}
+
+                let ck = document.cookie;
+                if (ck) {
+                    var pt = ck.split('=');
+                    if (pt[1]) {
+                        ws.send('{"m":1,"r":11,"t":"' + pt[1] +'"}');
+                    }
                 }
 
                 hbt = 0;
