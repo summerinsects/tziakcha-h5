@@ -6900,6 +6900,12 @@
                     let t = this.nameBtn_.face_;
                     t.text = resp['u'];
                     scaleText(t, 115);
+                    let k = resp['t'];
+                    if (k) {
+                        let exp = new Date(); 
+                        exp.setTime(exp.getTime() + 864000); 
+                        document.cookie='token=' + k + ';Path=/;Expires=' + exp.toGMTString();
+                    }
                     break;
                 }
                 case 10:
