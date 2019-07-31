@@ -6744,7 +6744,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ this._showUserView(); });
+                }, btnWidth, btnHeight, ()=>{ ws.send('{"m":1,"r":10}'); });
                 container.addChild(btn);
                 btn.x = LOBBY_WIDTH - btnWidth;
 
@@ -6754,7 +6754,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ window.open("http://www.tziakcha.xyz", "_blank"); });
+                }, btnWidth, btnHeight, ()=>{ window.open("/", "_blank"); });
                 container.addChild(btn);
 
                 btn = new TextButton('创建桌子', {
@@ -6830,6 +6830,8 @@
                     case 9: this._error('用户名或密码过长'); break;
                     case 10: this._error('该桌不允许游客账号加入'); break;
                     case 11: this._error('不允许使用特殊字符'); break;
+                    case 12: this._error('验证码错误'); break;
+                    case 13: /*this._error('会话已过期，请重新登录');*/ break;
                     }
                     break;
                 case 2: {
@@ -6893,8 +6895,7 @@
                     break;
                 }
                 case 10:
-                    break;
-                case 11:
+                    this._showUserView(resp['z']);
                     break;
                 default:
                     break;
@@ -6915,15 +6916,16 @@
                 }
             }
 
-            _showUserView() {
+            _showUserView(pzl) {
                 if (this.uv_) {
-                    return;
+                    this.container_.removeChild(this.uv_);
+                    this.uv_.removeChildren();
                 }
 
-                let uv = this.uv_ = new UserView((un, pw)=>{
+                let uv = this.uv_ = new UserView(pzl, (un, pw, sln)=>{
                     console.log('un pw', un, pw);
                     if (un && pw) {
-                        ws.send('{"m":1,"r":9,"u":"' + un + '","p":"' + pw + '"}');
+                        ws.send('{"m":1,"r":9,"u":"' + un + '","p":"' + pw + '","z":"' + pzl + '","s":"'+ sln +'"}');
                         localStorage.setItem('username', un);
                         localStorage.setItem('password', pw);
                     }
@@ -7589,10 +7591,10 @@
         }
 
         class UserView extends PIXI.Container {
-            constructor(callback) {
+            constructor(pzl, callback) {
                 super();
 
-                const gap = 30, width2 = 450, height2 = 350;
+                const gap = 30, width2 = 450, height2 = 420;
 
                 this.width = LOBBY_WIDTH;
                 this.height = LOBBY_HEIGHT;
@@ -7622,10 +7624,10 @@
                 t.x = LOBBY_WIDTH * .5;
                 t.y = (LOBBY_HEIGHT - height2) * .5 + 40;
 
-                const prefix = ['昵称', '密码'];
-                let textInputs = [null, null];
+                const prefix = ['昵称', '密码', '验证'];
+                let textInputs = [null, null, null];
                 let plh = [localStorage.getItem('username'), localStorage.getItem('password')];
-                for (let i = 0; i < 2; ++i) {
+                for (let i = 0; i < 3; ++i) {
                     let yy = (LOBBY_HEIGHT - height2) * .5 + 110 + 70 * i;
                     t = new PIXI.Text(prefix[i], {
                         fontFamily: 'Arial,Helvetica,sans-serif',
@@ -7653,17 +7655,18 @@
                     textInput.text = plh[i] || '';
                 }
 
-                t = new PIXI.Text('请勿使用个人常用密码，简单密码即可', {
+                t = new PIXI.Text('验证问题：手牌'+ pzl +'，\n听牌为（包括已出现4枚的）', {
                     fontFamily: 'Arial,Helvetica,sans-serif',
                     fontSize: 18,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
+                    align: 'center'
                 });
                 this.addChild(t);
                 t.anchor.set(.5);
                 t.x = LOBBY_WIDTH * .5;
-                t.y = LOBBY_HEIGHT * .5 + 65;
+                t.y = LOBBY_HEIGHT * .5 + 95;
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
@@ -7683,7 +7686,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(textInputs[0].text.trim(), textInputs[1].text); });
+                }, btnWidth, btnHeight, ()=>{ callback(textInputs[0].text.trim(), textInputs[1].text, textInputs[2].text); });
                 this.addChild(btn);
                 btn.x = (LOBBY_WIDTH + width2) * .5 - btnWidth - gap;
                 btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
