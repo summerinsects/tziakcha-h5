@@ -150,10 +150,15 @@
             'snd/09-cpk.wav',
             'snd/10-win.wav',
             'snd/12-flower-m.wav',
+            'snd/13-flower-f.wav',
             'snd/14-chow-m.wav',
+            'snd/15-chow-f.wav',
             'snd/16-pung-m.wav',
+            'snd/17-pung-f.wav',
             'snd/18-kong-m.wav',
+            'snd/19-kong-f.wav',
             'snd/20-win-m.wav',
+            'snd/21-win-f.wav',
             'snd/24-dingdong.wav'
         ])
         .on('progress', (e)=>{
@@ -437,8 +442,8 @@
                         return;
                     }
 
-                    play_snd('snd/12-flower-m.wav');
                     let v = resp['v'];
+                    play_snd(!pool.players_[v]['g'] ? 'snd/12-flower-m.wav' : 'snd/13-flower-f.wav');
                     pool.turn_ = v;
                     if (v != pool.seat_) {
                         pool.flower123((v + 4 - pool.seat_) & 3, resp['h']);
@@ -516,8 +521,9 @@
                         return;
                     }
 
-                    play_snd(r == 8 ? 'snd/14-chow-m.wav' : 'snd/16-pung-m.wav');
-                    let idx = (resp['v'] + 4 - pool.seat_) & 3;
+                    let v = resp['v'];
+                    play_snd(!pool.players_[v]['g'] ? (r == 8 ? 'snd/14-chow-m.wav' : 'snd/16-pung-m.wav') : (r == 8 ? 'snd/15-chow-f.wav' : 'snd/17-pung-f.wav'));
+                    let idx = (v + 4 - pool.seat_) & 3;
                     pool.showCallText(idx, r == 8 ? '吃' : '碰');
 
                     let p = resp['p'];
@@ -545,8 +551,9 @@
                         return;
                     }
 
-                    play_snd('snd/18-kong-m.wav');
-                    let idx = (resp['v'] + 4 - pool.seat_) & 3;
+                    let v = resp['v'];
+                    play_snd(!pool.players_[v]['g'] ? 'snd/18-kong-m.wav' : 'snd/19-kong-f.wav');
+                    let idx = (v + 4 - pool.seat_) & 3;
                     pool.showCallText(idx, '杠');
 
                     let p = resp['p'];
@@ -587,8 +594,9 @@
                         return;
                     }
 
-                    play_snd('snd/18-kong-m.wav');
-                    let idx = (resp['v'] + 4 - pool.seat_) & 3;
+                    let v = resp['v'];
+                    play_snd(!pool.players_[v]['g'] ? 'snd/18-kong-m.wav' : 'snd/19-kong-f.wav');
+                    let idx = (v + 4 - pool.seat_) & 3;
                     switch (idx) {
                     case 0: pool.showCallText(0, '杠'); pool.ck0(resp['p']); break;
                     case 1: pool.showCallText(1, '杠'); pool.ck1(resp['p'], false); break;
@@ -609,7 +617,7 @@
                     let cp = lo_byte(v);
                     let n = (wp + 4 - pool.seat_) & 3;
 
-                    play_snd('snd/20-win-m.wav');
+                    play_snd(!pool.players_[wp]['g'] ? 'snd/20-win-m.wav' : 'snd/21-win-f.wav');
                     let detail = resp['d'];
                     if (detail == undefined) {
                         pool.showCallText(n, '和');
