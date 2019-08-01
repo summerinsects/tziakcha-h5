@@ -6838,8 +6838,9 @@
                     case 9: this._error('用户名或密码过长'); break;
                     case 10: this._error('该桌不允许游客账号加入'); break;
                     case 11: this._error('不允许使用特殊字符'); break;
-                    case 12: this._error('验证码错误'); break;
-                    case 13: /*this._error('会话已过期，请重新登录');*/ break;
+                    case 12: this._error('验证码已过期'); break;
+                    case 13: this._error('验证码错误'); break;
+                    case 14: this._error('会话已过期，请重新登录'); break;
                     }
                     break;
                 case 2: {
@@ -7669,7 +7670,7 @@
                     textInput.text = plh[i] || '';
                 }
 
-                t = new PIXI.Text('验证问题：手牌'+ pzl +'，\n听牌为（包括已出现4枚的）', {
+                t = new PIXI.Text('验证问题：清一色'+ pzl +'，\n听牌为（包括已出现4枚的）', {
                     fontFamily: 'Arial,Helvetica,sans-serif',
                     fontSize: 18,
                     fill: '#ffffff',
