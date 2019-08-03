@@ -6843,7 +6843,7 @@
                     case 13: this._error('验证码已过期'); break;
                     case 14: this._error('验证码错误'); break;
                     case 15: {
-                        let ck = document.cookie;
+                        document.cookie = '__p=;Path=/;Max-Age=0';
                         let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
                         if (un && pw) {
                             ws.send('{"m":1,"r":9,"u":"' + un + '","p":"' + pw + '"}');
