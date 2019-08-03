@@ -7288,6 +7288,7 @@
                         });
                         textInput.x = xx;
                         textInput.y = yy - 15;
+                        textInput.substituteText = false;
                         this.addChild(textInput);
                         ctrls[i] = textInput;
                     }
@@ -7589,6 +7590,7 @@
                 });
                 textInput.x = LOBBY_WIDTH * .5 - 100;
                 textInput.y = LOBBY_HEIGHT * .5 - 20;
+                substituteText = false;
                 this.addChild(textInput);
 
                 const btnWidth = 120, btnHeight = 50;
@@ -7679,8 +7681,9 @@
                     this.addChild(textInput);
                     textInputs[i] = textInput;
                     textInput.text = plh[i] || '';
+                    textInput.substituteText = false;
                 }
-
+                textInputs[1]._dom_input.setAttribute('type', 'password');
                 if (pzl) {
                     t = new PIXI.Text('验证问题：清一色'+ pzl +'，\n听牌为（包括已出现4枚的）', {
                         fontFamily: 'Arial,Helvetica,sans-serif',
