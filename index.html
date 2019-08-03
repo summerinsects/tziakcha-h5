@@ -203,16 +203,17 @@
                 // }
                 // ws.send('{"m":1,"r":6}');
                 ws.send('{"m":1,"r":2}');
-                //let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
-                //if (un && pw) {
-                //    ws.send('{"m":1,"r":9,"u":"' + un + '","p":"' + pw + '"}');
-                //}
-
                 let ck = document.cookie;
                 if (ck) {
                     var pt = ck.split('=');
                     if (pt[1]) {
                         ws.send('{"m":1,"r":11,"t":"' + pt[1] +'"}');
+                    }
+                }
+                else {
+                    let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
+                    if (un && pw) {
+                        ws.send('{"m":1,"r":9,"u":"' + un + '","p":"' + pw + '"}');
                     }
                 }
 
@@ -6840,7 +6841,17 @@
                     case 11: this._error('不允许使用特殊字符'); break;
                     case 12: this._error('验证码已过期'); break;
                     case 13: this._error('验证码错误'); break;
-                    case 14: this._error('会话已过期，请重新登录'); break;
+                    case 14: {
+                        let ck = document.cookie;
+                        let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
+                        if (un && pw) {
+                            ws.send('{"m":1,"r":9,"u":"' + un + '","p":"' + pw + '"}');
+                        }
+                        else {
+                            this._error('会话已过期，请重新登录');
+                        }
+                        break;
+                    }
                     }
                     break;
                 case 2: {
@@ -6905,7 +6916,7 @@
                     if (k) {
                         let exp = new Date(); 
                         exp.setTime(exp.getTime() + 864000); 
-                        document.cookie='token=' + k + ';Path=/;Expires=' + exp.toGMTString();
+                        document.cookie='__p=' + k + ';Path=/;Expires=' + exp.toGMTString();
                     }
                     break;
                 }
@@ -7609,7 +7620,7 @@
             constructor(pzl, callback) {
                 super();
 
-                const gap = 30, width2 = 450, height2 = 420;
+                const gap = 30, width2 = 450, height2 = pzl ? 420 : 320;
 
                 this.width = LOBBY_WIDTH;
                 this.height = LOBBY_HEIGHT;
@@ -7642,7 +7653,7 @@
                 const prefix = ['昵称', '密码', '验证'];
                 let textInputs = [null, null, null];
                 let plh = [localStorage.getItem('username'), localStorage.getItem('password')];
-                for (let i = 0; i < 3; ++i) {
+                for (let i = 0, c = pzl ? 3 : 2; i < c; ++i) {
                     let yy = (LOBBY_HEIGHT - height2) * .5 + 110 + 70 * i;
                     t = new PIXI.Text(prefix[i], {
                         fontFamily: 'Arial,Helvetica,sans-serif',
@@ -7670,18 +7681,20 @@
                     textInput.text = plh[i] || '';
                 }
 
-                t = new PIXI.Text('验证问题：清一色'+ pzl +'，\n听牌为（包括已出现4枚的）', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
-                    fontSize: 18,
-                    fill: '#ffffff',
-                    stroke: '#0066ff',
-                    strokeThickness: 2,
-                    align: 'center'
-                });
-                this.addChild(t);
-                t.anchor.set(.5);
-                t.x = LOBBY_WIDTH * .5;
-                t.y = LOBBY_HEIGHT * .5 + 95;
+                if (pzl) {
+                    t = new PIXI.Text('验证问题：清一色'+ pzl +'，\n听牌为（包括已出现4枚的）', {
+                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontSize: 18,
+                        fill: '#ffffff',
+                        stroke: '#0066ff',
+                        strokeThickness: 2,
+                        align: 'center'
+                    });
+                    this.addChild(t);
+                    t.anchor.set(.5);
+                    t.x = LOBBY_WIDTH * .5;
+                    t.y = LOBBY_HEIGHT * .5 + 95;
+                }
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
@@ -7701,7 +7714,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(textInputs[0].text.trim(), textInputs[1].text, textInputs[2].text); });
+                }, btnWidth, btnHeight, ()=>{ callback(textInputs[0].text.trim(), textInputs[1].text, pzl ? textInputs[2].text : ''); });
                 this.addChild(btn);
                 btn.x = (LOBBY_WIDTH + width2) * .5 - btnWidth - gap;
                 btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
