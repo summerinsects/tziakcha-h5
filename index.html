@@ -6839,10 +6839,11 @@
                     case 9: this._error('用户名或密码过长'); break;
                     case 10: this._error('该桌不允许游客账号加入'); break;
                     case 11: this._error('不允许使用特殊字符'); break;
-                    case 12: this._error('账号和密码不匹配'); break;
-                    case 13: this._error('验证码已过期'); break;
-                    case 14: this._error('验证码错误'); break;
-                    case 15: {
+                    case 12:this._error('鸣牌时限不能超过出牌时限');break;
+                    case 13: this._error('账号和密码不匹配'); break;
+                    case 14: this._error('验证码已过期'); break;
+                    case 15: this._error('验证码错误'); break;
+                    case 16: {
                         document.cookie = '__p=;Path=/;Max-Age=0';
                         let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
                         if (un && pw) {
