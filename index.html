@@ -35,7 +35,7 @@
         function hi_byte(w) { return (w >> 8) & 0xFF; }
         function shuffle_array(arr, beg, end) {
             for (let i = beg, len = arr.length; i < end && i < len; ++i) {
-                let j = parseInt(Math.random() * (end - beg)) + beg;
+                let j = Math.floor(Math.random() * (end - beg)) + beg;
                 if (i != j) {
                     let t = arr[i];
                     arr[i] = arr[j];
@@ -999,7 +999,7 @@
                 x = (MAX_WIDTH + CENTER_WIDTH) * .5;
                 y = (MAX_HEIGHT + CENTER_HEIGHT) * .5 - HEIGHT_13 * 6;
                 for (let i = 0; i < 24; ++i) {
-                    let col = parseInt(i / 6), row = (i % 6);
+                    let col = Math.floor(i / 6), row = (i % 6);
                     let realIdx = col * 6 + (5 - row);
 
                     let t = new PoolTile1(0);
@@ -1014,7 +1014,7 @@
                 x = (MAX_WIDTH + CENTER_WIDTH) * .5 - WIDTH_02;
                 y = (MAX_HEIGHT - CENTER_HEIGHT) * .5 - HEIGHT_02 * 4 - OVERLAP;
                 for (let i = 0; i < 24; ++i) {
-                    let col = (i % 6), row = parseInt(i / 6);
+                    let col = (i % 6), row = Math.floor(i / 6);
                     let realIdx = (3 - row) * 6 + col;
 
                     let t = new PoolTile2(0);
@@ -1032,7 +1032,7 @@
                     let t = new PoolTile3(0);
                     this.addChild(t);
                     pools[3][i] = t;
-                    t.x = x - WIDTH_13 * parseInt(i / 6);
+                    t.x = x - WIDTH_13 * Math.floor(i / 6);
                     t.y = y + HEIGHT_13 * (i % 6);
                     t.visible = false;
                 }
@@ -1045,7 +1045,7 @@
                     this.addChild(t);
                     pools[0][i] = t;
                     t.x = x + WIDTH_02 * (i % 6);
-                    t.y = y + HEIGHT_02 * parseInt(i / 6);
+                    t.y = y + HEIGHT_02 * Math.floor(i / 6);
                     t.visible = false;
                 }
 
@@ -1710,7 +1710,7 @@
                 t.end_ = new Date().getTime() + sec * 1000;
                 t.timer_ = setInterval(()=>{
                     let n = (t.end_ - new Date().getTime());
-                    let s = parseInt(Math.round(n / 1000));
+                    let s = Math.round(n / 1000);
                     if (s > 0) {
                         let tt = parseInt(t.text);
                         if (tt != s) {
@@ -2008,7 +2008,7 @@
             _randomIdx(n) {
                 let hd = this.packData_[n].length * 3;
                 if (hd < 12) {
-                    return parseInt(Math.random() * (13 - hd)) + hd;
+                    return Math.floor(Math.random() * (13 - hd)) + hd;
                 }
                 return 12;
             }
@@ -5609,7 +5609,7 @@
                 const frp = (width - gap * 2) / 3;
                 for (let f in table) {
                     let x0 = gap + 5 + (i % 3) * frp;
-                    let y0 = y + 5 + 35 * parseInt(i / 3);
+                    let y0 = y + 5 + 35 * Math.floor(i / 3);
 
                     let v = table[f];
                     let c = ((v >> 8) & 0xFF) + 1;
@@ -5765,7 +5765,7 @@
                 t.end_ = new Date().getTime() + cd * 1000;
                 t.timer_ = setInterval(()=>{
                     let n = (t.end_ - new Date().getTime());
-                    let s = parseInt(Math.round(n / 1000));
+                    let s = Math.round(n / 1000);
                     if (s > 0) {
                         t.text = s;
                     }
@@ -6985,7 +6985,7 @@
 
             _refresh() {
                 let tbs = this.tables_;
-                let maxPage = parseInt(Math.ceil(tbs.length / 4));
+                let maxPage = Math.ceil(tbs.length / 4);
                 if (maxPage == 0) {
                     maxPage = 1;
                 }
@@ -7024,7 +7024,7 @@
             }
 
             _nextPage() {
-                if (this.page_ >= parseInt(Math.ceil(this.tables_.length / 4))) {
+                if (this.page_ >= Math.ceil(this.tables_.length / 4)) {
                     return;
                 }
                 ++this.page_;
