@@ -8,9 +8,9 @@
 </head>
 <body>
     <script src="js/pixi.min.js"></script>
+    <script src="js/Tween.min.js"></script>
     <script src="js/PIXI.TextInput.min.js"></script>
     <script src="js/pixi-sound.js"></script>
-    <script src="js/pixi-action.js"></script>
     <script>
         const all_tiles = [
             0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2,
@@ -66,24 +66,10 @@
         //}
         //animate(performance.now());
 
-        window.setInterval(()=>{
+        setInterval(()=>{
             app.renderer.render(app.stage);
-            try {
-                PIXI.actionManager.update();
-            }
-            catch (e) {
-                location.reload();
-            }
+            TWEEN.update();
         }, 33.333);
-
-        PIXI.DisplayObject.prototype.runAction = function(a) {
-            //console.log('actions count', Object.keys(PIXI.actionManager.actions).length);
-            return PIXI.actionManager.runAction(this, a);
-        };
-
-        PIXI.DisplayObject.prototype.stopAction = function(a) {
-            PIXI.actionManager.cancelAction(a);
-        };
 
         let loadingText = new PIXI.Text('0%', {
             fontFamily: 'Arial,Helvetica,sans-serif',
@@ -177,9 +163,7 @@
 
             game.visible = false;
 
-            document.oncontextmenu = ()=>{
-                return false;
-            };
+            document.oncontextmenu = ()=>false;
 
             lobby.adapt();
             game.adapt();
@@ -738,9 +722,9 @@
         const WIND = ['东', '南', '西', '北'];
         const ACTION = ['吃', '碰', '杠', '和', '花', '过'];
 
-        const DRAW_DT = .1;
-        const SORT_DT = .2;
-        const DISCARD_DT = .15;
+        const DRAW_DT = 100;
+        const SORT_DT = 200;
+        const DISCARD_DT = 150;
 
         class Pool extends PIXI.Container {
             constructor() {
@@ -1490,52 +1474,43 @@
 
                 play_snd('snd/02-dice.wav');
                 let dir2 = (d[0] + d[1] - 1 + 4) & 3;
-                this.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(1),
-                    new PIXI.action.CallFunc(()=>{
-                        this.removeChild(dss[0]);
-                        this.removeChild(dss[1]);
-                        this.setTurn(dir2);
-                        play_snd('snd/02-dice.wav');
+                setTimeout(()=>{
+                    this.removeChild(dss[0]);
+                    this.removeChild(dss[1]);
+                    this.setTurn(dir2);
+                    play_snd('snd/02-dice.wav');
 
-                        for (let i = 0; i < 2; ++i) {
-                            let ds = createDice(d[i + 2]);
-                            this.addChildAt(ds, zz);
-                            ds.x = 600 - 25 + i * 50;
-                            ds.y = 450 - 25 + i * 50;
-                            dss[i] = ds;
-                        }
-                    }),
-                    new PIXI.action.DelayTime(1),
-                    new PIXI.action.CallFunc(()=>{
-                        this.removeChild(dss[0]);
-                        this.removeChild(dss[1]);
-                        this.setTurn(0);
-                    })
-                ]));
+                    for (let i = 0; i < 2; ++i) {
+                        let ds = createDice(d[i + 2]);
+                        this.addChildAt(ds, zz);
+                        ds.x = 600 - 25 + i * 50;
+                        ds.y = 450 - 25 + i * 50;
+                        dss[i] = ds;
+                    }
+                }, 1000);
+                setTimeout(()=>{
+                    this.removeChild(dss[0]);
+                    this.removeChild(dss[1]);
+                    this.setTurn(0);
+                }, 2000);
 
-                const DICE_TIME = 2;
+                const DICE_TIME = 2000;
 
                 // 每人3手*4张
                 for (let i = 0; i < 12; ++i) {
                     for (let k = 0; k < 2; ++k) {
                         let sp1 = this.walls_[dir][off * 2];
-                        sp1.runAction(new PIXI.action.Sequence([
-                            new PIXI.action.DelayTime(DICE_TIME + i * DRAW_DT),
-                            new PIXI.action.CallFunc(()=>{
-                                this.setTurn(i & 3);
-                                --this.remainCnt_;
-                                this._drawEffect((i + 4 - seat) & 3, sp1, (i & 0xFC) + k * 2);
-                            })
-                        ]));
+                        setTimeout(()=>{
+                            this.setTurn(i & 3);
+                            --this.remainCnt_;
+                            this._drawEffect((i + 4 - seat) & 3, sp1, (i & 0xFC) + k * 2);
+                        }, DICE_TIME + i * DRAW_DT);
+
                         let sp2 = this.walls_[dir][off * 2 + 1];
-                        sp2.runAction(new PIXI.action.Sequence([
-                            new PIXI.action.DelayTime(DICE_TIME + i * DRAW_DT),
-                            new PIXI.action.CallFunc(()=>{
-                                --this.remainCnt_;
-                                this._drawEffect((i + 4 - seat) & 3, sp2, (i & 0xFC) + k * 2 + 1);
-                            })
-                        ]));
+                        setTimeout(()=>{
+                            --this.remainCnt_;
+                            this._drawEffect((i + 4 - seat) & 3, sp2, (i & 0xFC) + k * 2 + 1);
+                        }, DICE_TIME + i * DRAW_DT);
 
                         ++off;
                         if (off >= 18) {
@@ -1547,59 +1522,49 @@
 
                 // 跳牌
                 let sp1 = this.walls_[dir][off * 2];
-                sp1.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(DICE_TIME + 12 * DRAW_DT),
-                    new PIXI.action.CallFunc(()=>{
-                        this.setTurn(0);
-                        --this.remainCnt_;
-                        this._drawEffect((4 - seat) & 3, sp1, 12);
-                    })
-                ]));
+                setTimeout(()=>{
+                    this.setTurn(0);
+                    --this.remainCnt_;
+                    this._drawEffect((4 - seat) & 3, sp1, 12);
+                }, DICE_TIME + 12 * DRAW_DT);
+
                 let sp2 = this.walls_[dir][off * 2 + 1];
-                sp2.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(DICE_TIME + 13 * DRAW_DT),
-                    new PIXI.action.CallFunc(()=>{
-                        this.setTurn(1);
-                        --this.remainCnt_;
-                        this._drawEffect((5 - seat) & 3, sp2, 12);
-                    })
-                ]));
+                setTimeout(()=>{
+                    this.setTurn(1);
+                    --this.remainCnt_;
+                    this._drawEffect((5 - seat) & 3, sp2, 12);
+                }, DICE_TIME + 13 * DRAW_DT);
+
                 ++off;
                 if (off >= 18) {
                     off -= 18;
                     dir = (dir + 3) & 3;
                 }
                 let sp3 = this.walls_[dir][off * 2];
-                sp3.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(DICE_TIME + 14 * DRAW_DT),
-                    new PIXI.action.CallFunc(()=>{
-                        this.setTurn(2);
-                        --this.remainCnt_;
-                        this._drawEffect((6 - seat) & 3, sp3, 12);
-                    })
-                ]));
+                setTimeout(()=>{
+                    this.setTurn(2);
+                    --this.remainCnt_;
+                    this._drawEffect((6 - seat) & 3, sp3, 12);
+                }, DICE_TIME + 14 * DRAW_DT);
+
                 let sp4 = this.walls_[dir][off * 2 + 1];
-                sp4.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(DICE_TIME + 15 * DRAW_DT),
-                    new PIXI.action.CallFunc(()=>{
-                        this.setTurn(3);
-                        --this.remainCnt_;
-                        this._drawEffect((7 - seat) & 3, sp4, 12);
-                    })
-                ]));
+                setTimeout(()=>{
+                    this.setTurn(3);
+                    --this.remainCnt_;
+                    this._drawEffect((7 - seat) & 3, sp4, 12);
+                }, DICE_TIME + 15 * DRAW_DT);
+
                 ++off;
                 if (off >= 18) {
                     off -= 18;
                     dir = (dir + 3) & 3;
                 }
                 let sp5 = this.walls_[dir][off * 2];
-                sp5.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(DICE_TIME + 12 * DRAW_DT),
-                    new PIXI.action.CallFunc(()=>{
-                        --this.remainCnt_;
-                        this._drawEffect((4 - seat) & 3, sp5, 13);
-                    })
-                ]));
+                setTimeout(()=>{
+                    --this.remainCnt_;
+                    this._drawEffect((4 - seat) & 3, sp5, 13);
+                }, DICE_TIME + 12 * DRAW_DT);
+
                 this.frontPier_ = {'dir':dir,'off':off,'down':true};
 
                 // 理牌
@@ -1614,89 +1579,80 @@
                     this.standing_[0][13].t_ = 0xFF;
                 }
 
-                this.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(DICE_TIME + 18 * DRAW_DT),
-                    new PIXI.action.CallFunc(()=>{
-                        this.setTurn(0);
+                setTimeout(()=>{
+                    this.setTurn(0);
 
-                        let standing, origin, z;
+                    let standing, origin, z;
 
-                        // 上家
-                        origin = this.origin_[3];
-                        standing = this.standing_[3];
-                        z = this.getChildIndex(standing[0]);
-                        //for (let i = 0; i < 14; ++i) { console.log('bs 3 z', i, this.getChildIndex(standing[i])); }
+                    // 上家
+                    origin = this.origin_[3];
+                    standing = this.standing_[3];
+                    z = this.getChildIndex(standing[0]);
+                    //for (let i = 0; i < 14; ++i) { console.log('bs 3 z', i, this.getChildIndex(standing[i])); }
 
-                        shuffle_array(standing, 0, 13);
-                        for (let i = 0; i < 14; ++i) {
-                            let sp = standing[i];
-                            this.setChildIndex(sp, z + i);
-                            if (sp.y != origin[i]) {
-                                sp.runAction(new PIXI.action.MoveTo(0, origin[i], SORT_DT));
-                            }
+                    shuffle_array(standing, 0, 13);
+                    for (let i = 0; i < 14; ++i) {
+                        let sp = standing[i];
+                        this.setChildIndex(sp, z + i);
+                        if (sp.y != origin[i]) {
+                            (new TWEEN.Tween(sp)).to({y:origin[i]}, SORT_DT).start();
                         }
-                        //for (let i = 0; i < 14; ++i) { console.log('as 3 z', i, this.getChildIndex(standing[i])); }
+                    }
+                    //for (let i = 0; i < 14; ++i) { console.log('as 3 z', i, this.getChildIndex(standing[i])); }
 
-                        // 对家
-                        origin = this.origin_[2];
-                        standing = this.standing_[2];
-                        z = this.getChildIndex(standing[0]);
-                        //for (let i = 0; i < 14; ++i) { console.log('bs 2 z', i, this.getChildIndex(standing[i])); }
+                    // 对家
+                    origin = this.origin_[2];
+                    standing = this.standing_[2];
+                    z = this.getChildIndex(standing[0]);
+                    //for (let i = 0; i < 14; ++i) { console.log('bs 2 z', i, this.getChildIndex(standing[i])); }
 
-                        shuffle_array(standing, 0, 13);
-                        for (let i = 0; i < 14; ++i) {
-                            let sp = standing[i];
-                            this.setChildIndex(sp, z + i);
-                            if (sp.x != origin[i]) {
-                                sp.runAction(new PIXI.action.MoveTo(origin[i], 0, SORT_DT));
-                            }
+                    shuffle_array(standing, 0, 13);
+                    for (let i = 0; i < 14; ++i) {
+                        let sp = standing[i];
+                        this.setChildIndex(sp, z + i);
+                        if (sp.x != origin[i]) {
+                            (new TWEEN.Tween(sp)).to({x:origin[i]}, SORT_DT).start();
                         }
-                        //for (let i = 0; i < 14; ++i) { console.log('as 2 z', i, this.getChildIndex(standing[i])); }
+                    }
+                    //for (let i = 0; i < 14; ++i) { console.log('as 2 z', i, this.getChildIndex(standing[i])); }
 
-                        // 下家
-                        origin = this.origin_[1];
-                        standing = this.standing_[1];
-                        z = this.getChildIndex(standing[0]);
-                        let x = standing[0].x;
-                        //for (let i = 0; i < 14; ++i) { console.log('bs 1 z', i, this.getChildIndex(standing[i])); }
+                    // 下家
+                    origin = this.origin_[1];
+                    standing = this.standing_[1];
+                    z = this.getChildIndex(standing[0]);
+                    //for (let i = 0; i < 14; ++i) { console.log('bs 1 z', i, this.getChildIndex(standing[i])); }
 
-                        shuffle_array(standing, 0, 13);
-                        for (let i = 0; i < 14; ++i) {
-                            let sp = standing[i];
-                            this.setChildIndex(sp, z - i);
-                            if (sp.y != origin[i]) {
-                                sp.runAction(new PIXI.action.MoveTo(x, origin[i], SORT_DT));
-                            }
+                    shuffle_array(standing, 0, 13);
+                    for (let i = 0; i < 14; ++i) {
+                        let sp = standing[i];
+                        this.setChildIndex(sp, z - i);
+                        if (sp.y != origin[i]) {
+                            (new TWEEN.Tween(sp)).to({y:origin[i]}, SORT_DT).start();
                         }
-                        //for (let i = 0; i < 14; ++i) { console.log('as 1 z', i, this.getChildIndex(standing[i])); }
+                    }
+                    //for (let i = 0; i < 14; ++i) { console.log('as 1 z', i, this.getChildIndex(standing[i])); }
 
-                        // 自己
-                        origin = this.origin_[0];
-                        standing = this.standing_[0];
-                        z = this.getChildIndex(standing[0]);
-                        let y = standing[0].y;
-                        //for (let i = 0; i < 14; ++i) { console.log('bs 0 z', i, this.getChildIndex(standing[i])); }
+                    // 自己
+                    origin = this.origin_[0];
+                    standing = this.standing_[0];
+                    z = this.getChildIndex(standing[0]);
+                    //for (let i = 0; i < 14; ++i) { console.log('bs 0 z', i, this.getChildIndex(standing[i])); }
 
-                        standing.sort(function(a, b) { return a.t_ - b.t_; });
-                        for (let i = 0; i < 14; ++i) {
-                            let sp = standing[i];
-                            this.setChildIndex(sp, z + i);
-                            if (sp.x != origin[i]) {
-                                sp.runAction(new PIXI.action.MoveTo(origin[i], y, SORT_DT));
-                            }
+                    standing.sort(function(a, b) { return a.t_ - b.t_; });
+                    for (let i = 0; i < 14; ++i) {
+                        let sp = standing[i];
+                        this.setChildIndex(sp, z + i);
+                        if (sp.x != origin[i]) {
+                            (new TWEEN.Tween(sp)).to({x:origin[i]}, SORT_DT).start();
                         }
-                        //for (let i = 0; i < 14; ++i) { console.log('as 0 z', i, this.getChildIndex(standing[i])); }
-                    })
-                ]));
+                    }
+                    //for (let i = 0; i < 14; ++i) { console.log('as 0 z', i, this.getChildIndex(standing[i])); }
+                }, DICE_TIME + 18 * DRAW_DT);
 
                 if (this.option_.status()[0] && this.seat_ == 0) {
-                    this.runAction(new PIXI.action.Sequence([
-                        new PIXI.action.DelayTime(DICE_TIME + 18 * DRAW_DT),
-                        new PIXI.action.DelayTime(SORT_DT + .1),
-                        new PIXI.action.CallFunc(()=>{
-                            ws.send('{"m":2,"r":1,"v":0}');
-                        })
-                    ]));
+                    setTimeout(()=>{
+                        ws.send('{"m":2,"r":1,"v":0}');
+                    }, DICE_TIME + 18 * DRAW_DT + SORT_DT + 100);
                 }
             }
 
@@ -1728,15 +1684,9 @@
                 text.y = hh * .5;
                 bg.addChild(text);
 
-                bg.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(1.8),
-                    new PIXI.action.FadeOut(.2)
-                ]));
+                (new TWEEN.Tween(bg)).to({alpha:0}, 200).delay(1800).start();
 
-                this.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.DelayTime(2),
-                    new PIXI.action.CallFunc(()=>{ this.removeChild(bg); this.sendHandTiles(d, h); })
-                ]));
+                setTimeout(()=>{ this.removeChild(bg); this.sendHandTiles(d, h); }, 2000);
                 play_snd(this.rd_ ? 'snd/24-dingdong.wav' : 'snd/01-start.wav');
             }
 
@@ -1751,14 +1701,14 @@
             addCD(sec) {
                 let cd = this.cd_;
                 let t = cd.text_;
-                if (t.action_) {
-                    t.stopAction(t.action_);
-                    delete t.action_;
+                if (t.timer_) {
+                    clearInterval(t.timer_);
+                    delete t.timer_;
                 }
                 t.text = sec;
 
                 t.end_ = new Date().getTime() + sec * 1000;
-                t.action_ = t.runAction(new PIXI.action.Repeat(new PIXI.action.CallFunc(()=>{
+                t.timer_ = setInterval(()=>{
                     let n = (t.end_ - new Date().getTime());
                     let s = parseInt(Math.round(n / 1000));
                     if (s > 0) {
@@ -1772,19 +1722,19 @@
                     }
                     else {
                         cd.visible = false;
-                        t.stopAction(t.action_);
-                        delete t.action_;
+                        clearInterval(t.timer_);
+                        delete t.timer_;
                     }
-                })));
+                });
                 cd.visible = true;
             }
 
             removeCD() {
                 let cd = this.cd_;
                 let t = cd.text_;
-                if (t.action_) {
-                    t.stopAction(t.action_);
-                    delete t.action_;
+                if (t.timer_) {
+                    clearInterval(t.timer_);
+                    delete t.timer_;
                 }
                 cd.visible = false;
             }
@@ -1794,12 +1744,9 @@
 
                 if (!actions) {
                     if (status[6] && this.turn_ == this.seat_) {  // 自动摸打
-                        this.runAction(new PIXI.action.Sequence([
-                            new PIXI.action.DelayTime(DISCARD_DT + 1),
-                            new PIXI.action.CallFunc(()=>{
-                                this._discard(this.standing_[0][13]);
-                            })
-                        ]));
+                        setTimeout(()=>{
+                            this._discard(this.standing_[0][13]);
+                        }, DISCARD_DT + 1000);
                     }
                     return;
                 }
@@ -1820,13 +1767,10 @@
                 }
 
                 if (status[0] && dict[1] && !this.stopFlower_ ) {  // 自动补花
-                    this.runAction(new PIXI.action.Sequence([
-                        new PIXI.action.DelayTime(DISCARD_DT * 2),
-                        new PIXI.action.CallFunc(()=>{
-                            ws.send('{"m":2,"r":1,"v":0}');
-                            this.removeCD();
-                        })
-                    ]));
+                    setTimeout(()=>{
+                        ws.send('{"m":2,"r":1,"v":0}');
+                        this.removeCD();
+                    }, DISCARD_DT * 2);
                     return;
                 }
 
@@ -1852,25 +1796,19 @@
                     }
 
                     if (!skp && status[5]) {  // 自动和牌
-                        this.runAction(new PIXI.action.Sequence([
-                            new PIXI.action.DelayTime(DISCARD_DT * 2),
-                            new PIXI.action.CallFunc(()=>{
-                                ws.send('{"m":2,"r":6,"v":0}');
-                                this.removeCD();
-                            })
-                        ]));
+                        setTimeout(()=>{
+                            ws.send('{"m":2,"r":6,"v":0}');
+                            this.removeCD();
+                        }, DISCARD_DT * 2);
                         return;
                     }
                 }
 
                 if (status[6]) {  // 自动摸打
                     if (!dict[6] && !dict[5] &&!dict[1] && this.turn_ == this.seat_) {
-                        this.runAction(new PIXI.action.Sequence([
-                            new PIXI.action.DelayTime(DISCARD_DT + 1),
-                            new PIXI.action.CallFunc(()=>{
-                                this._discard(this.standing_[0][13]);
-                            })
-                        ]));
+                        setTimeout(()=>{
+                            this._discard(this.standing_[0][13]);
+                        }, DISCARD_DT + 1000);
                         return;
                     }
                 }
@@ -1968,21 +1906,17 @@
                 switch (n) {
                 case 0:
                     y = dst.y - dst.height * .5;
-                    sp.runAction(new PIXI.action.ScaleTo(HAND_SCALE, HAND_SCALE, DRAW_DT));
+                    (new TWEEN.Tween(sp.scale)).to({x:HAND_SCALE, y:HAND_SCALE}, DRAW_DT).start();
                     break;
                 case 1: x -= (WIDTH_13 - WIDTH_13S) * .5; break;
                 case 3: x += (WIDTH_13 - WIDTH_13S) * .5; break;
                 }
 
-                sp.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.MoveTo(x, y, DRAW_DT),
-                    new PIXI.action.DelayTime(.01),
-                    new PIXI.action.CallFunc(()=>{
-                        this.removeChild(sp);
-                        dst.visible = true;
-                        this.remainText_.text = '牌墙剩余：' + this.remainCnt_;
-                    })
-                ]));
+                (new TWEEN.Tween(sp)).to({x:x,y:y}, DRAW_DT).delay(10).onComplete(()=>{
+                    this.removeChild(sp);
+                    dst.visible = true;
+                    this.remainText_.text = '牌墙剩余：' + this.remainCnt_;
+                }).start();
             }
 
             static _move(standing, o, n) {
@@ -2020,7 +1954,7 @@
                     let sp = standing[i];
                     this.setChildIndex(sp, z + i);
                     if (sp.y != dp[i]) {
-                        sp.runAction(new PIXI.action.MoveTo(0, dp[i], DISCARD_DT));
+                        (new TWEEN.Tween(sp)).to({y:dp[i]}, DISCARD_DT).start();
                     }
                 }
             }
@@ -2038,7 +1972,7 @@
                     let sp = standing[i];
                     this.setChildIndex(sp, z + i);
                     if (sp.y != dp[i]) {
-                        sp.runAction(new PIXI.action.MoveTo(dp[i], 0, DISCARD_DT));
+                        (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
                     }
                 }
             }
@@ -2056,7 +1990,7 @@
                     let sp = standing[i];
                     this.setChildIndex(sp, z - i);
                     if (sp.y != dp[i]) {
-                        sp.runAction(new PIXI.action.MoveTo(sp.x, dp[i], DISCARD_DT));
+                        (new TWEEN.Tween(sp)).to({y:dp[i]}, DISCARD_DT).start();
                     }
                 }
             }
@@ -2147,22 +2081,19 @@
                 this.activeTile_ = sp;
                 this.addChildAt(sp, this.getChildIndex(dst));
                 sp.dst_ = dst;
-                sp.runAction(new PIXI.action.MoveTo(dst.x + ox[n], dst.y + oy[n], DISCARD_DT));
+                (new TWEEN.Tween(sp)).to({x:(dst.x + ox[n]),y:(dst.y + oy[n])}, DISCARD_DT).start();
 
                 // 插入手牌的动画
                 if (idx != 13) {
-                    this.runAction(new PIXI.action.Sequence([
-                        new PIXI.action.DelayTime(DISCARD_DT),
-                        new PIXI.action.CallFunc(()=>{
-                            switch (n) {
-                            case 1: this._discardEffect1(idx, 12); break;
-                            case 2: this._discardEffect2(idx, 12); break;
-                            case 3: this._discardEffect3(idx, 12); break;
-                            }
-                            standing[idx].visible = true;
-                            standing[13].visible = false;
-                        })
-                    ]));
+                    setTimeout(()=>{
+                        switch (n) {
+                        case 1: this._discardEffect1(idx, 12); break;
+                        case 2: this._discardEffect2(idx, 12); break;
+                        case 3: this._discardEffect3(idx, 12); break;
+                        }
+                        standing[idx].visible = true;
+                        standing[13].visible = false;
+                    }, DISCARD_DT);
                 }
             }
 
@@ -2214,8 +2145,8 @@
                 this.activeTile_ = sp;
                 this.addChildAt(sp, this.getChildIndex(dst));
                 sp.dst_ = dst;
-                sp.runAction(new PIXI.action.MoveTo(dst.x + 10, dst.y + 10, DISCARD_DT));
-                sp.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
+                (new TWEEN.Tween(sp)).to({x:(dst.x + 10),y:(dst.y + 10)}, DISCARD_DT).start();
+                (new TWEEN.Tween(sp.scale)).to({x:1,y:1}, DISCARD_DT).start();
 
                 this.stopFlower_ = false;
 
@@ -2234,7 +2165,7 @@
                         let sp = standing[i];
                         this.setChildIndex(sp, z + i);
                         if (sp.x != dp[i]) {
-                            sp.runAction(new PIXI.action.MoveTo(dp[i], sp.y, DISCARD_DT));
+                            (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
                         }
                     }
                 }
@@ -2364,23 +2295,17 @@
                     let dst = sp.dst_;
                     if (dst) {
                         // 普通打牌
-                        sp.runAction(new PIXI.action.Sequence([
-                            new PIXI.action.MoveTo(dst.x, dst.y, DISCARD_DT),
-                            new PIXI.action.CallFunc(()=>{
-                                dst.visible = true;
-                                this.removeChild(sp);
-                                this.activeTile_ = null;
-                            })
-                        ]));
+                        (new TWEEN.Tween(sp)).to({x:dst.x,y:dst.y}, DISCARD_DT).onComplete(()=>{
+                            dst.visible = true;
+                            this.removeChild(sp);
+                            this.activeTile_ = null;
+                        }).start();
                     }
                     else {
                         // 加杠
-                        sp.runAction(new PIXI.action.Sequence([
-                            new PIXI.action.MoveTo(sp.dstx_, sp.dsty_, DISCARD_DT),
-                            new PIXI.action.CallFunc(()=>{
-                                this.activeTile_ = null;
-                            })
-                        ]));
+                        (new TWEEN.Tween(sp)).to({x:sp.dstx_,y:sp.dsty_}, DISCARD_DT).onComplete(()=>{
+                            this.activeTile_ = null;
+                        }).start();
                     }
                 }
 
@@ -2423,14 +2348,12 @@
                 this.addChild(text);
 
                 text.scale.set(2);
-                text.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.Spawn([new PIXI.action.FadeIn(.1), new PIXI.action.ScaleTo(1, 1, .1)]),
-                    new PIXI.action.DelayTime(1.3),
-                    new PIXI.action.Spawn([new PIXI.action.FadeOut(.1), new PIXI.action.ScaleTo(2, 2, .1)]),
-                    new PIXI.action.CallFunc(()=>{
-                        this.removeChild(text);
-                    })
-                ]));
+                (new TWEEN.Tween(text)).to({alpha:1}, 100).start();
+                (new TWEEN.Tween(text.scale)).to({x:1,y:1}, 100).start();
+                (new TWEEN.Tween(text)).to({alpha:0}, 100).delay(1300).start();
+                (new TWEEN.Tween(text.scale)).to({x:2,y:2}, 100).delay(1300).onComplete(()=>{
+                    this.removeChild(text);
+                }).start();
             }
 
             flower123(n, rm) {
@@ -2459,20 +2382,14 @@
                         for (let i = idx; i < pos; ++i) {
                             standing[i].x = dp[i + 1]['x'];
                             standing[i].y = dp[i + 1]['y'];
-                            standing[i].runAction(new PIXI.action.Sequence([
-                                new PIXI.action.DelayTime(DISCARD_DT),
-                                new PIXI.action.MoveTo(dp[i]['x'], dp[i]['y'], DISCARD_DT)
-                            ]));
+                            (new TWEEN.Tween(standing[i])).to(dp[i], DISCARD_DT).delay(DISCARD_DT).start();
                         }
                     }
                     else if (pos < idx) {
                         for (let i = pos + 1; i < idx; ++i) {
                             standing[i].x = dp[i + 1]['x'];
                             standing[i].y = dp[i + 1]['y'];
-                            standing[i].runAction(new PIXI.action.Sequence([
-                                new PIXI.action.DelayTime(DISCARD_DT),
-                                new PIXI.action.MoveTo(dp[i]['x'], dp[i]['y'], DISCARD_DT)
-                            ]));
+                            (new TWEEN.Tween(standing[i])).to(dp[i], DISCARD_DT).delay(DISCARD_DT).start();
                         }
                     }
 
@@ -2517,7 +2434,7 @@
                         let sp = standing[i];
                         this.setChildIndex(sp, z + i);
                         if (sp.x != dp[i]) {
-                            sp.runAction(new PIXI.action.MoveTo(dp[i], sp.y, DISCARD_DT));
+                            (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
                         }
                     }
 
@@ -2535,7 +2452,7 @@
                         let sp = standing[i];
                         this.setChildIndex(sp, z + i);
                         if (sp.x != dp[i]) {
-                            sp.runAction(new PIXI.action.MoveTo(dp[i], sp.y, DISCARD_DT));
+                            (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
                         }
                     }
                 }
@@ -2587,7 +2504,7 @@
                     }
                     else {
                         sp.visible = true;
-                        sp.runAction(new PIXI.action.MoveTo(0, dp[i], DISCARD_DT));
+                        (new TWEEN.Tween(sp)).to({y:dp[i]}, DISCARD_DT).start();
                     }
                 }
             }
@@ -2613,7 +2530,7 @@
                     }
                     else {
                         sp.visible = true;
-                        sp.runAction(new PIXI.action.MoveTo(dp[i], 0, DISCARD_DT));
+                        (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
                     }
                 }
             }
@@ -2640,7 +2557,7 @@
                     }
                     else {
                         sp.visible = true;
-                        sp.runAction(new PIXI.action.MoveTo(sp.x, dp[i], DISCARD_DT));
+                        (new TWEEN.Tween(sp)).to({y:dp[i]}, DISCARD_DT).start();
                     }
                 }
             }
@@ -2666,7 +2583,7 @@
                     }
                     else {
                         sp.visible = true;
-                        sp.runAction(new PIXI.action.MoveTo(dp[i], sp.y, DISCARD_DT));
+                        (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
                     }
                 }
             }
@@ -2699,7 +2616,7 @@
                 let prev = this.packs_[3];
                 for (let i = 0, len = prev.length; i < len; ++i) {
                     let sp = prev[i];
-                    sp.runAction(new PIXI.action.MoveTo(sp.x, sp.y - ext, DISCARD_DT));
+                    (new TWEEN.Tween(sp)).to({y:(sp.y - ext)}, DISCARD_DT).start();
                 }
 
                 let idx1 = this._randomIdx(3);
@@ -2761,16 +2678,16 @@
                     t1.y = standing[idx1].y;
                     t2.y = standing[idx2].y;
                     if (type != 2) {
-                        t0.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13 * 2 - HEIGHT_02, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13 * 2, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02),x:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
                     }
                     else {
                         t3.y = standing[idx3].y;
-                        t0.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13 * 3 - HEIGHT_02, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13 * 3, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13 * 2, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_13 * 3 - HEIGHT_02),x:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_13 * 3)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3)).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
                     }
                     break;
                 case 1:
@@ -2778,16 +2695,16 @@
                     if (req) t1.x = req.x, t1.y = req.y;
                     t2.y = standing[idx2].y;
                     if (type != 2) {
-                        t0.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13 * 2 - HEIGHT_02, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13 - HEIGHT_02, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_13 - HEIGHT_02),x:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
                     }
                     else {
                         t3.y = standing[idx3].y;
-                        t0.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13 * 3 - HEIGHT_02, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13 * 2 - HEIGHT_02, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13 * 2, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_13 * 3 - HEIGHT_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02),x:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3)).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
                     }
                     break;
                 case 2:
@@ -2795,17 +2712,17 @@
                     t1.y = standing[idx2].y;
                     if (type != 2) {
                         if (req) t2.x = req.x, t2.y = req.y;
-                        t0.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_02 - HEIGHT_13 * 2, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_02 - HEIGHT_13, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_02, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_02 - HEIGHT_13),x:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_02)}, DISCARD_DT).start();
                     }
                     else {
                         t2.y = standing[idx3].y;
                         if (req) t3.x = req.x, t3.y = req.y;
-                        t0.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_02 - HEIGHT_13 * 3, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_02 - HEIGHT_13 * 2, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_02 - HEIGHT_13, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_02, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 3)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_02 - HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3)).to({y:(yy - HEIGHT_02),x:0}, DISCARD_DT).start();
                     }
                     break;
                 }
@@ -2836,7 +2753,7 @@
                 let prev = this.packs_[3];
                 for (let i = 0, len = prev.length; i < len; ++i) {
                     let sp = prev[i];
-                    sp.runAction(new PIXI.action.MoveTo(sp.x, sp.y - ext, DISCARD_DT));
+                    (new TWEEN.Tween(sp)).to({y:(sp.y - ext)}, DISCARD_DT).start();
                 }
 
                 let idx = [this._randomIdx(3), 0, 0, 13];
@@ -2855,7 +2772,7 @@
                     this.packs_[3].push(t);
 
                     t.y = standing[idx[i]].y;
-                    t.runAction(new PIXI.action.MoveTo(0, yy - HEIGHT_13 * (4 - i), DISCARD_DT));
+                    (new TWEEN.Tween(t)).to({y:yy - HEIGHT_13 * (4 - i)}, DISCARD_DT).start();
                 }
 
                 this.packData_[3].push(0x300);
@@ -2897,20 +2814,17 @@
                 src.visible = false;
                 sp.x = src.x;
                 sp.y = src.y;
-                sp.runAction(new PIXI.action.MoveTo(pr.x + WIDTH_02 + 10, pr.y, DISCARD_DT));
+                (new TWEEN.Tween(sp)).to({x:(pr.x + WIDTH_02 + 10),y:(pr.y)}, DISCARD_DT).start();
                 sp.dstx_ = pr.x + WIDTH_02;
                 sp.dsty_ = pr.y;
                 this.activeTile_ = sp;
 
                 // 插入手牌动画
                 if (idx != 13) {
-                    this.runAction(new PIXI.action.Sequence([
-                        new PIXI.action.DelayTime(DISCARD_DT),
-                        new PIXI.action.CallFunc(()=>{
-                            this._discardEffect3(idx, 12);
-                            this.standing_[3][13].visible = false;
-                        })
-                    ]));
+                    setTimeout(()=>{
+                        this._discardEffect3(idx, 12);
+                        this.standing_[3][13].visible = false;
+                    }, DISCARD_DT);
                 }
 
                 play_snd('snd/09-cpk.wav');
@@ -2944,7 +2858,7 @@
                 let prev = this.packs_[2];
                 for (let i = 0, len = prev.length; i < len; ++i) {
                     let sp = prev[i];
-                    sp.runAction(new PIXI.action.MoveTo(sp.x + ext, sp.y, DISCARD_DT));
+                    (new TWEEN.Tween(sp)).to({x:(sp.x + ext)}, DISCARD_DT).start();
                 }
 
                 let idx1 = this._randomIdx(2);
@@ -3006,16 +2920,16 @@
                     t1.x = standing[idx1].x;
                     t2.x = standing[idx2].x;
                     if (type != 2) {
-                        t0.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 2, 0, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_02, 0, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx, 0, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_02 * 2),y:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({x:(xx)}, DISCARD_DT).start();
                     }
                     else {
                         t3.x = standing[idx3].x;
-                        t0.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 3, 0, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 2, 0, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_02, 0, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(xx, 0, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_02 * 3),y:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3)).to({x:(xx)}, DISCARD_DT).start();
                     }
                     break;
                 case 1:
@@ -3023,16 +2937,16 @@
                     if (req) t1.x = req.x, t1.y = req.y;
                     t2.x = standing[idx2].x;
                     if (type != 2) {
-                        t0.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 + WIDTH_13, 0, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_02, 0, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx, 0, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_02 + WIDTH_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({x:(xx)}, DISCARD_DT).start();
                     }
                     else {
                         t3.x = standing[idx3].x;
-                        t0.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 2 + WIDTH_13, 0, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 2, 0, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_02, 0, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(xx, 0, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_02 * 2 + WIDTH_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02 * 2),y:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3)).to({x:(xx)}, DISCARD_DT).start();
                     }
                     break;
                 case 2:
@@ -3040,17 +2954,17 @@
                     t1.x = standing[idx2].x;
                     if (type != 2) {
                         if (req) t2.x = req.x, t2.y = req.y;
-                        t0.runAction(new PIXI.action.MoveTo(xx + WIDTH_13 + WIDTH_02, 0, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_13, 0, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx, 0, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_13 + WIDTH_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({x:(xx),y:0}, DISCARD_DT).start();
                     }
                     else {
                         t2.x = standing[idx3].x;
                         if (req) t3.x = req.x, t3.y = req.y;
-                        t0.runAction(new PIXI.action.MoveTo(xx + WIDTH_13 + WIDTH_02 * 2, 0, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_13 + WIDTH_02, 0, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_13, 0, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(xx, 0, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_13 + WIDTH_02 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_13 + WIDTH_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3)).to({x:(xx),y:0}, DISCARD_DT).start();
                     }
                     break;
                 }
@@ -3080,7 +2994,7 @@
                 let prev = this.packs_[2];
                 for (let i = 0, len = prev.length; i < len; ++i) {
                     let sp = prev[i];
-                    sp.runAction(new PIXI.action.MoveTo(sp.x + ext, sp.y, DISCARD_DT));
+                    (new TWEEN.Tween(sp)).to({x:(sp.x + ext)}, DISCARD_DT).start();
                 }
 
                 let idx = [this._randomIdx(2), 0, 0, 13];
@@ -3099,7 +3013,7 @@
                     this.packs_[2].push(t);
 
                     t.x = standing[idx[i]].x;
-                    t.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * i, 0, DISCARD_DT));
+                    (new TWEEN.Tween(t)).to({x:(xx + WIDTH_02 * i)}, DISCARD_DT).start();
                 }
 
                 this.packData_[2].push(0x300);
@@ -3141,20 +3055,17 @@
                 src.visible = false;
                 sp.x = src.x;
                 sp.y = src.y;
-                sp.runAction(new PIXI.action.MoveTo(pr.x, pr.y + HEIGHT_13 + 10, DISCARD_DT));
+                (new TWEEN.Tween(sp)).to({x:pr.x,y:(pr.y + HEIGHT_13 + 10)}, DISCARD_DT).start();
                 sp.dstx_ = pr.x;
                 sp.dsty_ = pr.y + HEIGHT_13;
                 this.activeTile_ = sp;
 
                 // 插入手牌动画
                 if (idx != 13) {
-                    this.runAction(new PIXI.action.Sequence([
-                        new PIXI.action.DelayTime(DISCARD_DT),
-                        new PIXI.action.CallFunc(()=>{
-                            this._discardEffect2(idx, 12);
-                            this.standing_[2][13].visible = false;
-                        })
-                    ]));
+                    setTimeout(()=>{
+                        this._discardEffect2(idx, 12);
+                        this.standing_[2][13].visible = false;
+                    }, DISCARD_DT);
                 }
 
                 play_snd('snd/09-cpk.wav');
@@ -3188,7 +3099,7 @@
                 let prev = this.packs_[1];
                 for (let i = 0, len = prev.length; i < len; ++i) {
                     let sp = prev[i];
-                    sp.runAction(new PIXI.action.MoveTo(sp.x, sp.y + ext, DISCARD_DT));
+                    (new TWEEN.Tween(sp)).to({y:(sp.y + ext)}, DISCARD_DT).start();
                 }
 
                 let xx = standing[0].x;
@@ -3252,16 +3163,16 @@
                     t1.x = xx - (WIDTH_13 - WIDTH_13S); t1.y = standing[idx1].y;
                     t2.x = t1.x; t2.y = standing[idx2].y;
                     if (type != 2) {
-                        t0.runAction(new PIXI.action.MoveTo(xx - (WIDTH_02 - WIDTH_13S), yy + HEIGHT_13 * 2, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(t1.x, yy + HEIGHT_13, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(t2.x, yy, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_13 * 2),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({y:(yy)}, DISCARD_DT).start();
                     }
                     else {
                         t3.x = t1.x; t3.y = standing[idx3].y;
-                        t0.runAction(new PIXI.action.MoveTo(xx - (WIDTH_02 - WIDTH_13S), yy + HEIGHT_13 * 3, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(t1.x, yy + HEIGHT_13 * 2, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(t2.x, yy + HEIGHT_13, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(t3.x, yy, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_13 * 3),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3)).to({y:(yy)}, DISCARD_DT).start();
                     }
                     break;
                 case 1:
@@ -3269,16 +3180,16 @@
                     if (req) t1.x = req.x, t1.y = req.y;
                     t2.x = t0.x; t2.y = standing[idx2].y;
                     if (type != 2) {
-                        t0.runAction(new PIXI.action.MoveTo(t0.x, yy + HEIGHT_13 + HEIGHT_02, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx - (WIDTH_02 - WIDTH_13S), yy + HEIGHT_13, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(t2.x, yy, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_13 + HEIGHT_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_13),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({y:(yy)}, DISCARD_DT).start();
                     }
                     else {
                         t3.x = t0.x; t3.y = standing[idx3].y;
-                        t0.runAction(new PIXI.action.MoveTo(t0.x, yy + HEIGHT_13 * 2 + HEIGHT_02, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx - (WIDTH_02 - WIDTH_13S), yy + HEIGHT_13 * 2, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(t2.x, yy + HEIGHT_13, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(t3.x, yy, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_13 * 2 + HEIGHT_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_13 * 2),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3)).to({y:(yy)}, DISCARD_DT).start();
                     }
                     break;
                 case 2:
@@ -3286,17 +3197,17 @@
                     t1.x = t0.x; t1.y = standing[idx2].y;
                     if (type != 2) {
                         if (req) t2.x = req.x, t2.y = req.y;
-                        t0.runAction(new PIXI.action.MoveTo(t0.x, yy + HEIGHT_02 + HEIGHT_13, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(t1.x, yy + HEIGHT_02, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx - (WIDTH_02 - WIDTH_13S), yy, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_02 + HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({y:(yy),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
                     }
                     else {
                         t2.x = t0.x; t2.y = standing[idx3].y;
                         if (req) t3.x = req.x, t3.y = req.y;
-                        t0.runAction(new PIXI.action.MoveTo(t0.x, yy + HEIGHT_02 + HEIGHT_13 * 2, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(t1.x, yy + HEIGHT_02 + HEIGHT_13, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(t2.x, yy + HEIGHT_02, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(xx - (WIDTH_02 - WIDTH_13S), yy, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_02 + HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_02 + HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({y:(yy + HEIGHT_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3)).to({y:(yy),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
                     }
                     break;
                 }
@@ -3327,7 +3238,7 @@
                 let prev = this.packs_[1];
                 for (let i = 0, len = prev.length; i < len; ++i) {
                     let sp = prev[i];
-                    sp.runAction(new PIXI.action.MoveTo(sp.x, sp.y + ext, DISCARD_DT));
+                    (new TWEEN.Tween(sp)).to({y:(sp.y + ext)}, DISCARD_DT).start();
                 }
 
                 let xx = standing[0].x;
@@ -3348,7 +3259,7 @@
                     this.packs_[1].push(t);
 
                     t.x = xx - (WIDTH_13 - WIDTH_13S); t.y = standing[idx[i]].y;
-                    t.runAction(new PIXI.action.MoveTo(t.x, yy + HEIGHT_13 * (5 - i), DISCARD_DT));
+                    (new TWEEN.Tween(t)).to({y:(yy + HEIGHT_13 * (5 - i))}, DISCARD_DT).start();
                 }
 
                 this.packData_[1].push(0x300);
@@ -3390,20 +3301,17 @@
                 src.visible = false;
                 sp.x = src.x;
                 sp.y = src.y;
-                sp.runAction(new PIXI.action.MoveTo(pr.x - WIDTH_02 - 10, pr.y, DISCARD_DT));
+                (new TWEEN.Tween(sp)).to({x:(pr.x - WIDTH_02 - 10),y:pr.y}, DISCARD_DT).start();
                 sp.dstx_ = pr.x - WIDTH_02;
                 sp.dsty_ = pr.y;
                 this.activeTile_ = sp;
 
                 // 插入手牌动画
                 if (idx != 13) {
-                    this.runAction(new PIXI.action.Sequence([
-                        new PIXI.action.DelayTime(DISCARD_DT),
-                        new PIXI.action.CallFunc(()=>{
-                            this._discardEffect1(idx, 12);
-                            this.standing_[1][13].visible = false;
-                        })
-                    ]));
+                    setTimeout(()=>{
+                        this._discardEffect1(idx, 12);
+                        this.standing_[1][13].visible = false;
+                    }, DISCARD_DT);
                 }
 
                 play_snd('snd/09-cpk.wav');
@@ -3501,23 +3409,23 @@
                     t1.x = standing[idx1].x; t1.y = yy - HEIGHT_02F * HAND_SCALE; t1.scale.set(HAND_SCALE);
                     t2.x = standing[idx2].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
                     if (type != 2) {
-                        t0.runAction(new PIXI.action.MoveTo(xx, yy - HEIGHT_13F, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_13, yy - HEIGHT_02F, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_13 + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
 
-                        t1.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
-                        t2.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
+                        (new TWEEN.Tween(t1.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2.scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     else {
                         t3.x = standing[idx3].x; t3.y = yy - HEIGHT_02F * HAND_SCALE; t3.scale.set(HAND_SCALE);
-                        t0.runAction(new PIXI.action.MoveTo(xx, yy - HEIGHT_13F, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_13, yy - HEIGHT_02F, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(xx + WIDTH_13 + WIDTH_02 * 2, yy - HEIGHT_02F, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_13 + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3)).to({x:(xx + WIDTH_13 + WIDTH_02 * 2),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
 
-                        t1.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
-                        t2.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
-                        t3.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
+                        (new TWEEN.Tween(t1.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3.scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     break;
                 case 1:
@@ -3525,23 +3433,23 @@
                     if (req) t1.x = req.x, t1.y = req.y;
                     t2.x = standing[idx2].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
                     if (type != 2) {
-                        t0.runAction(new PIXI.action.MoveTo(xx, yy - HEIGHT_02F, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_02, yy - HEIGHT_13F, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 + WIDTH_13, yy - HEIGHT_02F, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02 + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
 
-                        t0.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
-                        t2.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
+                        (new TWEEN.Tween(t0.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2.scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     else {
                         t3.x = standing[idx3].x; t3.y = yy - HEIGHT_02F * HAND_SCALE; t3.scale.set(HAND_SCALE);
-                        t0.runAction(new PIXI.action.MoveTo(xx, yy - HEIGHT_02F, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_02, yy - HEIGHT_13F, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 + WIDTH_13, yy - HEIGHT_02F, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 2 + WIDTH_13, yy - HEIGHT_02F, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02 + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3)).to({x:(xx + WIDTH_02 * 2 + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
 
-                        t0.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
-                        t2.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
-                        t3.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
+                        (new TWEEN.Tween(t0.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3.scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     break;
                 case 2:
@@ -3549,24 +3457,24 @@
                     t1.x = standing[idx2].x; t1.y = yy - HEIGHT_02F * HAND_SCALE; t1.scale.set(HAND_SCALE);
                     if (type != 2) {
                         if (req) t2.x = req.x, t2.y = req.y;
-                        t0.runAction(new PIXI.action.MoveTo(xx, yy - HEIGHT_02F, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 2, yy - HEIGHT_13F, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02 * 2),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
 
-                        t0.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
-                        t1.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
+                        (new TWEEN.Tween(t0.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1.scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     else {
                         t2.x = standing[idx3].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
                         if (req) t3.x = req.x, t3.y = req.y;
-                        t0.runAction(new PIXI.action.MoveTo(xx, yy - HEIGHT_02F, DISCARD_DT));
-                        t1.runAction(new PIXI.action.MoveTo(xx + WIDTH_02, yy - HEIGHT_02F, DISCARD_DT));
-                        t2.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 2, yy - HEIGHT_02F, DISCARD_DT));
-                        t3.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * 3, yy - HEIGHT_13F, DISCARD_DT));
+                        (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02 * 2),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t3)).to({x:(xx + WIDTH_02 * 3),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
 
-                        t0.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
-                        t1.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
-                        t2.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
+                        (new TWEEN.Tween(t0.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t1.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t2.scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     break;
                 }
@@ -3617,8 +3525,8 @@
                     t.x = standing[idx[3 - i]].x;
                     t.y = yy - HEIGHT_02F * HAND_SCALE;
                     t.scale.set(HAND_SCALE);
-                    t.runAction(new PIXI.action.MoveTo(xx + WIDTH_02 * i, yy - HEIGHT_02F, DISCARD_DT));
-                    t.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
+                    (new TWEEN.Tween(t)).to({x:(xx + WIDTH_02 * i),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                    (new TWEEN.Tween(t.scale)).to({x:1,y:1}, DISCARD_DT).start();
                 }
                 this.openPos_[0] = xx + WIDTH_02 * 4 + GAP_T;
 
@@ -3656,7 +3564,7 @@
                         else {
                             sp.visible = true;
                             if (sp.x != dp[i]) {
-                                sp.runAction(new PIXI.action.MoveTo(dp[i], sp.y, DISCARD_DT));
+                                (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
                             }
                         }
                     }
@@ -3699,8 +3607,8 @@
                 sp.x = src.x;
                 sp.y = src.y - HEIGHT_13F * HAND_SCALE;
                 sp.scale.set(HAND_SCALE);
-                sp.runAction(new PIXI.action.MoveTo(pr.x, pr.y - HEIGHT_13 - 10, DISCARD_DT));
-                sp.runAction(new PIXI.action.ScaleTo(1, 1, DISCARD_DT));
+                (new TWEEN.Tween(sp)).to({x:pr.x,y:(pr.y - HEIGHT_13 - 10)}, DISCARD_DT).start();
+                (new TWEEN.Tween(sp.scale)).to({x:1,y:1}, DISCARD_DT).start();
                 sp.dstx_ = pr.x;
                 sp.dsty_ = pr.y - HEIGHT_13;
                 this.activeTile_ = sp;
@@ -3722,7 +3630,7 @@
                         let sp = standing[i];
                         this.setChildIndex(sp, z + i);
                         if (sp.x != dp[i]) {
-                            sp.runAction(new PIXI.action.MoveTo(dp[i], sp.y, DISCARD_DT));
+                            (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
                         }
                     }
                 }
@@ -3792,12 +3700,9 @@
                 view.x = (this.width - view.width) * .5;
                 view.y = (this.height - view.height) * .5;
                 if (this.turn_ == this.seat_) {
-                    this.runAction(new PIXI.action.Sequence([
-                        new PIXI.action.DelayTime(4),
-                        new PIXI.action.CallFunc(()=>{
-                            this.addCD(this.cfg_['r30']);
-                        })
-                    ]));
+                    setTimeout(()=>{
+                        this.addCD(this.cfg_['r30']);
+                    }, 4000);
                 }
             }
 
@@ -3875,18 +3780,15 @@
 
             openHand(tiles, succeed, wp, cp, wt) {
                 if (succeed) {
-                    this.runAction(new PIXI.action.Sequence([
-                        new PIXI.action.DelayTime(DISCARD_DT * 2),
-                        new PIXI.action.CallFunc(()=>{
-                            let p = (this.seat_ + 1) & 3;
-                            this._open1(tiles[p], wp == p ? wt : undefined);
-                            p = (this.seat_ + 2) & 3;
-                            this._open2(tiles[p], wp == p ? wt : undefined);
-                            p = (this.seat_ + 3) & 3;
-                            this._open3(tiles[p], wp == p ? wt : undefined);
-                            this._open0(tiles[this.seat_], wp == this.seat_ ? wt : undefined);
-                        })
-                    ]));
+                    setTimeout(()=>{
+                        let p = (this.seat_ + 1) & 3;
+                        this._open1(tiles[p], wp == p ? wt : undefined);
+                        p = (this.seat_ + 2) & 3;
+                        this._open2(tiles[p], wp == p ? wt : undefined);
+                        p = (this.seat_ + 3) & 3;
+                        this._open3(tiles[p], wp == p ? wt : undefined);
+                        this._open0(tiles[this.seat_], wp == this.seat_ ? wt : undefined);
+                    }, DISCARD_DT * 2);
 
                     if (wp != undefined && cp != undefined && wp != cp) {
                         let n0 = (wp + 4 - this.seat_) & 3;
@@ -3935,13 +3837,10 @@
                         this.removeChild(src);
                         this.activeTile_ = null;
 
-                        sp.runAction(new PIXI.action.Sequence([
-                            new PIXI.action.MoveTo(xx, yy, DISCARD_DT),
-                            new PIXI.action.CallFunc(()=>{ this.removeChild(sp); })
-                        ]));
+                        (new TWEEN.Tween(sp)).to({x:xx,y:yy}, DISCARD_DT).onComplete(()=>{ this.removeChild(sp); }).start();
 
                         if (n0 == 0) {
-                            sp.runAction(new PIXI.action.ScaleTo(HAND_SCALE, HAND_SCALE, DISCARD_DT));
+                            (new TWEEN.Tween(sp.scale)).to({x:HAND_SCALE,y:HAND_SCALE}, DISCARD_DT).start();
                         }
 
                         let pos = this.callTextPos_[n1];
@@ -3975,10 +3874,9 @@
                     case 2: this._open2(tiles[(this.seat_ + 2) & 3], wt); break;
                     case 3: this._open3(tiles[(this.seat_ + 3) & 3], wt); break;
                     }
-                    this.runAction(new PIXI.action.Sequence([
-                        new PIXI.action.DelayTime(5),
-                        new PIXI.action.CallFunc(()=>{ this._removeOpenTiles(n, (this.turn_ != wp ? 13 : 14)); })
-                    ]))
+                    setTimeout(()=>{
+                        this._removeOpenTiles(n, (this.turn_ != wp ? 13 : 14));
+                    }, 5000);
                 }
             }
 
@@ -5402,17 +5300,6 @@
             }
         }
 
-/*
-        class Hide extends PIXI.action.CallFunc {
-            constructor() { super(); }
-            update(t) { t.visible = false; }
-        }
-
-        class Show extends PIXI.action.CallFunc {
-            constructor() { super(); }
-            update(t) { t.visible = true; }
-        }
-*/
         class SelectionView extends PIXI.Container {
             constructor(type, data, callback) {
                 super();
@@ -5876,7 +5763,7 @@
                 btn.addChild(t);
 
                 t.end_ = new Date().getTime() + cd * 1000;
-                t.action_ = t.runAction(new PIXI.action.Repeat(new PIXI.action.CallFunc(()=>{
+                t.timer_ = setInterval(()=>{
                     let n = (t.end_ - new Date().getTime());
                     let s = parseInt(Math.round(n / 1000));
                     if (s > 0) {
@@ -5884,9 +5771,9 @@
                     }
                     else {
                         callback(0);
-                        t.stopAction(t.action_);
+                        clearInterval(t.timer_);
                     }
-                })));
+                }, 33.33);
 
                 btn = new TextButton('查看桌面', {
                     fontFamily: 'Arial,Helvetica,sans-serif',
@@ -7163,14 +7050,9 @@
                 bg.drawRect((LOBBY_WIDTH - w) * .5 - 20, (LOBBY_HEIGHT - h) * .5 - 20, w + 40, h + 40);
                 bg.endFill();
 
-                bg.runAction(new PIXI.action.Sequence([
-                    new PIXI.action.FadeIn(.1),
-                    new PIXI.action.DelayTime(1.3),
-                    new PIXI.action.FadeOut(.1),
-                    new PIXI.action.CallFunc(()=>{
-                        this.container_.removeChild(bg);
-                    })
-                ]));
+                (new TWEEN.Tween(bg)).to({alpha:1}, 100).onComplete(()=>{
+                    (new TWEEN.Tween(bg)).to({alpha:0}, 100).delay(1300).onComplete(()=>{ this.container_.removeChild(bg); }).start();
+                }).start();
             }
         }
 
