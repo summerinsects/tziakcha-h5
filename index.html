@@ -42,13 +42,13 @@
                     arr[j] = t;
                 }
             }
-        };
+        }
 
         console.log('location.search', location.search);
 
         let app = new PIXI.Application({
             width: window.innerWidth,
-            height : window.innerHeight
+            height: window.innerHeight
         });
         document.body.appendChild(app.view);
 
@@ -151,7 +151,7 @@
             console.log('loading progress:', e.progress);
             loadingText.text = e.progress.toFixed(2) + '%';
         })
-        .load(()=> {
+        .load(()=>{
             app.stage.removeChild(loadingText);
             delete loadingText;
 
@@ -210,10 +210,10 @@
                 }, 1000);
             };
             ws.onerror = (e)=>{
-                console.log('error',e)
+                console.log('error',e);
             };
             ws.onclose = ()=>{
-                console.log('close')
+                console.log('close');
             };
             ws.onmessage = (e)=>{
                 let resp = JSON.parse(e.data);
@@ -2122,7 +2122,7 @@
                     return;
                 }
 
-                let src = undefined;
+                let src;
                 for (let i = 0; i < 14; ++i) {
                     let sp = standing[i];
                     if (sp.visible && sp.t_ == t) {
@@ -4830,8 +4830,8 @@
                 fg.visible = false;
 
                 this.callback_ = callback;
-                function hlt() { this.fg_.visible = true; }
-                function nml() { this.fg_.visible = false; }
+                let hlt = ()=>{ this.fg_.visible = true; };
+                let nml = ()=>{ this.fg_.visible = false; };
 
                 this.interactive = true;
                 this.on('click', this.click);
@@ -5133,7 +5133,7 @@
                 let bg = new PIXI.Sprite(PIXI.loader.resources['img/ui/checkbox_normal.png'].texture);
                 this.addChild(bg);
 
-                let tk = this.tk_ = new PIXI.Sprite(PIXI.loader.resources['img/ui/checkbox_tick.png'].texture)
+                let tk = this.tk_ = new PIXI.Sprite(PIXI.loader.resources['img/ui/checkbox_tick.png'].texture);
                 this.addChild(tk);
                 tk.visible = false;
 
@@ -5166,7 +5166,7 @@
                 this.addChild(fg);
                 fg.visible = false;
 
-                function clk() {
+                let clk = ()=>{
                     let tk = this.tk_;
                     if (tk.visible) {
                         tk.visible = false;
@@ -5180,9 +5180,9 @@
                     if (callback) {
                         callback(this);
                     }
-                }
-                function hlt() { this.fg_.visible = true; }
-                function nml() { this.fg_.visible = false; }
+                };
+                let hlt = ()=>{ this.fg_.visible = true; };
+                let nml = ()=>{ this.fg_.visible = false; };
 
                 this.interactive = true;
                 this.on('click', clk);
@@ -5211,9 +5211,9 @@
                 this.width = width;
                 this.height = height;
 
-                function clk() { callback(this); }
-                function hlt() { this.fg_.visible = true; }
-                function nml() { this.fg_.visible = false; }
+                let clk = ()=>{ callback(this); };
+                let hlt = ()=>{ this.fg_.visible = true; };
+                let nml = ()=>{ this.fg_.visible = false; };
 
                 let bg = new PIXI.Graphics();
                 bg.beginFill(0x000000, .25);
@@ -5258,9 +5258,9 @@
                 this.width = 150;
                 this.height = 150;
 
-                function clk() { this.callback_(this); }
-                function hlt() { this.fg_.visible = true; }
-                function nml() { this.fg_.visible = false; }
+                let clk = ()=>{ this.callback_(this); };
+                let hlt = ()=>{ this.fg_.visible = true; };
+                let nml = ()=>{ this.fg_.visible = false; };
 
                 let bg = this.bg_ = new PIXI.Graphics();
                 this.addChild(bg);
@@ -5587,7 +5587,7 @@
                         tx = '荒庄';
                     }
                     else {
-                        tx = '「' + names[wn] + '」' + ((cl != wn) ? ('和牌 「' + names[cl] + '」点炮') : '自摸') + '  ' + f + '番'
+                        tx = '「' + names[wn] + '」' + ((cl != wn) ? ('和牌 「' + names[cl] + '」点炮') : '自摸') + '  ' + f + '番';
                     }
                     let t = new PIXI.Text(tx, {
                         fontFamily: 'Arial,Helvetica,sans-serif',
@@ -6389,9 +6389,9 @@
                 this.width = width;
                 this.height = height;
 
-                function clk() { clkcb(this); }
-                function hlt() { this.fg_.visible = true; }
-                function nml() { this.fg_.visible = false; }
+                let clk = ()=>{ clkcb(this); };
+                let hlt = ()=>{ this.fg_.visible = true; };
+                let nml = ()=>{ this.fg_.visible = false; };
 
                 let bg = new PIXI.Graphics();
                 bg.beginFill(0, .25);
