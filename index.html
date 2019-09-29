@@ -89,6 +89,7 @@
             loadingText.y = window.innerHeight * .5;
         };
 
+        let mutecd = parseInt(localStorage.getItem('mutecd'));
         let lobby, game, ws, hbt;
 
         function reenter() {
@@ -1274,6 +1275,30 @@
                 this.addChild(btn);
 */
 
+                btn = new TextButton('设置', {
+                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                }, 120, 60, ()=>{
+                    if (this.sv_) {
+                        this.removeChild(this.sv_);
+                        this.sv_.removeChildren();
+                    }
+
+                    let sv = this.sv_ = new SettingView(()=>{
+                        this.removeChild(this.sv_);
+                        this.sv_.removeChildren();
+                        delete this.sv_;
+                    });
+                    this.addChild(sv);
+                    sv.x = (MAX_WIDTH - sv.width) * .5;
+                    sv.y = (MAX_HEIGHT - sv.height) * .5;
+
+                });
+                this.addChild(btn);
+
                 btn = new TextButton('计分表', {
                     fontFamily: 'Arial,Helvetica,sans-serif',
                     fontSize: 24,
@@ -1716,7 +1741,7 @@
                         let tt = parseInt(t.text);
                         if (tt != s) {
                             t.text = s;
-                            if (s <= 3) {
+                            if (!mutecd && s <= 3) {
                                 play_snd('snd/03-cd.wav');
                             }
                         }
@@ -6380,6 +6405,178 @@
                         }
                     }
                 }
+            }
+        }
+
+        class RangeBar extends PIXI.Container {
+            constructor(w, h0, h1, cb) {
+                super();
+
+                this.width = w;
+                this.height = h0;
+
+                this.min_ = h0 * .5;
+                this.max_ = w - h0 * .5;
+
+                let bg = new PIXI.Graphics();
+                this.addChild(bg);
+
+                //bg.lineStyle(2, 0xFFFFFF, 1);
+                bg.beginFill(0xffffff, .5);
+                bg.drawRect(0, (h0 - h1) * .5, w, h1);
+                bg.endFill();
+
+                let thmb = this.thmb_ = new PIXI.Graphics();
+                thmb.beginFill(0xffffff, 1);
+                thmb.drawCircle(h0 * .25, h0 * .25, h0 * .5);
+                thmb.endFill();
+                this.addChild(thmb);
+                thmb.x = thmb.y = h0 * .25;
+
+                this.dragging_ = false;
+                thmb.interactive = true;
+                thmb.on('pointerdown', ()=>{ this.dragging_ = true; });
+                thmb.on('pointerup', ()=>{ this.dragging_ = false; });
+                thmb.on('pointerupoutside', ()=>{ this.dragging_ = false; })
+                thmb.on('pointermove', (e)=>{
+                    if (!this.dragging_) return;
+                    let pt = this.toLocal(e.data.global);
+                    let v0 = this.min_, v1 = this.max_;
+                    let vx = Math.max(v0, Math.min(v1, pt.x));
+                    this.thmb_.x = vx - v0 * .5;
+                    this.value_ = (vx - v0) * 100 / (v1 - v0);
+                    cb(this.value_);
+                })
+            }
+
+            setValue(v) {
+                this.value_ = v;
+                this.thmb_.x = this.min_ * .5 + (this.max_ - this.min_) * v / 100;
+            }
+
+            getValue() {
+                return this.value_;
+            }
+        }
+
+        class SettingView extends PIXI.Container {
+            constructor(callback) {
+                super();
+
+                const gap = 30, width2 = 450, height2 = 320;
+
+                this.width = LOBBY_WIDTH;
+                this.height = LOBBY_HEIGHT;
+                this.interactive = true;
+
+                let bg = new PIXI.Graphics();
+                this.addChild(bg);
+
+                bg.beginFill(0, 0);
+                bg.drawRect(0, 0, LOBBY_WIDTH, LOBBY_HEIGHT);
+                bg.endFill();
+
+                bg.lineStyle(2, 0xFFFFFF, 1);
+                bg.beginFill(0, .85);
+                bg.drawRect((LOBBY_WIDTH - width2) * .5, (LOBBY_HEIGHT - height2) * .5, width2, height2);
+                bg.endFill();
+
+                let t = new PIXI.Text('设置', {
+                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontSize: 32,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                this.addChild(t);
+                t.anchor.set(.5);
+                t.x = LOBBY_WIDTH * .5;
+                t.y = (LOBBY_HEIGHT - height2) * .5 + 40;
+
+                t = new PIXI.Text('音量', {
+                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                this.addChild(t);
+                t.anchor.y = .5;
+                t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
+                t.y = 300;
+
+                let t0 = new PIXI.Text('100%', {
+                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                this.addChild(t0);
+                t0.anchor.x = 1;
+                t0.anchor.y = .5;
+                t0.x = (LOBBY_WIDTH + width2) * .5 - gap - 10;
+                t0.y = 300;
+
+                let rb = new RangeBar(t0.x - t0.width - t.x - t.width - 15, 30, 15, (v)=>{
+                    t0.text = Math.round(v) + '%';
+                });
+                this.addChild(rb);
+                rb.x = t.x + t.width + 10;
+                rb.y = 285;
+                let volume = localStorage.getItem('volume');
+                volume = (volume != undefined) ? Math.max(0, Math.min(100, parseFloat(volume))) : 100;
+                t0.text = Math.round(volume) + '%';
+                rb.setValue(volume);
+
+                t = new PIXI.Text('倒计时音效', {
+                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                this.addChild(t);
+                t.anchor.y = .5;
+                t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
+                t.y = 370;
+
+                let cb = new CheckBox('');
+                this.addChild(cb);
+                cb.scale.set(.75);
+                cb.x = t.x + t.width + 50;
+                cb.y = t.y - 15;
+                cb.setSelected(!mutecd);
+
+                const btnWidth = 120, btnHeight = 50;
+                let btn = new TextButton('取消', {
+                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                }, btnWidth, btnHeight, ()=>{ callback(); });
+                this.addChild(btn);
+                btn.x = (LOBBY_WIDTH - width2) * .5 + gap;
+                btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
+
+                btn = new TextButton('确定', {
+                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                }, btnWidth, btnHeight, ()=>{
+                    let volume = rb.getValue();
+                    mutecd = cb.isSelected() ? 0 : 1;
+                    localStorage.setItem('volume', volume);
+                    localStorage.setItem('mutecd', mutecd);
+                    PIXI.sound.volumeAll = volume / 100;
+                    callback();
+                });
+                this.addChild(btn);
+                btn.x = (LOBBY_WIDTH + width2) * .5 - btnWidth - gap;
+                btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
             }
         }
 
