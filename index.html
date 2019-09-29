@@ -1456,6 +1456,7 @@
                 }
 
                 if (this.activeTile_) {
+                    this.activeTile_.visible = false;
                     this.removeChild(this.activeTile_);
                     this.activeTile_ = null;
                 }
@@ -2352,6 +2353,7 @@
                     let dst = sp.dst_;
                     if (dst) {
                         // 普通打牌
+                        sp.visible = false;
                         dst.visible = true;
                         this.removeChild(sp);
                     }
@@ -2752,7 +2754,10 @@
                     }
                     break;
                 }
-                if (req) this.removeChild(req);
+                if (req) {
+                    req.visible = false;
+                    this.removeChild(req);
+                }
 
                 this.packData_[3].push(pack);
 
@@ -2994,7 +2999,10 @@
                     }
                     break;
                 }
-                if (req) this.removeChild(req);
+                if (req) {
+                    req.visible = false;
+                    this.removeChild(req);
+                }
 
                 this.packData_[2].push(pack);
                 this._shrink2(ext, hidden + 3, [idx1, idx2, idx3]);
@@ -3237,7 +3245,10 @@
                     }
                     break;
                 }
-                if (req) this.removeChild(req);
+                if (req) {
+                    req.visible = false;
+                    this.removeChild(req);
+                }
 
                 this.packData_[1].push(pack);
 
@@ -3504,7 +3515,10 @@
                     }
                     break;
                 }
-                if (req) this.removeChild(req);
+                if (req) {
+                    req.visible = false;
+                    this.removeChild(req);
+                }
 
                 this.packData_[0].push(pack);
                 this._shrink0(0, hidden + 3, [idx1, idx2, idx3]);
