@@ -5251,7 +5251,7 @@
                 this.width = width;
                 this.height = height;
 
-                let clk = ()=>{ callback(this); };
+                let clk = callback.bind(this);
                 let hlt = ()=>{ this.fg_.visible = true; };
                 let nml = ()=>{ this.fg_.visible = false; };
 
@@ -6601,7 +6601,7 @@
                 this.width = width;
                 this.height = height;
 
-                let clk = ()=>{ clkcb(this); };
+                let clk = clkcb.bind(this);
                 let hlt = ()=>{ this.fg_.visible = true; };
                 let nml = ()=>{ this.fg_.visible = false; };
 
