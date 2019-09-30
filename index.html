@@ -3682,6 +3682,8 @@
                         lobby.visible = true;
                         delete lobby.seat_;
                         delete lobby.tableid_;
+                        this.historyView_.visible = false;
+                        this.chaseView_.visible = false;
                     }
                 });
                 this.addChild(view);
