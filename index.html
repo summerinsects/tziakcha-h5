@@ -495,15 +495,11 @@
                     }
 
                     let v = resp['v'];
-                    if (v != pool.seat_) {
-                        pool.discard123((v + 4 - pool.seat_) & 3, resp['t'], resp['h']);
-                        let a = resp['a'];
-                        if (a && a.length > 0) {
-                            pool.addCD(pool.cfg_[(((pool.turn_ + 1) & 3) == pool.seat_) ? 'r30' : 'r12']);
-                            pool.addBtns(a);
-                        }
-                    } else {
-                        pool.discard0(resp['t']);
+                    pool.discard((v + 4 - pool.seat_) & 3, resp['t'], resp['h']);
+                    let a = resp['a'];
+                    if (a && a.length > 0) {
+                        pool.addCD(pool.cfg_[(((pool.turn_ + 1) & 3) == pool.seat_) ? 'r30' : 'r12']);
+                        pool.addBtns(a);
                     }
                     break;
                 }
@@ -523,12 +519,7 @@
 
                     let p = resp['p'];
                     if (p != undefined) {
-                        switch (idx) {
-                        case 0: pool.cpk0(p); break;
-                        case 1: pool.cpk1(p); break;
-                        case 2: pool.cpk2(p); break;
-                        case 3: pool.cpk3(p); break;
-                        }
+                        pool['cpk' + idx].call(pool, p);
                     }
                     else {
                         let a = resp['a'];
@@ -560,20 +551,10 @@
                         }
                     }
                     else if (!is_promoted_kong(p)) {
-                        switch (idx) {
-                        case 0: pool.cpk0(p); break;
-                        case 1: pool.cpk1(p); break;
-                        case 2: pool.cpk2(p); break;
-                        case 3: pool.cpk3(p); break;
-                        }
+                        pool['cpk' + idx].call(pool, p);
                     }
                     else {
-                        switch (idx) {
-                        case 0: pool.pk0(p); break;
-                        case 1: pool.pk1(p, false); break;
-                        case 2: pool.pk2(p, false); break;
-                        case 3: pool.pk3(p, false); break;
-                        }
+                        pool['pk' + idx].call(pool, p, false);
                         let a = resp['a'];
                         if (a && a.length > 0) {
                             pool.addCD(pool.cfg_['r12']);
@@ -592,12 +573,8 @@
                     let v = resp['v'];
                     play_snd(!pool.players_[v]['g'] ? 'snd/18-kong-m.wav' : 'snd/19-kong-f.wav');
                     let idx = (v + 4 - pool.seat_) & 3;
-                    switch (idx) {
-                    case 0: pool.showCallText(0, '杠'); pool.ck0(resp['p']); break;
-                    case 1: pool.showCallText(1, '杠'); pool.ck1(resp['p'], false); break;
-                    case 2: pool.showCallText(2, '杠'); pool.ck2(resp['p'], false); break;
-                    case 3: pool.showCallText(3, '杠'); pool.ck3(resp['p'], false); break;
-                    }
+                    pool.showCallText(idx, '杠');
+                    pool['ck' + idx].call(pool, resp['p'], false);
                     break;
                 }
                 case 12: {  // 和
@@ -724,9 +701,97 @@
         const WIND = ['东', '南', '西', '北'];
         const ACTION = ['吃', '碰', '杠', '和', '花', '过'];
 
+        const EXT_CP_02 = (WIDTH_13 + GAP_T - WIDTH_02) * .5; // (WIDTH_02 * 2 + WIDTH_13 + GAP_T - WIDTH_02 * 3) * .5
+        const EXT_DK_02 = (WIDTH_13 + GAP_T) * .5;  // (WIDTH_02 * 3 + WIDTH_13 + GAP_T - WIDTH_02 * 3) * .5
+        const EXT_CK_02 = (WIDTH_02 + GAP_T) * .5;
+
+        const EXT_CP_13 = (HEIGHT_02 + GAP_T - HEIGHT_13) * .5; // (HEIGHT_13 * 2 + HEIGHT_02 + GAP_T - HEIGHT_13 * 3) * .5
+        const EXT_DK_13 = (HEIGHT_02 + GAP_T) * .5;  //  (HEIGHT_13 * 3 + HEIGHT_02 + GAP_T - HEIGHT_13 * 3) * .5
+        const EXT_CK_13 = (HEIGHT_13 + GAP_T) * .5;
+
+        const DOX = [10, 10, -10, -10];
+        const DOY = [10, -10, -10, 10];
+
+/*
+        const MPO = [
+            [PoolTile1, PoolTile0, PoolTile3],
+            [PoolTile2, PoolTile1, PoolTile0],
+            [PoolTile3, PoolTile2, PoolTile1],
+            [PoolTile0, PoolTile3, PoolTile2]
+        ];
+*/
         const DRAW_DT = 100;
         const SORT_DT = 200;
         const DISCARD_DT = 150;
+
+        class PoolTile extends PIXI.Sprite {
+            constructor(tex, t) {
+                super(tex);
+                this.t_ = t;
+            }
+        }
+
+        class PoolTile0 extends PoolTile {
+            constructor(t) {
+                let ti = all_tiles[t];
+                let tex = PIXI.loader.resources['img/tiles/pool0.png'].texture.clone();
+                tex.frame = new PIXI.Rectangle(
+                    (WIDTH_02 + 2) * (ti & 0xF) + 2, (HEIGHT_02F + 2) * ((ti & 0xF0) >> 4) + 2,
+                    WIDTH_02, HEIGHT_02F);
+                super(tex, t);
+            }
+
+            update(t) {
+                updatePool02Tile(this, t);
+            }
+        }
+
+        class PoolTile1 extends PoolTile {
+            constructor(t) {
+                let ti = all_tiles[t];
+                let tex = PIXI.loader.resources['img/tiles/pool1.png'].texture.clone();
+                tex.frame = new PIXI.Rectangle(
+                    (WIDTH_13 + 2) * (ti & 0xF) + 2, (HEIGHT_13F + 2) * ((ti & 0xF0) >> 4) + 2,
+                    WIDTH_13, HEIGHT_13F);
+                super(tex, t);
+            }
+
+            update(t) {
+                updatePool13Tile(this, t);
+            }
+        }
+
+        class PoolTile2 extends PoolTile {
+            constructor(t) {
+                let ti = all_tiles[t];
+                let tex = PIXI.loader.resources['img/tiles/pool2.png'].texture.clone();
+                tex.frame = new PIXI.Rectangle(
+                    (WIDTH_02 + 2) * (ti & 0xF) + 2, (HEIGHT_02F + 2) * ((ti & 0xF0) >> 4) + 2,
+                    WIDTH_02, HEIGHT_02F);
+                super(tex, t);
+            }
+
+            update(t) {
+                updatePool02Tile(this, t);
+            }
+        }
+
+        class PoolTile3 extends PoolTile {
+            constructor(t) {
+                let ti = all_tiles[t];
+                let tex = PIXI.loader.resources['img/tiles/pool3.png'].texture.clone();
+                tex.frame = new PIXI.Rectangle(
+                    (WIDTH_13 + 2) * (ti & 0xF) + 2, (HEIGHT_13F + 2) * ((ti & 0xF0) >> 4) + 2,
+                    WIDTH_13, HEIGHT_13F);
+                super(tex, t);
+            }
+
+            update(t) {
+                updatePool13Tile(this, t);
+            }
+        }
+
+        const CTOR_PT = [PoolTile0, PoolTile1, PoolTile2, PoolTile3];
 
         class Pool extends PIXI.Container {
             constructor() {
@@ -1946,78 +2011,43 @@
                 }).start();
             }
 
-            static _move(standing, o, n) {
-                if (o < n) {
+            _discardEffect(n, o, p) {
+                let a = (n & 1) ? 'y' : 'x';
+                let sgn = (n != 1) ? 1 : -1;
+                let standing = this.standing_[n];
+                let dp = new Array(14);
+                for (let i = 0; i < 14; ++i) {
+                    dp[i] = standing[i][a];
+                }
+                let z = this.getChildIndex(standing[0]);
+
+                if (o < p) {
                     let tmp = standing[o];
-                    for (let i = o; i < n; ++i) {
+                    for (let i = o; i < p; ++i) {
                         standing[i] = standing[i + 1];
                     }
-                    standing[n] = standing[13];
+                    standing[p] = standing[13];
                     standing[13] = tmp;
-                } else if (o > n) {
+                } else if (o > p) {
                     let tmp = standing[o];
-                    for (let i = o; i > n; --i) {
+                    for (let i = o; i > p; --i) {
                         standing[i] = standing[i - 1];
                     }
-                    standing[n] = standing[13];
+                    standing[p] = standing[13];
                     standing[13] = tmp;
                 } else {
                     let tmp = standing[o];
                     standing[o] = standing[13];
                     standing[13] = tmp;
                 }
-            }
 
-            _discardEffect3(o, n) {
-                let standing = this.standing_[3];
-                let dp = new Array(14);
-                for (let i = 0; i < 14; ++i) {
-                    dp[i] = standing[i].y;
-                }
-                let z = this.getChildIndex(standing[0]);
-
-                Pool._move(standing, o, n);
                 for (let i = 0; i < 14; ++i) {
                     let sp = standing[i];
-                    this.setChildIndex(sp, z + i);
-                    if (sp.y != dp[i]) {
-                        (new TWEEN.Tween(sp)).to({y:dp[i]}, DISCARD_DT).start();
-                    }
-                }
-            }
-
-            _discardEffect2(o, n) {
-                let standing = this.standing_[2];
-                let dp = new Array(14);
-                for (let i = 0; i < 14; ++i) {
-                    dp[i] = standing[i].x;
-                }
-                let z = this.getChildIndex(standing[0]);
-
-                Pool._move(standing, o, n);
-                for (let i = 0; i < 14; ++i) {
-                    let sp = standing[i];
-                    this.setChildIndex(sp, z + i);
-                    if (sp.y != dp[i]) {
-                        (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
-                    }
-                }
-            }
-
-            _discardEffect1(o, n) {
-                let standing = this.standing_[1];
-                let dp = new Array(14);
-                for (let i = 0; i < 14; ++i) {
-                    dp[i] = standing[i].y;
-                }
-                let z = this.getChildIndex(standing[0]);
-
-                Pool._move(standing, o, n);
-                for (let i = 0; i < 14; ++i) {
-                    let sp = standing[i];
-                    this.setChildIndex(sp, z - i);
-                    if (sp.y != dp[i]) {
-                        (new TWEEN.Tween(sp)).to({y:dp[i]}, DISCARD_DT).start();
+                    this.setChildIndex(sp, z + sgn * i);
+                    if (sp[a] != dp[i]) {
+                        let dst = {};
+                        dst[a] = dp[i];
+                        (new TWEEN.Tween(sp)).to(dst, DISCARD_DT).start();
                     }
                 }
             }
@@ -2073,14 +2103,10 @@
                 return -1;
             }
 
-            discard123(n, t, h) {
+            discard(n, t, h) {
                 play_snd('snd/06-discard.wav');
                 this.removeCD();
                 this.removeBtns();
-
-                const ox = [10, 10, -10, -10];
-                const oy = [10, -10, -10, 10];
-                const cls = [PoolTile0, PoolTile1, PoolTile2, PoolTile3];
 
                 this.removeActive();
 
@@ -2096,67 +2122,20 @@
                     return;
                 }
 
-                let idx = h ? this._randomIdx(n) : 13;
-                let src = standing[idx];
-                src.visible = false;
-
-                dst.update(t);
-                let sp = new (cls[n])(t);
-                sp.x = src.x;
-                sp.y = src.y;
-                if (n == 1) sp.x -= (WIDTH_13 - WIDTH_13S);
-                this.activeTile_ = sp;
-                this.addChildAt(sp, this.getChildIndex(dst));
-                sp.dst_ = dst;
-                (new TWEEN.Tween(sp)).to({x:(dst.x + ox[n]),y:(dst.y + oy[n])}, DISCARD_DT).start();
-
-                // 插入手牌的动画
-                if (idx != 13) {
-                    setTimeout(()=>{
-                        switch (n) {
-                        case 1: this._discardEffect1(idx, 12); break;
-                        case 2: this._discardEffect2(idx, 12); break;
-                        case 3: this._discardEffect3(idx, 12); break;
+                let idx;
+                if (n) {
+                    idx = h ? this._randomIdx(n) : 13;
+                }
+                else {
+                    for (let i = 0; i < 14; ++i) {
+                        let sp = standing[i];
+                        if (sp.visible && sp.t_ == t) {
+                            idx = i;
+                            break;
                         }
-                        standing[idx].visible = true;
-                        standing[13].visible = false;
-                    }, DISCARD_DT);
-                }
-            }
-
-            discard0(t) {
-                play_snd('snd/06-discard.wav');
-                this.removeCD();
-                this.removeBtns();
-
-                this.removeActive();
-
-                let standing = this.standing_[0];
-                if (!standing[13].visible) {
-                    console.log('error');
-                    return;
-                }
-
-                if (this.turn_ != this.seat_) {
-                    console.log('error');
-                    return;
-                }
-
-                let dst = this._findPoolDest(0);
-                if (dst == null) {
-                    console.log('ui error');
-                    reenter();
-                    return;
-                }
-
-                let src;
-                for (let i = 0; i < 14; ++i) {
-                    let sp = standing[i];
-                    if (sp.visible && sp.t_ == t) {
-                        src = sp;
-                        break;
                     }
                 }
+                let src = standing[idx];
                 if (src == undefined) {
                     console.log('ui error');
                     reenter();
@@ -2164,42 +2143,56 @@
                 }
                 src.visible = false;
 
-                dst.update(src.t_);
-                let sp = new PoolTile0(src.t_);
+                dst.update(t);
+
+                let sp = new (CTOR_PT[n])(t);
                 sp.x = src.x;
-                sp.y = src.y - src.height;
-                sp.scale.set(HAND_SCALE);
+                sp.y = src.y;
+                if (n == 1) sp.x -= (WIDTH_13 - WIDTH_13S);
+                else if (n == 0) sp.y -= src.height;
                 this.activeTile_ = sp;
                 this.addChildAt(sp, this.getChildIndex(dst));
                 sp.dst_ = dst;
-                (new TWEEN.Tween(sp)).to({x:(dst.x + 10),y:(dst.y + 10)}, DISCARD_DT).start();
-                (new TWEEN.Tween(sp.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                (new TWEEN.Tween(sp)).to({x:(dst.x + DOX[n]),y:(dst.y + DOY[n])}, DISCARD_DT).start();
+                if (n == 0) {
+                    sp.scale.set(HAND_SCALE);
+                    (new TWEEN.Tween(sp.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                    this.stopFlower_ = false;
+                }
 
-                this.stopFlower_ = false;
-
-                if (src != standing[13]) {
-                    let z = this.getChildIndex(standing[0]);
-                    let dp = new Array(14);
-                    for (let i = 0; i < 14; ++i) {
-                        dp[i] = standing[i].x;
+                if (idx != 13) {
+                    // 插入手牌的动画
+                    if (n) {
+                        setTimeout(()=>{
+                            this._discardEffect(n, idx, 12);
+                            standing[idx].visible = true;
+                            standing[13].visible = false;
+                        }, DISCARD_DT);
                     }
+                    else {
+                        let z = this.getChildIndex(standing[0]);
+                        let dp = new Array(14);
+                        for (let i = 0; i < 14; ++i) {
+                            dp[i] = standing[i].x;
+                        }
 
-                    src.t_ = 0xFF;
-                    src.visible = false;
-                    standing.sort(function(a, b) { return a.t_ - b.t_; });
+                        src.t_ = 0xFF;
+                        src.visible = false;
+                        standing.sort(function(a, b) { return a.t_ - b.t_; });
 
-                    for (let i = 0; i < 14; ++i) {
-                        let sp = standing[i];
-                        this.setChildIndex(sp, z + i);
-                        if (sp.x != dp[i]) {
-                            (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
+                        for (let i = 0; i < 14; ++i) {
+                            let sp = standing[i];
+                            this.setChildIndex(sp, z + i);
+                            if (sp.x != dp[i]) {
+                                (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
+                            }
                         }
                     }
                 }
             }
 
             _discard(sp) {
-                //this.discard0(sp);
+                //this.discard(0, sp);
                 let t = sp.t_;
                 if (t != 0xFF && this.standing_[0][13].visible) {
                     ws.send('{"m":2,"r":2,"v":' + t + '}');
@@ -2486,10 +2479,16 @@
                 }
             }
 
-            static _collect(standing, indices) {
-                let len = indices.length;
-                if (len != 3 && len != 4) {
-                    return;
+            _shrink(n, ext, hidden, indices) {
+                let a = (n & 1) ? 'y' : 'x';
+                let sgn = (n==1) ? -1 : 1;
+                let standing = this.standing_[n];
+                let z = this.getChildIndex(standing[0]);
+
+                // 移动余下立牌
+                let dp = new Array(14);
+                for (let i = 0; i < 14; ++i) {
+                    dp[i] = standing[i][a] + ext;
                 }
 
                 for (let i = 0; i < 3; ++i) {
@@ -2501,7 +2500,7 @@
                     tmp.t_ = -1;
                 }
 
-                if (len == 4) {
+                if (indices.length == 4) {
                     let tmp = standing[indices[3]];
                     for (let k = indices[3]; k < 13; ++k) {
                         standing[k] = standing[k + 1];
@@ -2509,109 +2508,19 @@
                     standing[13] = tmp;
                     tmp.t_ = -1;
                 }
-            }
-
-            _shrink3(ext, hidden, indices) {
-                let standing = this.standing_[3];
-                let z = this.getChildIndex(standing[0]);
-
-                // 移动余下立牌
-                let dp = new Array(14);
-                for (let i = 0; i < 14; ++i) {
-                    dp[i] = standing[i].y + ext;
-                }
-
-                Pool._collect(standing, indices);
 
                 for (let i = 0; i < 14; ++i) {
                     let sp = standing[i];
-                    this.setChildIndex(sp, z + i);
+                    this.setChildIndex(sp, z + sgn * i);
                     if (i < hidden) {
                         sp.visible = false;
-                        sp.y = dp[i];
+                        sp[a] = dp[i];
                     }
                     else {
                         sp.visible = true;
-                        (new TWEEN.Tween(sp)).to({y:dp[i]}, DISCARD_DT).start();
-                    }
-                }
-            }
-
-            _shrink2(ext, hidden, indices) {
-                let standing = this.standing_[2];
-                let z = this.getChildIndex(standing[0]);
-
-                // 移动余下立牌
-                let dp = new Array(14);
-                for (let i = 0; i < 14; ++i) {
-                    dp[i] = standing[i].x - ext;
-                }
-
-                Pool._collect(standing, indices);
-
-                for (let i = 0; i < 14; ++i) {
-                    let sp = standing[i];
-                    this.setChildIndex(sp, z + i);
-                    if (i < hidden) {
-                        sp.visible = false;
-                        sp.x = dp[i];
-                    }
-                    else {
-                        sp.visible = true;
-                        (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
-                    }
-                }
-            }
-
-            _shrink1(ext, hidden, indices) {
-                let standing = this.standing_[1];
-                let z = this.getChildIndex(standing[0]);
-
-                // 移动余下立牌
-                let dp = new Array(14);
-                for (let i = 0; i < 14; ++i) {
-                    dp[i] = standing[i].y - ext;
-                }
-
-                Pool._collect(standing, indices);
-
-                hidden += 3;
-                for (let i = 0; i < 14; ++i) {
-                    let sp = standing[i];
-                    this.setChildIndex(sp, z - i);
-                    if (i < hidden) {
-                        sp.visible = false;
-                        sp.y = dp[i];
-                    }
-                    else {
-                        sp.visible = true;
-                        (new TWEEN.Tween(sp)).to({y:dp[i]}, DISCARD_DT).start();
-                    }
-                }
-            }
-
-            _shrink0(ext, hidden, indices) {
-                let standing = this.standing_[0];
-                let z = this.getChildIndex(standing[0]);
-
-                // 移动余下立牌
-                let dp = new Array(14);
-                for (let i = 0; i < 14; ++i) {
-                    dp[i] = standing[i].x + ext;
-                }
-
-                Pool._collect(standing, indices);
-
-                for (let i = 0; i < 14; ++i) {
-                    let sp = standing[i];
-                    this.setChildIndex(sp, z + i);
-                    if (i < hidden) {
-                        sp.visible = false;
-                        sp.x = dp[i];
-                    }
-                    else {
-                        sp.visible = true;
-                        (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
+                        let dst = {};
+                        dst[a] = dp[i];
+                        (new TWEEN.Tween(sp)).to(dst, DISCARD_DT).start();
                     }
                 }
             }
@@ -2631,13 +2540,7 @@
                 }
 
                 let standing = this.standing_[3];
-                // type != 2:
-                //  HEIGHT_13 * 2 + HEIGHT_02 + GAP_T - HEIGHT_13 * 3
-                //  = HEIGHT_02 + GAP_T - HEIGHT_13
-                // type == 2:
-                //  HEIGHT_13 * 3 + HEIGHT_02 + GAP_T - HEIGHT_13 * 3
-                //  = HEIGHT_02 + GAP_T
-                let ext = (HEIGHT_02 - (type != 2 ? HEIGHT_13 : 0) + GAP_T) * .5;
+                let ext = (type != 2) ? EXT_CP_13 : EXT_DK_13;
 
                 // 立牌往下，已有的副露往上
                 this.openPos_[3] += ext;
@@ -2761,7 +2664,7 @@
 
                 this.packData_[3].push(pack);
 
-                this._shrink3(ext, hidden + 3, [idx1, idx2, idx3]);
+                this._shrink(3, ext, hidden + 3, [idx1, idx2, idx3]);
                 if (type == 2) standing[13].visible = false;
                 else this.setTurn((this.seat_ + 3) & 3);
 
@@ -2777,7 +2680,7 @@
                 }
 
                 let standing = this.standing_[3];
-                let ext = (HEIGHT_13 + GAP_T) * .5;
+                let ext = EXT_CK_13;
 
                 // 立牌往下，已有的副露往上
                 this.openPos_[3] += ext;
@@ -2807,7 +2710,7 @@
                 }
 
                 this.packData_[3].push(0x300);
-                this._shrink3(ext, hidden + 3, idx);
+                this._shrink(3, ext, hidden + 3, idx);
                 standing[13].visible = false;
 
                 play_snd('snd/09-cpk.wav');
@@ -2853,7 +2756,7 @@
                 // 插入手牌动画
                 if (idx != 13) {
                     setTimeout(()=>{
-                        this._discardEffect3(idx, 12);
+                        this._discardEffect(3, idx, 12);
                         this.standing_[3][13].visible = false;
                     }, DISCARD_DT);
                 }
@@ -2876,13 +2779,7 @@
                 }
 
                 let standing = this.standing_[2];
-                // type != 2:
-                //  WIDTH_02 * 2 + WIDTH_13 + GAP_T - WIDTH_02 * 3
-                //  = WIDTH_13 + GAP_T - WIDTH_02
-                // type == 2:
-                //  WIDTH_02 * 3 + WIDTH_13 + GAP_T - WIDTH_02 * 3
-                //  = WIDTH_13 + GAP_T
-                let ext = (WIDTH_13 - (type != 2 ? WIDTH_02 : 0) + GAP_T) * .5;
+                let ext = (type != 2) ? EXT_CP_02 : EXT_DK_02;
 
                 // 立牌往左，已有的副露往右
                 this.openPos_[2] -= ext;
@@ -3005,7 +2902,7 @@
                 }
 
                 this.packData_[2].push(pack);
-                this._shrink2(ext, hidden + 3, [idx1, idx2, idx3]);
+                this._shrink(2, -ext, hidden + 3, [idx1, idx2, idx3]);
                 if (type == 2) standing[13].visible = false;
                 else this.setTurn((this.seat_ + 2) & 3);
 
@@ -3021,7 +2918,7 @@
                 }
 
                 let standing = this.standing_[2];
-                let ext = (WIDTH_02 + GAP_T) * .5;
+                let ext = EXT_CK_02;
 
                 // 立牌往左，已有的副露往右
                 this.openPos_[2] -= ext;
@@ -3051,7 +2948,7 @@
                 }
 
                 this.packData_[2].push(0x300);
-                this._shrink2(ext, hidden + 3, idx);
+                this._shrink(2, -ext, hidden + 3, idx);
                 standing[13].visible = false;
 
                 play_snd('snd/09-cpk.wav');
@@ -3097,7 +2994,7 @@
                 // 插入手牌动画
                 if (idx != 13) {
                     setTimeout(()=>{
-                        this._discardEffect2(idx, 12);
+                        this._discardEffect(2, idx, 12);
                         this.standing_[2][13].visible = false;
                     }, DISCARD_DT);
                 }
@@ -3120,13 +3017,7 @@
                 }
 
                 let standing = this.standing_[1];
-                // type != 2:
-                //  HEIGHT_13 * 2 + HEIGHT_02 + GAP_T - HEIGHT_13 * 3
-                //  = HEIGHT_02 + GAP_T - HEIGHT_13
-                // type == 2:
-                //  HEIGHT_13 * 3 + HEIGHT_02 + GAP_T - HEIGHT_13 * 3
-                //  = HEIGHT_02 + GAP_T
-                let ext = (HEIGHT_02 - (type != 2 ? HEIGHT_13 : 0) + GAP_T) * .5;
+                let ext = (type != 2) ? EXT_CP_13 : EXT_DK_13;
 
                 // 立牌往上，已有的副露往下
                 this.openPos_[1] -= ext;
@@ -3252,7 +3143,7 @@
 
                 this.packData_[1].push(pack);
 
-                this._shrink1(ext, hidden, [idx1, idx2, idx3]);
+                this._shrink(1, -ext, hidden + 3, [idx1, idx2, idx3]);
                 if (type == 2) standing[13].visible = false;
                 else this.setTurn((this.seat_ + 1) & 3);
 
@@ -3268,7 +3159,7 @@
                 }
 
                 let standing = this.standing_[1];
-                let ext = (HEIGHT_13 + GAP_T) * .5;
+                let ext = EXT_CK_13;
 
                 // 立牌往上，已有的副露往下
                 this.openPos_[1] -= ext;
@@ -3300,7 +3191,7 @@
                 }
 
                 this.packData_[1].push(0x300);
-                this._shrink1(ext, hidden, idx);
+                this._shrink(1, -ext, hidden + 3, idx);
                 standing[13].visible = false;
 
                 play_snd('snd/09-cpk.wav');
@@ -3346,7 +3237,7 @@
                 // 插入手牌动画
                 if (idx != 13) {
                     setTimeout(()=>{
-                        this._discardEffect1(idx, 12);
+                        this._discardEffect(1, idx, 12);
                         this.standing_[1][13].visible = false;
                     }, DISCARD_DT);
                 }
@@ -3521,7 +3412,7 @@
                 }
 
                 this.packData_[0].push(pack);
-                this._shrink0(0, hidden + 3, [idx1, idx2, idx3]);
+                this._shrink(0, 0, hidden + 3, [idx1, idx2, idx3]);
                 if (type != 2) {
                     this.openPos_[0] = xx + WIDTH_13 + WIDTH_02 * 2 + GAP_T;
                     this.setTurn(this.seat_);
@@ -3576,7 +3467,7 @@
 
                 // 插入手牌动画
                 if (idx[3] == 13) {
-                    this._shrink0(0, hidden + 3, idx);
+                    this._shrink(0, 0, hidden + 3, idx);
                 }
                 else {
                     let z = this.getChildIndex(standing[0]);
@@ -4143,21 +4034,17 @@
 
                 let at = dtl['at'];
                 if (at != undefined) {
-                    const ox = [10, 10, -10, -10];
-                    const oy = [10, -10, -10, 10];
-                    const cls = [PoolTile0, PoolTile1, PoolTile2, PoolTile3];
-
                     let n = (this.turn_ + 4 - seat) & 3;
                     let dst = this._findPoolDest(n);
                     if (dst != null) {
                         dst.update(at);
 
-                        let sp = new (cls[n])(at);
+                        let sp = new (CTOR_PT[n])(at);
                         this.activeTile_ = sp;
                         this.addChildAt(sp, this.getChildIndex(dst));
                         sp.dst_ = dst;
-                        sp.x = dst.x + ox[n];
-                        sp.y = dst.y + oy[n];
+                        sp.x = dst.x + DOX[n];
+                        sp.y = dst.y + DOY[n];
                     }
                 }
 
@@ -4897,73 +4784,6 @@
 
             click() {
                 this.callback_(this);
-            }
-        }
-
-        class PoolTile extends PIXI.Sprite {
-            constructor(tex, t) {
-                super(tex);
-                this.t_ = t;
-            }
-        }
-
-        class PoolTile0 extends PoolTile {
-            constructor(t) {
-                let ti = all_tiles[t];
-                let tex = PIXI.loader.resources['img/tiles/pool0.png'].texture.clone();
-                tex.frame = new PIXI.Rectangle(
-                    (WIDTH_02 + 2) * (ti & 0xF) + 2, (HEIGHT_02F + 2) * ((ti & 0xF0) >> 4) + 2,
-                    WIDTH_02, HEIGHT_02F);
-                super(tex, t);
-            }
-
-            update(t) {
-                updatePool02Tile(this, t);
-            }
-        }
-
-        class PoolTile1 extends PoolTile {
-            constructor(t) {
-                let ti = all_tiles[t];
-                let tex = PIXI.loader.resources['img/tiles/pool1.png'].texture.clone();
-                tex.frame = new PIXI.Rectangle(
-                    (WIDTH_13 + 2) * (ti & 0xF) + 2, (HEIGHT_13F + 2) * ((ti & 0xF0) >> 4) + 2,
-                    WIDTH_13, HEIGHT_13F);
-                super(tex, t);
-            }
-
-            update(t) {
-                updatePool13Tile(this, t);
-            }
-        }
-
-        class PoolTile2 extends PoolTile {
-            constructor(t) {
-                let ti = all_tiles[t];
-                let tex = PIXI.loader.resources['img/tiles/pool2.png'].texture.clone();
-                tex.frame = new PIXI.Rectangle(
-                    (WIDTH_02 + 2) * (ti & 0xF) + 2, (HEIGHT_02F + 2) * ((ti & 0xF0) >> 4) + 2,
-                    WIDTH_02, HEIGHT_02F);
-                super(tex, t);
-            }
-
-            update(t) {
-                updatePool02Tile(this, t);
-            }
-        }
-
-        class PoolTile3 extends PoolTile {
-            constructor(t) {
-                let ti = all_tiles[t];
-                let tex = PIXI.loader.resources['img/tiles/pool3.png'].texture.clone();
-                tex.frame = new PIXI.Rectangle(
-                    (WIDTH_13 + 2) * (ti & 0xF) + 2, (HEIGHT_13F + 2) * ((ti & 0xF0) >> 4) + 2,
-                    WIDTH_13, HEIGHT_13F);
-                super(tex, t);
-            }
-
-            update(t) {
-                updatePool13Tile(this, t);
             }
         }
 
