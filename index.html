@@ -606,6 +606,7 @@
                     let tiles = resp['t'];
                     pool.openHand(tiles, succeed, wp, cp, resp['w']);
                     if (!succeed) {
+                        pool.falseWin_[n] = true;
                         pool.infoPanels_[n].setFalseWin(true);
                         console.log('错和');
                         if (wp == pool.seat_) {
@@ -1308,6 +1309,7 @@
                 this.packs_ = [[], [], [], []];
                 this.packData_ = [[], [], [], []];
                 this.flowers_ = [0, 0, 0, 0];
+                this.falseWin_ = [false, false, false, false];
                 this.seat_ = 0;
                 this.turn_ = 0;
                 this.activeTile_ = null;
@@ -1482,6 +1484,7 @@
                     }
 
                     this.flowers_[i] = 0;
+                    this.falseWin_[i] = false;
                     this.infoPanels_[i].reset();
 
                     let sp;
@@ -3660,8 +3663,26 @@
                     cv.visible = false;
                 }
                 else {
+                    let fw = this.falseWin_;
+                    let penalties = [0, 0, 0, 0];
+                    if (this.cfg_['fa']) {
+                        for (let i = 0; i < 4; ++i) {
+                            if (fw[i]) {
+                                for (let k = 0; k < 4; ++k) {
+                                    penalties[k] += (i != k) ? 10 : -30;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        for (let i = 0; i < 4; ++i) {
+                            if (fw[i]) {
+                                penalties[i] -= 40;
+                            }
+                        }
+                    }
                     this.setChildIndex(cv, this.children.length - 1);
-                    cv.show(this.players_);
+                    cv.show(this.players_, penalties);
                 }
             }
 
@@ -4015,7 +4036,7 @@
                     ip.setName(user['n']);
                     ip.setFlower(user['f']);
                     ip.setConnection(!user['o']);
-                    ip.setFalseWin(user['w']);
+                    ip.setFalseWin(this.falseWin_[k] = user['w']);
 
                     this.windTexts_[k].text = WIND[i] + ' ' + user['s'];
                 }
@@ -6205,14 +6226,14 @@
                 btn.y = height - btnHeight - 20;
             }
 
-            show(players) {
+            show(players, penalties) {
                 this.visible = true;
 
                 let pls = [
-                    {'n':players[0]['n'],'s':players[0]['s']},
-                    {'n':players[1]['n'],'s':players[1]['s']},
-                    {'n':players[2]['n'],'s':players[2]['s']},
-                    {'n':players[3]['n'],'s':players[3]['s']}
+                    {'n':players[0]['n'],'s':players[0]['s'] + penalties[0]},
+                    {'n':players[1]['n'],'s':players[1]['s'] + penalties[1]},
+                    {'n':players[2]['n'],'s':players[2]['s'] + penalties[2]},
+                    {'n':players[3]['n'],'s':players[3]['s'] + penalties[3]}
                 ];
                 pls.sort(function(a, b) { return b['s'] - a['s']; });
 
