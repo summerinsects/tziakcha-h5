@@ -2373,10 +2373,11 @@
 
                 text.scale.set(2);
                 (new TWEEN.Tween(text)).to({alpha:1}, 100).start();
-                (new TWEEN.Tween(text.scale)).to({x:1,y:1}, 100).start();
-                (new TWEEN.Tween(text)).to({alpha:0}, 100).delay(1300).start();
-                (new TWEEN.Tween(text.scale)).to({x:2,y:2}, 100).delay(1300).onComplete(()=>{
-                    this.removeChild(text);
+                (new TWEEN.Tween(text.scale)).to({x:1,y:1}, 100).onComplete(()=>{
+                    (new TWEEN.Tween(text)).to({alpha:0}, 100).delay(1200).start();
+                    (new TWEEN.Tween(text.scale)).to({x:2,y:2}, 100).delay(1200).onComplete(()=>{
+                        this.removeChild(text);
+                    }).start();
                 }).start();
             }
 
