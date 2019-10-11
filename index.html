@@ -28,12 +28,12 @@
             54, 54, 54, 54, 64, 65, 66, 67, 68, 69, 70, 71
         ];
 
-        function pack_get_type(p) { return (p >> 8) & 3; }
-        function pack_get_tile(p) { return (p & 0x3F) << 2; }
-        function pack_get_offer(p) { return (p >> 6) & 3; }
-        function is_promoted_kong(p) { return (p & 0x0300) == 0x0300; }
-        function lo_byte(w) { return w & 0xFF; }
-        function hi_byte(w) { return (w >> 8) & 0xFF; }
+        var pack_get_type = (p)=>(p >> 8) & 3;
+        var pack_get_tile = (p)=>(p & 0x3F) << 2;
+        var pack_get_offer = (p)=>(p >> 6) & 3;
+        var is_promoted_kong = (p)=>(p & 0x0300) == 0x0300;
+        var lo_byte = (w)=>w & 0xFF;
+        var hi_byte = (w)=>(w >> 8) & 0xFF;
         function shuffle_array(arr, beg, end) {
             for (let i = beg, len = arr.length; i < end && i < len; ++i) {
                 let j = Math.floor(Math.random() * (end - beg)) + beg;
