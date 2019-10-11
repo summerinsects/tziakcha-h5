@@ -175,6 +175,10 @@
                 game.adapt();
             };
 
+            let volume = localStorage.getItem('volume');
+            volume = (volume != undefined) ? Math.max(0, Math.min(100, parseFloat(volume))) : 100;
+            PIXI.sound.volumeAll = volume / 100;
+
             ws = new WebSocket('ws://127.0.0.1:40080/ws');
             ws.onopen = ()=>{
                 console.log('open');
