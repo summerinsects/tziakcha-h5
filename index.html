@@ -47,6 +47,11 @@
         var plus_sign = (x)=>(x >= 0 ? `+${x}` : x);
         var pad2 = (x)=>(x < 10 ? `0${x}` : x);
 
+        const FF = [
+            '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif',
+            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
+        ];
+
         console.log('location.search', location.search);
 
         let app = new PIXI.Application({
@@ -75,7 +80,7 @@
         }, 33.333);
 
         let loadingText = new PIXI.Text('0%', {
-            fontFamily: 'Arial,Helvetica,sans-serif',
+            fontFamily: FF,
             fontSize: 40,
             fill: '#ffffff',
             stroke: '#0066ff',
@@ -271,7 +276,7 @@
                 super();
 
                 let title = this.title_ = new PIXI.Text('', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 28,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -280,7 +285,7 @@
                 this.addChild(title);
 
                 let subtitle = this.subtitle_ = new PIXI.Text('', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 16,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -850,7 +855,7 @@
 
                 // 牌墙剩余
                 text = this.remainText_ = new PIXI.Text('', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 26,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -869,7 +874,7 @@
 
                 for (let i = 0; i < 4; ++i) {
                     text = new PIXI.Text('', {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 32,
                         fill: '#dedede',
                         //stroke: '#0066ff',
@@ -1326,7 +1331,7 @@
                 this.rdfsh_ = false;
 
                 let btn = this.settleBtn_ = new TextButton('结算面板', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -1339,7 +1344,7 @@
 /*
                 // TODO:
                 btn = new TextButton('请求退出', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -1349,7 +1354,7 @@
 */
 
                 btn = new TextButton('设置', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -1373,7 +1378,7 @@
                 this.addChild(btn);
 
                 btn = new TextButton('计分表', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -1385,7 +1390,7 @@
                 btn.y = MAX_HEIGHT - 220;
 
                 btn = new TextButton('追分策略', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -1412,7 +1417,7 @@
                 graph.y = MAX_HEIGHT - 200;
 
                 text = graph.text_ = new PIXI.Text('', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 48,
                     fill: '#dedede',
                     //stroke: '#0066ff',
@@ -1449,7 +1454,7 @@
                 view.visible = false;
 
                 text = this.timeout_ = new PIXI.Text('你已超时，服务器自动托管，刷新页面可解除', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 50,
                     fill: '#dedede',
                     //stroke: '#0066ff',
@@ -1773,7 +1778,7 @@
                 bg.endFill();
 
                 let text = new PIXI.Text(WIND[this.rd_ >> 2] + '风圈', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 128,
                     fill: '#ffffff',
                     fontWeight:'bold',
@@ -4943,7 +4948,7 @@
                 }
 
                 let text = this.lcText_ = new PIXI.Text('掉线', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 80,
                     fill: '#ffffff'
                 });
@@ -4955,7 +4960,7 @@
                 text.visible = false;
 
                 text = this.nameText_ = new PIXI.Text('', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -4967,7 +4972,7 @@
                 text.y = height * .5;
 
                 text = this.flowerText_ = new PIXI.Text('\uD83C\uDF38 \u00D7 0', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 28,
                     fill: '#ffffff'
                 });
@@ -4977,7 +4982,7 @@
                 text.y = height - 25;
 
                 text = this.fwText_ = new PIXI.Text('错和', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 28,
                     fill: '#ffffff'
                 });
@@ -5028,7 +5033,7 @@
                 tk.visible = false;
 
                 let text = this.text_ = new PIXI.Text(str, {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 30,
                     fill: '#ffffff',
                     stroke: '#000000',
@@ -5236,7 +5241,7 @@
                     }
 
                     let tx = new PIXI.Text(tl, {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 48,
                         fill: '#ffffff',
                         stroke: '#0066ff',
@@ -5396,7 +5401,7 @@
                     // 花
                     if (flw != undefined && flw > 0) {
                         let t = new PIXI.Text(`\uD83C\uDF38 \u00D7 ${((flw>>8)&0xFF)+1}`, {
-                            fontFamily: 'Arial,Helvetica,sans-serif',
+                            fontFamily: FF,
                             fontSize: 18,
                             fill: '#ffffff'
                         });
@@ -5484,7 +5489,7 @@
                         tx = `「${names[wn]}」${cl!=wn?`和牌 「${names[cl]}」点炮`:'自摸'}  ${f}番`;
                     }
                     let t = new PIXI.Text(tx, {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 26,
                         fill: '#ffffff',
                         stroke: '#0066ff',
@@ -5507,7 +5512,7 @@
 
                     let v = table[f];
                     let t = new PIXI.Text(fan_item(f, v), {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 22,
                         fill: '#99ffff'
                     });
@@ -5555,7 +5560,7 @@
                     t.y = cy[i] + 15;
 
                     // t = new PIXI.Text(i, {
-                    //     fontFamily: 'Arial,Helvetica,sans-serif',
+                    //     fontFamily: FF,
                     //     fontSize: 24,
                     //     fill: '#ffffff',
                     //     stroke: '#0066ff',
@@ -5567,7 +5572,7 @@
                     // t.y = cy[i];
 
                     t = new PIXI.Text(names[ri], {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 24,
                         fontWeight:'bold',
                         fill: '#ffffff',
@@ -5586,7 +5591,7 @@
                     }
                     let ss0 = ss[ri], ps0 = ps[ri];
                     t = new PIXI.Text(`本盘 ${plus_sign(ss0)}${ps0==0?'':plus_sign(ps0)}`, {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 20,
                         fill: '#ffffff',
                         //stroke: '#0066ff',
@@ -5599,7 +5604,7 @@
 
                     let ts0 = ts[ri];
                     t = new PIXI.Text(`累计 ${plus_sign(ts0)}`, {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 20,
                         fill: '#ffffff',
                         //stroke: '#0066ff',
@@ -5612,7 +5617,7 @@
 
                     if (ps0 < 0) {
                         t = new PIXI.Text('错和', {
-                            fontFamily: 'Arial,Helvetica,sans-serif',
+                            fontFamily: FF,
                             fontSize: 16,
                             fill: '#ffffff',
                             stroke: '#0066ff',
@@ -5632,7 +5637,7 @@
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('OK', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 36,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -5643,7 +5648,7 @@
                 btn.y = height - btnHeight - gap;
 
                 t = new PIXI.Text(cd, {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 18,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -5668,7 +5673,7 @@
                 }, 33.33);
 
                 btn = new TextButton('查看桌面', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -5692,7 +5697,7 @@
                 this.addChild(bg);
 
                 let t = new PIXI.Text(fn + '番错和', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 26,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -5711,7 +5716,7 @@
 
                     let v = table[f];
                     let t = new PIXI.Text(fan_item(f, v), {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 22,
                         fill: '#99ffff'
                     });
@@ -5725,7 +5730,7 @@
                 }
 
                 t = new PIXI.Text('你已错和，本盘失去和牌权', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 22,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -5746,7 +5751,7 @@
                 let thiz = this;
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('OK', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 36,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -5805,7 +5810,7 @@
                 bg.lineTo(width - gap - 120, offsetY + gapY * 5);
 
                 let t = new PIXI.Text(title + '\n对战结果', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -5823,7 +5828,7 @@
                 let yy = offsetY + gapY * .5;
                 for (let i = 0; i < 3; ++i) {
                     t = new PIXI.Text(ti[i], {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 24,
                         fill: '#ffffff',
                         stroke: '#0066ff',
@@ -5840,7 +5845,7 @@
                     let text = [k + 1, players[k]['n'], players[k]['s']];
                     for (let i = 0; i < 3; ++i) {
                         t = new PIXI.Text(text[i], {
-                            fontFamily: 'Arial,Helvetica,sans-serif',
+                            fontFamily: FF,
                             fontSize: 24,
                             fill: (name != text[1]) ? '#ffffff' : '#5cdbd3'
                         });
@@ -5853,7 +5858,7 @@
                 }
 
                 t = new PIXI.Text(fmt_date(new Date(tm + 28800000)) + ' UTC+08:00', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -5866,7 +5871,7 @@
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('OK', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 36,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -5897,7 +5902,7 @@
                 bg.endFill();
 
                 let t = new PIXI.Text('计分表', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -5916,7 +5921,7 @@
                 bg.lineTo(40, 70);
 
                 t = new PIXI.Text('昵称', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 20,
                     fontWeight: 'bold',
                     fill: '#DCDCDC',
@@ -5929,7 +5934,7 @@
                 let ntt = new Array(4), ttt = new Array(4);
                 for (let i = 0; i < 4; ++i) {
                     t = ntt[i] = new PIXI.Text('', {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 20,
                         fontWeight: 'bold',
                         fill: '#FFD700',
@@ -5940,7 +5945,7 @@
                     t.y = 90;
 
                     t = ttt[i] = new PIXI.Text('', {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 20,
                         fontWeight: 'bold',
                         fill: '#FFD700',
@@ -5954,7 +5959,7 @@
                 this.ttt_ = ttt;
 
                 t = new PIXI.Text('盘序', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 20,
                     fontWeight: 'bold',
                     fill: '#DCDCDC',
@@ -5966,7 +5971,7 @@
 
                 for (let i = 0; i < 8; ++i) {
                     t = new PIXI.Text(i & 1 ? '累计' : '本盘', {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 20,
                         fontWeight: 'bold',
                         fill: '#DCDCDC',
@@ -5984,7 +5989,7 @@
                 for (let i = 0; i < 16; ++i) {
                     let yy = 170 + i * 40;
                     t = new PIXI.Text(WIND[i >> 2] + '风' + WIND[i & 3], {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 20,
                         fontWeight: 'bold',
                         fill: '#DCDCDC',
@@ -5997,7 +6002,7 @@
                     rtt[i] = new Array(8);
                     for (let k = 0; k < 8; ++k) {
                         t = rtt[i][k] = new PIXI.Text('', {
-                            fontFamily: 'Arial,Helvetica,sans-serif',
+                            fontFamily: FF,
                             fontSize: 20,
                             fontWeight: 'bold'
                         });
@@ -6013,7 +6018,7 @@
                 this.rtt_ = rtt;
 
                 t = new PIXI.Text('合计', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 20,
                     fontWeight: 'bold',
                     fill: '#DCDCDC',
@@ -6037,7 +6042,7 @@
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('OK', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 36,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6115,7 +6120,7 @@
                 bg.endFill();
 
                 let t = new PIXI.Text('追分策略', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6161,7 +6166,7 @@
                 const xps2 = [100, 220, 320, 400, 480, 560];
                 for (let i = 0; i < 6; ++i) {
                     t = new PIXI.Text(tix[i], {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 20,
                         fontWeight: 'bold',
                         fill: cls[i]
@@ -6177,7 +6182,7 @@
                 let texts = [[null, new Array(1)], [null, new Array(2)], [null, new Array(3)]];
                 for (let i = 0; i < 3; ++i) {
                     t = new PIXI.Text('', {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 20,
                         fontWeight: 'bold',
                         fill: cls[0],
@@ -6192,7 +6197,7 @@
                         texts[i][1][k] = new Array(5);
                         for (let l = 0; l < 5; ++l) {
                             t = new PIXI.Text('', {
-                                fontFamily: 'Arial,Helvetica,sans-serif',
+                                fontFamily: FF,
                                 fontSize: 20,
                                 fontWeight: 'bold',
                                 fill: cls[l + 1],
@@ -6208,7 +6213,7 @@
                 this.texts_ = texts;
 
                 t = new PIXI.Text('自摸：(分差-32) / 4\n对点：(分差-32) / 2\n旁点：(分差-32)', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6222,7 +6227,7 @@
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('OK', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 36,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6346,7 +6351,7 @@
                 bg.endFill();
 
                 let t = new PIXI.Text('设置', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6358,7 +6363,7 @@
                 t.y = (LOBBY_HEIGHT - height2) * .5 + 40;
 
                 t = new PIXI.Text('音量', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6370,7 +6375,7 @@
                 t.y = 300;
 
                 let t0 = new PIXI.Text('100%', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6394,7 +6399,7 @@
                 rb.setValue(volume);
 
                 t = new PIXI.Text('倒计时音效', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6414,7 +6419,7 @@
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6425,7 +6430,7 @@
                 btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
 
                 btn = new TextButton('确定', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6496,7 +6501,7 @@
                 graph.lineTo(width * .5, 400);
 
                 let btn = new TextButton('<', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 64,
                     fill: '#ffffff',
                     strokeThickness: 2,
@@ -6505,7 +6510,7 @@
                 this.addChild(btn);
 
                 btn = new TextButton('>', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 64,
                     fill: '#ffffff',
                     strokeThickness: 2,
@@ -6697,7 +6702,7 @@
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = this.nameBtn_ = new TextButton('', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6707,7 +6712,7 @@
                 btn.x = LOBBY_WIDTH - btnWidth;
 
                 btn = new TextButton('返回主页', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6716,7 +6721,7 @@
                 container.addChild(btn);
 
                 btn = new TextButton('创建桌子', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6727,7 +6732,7 @@
                 btn.y = LOBBY_HEIGHT - btnHeight - 20;
 
                 btn = this.prevBtn_ = new TextButton('上一页', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6738,7 +6743,7 @@
                 btn.y = LOBBY_HEIGHT - btnHeight - 90;
 
                 btn = this.nextBtn_ = new TextButton('下一页', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -6752,7 +6757,7 @@
                 this.page_ = 0;
 
                 let t = this.pageText_ = new PIXI.Text('1/1', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -7098,7 +7103,7 @@
                 this.container_.addChild(bg);
 
                 let t = new PIXI.Text(s, {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 40,
                     fill: '#000000',
                 });
@@ -7146,7 +7151,7 @@
                 bg.endFill();
 
                 let t = new PIXI.Text('创建牌桌', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -7195,7 +7200,7 @@
                 for (let i = 0; i < 15; ++i) {
                     let yy = offsetY + 35 * i;
                     t = new PIXI.Text(title[i], {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 18,
                         fill: '#ffffff',
                         stroke: '#0066ff',
@@ -7266,7 +7271,7 @@
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -7277,7 +7282,7 @@
                 btn.y = LOBBY_HEIGHT - btnHeight - 20;
 
                 btn = new TextButton('确定', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -7346,7 +7351,7 @@
                 this.anonym_ = cfg['a'];
 
                 let t = new PIXI.Text(cfg['t'], {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 26,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -7358,7 +7363,7 @@
                 this.addChild(t);
 
                 let btn = new TextButton('准备', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -7374,7 +7379,7 @@
                 this.readyBtn_ = btn;
 
                 t = new PIXI.Text((this.pw_ ? '\uD83D\uDD12' : '')+ fmt_cfg(cfg), {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 18,
                     fill: '#ffffff',
                     //stroke: '#0066ff',
@@ -7400,7 +7405,7 @@
                     this.addChild(btn);
 
                     t = new PIXI.Text(rdm ? (i + 1) : WIND[i], {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 22,
                         fill: '#ffffff',
                         stroke: '#0066ff',
@@ -7420,7 +7425,7 @@
                     sp.visible = (ready & (1 << i));
 
                     t = new PIXI.Text((!this.anonym_ || p[i].length == 0) ? p[i] : '匿名用户', {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 20,
                         fill: '#ffffff',
                         //stroke: '#0066ff',
@@ -7517,7 +7522,7 @@
                 bg.endFill();
 
                 let t = new PIXI.Text('请输入密码', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -7542,7 +7547,7 @@
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -7553,7 +7558,7 @@
                 btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
 
                 btn = new TextButton('确定', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -7588,7 +7593,7 @@
                 bg.endFill();
 
                 let t = new PIXI.Text('登录', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -7605,7 +7610,7 @@
                 for (let i = 0, c = pzl ? 3 : 2; i < c; ++i) {
                     let yy = (LOBBY_HEIGHT - height2) * .5 + 110 + 70 * i;
                     t = new PIXI.Text(prefix[i], {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 24,
                         fill: '#ffffff',
                         stroke: '#0066ff',
@@ -7633,7 +7638,7 @@
                 textInputs[1]._dom_input.setAttribute('type', 'password');
                 if (pzl) {
                     t = new PIXI.Text(`验证问题：清一色${pzl}，\n听牌为（包括已出现4枚的）`, {
-                        fontFamily: 'Arial,Helvetica,sans-serif',
+                        fontFamily: FF,
                         fontSize: 18,
                         fill: '#ffffff',
                         stroke: '#0066ff',
@@ -7648,7 +7653,7 @@
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
@@ -7659,7 +7664,7 @@
                 btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
 
                 btn = new TextButton('确定', {
-                    fontFamily: 'Arial,Helvetica,sans-serif',
+                    fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
