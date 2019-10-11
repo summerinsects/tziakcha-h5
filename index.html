@@ -44,6 +44,8 @@
                 }
             }
         }
+        var plus_sign = (x)=>(x >= 0 ? `+${x}` : x);
+        var pad2 = (x)=>(x < 10 ? `0${x}` : x);
 
         console.log('location.search', location.search);
 
@@ -189,7 +191,7 @@
                 //     ws.send('{"m":1,"r":3}');
                 // }
                 // else {
-                //     ws.send('{"m":1,"r":4,"v":10001,"s":' + idx + '}');
+                //     ws.send(`{"m":1,"r":4,"v":10001,"s":${idx}}`);
                 // }
                 // ws.send('{"m":1,"r":6}');
                 ws.send('{"m":1,"r":2}');
@@ -197,13 +199,13 @@
                 if (ck) {
                     var pt = ck.split('=');
                     if (pt[1]) {
-                        ws.send('{"m":1,"r":11,"t":"' + pt[1] +'"}');
+                        ws.send(`{"m":1,"r":11,"t":"${pt[1]}"}`);
                     }
                 }
                 else {
                     let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
                     if (un && pw) {
-                        ws.send('{"m":1,"r":9,"u":"' + un + '","p":"' + pw + '"}');
+                        ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}"}`);
                     }
                 }
 
@@ -1939,7 +1941,7 @@
                                 break;
                             case 1:
                                 this.removeBtns();
-                                ws.send('{"m":2,"r":' + types[i] + ',"v":65535}');
+                                ws.send(`{"m":2,"r":${types[i]},"v":65535}`);
                                 this.removeCD();
                                 break;
                             default: {
@@ -1948,7 +1950,7 @@
                                     this.removeChild(view);
                                 }
                                 view = new SelectionView(types[i], ab.data_, (a)=>{
-                                    ws.send('{"m":2,"r":' + types[i] + ',"v":' + a + '}');
+                                    ws.send(`{"m":2,"r":${types[i]},"v":${a}}`);
                                     this.removeBtns();
                                     this.removeCD();
                                 });
@@ -2202,7 +2204,7 @@
                 //this.discard(0, sp);
                 let t = sp.t_;
                 if (t != 0xFF && this.standing_[0][13].visible) {
-                    ws.send('{"m":2,"r":2,"v":' + t + '}');
+                    ws.send(`{"m":2,"r":2,"v":${t}}`);
                     this.removeCD();
                 }
             }
@@ -4876,7 +4878,7 @@
         ];
 
         function createDice(n) {
-            let tex = PIXI.loader.resources['img/dice/' + n + '.png'].texture;
+            let tex = PIXI.loader.resources[`img/dice/${n}.png`].texture;
             let frames = [];
             for (let i = 0; i < 9; ++i) {
                 let f = new PIXI.Texture(tex, rcs[i]);
@@ -5393,7 +5395,7 @@
 
                     // 花
                     if (flw != undefined && flw > 0) {
-                        let t = new PIXI.Text('\uD83C\uDF38 \u00D7 ' + (((flw >> 8) & 0xFF) + 1), {
+                        let t = new PIXI.Text(`\uD83C\uDF38 \u00D7 ${((flw>>8)&0xFF)+1}`, {
                             fontFamily: 'Arial,Helvetica,sans-serif',
                             fontSize: 18,
                             fill: '#ffffff'
@@ -5429,6 +5431,10 @@
             '花牌'
             , '明暗杠'
         ];
+        let fan_item = (f, v)=>{
+            let c = ((v >> 8) & 0xFF) + 1;
+            return `${FAN_NAME[f]} ${c==1?`${v&0xFF}番`:`${v&0xFF}番 \u00D7 ${c}`}`;
+        }
 
         class SettleView extends PIXI.Container {
             // hand = {"s":[22,22,22,23,35,35,35,38,39,40,52,53,54]}
@@ -5475,7 +5481,7 @@
                         tx = '荒庄';
                     }
                     else {
-                        tx = '「' + names[wn] + '」' + ((cl != wn) ? ('和牌 「' + names[cl] + '」点炮') : '自摸') + '  ' + f + '番';
+                        tx = `「${names[wn]}」${cl!=wn?`和牌 「${names[cl]}」点炮`:'自摸'}  ${f}番`;
                     }
                     let t = new PIXI.Text(tx, {
                         fontFamily: 'Arial,Helvetica,sans-serif',
@@ -5500,9 +5506,7 @@
                     let y0 = y + 5 + 35 * Math.floor(i / 3);
 
                     let v = table[f];
-                    let c = ((v >> 8) & 0xFF) + 1;
-
-                    let t = new PIXI.Text(FAN_NAME[f] + ' ' + ((c == 1) ? ((v & 0xFF) + '番') : ((v & 0xFF) + '番 \u00D7 ' + c)), {
+                    let t = new PIXI.Text(fan_item(f, v), {
                         fontFamily: 'Arial,Helvetica,sans-serif',
                         fontSize: 22,
                         fill: '#99ffff'
@@ -5581,7 +5585,7 @@
                         ss = [0,0,0,0];
                     }
                     let ss0 = ss[ri], ps0 = ps[ri];
-                    t = new PIXI.Text('本盘 ' + (ss0 >= 0 ? ('+' + ss0) : ss0) + ((ps0 == 0) ? '' : (ps0 > 0 ? ('+' + ps0) : ps0)), {
+                    t = new PIXI.Text(`本盘 ${plus_sign(ss0)}${ps0==0?'':plus_sign(ps0)}`, {
                         fontFamily: 'Arial,Helvetica,sans-serif',
                         fontSize: 20,
                         fill: '#ffffff',
@@ -5594,7 +5598,7 @@
                     t.y = cy[i] + 2;
 
                     let ts0 = ts[ri];
-                    t = new PIXI.Text('累计 ' + (ts0 >= 0 ? ('+' + ts0) : ts0), {
+                    t = new PIXI.Text(`累计 ${plus_sign(ts0)}`, {
                         fontFamily: 'Arial,Helvetica,sans-serif',
                         fontSize: 20,
                         fill: '#ffffff',
@@ -5706,9 +5710,7 @@
                     let y0 = 70 + 35 * (i >> 1);
 
                     let v = table[f];
-                    let c = ((v >> 8) & 0xFF) + 1;
-
-                    let t = new PIXI.Text(FAN_NAME[f] + ' ' + ((c == 1) ? ((v & 0xFF) + '番') : ((v & 0xFF) + '番 \u00D7' + c)), {
+                    let t = new PIXI.Text(fan_item(f, v), {
                         fontFamily: 'Arial,Helvetica,sans-serif',
                         fontSize: 22,
                         fill: '#99ffff'
@@ -5763,7 +5765,7 @@
                 h = ud.getUTCHours(),
                 mm = ud.getUTCMinutes(),
                 s = ud.getUTCSeconds();
-            return y + '-' + (m < 10 ? ('0' + m) : m) + '-' + (d < 10 ? ('0' + d) : d) + ' ' + (h < 10 ? ('0' + h) : h) + ':' + (mm < 10 ? ('0' + mm) : mm) + ':' + (s < 10 ? ('0' + s) : s);
+            return `${y}-${pad2(m)}-${pad2(d)} ${pad2(h)}:${pad2(mm)}:${pad2(s)}`;
         }
 
         class ResultView extends PIXI.Container {
@@ -6794,7 +6796,7 @@
                         document.cookie = '__p=;Path=/;Max-Age=0';
                         let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
                         if (un && pw) {
-                            ws.send('{"m":1,"r":9,"u":"' + un + '","p":"' + pw + '"}');
+                            ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}"}`);
                         }
                         else {
                             this._error('自动登录失败，请输入账号密码登录');
@@ -6865,7 +6867,7 @@
                     if (k) {
                         let exp = new Date();
                         exp.setTime(exp.getTime() + 864000);
-                        document.cookie='__p=' + k + ';Path=/;Expires=' + exp.toGMTString();
+                        document.cookie=`__p=${k};Path=/;Expires=${exp.toGMTString()}`;
                     }
                     break;
                 }
@@ -6900,7 +6902,7 @@
                 let uv = this.uv_ = new UserView(pzl, (un, pw, sln)=>{
                     console.log('un pw', un, pw);
                     if (un && pw) {
-                        ws.send('{"m":1,"r":9,"u":"' + un + '","p":"' + pw + '","z":"' + pzl + '","s":"'+ sln +'"}');
+                        ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}","z":"${pzl}","s":"${sln}"}`);
                         localStorage.setItem('username', un);
                         localStorage.setItem('password', pw);
                     }
@@ -6952,10 +6954,10 @@
             }
 
             _callback(id, s, p) {
-                //console.log('{"m":1,"r":4,"v":' + id + ',"s":' + s + '}');
+                //console.log(`{"m":1,"r":4,"v":${id},"s":${s}}`);
                 if (s != this.seat_) {
                     if (!p || this.tableid_ == id) {
-                        ws.send('{"m":1,"r":4,"v":' + id + ',"s":' + s + '}');
+                        ws.send(`{"m":1,"r":4,"v":${id},"s":${s}}`);
                     }
                     else {
                         if (this.pv_) {
@@ -6963,7 +6965,7 @@
                         }
                         let pv = this.pv_ = new PasswordView((p)=>{
                             if (p) {
-                                ws.send('{"m":1,"r":4,"v":' + id + ',"s":' + s + ',"p":"' + p + '"}');
+                                ws.send(`{"m":1,"r":4,"v":${id},"s":${s},"p":"${p}"}`);
                             }
                             this.container_.removeChild(this.pv_);
                             this.pv_.removeChildren();
@@ -7362,8 +7364,8 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, 120, 40, ()=>{
-                    //console.log('{"m":1,"r":6,"v":' + this.readyBtn_.value_ + '}');
-                    ws.send('{"m":1,"r":6,"v":' + this.readyBtn_.value_ + '}');
+                    //console.log(`{"m":1,"r":6,"v":${this.readyBtn_.value_}}`);
+                    ws.send(`{"m":1,"r":6,"v":${this.readyBtn_.value_}}`);
                 });
                 btn.x = width - gap - 120;
                 btn.y = 5;
@@ -7630,7 +7632,7 @@
                 }
                 textInputs[1]._dom_input.setAttribute('type', 'password');
                 if (pzl) {
-                    t = new PIXI.Text('验证问题：清一色'+ pzl +'，\n听牌为（包括已出现4枚的）', {
+                    t = new PIXI.Text(`验证问题：清一色${pzl}，\n听牌为（包括已出现4枚的）`, {
                         fontFamily: 'Arial,Helvetica,sans-serif',
                         fontSize: 18,
                         fill: '#ffffff',
