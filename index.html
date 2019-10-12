@@ -200,14 +200,22 @@
                 // }
                 // ws.send('{"m":1,"r":6}');
                 ws.send('{"m":1,"r":2}');
+                let f = false;
                 let ck = document.cookie;
                 if (ck) {
-                    var pt = ck.split('=');
-                    if (pt[1]) {
-                        ws.send(`{"m":1,"r":11,"t":"${pt[1]}"}`);
+                    let cks = ck.split(';');
+                    for (let i = 0, c = cks.length; i < c; ++i) {
+                        let p = cks[i].trim().split('=');
+                        if (p[0] == '__p') {
+                            if (p.length > 1) {
+                                ws.send(`{"m":1,"r":11,"t":"${p[1]}"}`);
+                                f = true;
+                            }
+                            break;
+                        }
                     }
                 }
-                else {
+                if (!f) {
                     let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
                     if (un && pw) {
                         ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}"}`);
