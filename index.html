@@ -3713,7 +3713,7 @@
                     this.resultView_ = null;
                 }
 
-                let view = new ResultView(this.cfg_['t'], this.players_[this.seat_]['n'], this.rp_, this.rpt_, ()=>{
+                let view = new ResultView(this.cfg_['t'], this.seat_, this.rp_, this.rpt_, ()=>{
                     if (this.resultView_) {
                         this.removeChild(this.resultView_);
                         this.resultView_ = null;
@@ -5784,7 +5784,7 @@
         }
 
         class ResultView extends PIXI.Container {
-            constructor(title, name, players, tm, callback) {
+            constructor(title, seat, players, tm, callback) {
                 super();
 
                 const width = 600, height = 540, gap = 50;
@@ -5857,7 +5857,7 @@
                         t = new PIXI.Text(text[i], {
                             fontFamily: FF,
                             fontSize: 24,
-                            fill: (name != text[1]) ? '#ffffff' : '#5cdbd3'
+                            fill: (seat != players[k]['w']) ? '#ffffff' : '#5cdbd3'
                         });
                         this.addChild(t);
                         t.anchor.set(.5);
