@@ -6721,7 +6721,7 @@
                 container.addChild(btn);
                 btn.x = LOBBY_WIDTH - btnWidth;
 
-                btn = new TextButton('返回主页', {
+                btn = new TextButton('主页', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
@@ -6729,6 +6729,16 @@
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{ window.open("/", "_blank"); });
                 container.addChild(btn);
+
+                btn = new TextButton('English', {
+                    fontFamily: FF,
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                }, btnWidth, btnHeight, ()=>{ window.open("/0/?lang=en", "_self"); });
+                container.addChild(btn);
+                btn.x = btnWidth + 5;
 
                 btn = new TextButton('创建桌子', {
                     fontFamily: FF,
