@@ -1420,7 +1420,6 @@
                 graph.pivot.y = CENTER_HEIGHT * .5;
                 graph.x = MAX_WIDTH * .5;
                 graph.y = MAX_HEIGHT * .5;
-                this.addChild(graph);
                 graph.x = MAX_WIDTH;
                 graph.y = MAX_HEIGHT - 200;
 
@@ -6316,7 +6315,7 @@
                 thmb.interactive = true;
                 thmb.on('pointerdown', ()=>{ this.dragging_ = true; });
                 thmb.on('pointerup', ()=>{ this.dragging_ = false; });
-                thmb.on('pointerupoutside', ()=>{ this.dragging_ = false; })
+                thmb.on('pointerupoutside', ()=>{ this.dragging_ = false; });
                 thmb.on('pointermove', (e)=>{
                     if (!this.dragging_) return;
                     let pt = this.toLocal(e.data.global);
@@ -6325,7 +6324,7 @@
                     this.thmb_.x = vx - v0 * .5;
                     this.value_ = (vx - v0) * 100 / (v1 - v0);
                     cb(this.value_);
-                })
+                });
             }
 
             setValue(v) {
