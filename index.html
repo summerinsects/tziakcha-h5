@@ -88,12 +88,15 @@
         });
         app.stage.addChild(loadingText);
         loadingText.anchor.set(.5);
-        loadingText.x = window.innerWidth * .5;
-        loadingText.y = window.innerHeight * .5;
-        window.onresize = ()=>{
-            app.renderer.resize(window.innerWidth, window.innerHeight);
+        let adaptLoadingText = ()=>{
             loadingText.x = window.innerWidth * .5;
             loadingText.y = window.innerHeight * .5;
+            loadingText.scale.set(Math.min(window.innerWidth / 680, window.innerHeight / 700));
+        }
+        adaptLoadingText();
+        window.onresize = ()=>{
+            app.renderer.resize(window.innerWidth, window.innerHeight);
+            adaptLoadingText();
         };
 
         let mutecd = parseInt(localStorage.getItem('mutecd'));
