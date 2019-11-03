@@ -273,13 +273,23 @@
             // let dt = {"r":0,"f":44,"p":0x0000,"t":[156,-52,-52,-52],"s":[156,-52,-52,-52],"n":[0,0,0,0]};
             // let nl = ['玩家1','玩家2','玩家3','玩家4'];
             // let vi = 1;
-            // let view = new SettleView(ht, 100, ft, dt, nl, vi);
+            // let view = new SettleView(ht, 100, ft, dt, nl, vi, 10);
             // pool.addChild(view);
 
             // view.x = (pool.width / pool.scale.x - view.width) * .5;
             // view.y = (pool.height / pool.scale.x - view.height) * .5;
             // }
             //pool.rp_ = [{"n":"名字1","l":0,"s":100},{"n":"名字2","l":0,"s":50},{"n":"名字3","l":0,"s":-50},{"n":"名字4","l":0,"s":-100}];
+
+            //game.pool_.showFalseWin(1, {"44":8,"46":8,/*"55":4,"56":4,"58":4,"60":2,"61":2,"64":2,"66":2,"67":2,"72":1,"73":1,"75":1,"78":1,"81":0x101*/});
+            // {
+            //     let pool = game.pool_;
+            //     pool.cfg_={'t':'测试赛'};
+            //     pool.seat_=0;
+            //     pool.rp_=[{"n":"名字1afsdafsdfafdasafdsfadsfads","l":0,"s":100},{"n":"名字2","l":0,"s":50},{"n":"名字3","l":0,"s":-50},{"n":"名字4","l":0,"s":-100}];
+            //     pool.rpt_=0,
+            //     game.pool_.showResult();
+            // }
         });
 
         class GameView extends PIXI.Container {
@@ -6778,7 +6788,7 @@
                 container.addChild(btn);
                 btn.x = btnWidth + 5;
 
-                btn = new TextButton('创建桌子', {
+                btn = new TextButton('创建牌桌', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
