@@ -5496,7 +5496,7 @@
         ];
         let fan_item = (f, v)=>{
             let c = ((v >> 8) & 0xFF) + 1;
-            return `${FAN_NAME[f]} ${c==1?`${v&0xFF}番`:`${v&0xFF}番 \u00D7 ${c}`}`;
+            return `${FAN_NAME[f]} ${c==1?`${v&0xFF}番`:`${v&0xFF}番\x20\u00D7\x20${c}`}`;
         }
 
         class SettleView extends PIXI.Container {
