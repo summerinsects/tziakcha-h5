@@ -722,7 +722,7 @@
         const HAND_SCALE = 1.7;//1 + (WIDTH_13 + GAP_T) / (WIDTH_02 * 3);
 
         const WIND = ['东', '南', '西', '北'];
-        const ACTION = ['吃', '碰', '杠', '和', '花', '过'];
+        const ACTION = ['吃', '碰', '杠', '和', '花', '过', '过'];
 
         const EXT_CP_02 = (WIDTH_13 + GAP_T - WIDTH_02) * .5; // (WIDTH_02 * 2 + WIDTH_13 + GAP_T - WIDTH_02 * 3) * .5
         const EXT_DK_02 = (WIDTH_13 + GAP_T) * .5;  // (WIDTH_02 * 3 + WIDTH_13 + GAP_T - WIDTH_02 * 3) * .5
@@ -1974,19 +1974,25 @@
                 dict[9] = [];
                 ++size;
 
-                const types = [9, 1, 6, 5, 4, 3];
+                // 插入“弃”
+                if (this.turn_ != this.seat_ && ((this.turn_ + 1) & 3) != this.seat_ && this.isDiscarding_ && this.cfg_['s']) {
+                    dict[10] = [];
+                    ++size;
+                }
+
+                const types = [10, 9, 1, 6, 5, 4, 3];
                 let cnt = 0;
-                for (let i = 0; i < 6; ++i) {
+                for (let i = 0; i < 7; ++i) {
                     let val = dict[types[i]];
                     if (val) {
                         let ab = this.actionBtns_[cnt];
                         ab.visible = true;
-                        ab.setup(5 - i, (ab)=>{
+                        ab.setup(6 - i, (ab)=>{
                             //console.log(ab.data_);
                             switch (ab.data_.length) {
                             case 0:
                                 this.removeBtns();
-                                ws.send('{"m":2,"r":9,"v":0}');
+                                ws.send(`{"m":2,"r":${types[i]},"v":0}`);
                                 this.removeCD();
                                 break;
                             case 1:
@@ -5230,7 +5236,7 @@
 
                 let bg = this.bg_;
                 bg.clear();
-                bg.beginFill((idx != 3 ? 0 : 0xCC4040), .25);
+                bg.beginFill(idx != 6 ? (idx != 3 ? 0 : 0xFF6A6A) : 0x00CD66, .25);
                 bg.drawCircle(75, 75, 75);
                 bg.endFill();
             }
