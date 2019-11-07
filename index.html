@@ -290,6 +290,17 @@
             //     pool.rpt_=0,
             //     game.pool_.showResult();
             // }
+            // {
+            //     let pool = game.pool_;
+            //     let view = new SelectionView(5, [0x0001, 0x0102], (a)=>{
+            //         //ws.send(`{"m":2,"r":${types[i]},"v":${a}}`);
+            //         //this.removeBtns();
+            //         //this.removeCD();
+            //     });
+            //     pool.addChild(view);
+            //     view.y = pool.height_ - 450;
+            //     view.x = (pool.width_ - view.width) * .5;
+            // }
         });
 
         class GameView extends PIXI.Container {
@@ -5261,8 +5272,8 @@
             constructor(type, data, callback) {
                 super();
 
-                const width = WIDTH_02 * HAND_SCALE * 2 + 60;
-                const height = HEIGHT_02F * HAND_SCALE + 40;
+                const width = WIDTH_02 * HAND_SCALE * 2 + 50;
+                const height = HEIGHT_02F * HAND_SCALE + 70;
 
                 this.width = width * data.length;
                 this.height = height;
@@ -5285,17 +5296,31 @@
                     btn.x = width * i;
 
                     let tl = '';
-                    let ts = [];
+                    let t0;
                     let ai = data[i];
                     switch (type) {
                     case 3:
                         tl = '吃';
-                        ts.push(new StandingTile(hi_byte(ai)));
-                        ts.push(new StandingTile(lo_byte(ai)));
+
+                        t0 = new StandingTile(hi_byte(ai));
+                        btn.addChild(t0);
+                        t0.scale.set(HAND_SCALE);
+                        t0.x = 25;
+                        t0.y = height - HEIGHT_02F * HAND_SCALE - 5;
+
+                        t0 = new StandingTile(lo_byte(ai));
+                        btn.addChild(t0);
+                        t0.scale.set(HAND_SCALE);
+                        t0.x = 25 + WIDTH_02 * HAND_SCALE;
+                        t0.y = height - HEIGHT_02F * HAND_SCALE - 5;
                         break;
                     case 5:
                         tl = '杠';
-                        ts.push(new StandingTile(lo_byte(ai)));
+                        t0 = new StandingTile(lo_byte(ai));
+                        btn.addChild(t0);
+                        t0.scale.set(HAND_SCALE);
+                        t0.x = 25 + WIDTH_02 * .5 * HAND_SCALE;
+                        t0.y = height - HEIGHT_02F * HAND_SCALE - 5;
                         break;
                     default:
                         tl = '取消';
@@ -5310,18 +5335,6 @@
                         strokeThickness: 2,
                     });
                     btn.addChild(tx);
-                    tx.y = height - tx.height - 20;
-                    let x0 = (width - tx.width - WIDTH_02 * HAND_SCALE * ts.length) * .5;
-                    tx.x = x0;
-
-                    x0 += tx.width;
-                    for (let i = 0; i < ts.length; ++i) {
-                        let sp = ts[i];
-                        btn.addChild(sp);
-                        sp.scale.set(HAND_SCALE);
-                        sp.x = x0 + WIDTH_02 * HAND_SCALE * i;
-                        sp.y = height - HEIGHT_02F * HAND_SCALE - 20;
-                    }
                 }
             }
         }
