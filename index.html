@@ -100,6 +100,7 @@
         };
 
         let mutecd = parseInt(localStorage.getItem('mutecd'));
+        let mutecall = parseInt(localStorage.getItem('mutecall'));
         let lobby, game, ws, hbt;
 
         function reenter() {
@@ -2055,7 +2056,7 @@
                     --cnt;
                 }
 
-                if (cnt > 0) {
+                if (!mutecall && cnt > 0) {
                     play_snd('snd/08-inquire.wav');
                 }
             }
@@ -5105,27 +5106,31 @@
                 this.addChild(tk);
                 tk.visible = false;
 
-                let text = this.text_ = new PIXI.Text(str, {
-                    fontFamily: FF,
-                    fontSize: 30,
-                    fill: '#ffffff',
-                    stroke: '#000000',
-                    strokeThickness: 3,
-                });
-                this.addChild(text);
-                text.x = bg.width + 5;
+                let width, height;
+                if (str) {
+                    let text = this.text_ = new PIXI.Text(str, {
+                        fontFamily: FF,
+                        fontSize: 30,
+                        fill: '#ffffff',
+                        stroke: '#000000',
+                        strokeThickness: 3,
+                    });
+                    this.addChild(text);
+                    text.x = bg.width + 5;
 
-                let width = bg.width + 5 + text.width;
-                let height = Math.max(bg.height, text.height);
+                    this.width = width = bg.width + 5 + text.width;
+                    this.height = height = Math.max(bg.height, text.height);
+                    text.anchor.y = .5;
+                    text.y = height * .5;
+                }
+                else {
+                    this.width = width = bg.width;
+                    this.height = height = bg.height;
+                }
                 bg.anchor.y = .5;
                 tk.anchor.y = .5;
-                text.anchor.y = .5;
                 bg.y = height * .5;
                 tk.y = height * .5;
-                text.y = height * .5;
-
-                this.width = width;
-                this.height = height;
 
                 let fg = this.fg_ = new PIXI.Graphics();
                 fg.beginFill(0xFFFFFF, .25);
@@ -5138,11 +5143,15 @@
                     let tk = this.tk_;
                     if (tk.visible) {
                         tk.visible = false;
-                        this.text_.style.stroke = '#000000';
+                        if (this.text_) {
+                            this.text_.style.stroke = '#000000';
+                        }
                     }
                     else {
                         tk.visible = true;
-                        this.text_.style.stroke = '#0066ff';
+                        if (this.text_) {
+                            this.text_.style.stroke = '#0066ff';
+                        }
                     }
 
                     if (callback) {
@@ -5168,7 +5177,9 @@
 
             setSelected(s) {
                 this.tk_.visible = s;
-                this.text_.style.stroke = s ? '#0066ff' : '#000000';
+                if (this.text_) {
+                    this.text_.style.stroke = s ? '#0066ff' : '#000000';
+                }
             }
         }
 
@@ -6408,7 +6419,7 @@
             constructor(callback) {
                 super();
 
-                const gap = 30, width2 = 450, height2 = 320;
+                const gap = 30, width2 = 450, height2 = 380;
 
                 this.width = LOBBY_WIDTH;
                 this.height = LOBBY_HEIGHT;
@@ -6448,7 +6459,7 @@
                 this.addChild(t);
                 t.anchor.y = .5;
                 t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
-                t.y = 300;
+                t.y = 260;
 
                 let t0 = new PIXI.Text('100%', {
                     fontFamily: FF,
@@ -6461,14 +6472,14 @@
                 t0.anchor.x = 1;
                 t0.anchor.y = .5;
                 t0.x = (LOBBY_WIDTH + width2) * .5 - gap - 10;
-                t0.y = 300;
+                t0.y = 260;
 
                 let rb = new RangeBar(t0.x - t0.width - t.x - t.width - 15, 30, 15, (v)=>{
                     t0.text = Math.round(v) + '%';
                 });
                 this.addChild(rb);
                 rb.x = t.x + t.width + 10;
-                rb.y = 285;
+                rb.y = 245;
                 let volume = localStorage.getItem('volume');
                 volume = (volume != undefined) ? Math.max(0, Math.min(100, parseFloat(volume))) : 100;
                 t0.text = Math.round(volume) + '%';
@@ -6484,14 +6495,33 @@
                 this.addChild(t);
                 t.anchor.y = .5;
                 t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
-                t.y = 370;
+                t.y = 330;
 
-                let cb = new CheckBox('');
-                this.addChild(cb);
-                cb.scale.set(.75);
-                cb.x = t.x + t.width + 50;
-                cb.y = t.y - 15;
-                cb.setSelected(!mutecd);
+                let cb1 = new CheckBox('');
+                this.addChild(cb1);
+                cb1.scale.set(.75);
+                cb1.x = t.x + t.width + 50;
+                cb1.y = t.y - 15;
+                cb1.setSelected(!mutecd);
+
+                t = new PIXI.Text('鸣牌提示音效', {
+                    fontFamily: FF,
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                this.addChild(t);
+                t.anchor.y = .5;
+                t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
+                t.y = 400;
+
+                let cb2 = new CheckBox('');
+                this.addChild(cb2);
+                cb2.scale.set(.75);
+                cb2.x = t.x + t.width + 50;
+                cb2.y = t.y - 15;
+                cb2.setSelected(!mutecall);
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
@@ -6516,6 +6546,7 @@
                     mutecd = cb.isSelected() ? 0 : 1;
                     localStorage.setItem('volume', volume);
                     localStorage.setItem('mutecd', mutecd);
+                    localStorage.setItem('mutecall', mutecall);
                     PIXI.sound.volumeAll = volume / 100;
                     callback();
                 });
