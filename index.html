@@ -747,7 +747,7 @@
         const HAND_SCALE = 1.7;//1 + (WIDTH_13 + GAP_T) / (WIDTH_02 * 3);
 
         const WIND = ['东', '南', '西', '北'];
-        const ACTION = ['吃', '碰', '杠', '和', '花', '过', '过'];
+        const ACTION = ['吃', '碰', '杠', '和', '花', '过', '弃'];
 
         const EXT_CP_02 = (WIDTH_13 + GAP_T - WIDTH_02) * .5; // (WIDTH_02 * 2 + WIDTH_13 + GAP_T - WIDTH_02 * 3) * .5
         const EXT_DK_02 = (WIDTH_13 + GAP_T) * .5;  // (WIDTH_02 * 3 + WIDTH_13 + GAP_T - WIDTH_02 * 3) * .5
@@ -4276,7 +4276,7 @@
                     }
 
                     this.addChild(t0); this.packs_[0].push(t0); t0.zIndex = 340 + pplen * 4;
-                    this.addChild(t1); this.packs_[0].push(t1); t1.zIndex = 341 + pplen * 4; 
+                    this.addChild(t1); this.packs_[0].push(t1); t1.zIndex = 341 + pplen * 4;
                     this.addChild(t2); this.packs_[0].push(t2); t2.zIndex = 342 + pplen * 4;
                     if (t3 != undefined) { this.addChildAt(t3); this.packs_[0].push(t3); t3.zIndex = 343 + pplen * 4; }
 
