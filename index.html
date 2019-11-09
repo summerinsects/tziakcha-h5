@@ -6824,18 +6824,43 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ window.open("/", "_blank"); });
+                }, 80, btnHeight, ()=>{ window.open("/", "_blank"); });
                 container.addChild(btn);
 
-                btn = new TextButton('English', {
+                btn = new TextButton('EN', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ window.open("/0/?lang=en", "_self"); });
+                }, 80, btnHeight, ()=>{ window.open("/0/?lang=en", "_self"); });
                 container.addChild(btn);
-                btn.x = btnWidth + 5;
+                btn.x = 85;
+
+                const title = ['空闲：', '等待：', '对局：', '托管：'];
+                let status = [null, null, null, null];
+                for (let i = 0; i < 4; ++i) {
+                    let t0 = new PIXI.Text(title[i], {
+                        fontFamily: FF,
+                        fontSize: 16,
+                        fill: '#ffffff',
+                    });
+                    container.addChild(t0);
+                    t0.anchor.y = .5;
+                    t0.x = 200 + (i & 1) * 140;
+                    t0.y = 18 + (i >> 1) * 20;
+
+                    let t1 = status[i] = new PIXI.Text('0', {
+                        fontFamily: FF,
+                        fontSize: 16,
+                        fill: '#cccccc',
+                    });
+                    container.addChild(t1);
+                    t1.anchor.y = .5;
+                    t1.x = t0.x + t0.width;
+                    t1.y = t0.y;
+                }
+                this.status_ = status;
 
                 btn = new TextButton('创建牌桌', {
                     fontFamily: FF,
@@ -6996,6 +7021,13 @@
                 case 10:
                     this._showUserView(resp['z']);
                     break;
+                case 100: {
+                    this.status_[0].text = resp['f'];
+                    this.status_[1].text = resp['w'];
+                    this.status_[2].text = resp['p'];
+                    this.status_[3].text = resp['o'];
+                    break;
+                }
                 default:
                     break;
                 }
