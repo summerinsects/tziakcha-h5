@@ -101,7 +101,7 @@
 
         let mutecd = parseInt(localStorage.getItem('mutecd'));
         let mutecall = parseInt(localStorage.getItem('mutecall'));
-        let lobby, game, ws, hbt;
+        let lobby, game, topmost, ws, hbt;
 
         function reenter() {
             ws.send('{"m":4}');
@@ -176,14 +176,19 @@
 
             game.visible = false;
 
+            topmost = new TopView();
+            app.stage.addChild(topmost);
+
             document.oncontextmenu = ()=>false;
 
             lobby.adapt();
             game.adapt();
+            topmost.adapt();
             window.onresize = ()=>{
                 app.renderer.resize(window.innerWidth, window.innerHeight);
                 lobby.adapt();
                 game.adapt();
+                topmost.adapt();
             };
 
             let volume = localStorage.getItem('volume');
@@ -235,6 +240,7 @@
                 }, 1000);
             };
             ws.onerror = (e)=>{
+                topmost.error('网络错误，请刷新重试', true);
                 console.log('error',e);
             };
             ws.onclose = ()=>{
@@ -6922,23 +6928,23 @@
                 switch (r) {
                 case 1:
                     switch (resp['e']) {
-                    default: this._error('未知错误'); break;
-                    case 0: this._error('未知错误0'); break;
-                    case 1: this._error('你已经在桌子上'); break;
-                    case 2: this._error('你已经在对局中'); break;
-                    case 3: this._error('桌子不存在'); break;
-                    case 4: this._error('不正确的位置'); break;
-                    case 5: this._error('这个位置已经有人了'); break;
-                    case 6: this._error('密码错误'); break;
-                    case 7: this._error('你不在桌子上'); break;
-                    case 8: this._error('你已在别处登录'); break;
-                    case 9: this._error('用户名或密码过长'); break;
-                    case 10: this._error('该桌不允许游客账号加入'); break;
-                    case 11: this._error('不允许使用特殊字符'); break;
-                    case 12: this._error('鸣牌时限不能超过出牌时限');break;
-                    case 13: this._error('账号和密码不匹配'); break;
-                    case 14: this._error('验证码已过期'); break;
-                    case 15: this._error('验证码错误'); break;
+                    default: topmost.error('未知错误'); break;
+                    case 0: topmost.error('未知错误0'); break;
+                    case 1: topmost.error('你已经在桌子上'); break;
+                    case 2: topmost.error('你已经在对局中'); break;
+                    case 3: topmost.error('桌子不存在'); break;
+                    case 4: topmost.error('不正确的位置'); break;
+                    case 5: topmost.error('这个位置已经有人了'); break;
+                    case 6: topmost.error('密码错误'); break;
+                    case 7: topmost.error('你不在桌子上'); break;
+                    case 8: topmost.error('你已在别处登录', true); break;
+                    case 9: topmost.error('用户名或密码过长'); break;
+                    case 10: topmost.error('该桌不允许游客账号加入'); break;
+                    case 11: topmost.error('不允许使用特殊字符'); break;
+                    case 12: topmost.error('鸣牌时限不能超过出牌时限');break;
+                    case 13: topmost.error('账号和密码不匹配'); break;
+                    case 14: topmost.error('验证码已过期'); break;
+                    case 15: topmost.error('验证码错误'); break;
                     case 16: {
                         document.cookie = '__p=;Path=/;Max-Age=0';
                         let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
@@ -6946,7 +6952,7 @@
                             ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}"}`);
                         }
                         else {
-                            this._error('自动登录失败，请输入账号密码登录');
+                            topmost.error('自动登录失败，请输入账号密码登录');
                         }
                         break;
                     }
@@ -7086,20 +7092,20 @@
                     if (cfg) {
                         let bl = bytes_len(cfg['t']);
                         if (bl == 0) {
-                            this._error('对局名称不能为空');
+                            topmost.error('对局名称不能为空');
                             return;
                         }
                         if (bl > 40) {
-                            this._error('对局名称最多40个字符');
+                            topmost.error('对局名称最多40个字符');
                             return;
                         }
                         let p = cfg['p'];
                         if (p.length > 0 && !p.match('[0-9a-zA-Z]')) {
-                            this._error('密码只允许数字和字母');
+                            topmost.error('密码只允许数字和字母');
                             return;
                         }
                         if (p.length > 6) {
-                            this._error('密码最长6位');
+                            topmost.error('密码最长6位');
                             return;
                         }
                         ws.send(JSON.stringify({'m':1,'r':3,'g':cfg}));
@@ -7252,31 +7258,6 @@
                 }
                 ++this.page_;
                 this._refresh();
-            }
-
-            _error(s) {
-                let bg = new PIXI.Graphics();
-                this.container_.addChild(bg);
-
-                let t = new PIXI.Text(s, {
-                    fontFamily: FF,
-                    fontSize: 40,
-                    fill: '#000000',
-                });
-                bg.addChild(t);
-                t.anchor.set(.5);
-                t.x = LOBBY_WIDTH * .5;
-                t.y = LOBBY_HEIGHT * .5;
-                scaleText(t, LOBBY_WIDTH - 40);
-
-                let w = t.width, h = t.height;
-                bg.beginFill(0xffffff, .9);
-                bg.drawRect((LOBBY_WIDTH - w) * .5 - 20, (LOBBY_HEIGHT - h) * .5 - 20, w + 40, h + 40);
-                bg.endFill();
-
-                (new TWEEN.Tween(bg)).to({alpha:1}, 100).onComplete(()=>{
-                    (new TWEEN.Tween(bg)).to({alpha:0}, 100).delay(1300).onComplete(()=>{ this.container_.removeChild(bg); }).start();
-                }).start();
             }
         }
 
@@ -7838,6 +7819,56 @@
                 this.addChild(btn);
                 btn.x = (LOBBY_WIDTH + width2) * .5 - btnWidth - gap;
                 btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
+            }
+        }
+
+        class TopView extends PIXI.Container {
+            constructor() {
+                super();
+
+                this.width = LOBBY_WIDTH;
+                this.height = LOBBY_HEIGHT;
+            }
+
+            adapt() {
+                let sx = window.innerWidth / LOBBY_WIDTH;
+                let sy = window.innerHeight / LOBBY_HEIGHT;
+                let ss = Math.min(sx, sy);
+
+                this.scale.set(ss);
+                let cw = LOBBY_WIDTH * ss;
+                if (window.innerWidth > cw) {
+                    this.x = (window.innerWidth - cw) * .5;
+                } else {
+                    this.x = 0;
+                }
+            }
+
+            error(s, r) {
+                let bg = new PIXI.Graphics();
+                this.addChild(bg);
+
+                let t = new PIXI.Text(s, {
+                    fontFamily: FF,
+                    fontSize: 40,
+                    fill: '#000000',
+                });
+                bg.addChild(t);
+                t.anchor.set(.5);
+                t.x = LOBBY_WIDTH * .5;
+                t.y = LOBBY_HEIGHT * .5;
+                scaleText(t, LOBBY_WIDTH - 40);
+
+                let w = t.width, h = t.height;
+                bg.beginFill(0xffffff, .9);
+                bg.drawRect((LOBBY_WIDTH - w) * .5 - 20, (LOBBY_HEIGHT - h) * .5 - 20, w + 40, h + 40);
+                bg.endFill();
+
+                if (!r) {
+                    (new TWEEN.Tween(bg)).to({alpha:1}, 100).onComplete(()=>{
+                        (new TWEEN.Tween(bg)).to({alpha:0}, 100).delay(1300).onComplete(()=>{ this.container_.removeChild(bg); }).start();
+                    }).start();
+                }
             }
         }
 
