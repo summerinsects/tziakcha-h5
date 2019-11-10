@@ -7016,6 +7016,13 @@
                         exp.setTime(exp.getTime() + 864000);
                         document.cookie=`__p=${k};Path=/;Expires=${exp.toGMTString()}`;
                     }
+                    if (this.tableid_ = resp['i']) {
+                        this.seat_ = resp['s'];
+                        let i = this._findTable(this.tableid_);
+                        if (i != -1) {
+                            this.tables_[i].refresh(this.tableid_, this.seat_);
+                        }
+                    }
                     break;
                 }
                 case 10:
@@ -7600,8 +7607,14 @@
                 let btn = this.readyBtn_;
                 if (id == this.tableid_) {
                     if (this.seat_ != seat) {
-                        btn.face_.text = '准备';
-                        btn.value_ = 1;
+                        if (!this.tick_[seat].visible) {
+                            btn.face_.text = '准备';
+                            btn.value_ = 1;
+                        }
+                        else {
+                            btn.face_.text = '取消准备';
+                            btn.value_ = 0;
+                        }
                     }
 
                     btn.visible = true;
