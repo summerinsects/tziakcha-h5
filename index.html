@@ -6549,7 +6549,8 @@
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{
                     let volume = rb.getValue();
-                    mutecd = cb.isSelected() ? 0 : 1;
+                    mutecd = cb1.isSelected() ? 0 : 1;
+                    mutecall = cb2.isSelected() ? 0 : 1;
                     localStorage.setItem('volume', volume);
                     localStorage.setItem('mutecd', mutecd);
                     localStorage.setItem('mutecall', mutecall);
