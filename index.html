@@ -6967,49 +6967,46 @@
                     while (tv = this.tables_.pop()) {
                         this.root_.removeChild(tv);
                     }
-
+                    // 无需break，接着走case 3一样的逻辑
+                }
+                case 3: {
                     let ts = resp['t'];
                     for (let i = 0, len = ts.length; i < len; ++i) {
                         let t = ts[i];
-                        tv = new TableInfoView(t, (id, s, p)=>{ this._callback(id, s, p); });
+                        let tv = new TableInfoView(t, (id, s, p)=>{ this._callback(id, s, p); });
                         tv.x = 10;
                         this.root_.addChild(tv);
                         this.tables_.push(tv);
 
                         tv.refresh(this.tableid_, this.seat_);
                     }
-
                     this._refresh();
-                    break;
-                }
-                case 3: {
-                    let t = resp['t'];
-                    let tv = new TableInfoView(t, (id, s, p)=>{ this._callback(id, s, p); });
-                    tv.x = 10;
-                    this.root_.addChild(tv);
-                    this.tables_.push(tv);
-
-                    tv.refresh(this.tableid_, this.seat_);
-                    this._refresh();
+                    this._refreshStatus(resp['s']);
                     break;
                 }
                 case 4:
                     this._sitDown(resp['t']);
                     this._standUp(resp['f']);
+                    this._refreshStatus(resp['s']);
                     break;
                 case 5:
                     this._standUp(resp['t']);
+                    this._refreshStatus(resp['s']);
                     break;
                 case 6:
                     this._ready(resp['t']);
                     break;
                 case 7:
                     this._delete(resp['t']);
+                    this._refreshStatus(resp['s']);
                     break;
                 case 8: {
                     let t = resp['t'];
-                    this.tableid_ = t['i'];
-                    this.seat_ = t['s'];
+                    if (t) {
+                        this.tableid_ = t['i'];
+                        this.seat_ = t['s'];
+                    }
+                    this._refreshStatus(resp['s']);
                     break;
                 }
                 case 9: {
@@ -7034,13 +7031,6 @@
                 case 10:
                     this._showUserView(resp['z']);
                     break;
-                case 100: {
-                    this.status_[0].text = resp['f'];
-                    this.status_[1].text = resp['w'];
-                    this.status_[2].text = resp['p'];
-                    this.status_[3].text = resp['o'];
-                    break;
-                }
                 default:
                     break;
                 }
@@ -7258,6 +7248,15 @@
                 }
                 ++this.page_;
                 this._refresh();
+            }
+
+            _refreshStatus(s) {
+                if (s) {
+                    this.status_[0].text = s['f'];
+                    this.status_[1].text = s['w'];
+                    this.status_[2].text = s['p'];
+                    this.status_[3].text = s['o'];
+                }
             }
         }
 
