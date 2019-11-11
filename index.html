@@ -2265,31 +2265,31 @@
 
                 if (idx != 13) {
                     // 插入手牌的动画
-                    if (n) {
-                        setTimeout(()=>{
+                    setTimeout(()=>{
+                        if (n) {
                             this._discardEffect(n, idx, 12);
                             standing[idx].visible = true;
                             standing[13].visible = false;
-                        }, DISCARD_DT);
-                    }
-                    else {
-                        let dp = new Array(14);
-                        for (let i = 0; i < 14; ++i) {
-                            dp[i] = standing[i].x;
                         }
+                        else {
+                            let dp = new Array(14);
+                            for (let i = 0; i < 14; ++i) {
+                                dp[i] = standing[i].x;
+                            }
 
-                        src.t_ = 0xFF;
-                        src.visible = false;
-                        standing.sort(function(a, b) { return a.t_ - b.t_; });
+                            src.t_ = 0xFF;
+                            src.visible = false;
+                            standing.sort(function(a, b) { return a.t_ - b.t_; });
 
-                        for (let i = 0; i < 14; ++i) {
-                            let sp = standing[i];
-                            sp.zIndex = 360 + i;
-                            if (sp.x != dp[i]) {
-                                (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
+                            for (let i = 0; i < 14; ++i) {
+                                let sp = standing[i];
+                                sp.zIndex = 360 + i;
+                                if (sp.x != dp[i]) {
+                                    (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
+                                }
                             }
                         }
-                    }
+                    }, 400);
                 }
 
                 this.sortChildren();
