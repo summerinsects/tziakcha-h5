@@ -2030,7 +2030,7 @@
                                 break;
                             case 1:
                                 this.removeBtns();
-                                ws.send(`{"m":2,"r":${types[i]},"v":65535}`);
+                                ws.send(`{"m":2,"r":${types[i]},"v":${ab.data_[0]}}`);
                                 this.removeCD();
                                 break;
                             default: {
