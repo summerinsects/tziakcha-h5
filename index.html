@@ -1981,7 +1981,7 @@
 
                     if (!skp && status[5]) {  // 自动和牌
                         setTimeout(()=>{
-                            ws.send('{"m":2,"r":6,"v":0}');
+                            ws.send(`{"m":2,"r":6,"v":${dict[6][0]}}`);
                             this.removeCD();
                         }, DISCARD_DT * 2);
                         return;
