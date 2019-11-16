@@ -1485,7 +1485,7 @@
                 graph.x = MAX_WIDTH * .5;
                 graph.y = MAX_HEIGHT * .5;
                 graph.x = MAX_WIDTH;
-                graph.y = MAX_HEIGHT - 200;
+                graph.y = MAX_HEIGHT - 260;
 
                 text = graph.text_ = new PIXI.Text('', {
                     fontFamily: FF,
@@ -1500,15 +1500,15 @@
                 text.y = 25;
                 graph.visible = false;
 
-                // 吃碰杠和花过按钮，最多同时亮5个（吃碰杠和过）
+                // 吃碰杠和花过弃按钮，最多同时亮5个，预留6个位（吃碰杠和过弃）
                 // 此处从右往左排
-                let actionBtns = new Array(5);
-                for (let i = 0; i < 5; ++i) {
+                let actionBtns = new Array(6);
+                for (let i = 0; i < 6; ++i) {
                     let ab = actionBtns[i] = new ActionButton();
                     this.addChild(ab);
                     ab.zIndex = 500;
-                    ab.x = MAX_WIDTH - 200 * i - 330;
-                    ab.y = MAX_HEIGHT - 320;
+                    ab.x = MAX_WIDTH - 190 * i - 260;
+                    ab.y = MAX_HEIGHT - 300;
                     ab.visible = false;
                 }
                 this.actionBtns_ = actionBtns;
@@ -1999,11 +1999,8 @@
                 dict[9] = [];
                 ++size;
 
-                // 插入“弃”
-                if (this.turn_ != this.seat_ && ((this.turn_ + 1) & 3) != this.seat_ && this.isDiscarding_ && this.cfg_['s']) {
-                    dict[10] = [];
-                    ++size;
-                }
+                dict[10] = [];
+                ++size;
 
                 const types = [10, 9, 1, 6, 5, 4, 3];
                 let cnt = 0;
@@ -2036,7 +2033,7 @@
                                     this.removeCD();
                                 });
                                 this.addChild(view);
-                                view.y = this.height_ - 450;
+                                view.y = this.height_ - 520;
                                 view.x = (this.width_ - view.width) * .5;
                                 this.selectionView_ = view;
                                 break;
@@ -2048,8 +2045,21 @@
                     }
                 }
 
-                // 轮到自己打牌时，隐藏“过”
-                if (this.turn_ == this.seat_ && this.isDiscarding_) {
+                if (this.isDiscarding_) {
+                    // 轮到自己打牌时，隐藏“过”和“弃”
+                    if (this.turn_ == this.seat_) {
+                        this.actionBtns_[0].visible = false;
+                        this.actionBtns_[1].visible = false;
+                        cnt -= 2;
+                    }
+                    else if (!this.cfg_['s'] || ((this.turn_ + 1) & 3) == this.seat_) {
+                        // 无战术鸣牌或者上家打牌后，隐藏“过”
+                        this.actionBtns_[1].visible = false;
+                        --cnt;
+                    }
+                }
+                else {
+                    // 补花时，隐藏“弃”
                     this.actionBtns_[0].visible = false;
                     --cnt;
                 }
