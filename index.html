@@ -884,17 +884,19 @@
                     {'x':80, 'y':MAX_HEIGHT * .5, 'ax':0, 'ay':.5}
                 ];
 
-                {
                 let graph = new PIXI.Graphics();
                 //graph.lineStyle(2, 0x0000FF, 1);
                 graph.beginFill(0x89A4C7, .5);
                 graph.drawRect(0, 0, MAX_WIDTH, MAX_HEIGHT);
                 graph.endFill();
                 this.addChild(graph);
-                }
+                this.bg_ = graph;
+                graph.on('pointerdown', ()=>{ this.settleView_.visible = false; });
+                graph.on('pointerup', ()=>{ this.settleView_.visible = true; });
+                graph.on('pointerupoutside', ()=>{ this.settleView_.visible = true; });
 
                 // 中间的面板
-                let graph = new PIXI.Graphics();
+                graph = new PIXI.Graphics();
                 //graph.lineStyle(2, 0x0000FF, 1);
                 graph.beginFill(0, .5);
                 graph.drawRect(0, 0, CENTER_WIDTH, CENTER_HEIGHT);
@@ -1403,18 +1405,6 @@
                 this.stopFlower_ = false;
                 this.rdfsh_ = false;
 
-                let btn = this.settleBtn_ = new TextButton('结算面板', {
-                    fontFamily: FF,
-                    fontSize: 24,
-                    fill: '#ffffff',
-                    stroke: '#0066ff',
-                    strokeThickness: 2,
-                }, 120, 50, ()=>{ if (this.settleView_) { this.settleView_.visible = true; } });
-                this.addChild(btn);
-                btn.zIndex = 500;
-                btn.x = MAX_WIDTH - 120;
-                btn.visible = false;
-
 /*
                 // TODO:
                 btn = new TextButton('请求退出', {
@@ -1428,7 +1418,7 @@
                 btn.zIndex = 500;
 */
 
-                btn = new TextButton('设置', {
+                let btn = new TextButton('设置', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
@@ -3682,20 +3672,14 @@
                 ];
 
                 let view = new SettleView(hand, tile, table, detail, names, this.seat_, this.cfg_['r30'],
-                    (n)=>{
-                        if (n == 0) {
-                            if (!this.rp_) {
-                                ws.send('{"m":2,"r":8,"v":0}');
-                            }
-                            else {
-                                this.showResult();
-                            }
-                            this.closeSettleView();
+                    ()=>{
+                        if (!this.rp_) {
+                            ws.send('{"m":2,"r":8,"v":0}');
                         }
                         else {
-                            this.settleView_.visible = false;
-                            this.settleBtn_.visible = true;
+                            this.showResult();
                         }
+                        this.closeSettleView();
                     }
                 );
                 this.addChild(view);
@@ -3704,6 +3688,7 @@
                 view.x = (this.width - view.width) * .5;
                 view.y = (this.height - view.height) * .5;
                 this.settleView_ = view;
+                this.bg_.interactive = true;
 
                 if (!this.rdfsh_) {
                     let rss = (detail['s'] || [0, 0, 0, 0]), rps = detail['n'];
@@ -3722,7 +3707,7 @@
                     this.removeChild(this.settleView_);
                     this.settleView_ = null;
                 }
-                this.settleBtn_.visible = false;
+                this.bg_.interactive = false;
             }
 
             showFalseWin(f, table) {
@@ -5735,7 +5720,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(0); });
+                }, btnWidth, btnHeight, ()=>{ callback(); });
                 this.addChild(btn);
                 btn.x = width - btnWidth - gap;
                 btn.y = height - btnHeight - gap;
@@ -5760,21 +5745,10 @@
                         t.text = s;
                     }
                     else {
-                        callback(0);
+                        callback();
                         clearInterval(t.timer_);
                     }
                 }, 33.33);
-
-                btn = new TextButton('查看桌面', {
-                    fontFamily: FF,
-                    fontSize: 24,
-                    fill: '#ffffff',
-                    stroke: '#0066ff',
-                    strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(1); });
-                this.addChild(btn);
-                btn.x = gap;
-                btn.y = height - btnHeight - gap;
             }
         }
 
