@@ -281,6 +281,7 @@
             // let nl = ['玩家1','玩家2','玩家3','玩家4'];
             // let vi = 1;
             // let view = new SettleView(ht, 100, ft, dt, nl, vi, 10);
+            // view.scale.set(1.25);
             // pool.addChild(view);
 
             // view.x = (pool.width / pool.scale.x - view.width) * .5;
@@ -1850,8 +1851,8 @@
                 bg.drawRect(0, 0, ww, hh);
                 bg.endFill();
 
-                bg.lineStyle(2, 0xFFFFFF, 1);
-                bg.beginFill(0, .85);
+                bg.lineStyle(2, 0x26608C, 1);
+                bg.beginFill(0x060F16, .85);
                 bg.drawRect((ww - w2) * .5, (hh - h2) * .5, w2, h2);
                 bg.endFill();
 
@@ -5722,8 +5723,8 @@
                     }
                 }
 
-                bg.lineStyle(2, 0xFFFFFF, 1);
-                bg.beginFill(0, .85);
+                bg.lineStyle(2, 0x26608C, 1);
+                bg.beginFill(0x060F16, .85);
                 bg.drawRect(0, 0, width, height);
                 bg.endFill();
 
@@ -5836,8 +5837,8 @@
 
                 let height = Math.max(y + 110, 340);
 
-                bg.lineStyle(2, 0xFFFFFF, 1);
-                bg.beginFill(0, .85);
+                bg.lineStyle(2, 0x26608C, 1);
+                bg.beginFill(0x060F16, .85);
                 bg.drawRect(0, 0, width, height);
                 bg.endFill();
 
@@ -5879,8 +5880,8 @@
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
 
-                bg.lineStyle(2, 0xFFFFFF, 1);
-                bg.beginFill(0, .85);
+                bg.lineStyle(2, 0x26608C, 1);
+                bg.beginFill(0x060F16, .85);
                 bg.drawRect(0, 0, width, height);
                 bg.endFill();
 
@@ -5989,8 +5990,8 @@
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
 
-                bg.lineStyle(2, 0xFFFFFF, 1);
-                bg.beginFill(0, .85);
+                bg.lineStyle(2, 0x26608C, 1);
+                bg.beginFill(0x060F16, .85);
                 bg.drawRect(0, 0, width, height);
                 bg.endFill();
 
@@ -6207,8 +6208,8 @@
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
 
-                bg.lineStyle(2, 0xFFFFFF, 1);
-                bg.beginFill(0, .85);
+                bg.lineStyle(2, 0x26608C, 1);
+                bg.beginFill(0x060F16, .85);
                 bg.drawRect(0, 0, width, height);
                 bg.endFill();
 
@@ -6425,7 +6426,7 @@
             constructor(callback) {
                 super();
 
-                const gap = 30, width2 = 450, height2 = 380;
+                const gap = 30, width2 = 500, height2 = 380;
 
                 this.width = LOBBY_WIDTH;
                 this.height = LOBBY_HEIGHT;
@@ -6438,8 +6439,8 @@
                 bg.drawRect(0, 0, LOBBY_WIDTH, LOBBY_HEIGHT);
                 bg.endFill();
 
-                bg.lineStyle(2, 0xFFFFFF, 1);
-                bg.beginFill(0, .85);
+                bg.lineStyle(2, 0x26608C, 1);
+                bg.beginFill(0x060F16, .85);
                 bg.drawRect((LOBBY_WIDTH - width2) * .5, (LOBBY_HEIGHT - height2) * .5, width2, height2);
                 bg.endFill();
 
@@ -6465,7 +6466,7 @@
                 this.addChild(t);
                 t.anchor.y = .5;
                 t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
-                t.y = 260;
+                t.y = 270;
 
                 let t0 = new PIXI.Text('100%', {
                     fontFamily: FF,
@@ -6478,14 +6479,14 @@
                 t0.anchor.x = 1;
                 t0.anchor.y = .5;
                 t0.x = (LOBBY_WIDTH + width2) * .5 - gap - 10;
-                t0.y = 260;
+                t0.y = 270;
 
                 let rb = new RangeBar(t0.x - t0.width - t.x - t.width - 15, 30, 15, (v)=>{
                     t0.text = Math.round(v) + '%';
                 });
                 this.addChild(rb);
                 rb.x = t.x + t.width + 10;
-                rb.y = 245;
+                rb.y = 255;
                 let volume = localStorage.getItem('volume');
                 volume = (volume != undefined) ? Math.max(0, Math.min(100, parseFloat(volume))) : 100;
                 t0.text = Math.round(volume) + '%';
@@ -6520,7 +6521,7 @@
                 this.addChild(t);
                 t.anchor.y = .5;
                 t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
-                t.y = 400;
+                t.y = 390;
 
                 let cb2 = new CheckBox('');
                 this.addChild(cb2);
@@ -6608,6 +6609,7 @@
                 let graph = new PIXI.Graphics();
                 this.addChild(graph);
                 graph.lineStyle(5, 0x808080, 1);
+                graph.beginFill(0x0C1E2C, .85);
                 graph.drawRect(0, 0, width, 240);
                 graph.drawRect(0, 240, width, 160);
                 graph.endFill();
@@ -6878,7 +6880,7 @@
                 }, btnWidth, btnHeight, ()=>{ this._showCreateView(); });
                 container.addChild(btn);
                 btn.x = (LOBBY_WIDTH - btnWidth) * .5;
-                btn.y = LOBBY_HEIGHT - btnHeight - 20;
+                btn.y = LOBBY_HEIGHT - btnHeight - 15;
 
                 btn = this.prevBtn_ = new TextButton('上一页', {
                     fontFamily: FF,
@@ -6889,7 +6891,7 @@
                 }, btnWidth, btnHeight, ()=>{ this._prevPage(); });
                 container.addChild(btn);
                 btn.x = LOBBY_WIDTH * .25 - btnWidth * .5;
-                btn.y = LOBBY_HEIGHT - btnHeight - 90;
+                btn.y = LOBBY_HEIGHT - btnHeight - 75;
 
                 btn = this.nextBtn_ = new TextButton('下一页', {
                     fontFamily: FF,
@@ -6900,7 +6902,7 @@
                 }, btnWidth, btnHeight, ()=>{ this._nextPage(); });
                 container.addChild(btn);
                 btn.x = LOBBY_WIDTH * .75 - btnWidth * .5;
-                btn.y = LOBBY_HEIGHT - btnHeight - 90;
+                btn.y = LOBBY_HEIGHT - btnHeight - 75;
 
                 this.tables_ = [];
                 this.page_ = 0;
@@ -6915,7 +6917,7 @@
                 container.addChild(t);
                 t.anchor.set(.5);
                 t.x = LOBBY_WIDTH * .5;
-                t.y = LOBBY_HEIGHT - btnHeight - 65;
+                t.y = LOBBY_HEIGHT - btnHeight - 50;
 
                 this._enable(this.prevBtn_, false);
                 this._enable(this.nextBtn_, false);
@@ -7226,7 +7228,7 @@
                     }
                     else {
                         tv.visible = true;
-                        tv.y = 60 + tv.height * (k - s);
+                        tv.y = 60 + (tv.height + 5) * (k - s);
                     }
                 }
 
@@ -7283,9 +7285,13 @@
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
 
-                bg.lineStyle(2, 0xFFFFFF, 1);
-                bg.beginFill(0, .85);
+                bg.beginFill(0, .5);
                 bg.drawRect(0, 0, LOBBY_WIDTH, LOBBY_HEIGHT);
+                bg.endFill();
+
+                bg.lineStyle(2, 0x26608C, 1);
+                bg.beginFill(0x0C1E2C, .85);
+                bg.drawRect(5, 5, LOBBY_WIDTH - 10, LOBBY_HEIGHT - 10);
                 bg.endFill();
 
                 let t = new PIXI.Text('创建牌桌', {
@@ -7480,8 +7486,8 @@
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
 
-                bg.lineStyle(2, 0xFFFFFF, 1);
-                bg.beginFill(0, .85);
+                bg.lineStyle(2, 0x00FFFF, .25);
+                bg.beginFill(0x043c6b, .85);
                 bg.drawRect(0, 0, width, height);
                 bg.endFill();
 
@@ -7539,9 +7545,9 @@
                 let rdm = cfg['r'];
                 for (let i = 0; i < 4; ++i) {
                     let xx = gap + gapX * i;
-                    btn = new EmptyButton(gapX, 40, ()=>{ callback(this.tableid_, i, this.pw_); });
+                    btn = new EmptyButton(gapX, 35, ()=>{ callback(this.tableid_, i, this.pw_); });
                     btn.x = xx;
-                    btn.y = 75;
+                    btn.y = 82;
                     this.addChild(btn);
 
                     t = new PIXI.Text(rdm ? (i + 1) : WIND[i], {
@@ -7649,7 +7655,7 @@
             constructor(callback) {
                 super();
 
-                const gap = 30, width2 = 360, height2 = 220;
+                const gap = 30, width2 = 360, height2 = 240;
 
                 this.width = LOBBY_WIDTH;
                 this.height = LOBBY_HEIGHT;
@@ -7658,12 +7664,12 @@
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
 
-                bg.beginFill(0, 0);
+                bg.beginFill(0, .5);
                 bg.drawRect(0, 0, LOBBY_WIDTH, LOBBY_HEIGHT);
                 bg.endFill();
 
-                bg.lineStyle(2, 0xFFFFFF, 1);
-                bg.beginFill(0, .85);
+                bg.lineStyle(2, 0x26608C, 1);
+                bg.beginFill(0x0C1E2C, .85);
                 bg.drawRect((LOBBY_WIDTH - width2) * .5, (LOBBY_HEIGHT - height2) * .5, width2, height2);
                 bg.endFill();
 
@@ -7687,7 +7693,7 @@
                     paddingLeft: '10px',
                 });
                 textInput.x = LOBBY_WIDTH * .5 - 100;
-                textInput.y = LOBBY_HEIGHT * .5 - 20;
+                textInput.y = LOBBY_HEIGHT * .5 - 30;
                 textInput.substituteText = false;
                 this.addChild(textInput);
 
@@ -7729,12 +7735,12 @@
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
 
-                bg.beginFill(0, 0);
+                bg.beginFill(0, .5);
                 bg.drawRect(0, 0, LOBBY_WIDTH, LOBBY_HEIGHT);
                 bg.endFill();
 
-                bg.lineStyle(2, 0xFFFFFF, 1);
-                bg.beginFill(0, .85);
+                bg.lineStyle(2, 0x26608C, 1);
+                bg.beginFill(0x0C1E2C, .85);
                 bg.drawRect((LOBBY_WIDTH - width2) * .5, (LOBBY_HEIGHT - height2) * .5, width2, height2);
                 bg.endFill();
 
