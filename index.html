@@ -6880,7 +6880,7 @@
                 }, btnWidth, btnHeight, ()=>{ this._showCreateView(); });
                 container.addChild(btn);
                 btn.x = (LOBBY_WIDTH - btnWidth) * .5;
-                btn.y = LOBBY_HEIGHT - btnHeight - 15;
+                btn.y = LOBBY_HEIGHT - btnHeight - 10;
 
                 btn = this.prevBtn_ = new TextButton('上一页', {
                     fontFamily: FF,
@@ -6891,7 +6891,7 @@
                 }, btnWidth, btnHeight, ()=>{ this._prevPage(); });
                 container.addChild(btn);
                 btn.x = LOBBY_WIDTH * .25 - btnWidth * .5;
-                btn.y = LOBBY_HEIGHT - btnHeight - 75;
+                btn.y = LOBBY_HEIGHT - btnHeight - 60;
 
                 btn = this.nextBtn_ = new TextButton('下一页', {
                     fontFamily: FF,
@@ -6902,7 +6902,7 @@
                 }, btnWidth, btnHeight, ()=>{ this._nextPage(); });
                 container.addChild(btn);
                 btn.x = LOBBY_WIDTH * .75 - btnWidth * .5;
-                btn.y = LOBBY_HEIGHT - btnHeight - 75;
+                btn.y = LOBBY_HEIGHT - btnHeight - 60;
 
                 this.tables_ = [];
                 this.page_ = 0;
@@ -6917,7 +6917,7 @@
                 container.addChild(t);
                 t.anchor.set(.5);
                 t.x = LOBBY_WIDTH * .5;
-                t.y = LOBBY_HEIGHT - btnHeight - 50;
+                t.y = LOBBY_HEIGHT - btnHeight - 35;
 
                 this._enable(this.prevBtn_, false);
                 this._enable(this.nextBtn_, false);
@@ -7228,7 +7228,7 @@
                     }
                     else {
                         tv.visible = true;
-                        tv.y = 60 + (tv.height + 5) * (k - s);
+                        tv.y = 60 + (tv.height + 10) * (k - s);
                     }
                 }
 
