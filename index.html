@@ -778,7 +778,7 @@
 */
         const DRAW_DT = 100;
         const SORT_DT = 200;
-        const DISCARD_DT = 150;
+        const DISCARD_DT = 100;
 
         class PoolTile extends PIXI.Sprite {
             constructor(tex, t) {
@@ -1854,9 +1854,9 @@
                 text.y = hh * .5;
                 bg.addChild(text);
 
-                (new TWEEN.Tween(bg)).to({alpha:0}, 200).delay(1800).start();
+                (new TWEEN.Tween(bg)).to({alpha:0}, 200).delay(1300).start();
 
-                setTimeout(()=>{ this.removeChild(bg); this.sendHandTiles(d, h); }, 2000);
+                setTimeout(()=>{ this.removeChild(bg); this.sendHandTiles(d, h); }, 1500);
                 play_snd(this.rd_ ? 'snd/24-dingdong.wav' : 'snd/01-start.wav');
             }
 
