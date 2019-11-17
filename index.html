@@ -1824,12 +1824,6 @@
 
                     this.sortChildren();
                 }, DICE_TIME + 18 * DRAW_DT);
-
-                if (this.option_.status()[0] && this.seat_ == 0) {
-                    setTimeout(()=>{
-                        ws.send('{"m":2,"r":1,"v":0}');
-                    }, DICE_TIME + 18 * DRAW_DT + SORT_DT + 100);
-                }
             }
 
             sendHandTiles2(d, h) {
