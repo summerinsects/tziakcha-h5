@@ -227,7 +227,7 @@
                 if (!f) {
                     let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
                     if (un && pw) {
-                        ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}"}`);
+                        ws.send(`{"m":1,"r":12,"u":"${un}","p":"${pw}"}`);
                     }
                 }
 
@@ -6931,7 +6931,7 @@
                         document.cookie = '__p=;Path=/;Max-Age=0';
                         let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
                         if (un && pw) {
-                            ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}"}`);
+                            ws.send(`{"m":1,"r":12,"u":"${un}","p":"${pw}"}`);
                         }
                         else {
                             topmost.error('自动登录失败，请输入账号密码登录');
@@ -7001,6 +7001,10 @@
                         exp.setTime(exp.getTime() + 864000);
                         document.cookie=`__p=${k};Path=/;Expires=${exp.toGMTString()}`;
                     }
+                    let pw = resp['p'];
+                    if (pw) {
+                        localStorage.setItem('password', pw);
+                    }
                     if (this.tableid_ = resp['i']) {
                         this.seat_ = resp['s'];
                         let i = this._findTable(this.tableid_);
@@ -7043,7 +7047,6 @@
                     if (un && pw) {
                         ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}","z":"${pzl}","s":"${sln}"}`);
                         localStorage.setItem('username', un);
-                        localStorage.setItem('password', pw);
                     }
                     this.container_.removeChild(this.uv_);
                     this.uv_.removeChildren();
@@ -7737,7 +7740,7 @@
 
                 const prefix = ['昵称', '密码', '验证'];
                 let textInputs = [null, null, null];
-                let plh = [localStorage.getItem('username'), localStorage.getItem('password')];
+                let plh = [localStorage.getItem('username')];
                 for (let i = 0, c = pzl ? 3 : 2; i < c; ++i) {
                     let yy = (LOBBY_HEIGHT - height2) * .5 + 110 + 70 * i;
                     t = new PIXI.Text(prefix[i], {
