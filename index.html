@@ -7906,7 +7906,7 @@
 
                 if (!r) {
                     (new TWEEN.Tween(bg)).to({alpha:1}, 100).onComplete(()=>{
-                        (new TWEEN.Tween(bg)).to({alpha:0}, 100).delay(1300).onComplete(()=>{ this.container_.removeChild(bg); }).start();
+                        (new TWEEN.Tween(bg)).to({alpha:0}, 100).delay(1300).onComplete(()=>{ this.removeChild(bg); }).start();
                     }).start();
                 }
             }
