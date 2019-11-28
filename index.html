@@ -938,7 +938,8 @@
                     text = new PIXI.Text('', {
                         fontFamily: FF,
                         fontSize: 32,
-                        fill: '#dedede',
+                        fontWeight: 'bold',
+                        fill: '#888888',
                         //stroke: '#0066ff',
                         //strokeThickness: 2,
                     });
@@ -1864,7 +1865,7 @@
                 this.turn_ = t;
                 let n = (t + 4 - this.seat_) & 3;
                 for (let i = 0; i < 4; ++i) {
-                    this.windTexts_[i].style.fill = (i != n) ? '#dedede' : '#ff6a6a';
+                    this.windTexts_[i].style.fill = (i != n) ? '#888888' : '#ff6a6a';
                 }
             }
 
@@ -5920,6 +5921,7 @@
                         t = new PIXI.Text(text[i], {
                             fontFamily: FF,
                             fontSize: 24,
+                            fontWeight: i != 1 ? 'bold' : '',
                             fill: (seat != players[k]['w']) ? '#ffffff' : '#5cdbd3'
                         });
                         this.addChild(t);
