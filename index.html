@@ -224,6 +224,7 @@
                         }
                     }
                 }
+                lobby.tlr_ = f;
                 if (!f) {
                     let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
                     if (un && pw) {
@@ -6931,8 +6932,9 @@
                     case 15: topmost.error('验证码错误'); break;
                     case 16: {
                         document.cookie = '__p=;Path=/;Max-Age=0';
-                        let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
-                        if (un && pw) {
+                        let un, pw;
+                        if (this.tlr_ && (un = localStorage.getItem('username')) && (pw = localStorage.getItem('password'))) {
+                            this.tlr_ = false;
                             ws.send(`{"m":1,"r":12,"u":"${un}","p":"${pw}"}`);
                         }
                         else {
