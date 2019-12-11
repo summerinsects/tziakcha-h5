@@ -698,6 +698,8 @@
                     break;
                 }
                 case 16: {  // 准备
+                    let idx = (resp['v'] + 4 - pool.seat_) & 3;
+                    pool.ready_[idx].visible = true;
                     break;
                 }
                 case 17: {  // 对局结束
@@ -935,6 +937,8 @@
                 // 人名等信息
                 let infoPanels = [null, null, null, null];
 
+                let ready = [null, null, null, null];
+
                 for (let i = 0; i < 4; ++i) {
                     text = new PIXI.Text('', {
                         fontFamily: FF,
@@ -950,6 +954,20 @@
 
                     let panel = infoPanels[i] = new InfoPanel();
                     this.addChild(panel);
+
+                    let pos = this.callTextPos_[i];
+                    text = new PIXI.Text('\uD83D\uDC4C', {
+                        fontFamily: FF,
+                        fontSize: 80,
+                        fill: '#000000',
+                    });
+                    text.anchor.x = pos['ax'];
+                    text.anchor.y = pos['ay'];
+                    text.x = pos['x'];
+                    text.y = pos['y'];
+                    text.zIndex = 501;
+                    this.addChild(text);
+                    ready[i] = text;
                 }
 
                 const WIND_OFFSET = 25;
@@ -992,6 +1010,8 @@
                 infoPanels[3].rotation = Math.PI * .5;
 
                 this.infoPanels_ = infoPanels;
+
+                this.ready_ = ready;
 
                 {
                     // 四家牌墙
@@ -1577,6 +1597,7 @@
                     this.flowers_[i] = 0;
                     this.falseWin_[i] = false;
                     this.infoPanels_[i].reset();
+                    this.ready_[i].visible = false;
 
                     let sp;
                     while (sp = this.packs_[i].pop()) {
