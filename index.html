@@ -386,7 +386,7 @@
                 pool.piano_ = piano;
 
                 this.interactive = true;
-                this.on('rightclick', this.rightclick);
+                this.on('rightclick', pool.rightclick.bind(pool));
             }
 
             adapt() {
@@ -723,16 +723,8 @@
 
             setTitle(cfg) {
                 this.title_.text = cfg['t'];
-                this.subtitle_.text = fmt_cfg(cfg);
-            }
-
-            rightclick() {
-                let pool = this.pool_;
-                if (pool.actionBtns_[0].visible) {
-                    pool.removeBtns();
-                    ws.send('{"m":2,"r":9,"v":0}');
-                    pool.removeCD();
-                }
+                this.subtitle_.removeChildren();
+                this.subtitle_.addChild(cfg_richtext(false, 16, cfg));
             }
 
             reconnect(resp) {
@@ -1468,6 +1460,12 @@
                 this.addChild(btn);
                 btn.zIndex = 500;
 
+                let cbrb = this.cbrb_ = new CheckBox('右键弃');
+                this.addChild(cbrb);
+                cbrb.scale.set(.9);
+                cbrb.zIndex = 500;
+                cbrb.y = 70;
+
                 btn = new TextButton('计分表', {
                     fontFamily: FF,
                     fontSize: 24,
@@ -1479,7 +1477,7 @@
                 });
                 this.addChild(btn);
                 btn.zIndex = 500;
-                btn.y = MAX_HEIGHT - 220;
+                btn.y = MAX_HEIGHT - 210;
 
                 btn = new TextButton('追分策略', {
                     fontFamily: FF,
@@ -1493,7 +1491,7 @@
                 this.addChild(btn);
                 btn.zIndex = 500;
                 btn.x = MAX_WIDTH - 120;
-                btn.y = MAX_HEIGHT - 220;
+                btn.y = MAX_HEIGHT - 210;
 
                 graph = this.cd_ = new PIXI.Graphics();
                 //graph.lineStyle(2, 0x0000FF, 1);
@@ -1644,6 +1642,7 @@
                 this.packData_ = [[], [], [], []];
                 this.stopFlower_ = false;
                 this.timeout_.visible = false;
+                this.cbrb_.setSelected(false);
             }
 
             sendHandTiles(d, h) {
@@ -2095,6 +2094,14 @@
 
                 for (let i = 0; i < 6; ++i) {
                     this.actionBtns_[i].visible = false;
+                }
+            }
+
+            rightclick() {
+                if (this.actionBtns_[0].visible) {
+                    this.removeBtns();
+                    ws.send(this.cbrb_.isSelected()?'{"m":2,"r":10,"v":0}':'{"m":2,"r":9,"v":0}');
+                    this.removeCD();
                 }
             }
 
