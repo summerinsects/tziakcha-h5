@@ -325,13 +325,7 @@
                 });
                 this.addChild(title);
 
-                let subtitle = this.subtitle_ = new PIXI.Text('', {
-                    fontFamily: FF,
-                    fontSize: 16,
-                    fill: '#ffffff',
-                    stroke: '#0066ff',
-                    strokeThickness: 2,
-                });
+                let subtitle = this.subtitle_ = new PIXI.Container();
                 this.addChild(subtitle);
                 subtitle.y = 30;
 
@@ -7277,15 +7271,6 @@
             }
         }
 
-        function fmt_cfg(cfg) {
-            let str = cfg['n'] + '盘 | ' + cfg['l'] + '番 (' + cfg['b'] + ') | ' + cfg['r30'] + '/' + cfg['r12'] + '秒 | ';
-            str += (cfg['s']) ? '有战术鸣牌 | ' : '无战术鸣牌 | ';
-            str += (cfg['o']) ? '结束显示手牌 | ' : '结束不显示手牌 | ';
-            str += (cfg['fa']) ? '错和-30/+10 ' : '错和-40/+0 ';
-            str += (cfg['fc']) ? '允许鸣牌' : '不允许鸣牌';
-            return str;
-        }
-
         class CreateTableView extends PIXI.Container {
             constructor(callback) {
                 super();
@@ -7484,6 +7469,61 @@
             }
         }
 
+        function cfg_richtext(lk, fs, cfg){
+            let ctn = new PIXI.Container();
+            let t, w = 0, h = 0, gp = fs * .4;
+            if (lk) {
+                t = new PIXI.Text('\uD83D\uDD12', {
+                    fontFamily: FF,
+                    fontSize: fs,
+                    fill: '#ffffff',
+                });
+                ctn.addChild(t);
+                w += t.width + gp;
+            }
+
+            t = new PIXI.Text(cfg['n'] + '盘 | ' + cfg['l'] + '番 (' + cfg['b'] + ')', {
+                fontFamily: FF,
+                fontSize: fs,
+                fill: '#ffd700',
+            });
+            t.x = w;
+            ctn.addChild(t);
+            w += t.width + gp;
+
+            t = new PIXI.Text(cfg['r30'] + '/' + cfg['r12'] + '秒', {
+                fontFamily: FF,
+                fontSize: fs,
+                fill: '#ff6a6a',
+            });
+            t.x = w;
+            ctn.addChild(t);
+            w += t.width + gp;
+
+            t = new PIXI.Text(((cfg['s']) ? '有' : '无') + '战术鸣牌 | ' + ((cfg['o']) ? '结束显示手牌' : '结束不显示手牌'), {
+                fontFamily: FF,
+                fontSize: fs,
+                fill: '#00bfff',
+            });
+            t.x = w;
+            ctn.addChild(t);
+            w += t.width + gp;
+
+            t = new PIXI.Text('错和' + ((cfg['fa']) ? '-30/+10 ' : '-40/+0 ') + ((cfg['fc']) ? '允许鸣牌' : '不允许鸣牌'), {
+                fontFamily: FF,
+                fontSize: fs,
+                fill: '#cdcdcd',
+            });
+            t.x = w;
+            ctn.addChild(t);
+            w += t.width;
+
+            ctn.height = t.height;
+            ctn.width = w;
+
+            return ctn;
+        }
+
         class TableInfoView extends PIXI.Container {
             constructor(data, callback) {
                 super();
@@ -7537,67 +7577,12 @@
                 btn.value_ = 1;
                 this.readyBtn_ = btn;
 
-                let ctn = new PIXI.Container();
+                let ctn = cfg_richtext(this.pw_, 18, cfg);
                 ctn.x = gap;
                 ctn.y = 60;
-                ctn.height = 40;
-                ctn.pivot.y = 20;
+                ctn.pivot.y = ctn.height * .5;
                 this.addChild(ctn);
-                let xx = 0;
-                if (this.pw_) {
-                    t = new PIXI.Text('\uD83D\uDD12', {
-                        fontFamily: FF,
-                        fontSize: 18,
-                        fill: '#ffffff',
-                    });
-                    t.anchor.y = .5;
-                    t.y = 20;
-                    ctn.addChild(t);
-                    xx = t.width + 5;
-                }
-                t = new PIXI.Text(cfg['n'] + '盘 | ' + cfg['l'] + '番 (' + cfg['b'] + ')', {
-                    fontFamily: FF,
-                    fontSize: 18,
-                    fill: '#ffd700',
-                });
-                t.anchor.y = .5;
-                t.x = xx;
-                t.y = 20;
-                ctn.addChild(t);
-                xx += t.width + 5;
-
-                t = new PIXI.Text(cfg['r30'] + '/' + cfg['r12'] + '秒', {
-                    fontFamily: FF,
-                    fontSize: 18,
-                    fill: '#ff6a6a',
-                });
-                t.anchor.y = .5;
-                t.x = xx;
-                t.y = 20;
-                ctn.addChild(t);
-                xx += t.width + 5;
-
-                t = new PIXI.Text(((cfg['s']) ? '有' : '无') + '战术鸣牌 | ' + ((cfg['o']) ? '结束显示手牌' : '结束不显示手牌'), {
-                    fontFamily: FF,
-                    fontSize: 18,
-                    fill: '#00bfff',
-                });
-                t.anchor.y = .5;
-                t.x = xx;
-                t.y = 20;
-                ctn.addChild(t);
-                xx += t.width + 5;
-
-                t = new PIXI.Text('错和' + ((cfg['fa']) ? '-30/+10 ' : '-40/+0 ') + ((cfg['fc']) ? '允许鸣牌' : '不允许鸣牌'), {
-                    fontFamily: FF,
-                    fontSize: 18,
-                    fill: '#cdcdcd',
-                });
-                t.anchor.y = .5;
-                t.x = xx;
-                t.y = 20;
-                ctn.addChild(t);
-                xx += t.width;
+                let xx = ctn.width;
                 if (xx + gap * 2 > width) {
                     ctn.scale.set((width - gap * 2) / xx);
                 }
