@@ -7043,6 +7043,9 @@
                 case 10:
                     this._showUserView(resp['z']);
                     break;
+                case 13:
+                    this._progress(resp);
+                    break;
                 default:
                     break;
                 }
@@ -7184,6 +7187,14 @@
                 if (i != -1) {
                     let tv = this.tables_[i];
                     tv.ready(t['s'], !!t['r'], this.tableid_);
+                }
+            }
+
+            _progress(t) {
+                let i = this._findTable(t['i']);
+                if (i != -1) {
+                    let tv = this.tables_[i];
+                    tv.progress(t['p'], t['t']);
                 }
             }
 
@@ -7561,6 +7572,22 @@
                 this.addChild(t);
                 scaleText(t, width - 120 - gap * 3);
 
+                this.pro_ = t = new PIXI.Text('', {
+                    fontFamily: FF,
+                    fontSize: 18,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                t.anchor.x = 1;
+                t.anchor.y = .5;
+                t.x = width - gap;
+                t.y = 25;
+                this.addChild(t);
+                if (data['n']) {
+                    t.text = `${data['n']}/${cfg['n']}`;
+                }
+
                 let btn = new TextButton('准备', {
                     fontFamily: FF,
                     fontSize: 20,
@@ -7699,6 +7726,10 @@
                         btn.value_ = 1;
                     }
                 }
+            }
+
+            progress(p, r) {
+                this.pro_.text = `${p}/${r}`;
             }
         }
 
