@@ -318,16 +318,12 @@
 
                 let title = this.title_ = new PIXI.Text('', {
                     fontFamily: FF,
-                    fontSize: 28,
+                    fontSize: 40,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
                 this.addChild(title);
-
-                let subtitle = this.subtitle_ = new PIXI.Container();
-                this.addChild(subtitle);
-                subtitle.y = 30;
 
                 // 加这个布局才正常
                 // 加了标题之后，可以不要这个了
@@ -717,8 +713,7 @@
 
             setTitle(cfg) {
                 this.title_.text = cfg['t'];
-                this.subtitle_.removeChildren();
-                this.subtitle_.addChild(cfg_richtext(false, 16, cfg));
+                this.pool_.setCfg(cfg);
             }
 
             reconnect(resp) {
@@ -975,10 +970,10 @@
 
                 this.windTexts_ = windTexts;
 
-                const INFO_OFFSET_X_02 = (MAX_WIDTH - CENTER_WIDTH) * .5 - 25;
-                const INFO_OFFSET_Y_02 = (MAX_HEIGHT - CENTER_HEIGHT) * .5 - 50;
-                const INFO_OFFSET_X_13 = (MAX_WIDTH - CENTER_WIDTH) * .5 - 50 - OVERLAP;
-                const INFO_OFFSET_Y_13 = (MAX_HEIGHT - CENTER_HEIGHT) * .5 - 25;
+                const INFO_OFFSET_X_02 = (MAX_WIDTH - CENTER_WIDTH) * .5 - 5;
+                const INFO_OFFSET_Y_02 = (MAX_HEIGHT - CENTER_HEIGHT) * .5 - 115;
+                const INFO_OFFSET_X_13 = (MAX_WIDTH - CENTER_WIDTH) * .5 - 115 - OVERLAP;
+                const INFO_OFFSET_Y_13 = (MAX_HEIGHT - CENTER_HEIGHT) * .5 - 5 - OVERLAP;
 
                 infoPanels[0].x = INFO_OFFSET_X_02;
                 infoPanels[0].y = MAX_HEIGHT - INFO_OFFSET_Y_02;
@@ -996,6 +991,28 @@
                 infoPanels[3].rotation = Math.PI * .5;
 
                 this.infoPanels_ = infoPanels;
+
+                this.cfgText1_ = text = new PIXI.Text('', {
+                    fontFamily: FF,
+                    fontSize: 24,
+                    fill: '#ffffff',
+                });
+                text.alpha = .5;
+                text.anchor.y = .5;
+                this.addChild(text);
+                text.x = INFO_OFFSET_X_13 - 160;
+                text.y = INFO_OFFSET_Y_13 - 210;
+
+                this.cfgText2_ = text = new PIXI.Text('', {
+                    fontFamily: FF,
+                    fontSize: 22,
+                    fill: '#ffffff',
+                });
+                text.alpha = .5;
+                text.anchor.y = .5;
+                this.addChild(text);
+                text.x = INFO_OFFSET_X_13 - 160;
+                text.y = MAX_HEIGHT - INFO_OFFSET_Y_02 - 35;
 
                 this.ready_ = ready;
 
@@ -1557,6 +1574,11 @@
                 scaleText(text, MAX_WIDTH - 50);
 
                 this.sortChildren();
+            }
+
+            setCfg(cfg) {
+                this.cfgText1_.text = `${cfg['n']}盘 ${cfg['l']}番 (${cfg['b']}) ${cfg['r30']}/${cfg['r12']}秒`;
+                this.cfgText2_.text = `${((cfg['s']) ? '有' : '无')}战术鸣牌 结束${(cfg['o']) ? '' : '不'}显示手牌\n错和${(cfg['fa']) ? '-30/+10' : '-40/+0'} ${cfg['fc'] ? '' : '不'}允许鸣牌`;
             }
 
             setupPool(t) {
@@ -5028,7 +5050,7 @@
             constructor() {
                 super();
 
-                const width = 220, height = 200;
+                const width = 180, height = 140;
                 this.width = width;
                 this.height = height;
                 this.pivot.x = width;
@@ -5044,7 +5066,7 @@
 
                 let text = this.lcText_ = new PIXI.Text('掉线', {
                     fontFamily: FF,
-                    fontSize: 80,
+                    fontSize: 60,
                     fill: '#ffffff'
                 });
                 text.anchor.set(.5);
@@ -5056,7 +5078,7 @@
 
                 text = this.nameText_ = new PIXI.Text('', {
                     fontFamily: FF,
-                    fontSize: 32,
+                    fontSize: 28,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -5068,7 +5090,7 @@
 
                 text = this.flowerText_ = new PIXI.Text('\uD83C\uDF38 \u00D7 0', {
                     fontFamily: FF,
-                    fontSize: 28,
+                    fontSize: 26,
                     fill: '#ffffff'
                 });
                 text.anchor.set(.5);
@@ -5078,7 +5100,7 @@
 
                 text = this.fwText_ = new PIXI.Text('错和', {
                     fontFamily: FF,
-                    fontSize: 28,
+                    fontSize: 26,
                     fill: '#ffffff'
                 });
                 text.anchor.set(.5);
@@ -5096,7 +5118,7 @@
             setName(s) {
                 let t = this.nameText_;
                 t.text = s;
-                scaleText(t, 210);
+                scaleText(t, 170);
             }
 
             getName() {
@@ -7493,7 +7515,7 @@
                 w += t.width + gp;
             }
 
-            t = new PIXI.Text(cfg['n'] + '盘 | ' + cfg['l'] + '番 (' + cfg['b'] + ')', {
+            t = new PIXI.Text(`${cfg['n']}盘 | ${cfg['l']}番 (${cfg['b']})`, {
                 fontFamily: FF,
                 fontSize: fs,
                 fill: '#ffd700',
@@ -7502,7 +7524,7 @@
             ctn.addChild(t);
             w += t.width + gp;
 
-            t = new PIXI.Text(cfg['r30'] + '/' + cfg['r12'] + '秒', {
+            t = new PIXI.Text(`${cfg['r30']}/${cfg['r12']}秒`, {
                 fontFamily: FF,
                 fontSize: fs,
                 fill: '#ff6a6a',
@@ -7511,7 +7533,7 @@
             ctn.addChild(t);
             w += t.width + gp;
 
-            t = new PIXI.Text(((cfg['s']) ? '有' : '无') + '战术鸣牌 | ' + ((cfg['o']) ? '结束显示手牌' : '结束不显示手牌'), {
+            t = new PIXI.Text(`${cfg['s'] ? '有' : '无'}战术鸣牌 | 结束${cfg['o'] ? '' : '不'}显示手牌`, {
                 fontFamily: FF,
                 fontSize: fs,
                 fill: '#00bfff',
@@ -7520,7 +7542,7 @@
             ctn.addChild(t);
             w += t.width + gp;
 
-            t = new PIXI.Text('错和' + ((cfg['fa']) ? '-30/+10 ' : '-40/+0 ') + ((cfg['fc']) ? '允许鸣牌' : '不允许鸣牌'), {
+            t = new PIXI.Text(`错和${cfg['fa'] ? '-30/+10' : '-40/+0'} ${cfg['fc'] ? '' : '不'}允许鸣牌`, {
                 fontFamily: FF,
                 fontSize: fs,
                 fill: '#cdcdcd',
