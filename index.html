@@ -1430,6 +1430,8 @@
                 this.step_ = 0;
                 this.stopFlower_ = false;
                 this.rdfsh_ = false;
+                this.callFlags_ = new Array(34);
+                this.rightWaive_ = false;
 
 /*
                 // TODO:
@@ -1471,11 +1473,19 @@
                 this.addChild(btn);
                 btn.zIndex = 500;
 
-                let cbrb = this.cbrb_ = new CheckBox('右键弃');
-                this.addChild(cbrb);
-                cbrb.scale.set(.9);
-                cbrb.zIndex = 500;
-                cbrb.y = 70;
+                btn = new TextButton('鸣牌设置', {
+                    fontFamily: FF,
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                }, 120, 60, ()=>{
+                    this.toggleCall();
+                });
+                this.addChild(btn);
+                btn.zIndex = 500;
+                btn.x = MAX_WIDTH - 320;
+                btn.y = MAX_HEIGHT - 280;
 
                 btn = new TextButton('计分表', {
                     fontFamily: FF,
@@ -1552,6 +1562,16 @@
                 view.visible = false;
 
                 view = this.chaseView_ = new ChaseView();
+                this.addChild(view);
+                view.zIndex = 500;
+                view.x = (MAX_WIDTH - view.width) * .5;
+                view.y = (MAX_HEIGHT - view.height) * .5;
+                view.visible = false;
+
+                view = this.callView_ = new CallView((cf, rw)=>{
+                    this.callFlags_ = cf;
+                    this.rightWaive_ = rw;
+                });
                 this.addChild(view);
                 view.zIndex = 500;
                 view.x = (MAX_WIDTH - view.width) * .5;
@@ -1658,7 +1678,8 @@
                 this.packData_ = [[], [], [], []];
                 this.stopFlower_ = false;
                 this.timeout_.visible = false;
-                this.cbrb_.setSelected(false);
+                this.callFlags_ = new Array(34);
+                this.rightWaive_ = false;
             }
 
             sendHandTiles(d, h) {
@@ -1948,10 +1969,19 @@
             }
 
             addBtns(actions) {
+                let selfDrawn = (this.turn_ == this.seat_);
+
+                // 别人打牌，设置了不鸣这张，直接过或者弃
+                if (!selfDrawn && this.activeTile_ != null && this.callFlags_[this.activeTile_.t_>>2]) {
+                    ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
+                    this.removeCD();
+                    return;
+                }
+
                 let status = this.option_.status();
 
                 if (!actions) {
-                    if (status[6] && this.turn_ == this.seat_) {  // 自动摸打
+                    if (status[6] && selfDrawn) {  // 自动摸打
                         setTimeout(()=>{
                             this._discard(this.standing_[0][13]);
                         }, DISCARD_DT + 1000);
@@ -1995,9 +2025,16 @@
                     delete dict[5];
                 }
 
+                // 可和
                 if (dict[6]) {
                     let skp = false;
-                    if (status[4] && this.turn_ != this.seat_) {  // 只和自摸
+                    if (status[4] && !selfDrawn) {  // 只和自摸
+                        --size;
+                        delete dict[6];
+                        skp = true;
+                    }
+
+                    if (selfDrawn && this.callFlags_[this.standing_[0][13].t_>>2]) {
                         --size;
                         delete dict[6];
                         skp = true;
@@ -2013,7 +2050,7 @@
                 }
 
                 if (status[6]) {  // 自动摸打
-                    if (!dict[6] && !dict[5] &&!dict[1] && this.turn_ == this.seat_) {
+                    if (!dict[6] && !dict[5] &&!dict[1] && selfDrawn) {
                         setTimeout(()=>{
                             this._discard(this.standing_[0][13]);
                         }, DISCARD_DT + 1000);
@@ -2021,8 +2058,9 @@
                     }
                 }
 
+                // 过滤之后没有动作了
                 if (size == 0) {
-                    ws.send('{"m":2,"r":9,"v":0}');
+                    ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
                     this.removeCD();
                     return;
                 }
@@ -2079,7 +2117,7 @@
 
                 if (this.isDiscarding_) {
                     // 轮到自己打牌时，隐藏“过”和“弃”
-                    if (this.turn_ == this.seat_) {
+                    if (selfDrawn) {
                         this.actionBtns_[0].visible = false;
                         this.actionBtns_[1].visible = false;
                         cnt -= 2;
@@ -2116,7 +2154,7 @@
             rightclick() {
                 if (this.actionBtns_[0].visible) {
                     this.removeBtns();
-                    ws.send(this.cbrb_.isSelected()?'{"m":2,"r":10,"v":0}':'{"m":2,"r":9,"v":0}');
+                    ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
                     this.removeCD();
                 }
             }
@@ -3772,6 +3810,18 @@
                     setTimeout(()=>{
                         this.addCD(this.cfg_['r30']);
                     }, 4000);
+                }
+            }
+
+            toggleCall() {
+                let cs = this.callView_;
+                if (cs.visible) {
+                    cs.visible = false;
+                }
+                else {
+                    this.removeChild(cs);
+                    this.addChild(cs);
+                    cs.show(this.callFlags_, this.rightWaive_);
                 }
             }
 
@@ -6394,6 +6444,145 @@
                         }
                     }
                 }
+            }
+        }
+
+        class CallView extends PIXI.Container {
+            constructor(callback) {
+                super();
+
+                const width = (WIDTH_02 + 50) * 9 + 40, height = 780;
+
+                this.width = width;
+                this.height = height;
+                this.interactive = true;
+
+                let bg = new PIXI.Graphics();
+                this.addChild(bg);
+
+                bg.lineStyle(2, 0x26608C, 1);
+                bg.beginFill(0x060F16, .85);
+                bg.drawRect(0, 0, width, height);
+                bg.endFill();
+
+                let t = new PIXI.Text('鸣牌设置', {
+                    fontFamily: FF,
+                    fontSize: 32,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                this.addChild(t);
+                t.anchor.set(.5);
+                t.x = width * .5;
+                t.y = 35;
+
+                t = new PIXI.Text('不询问以下选中的牌：', {
+                    fontFamily: FF,
+                    fontSize: 28,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                    lineHeight: 40
+                });
+                this.addChild(t);
+                t.x = 20;
+                t.y = 70;
+
+                let tiles = new Array(34), cbs = new Array(34);
+                for (let i = 0; i < 34; ++i) {
+                    let x = 20 + (i % 9) * (WIDTH_02 + 50), y = 120 + Math.floor(i / 9) * (HEIGHT_02F + 30);
+
+                    let t0 = new StandingTile(i << 2);
+                    this.addChild(t0);
+                    t0.x = x + 45;
+                    t0.y = y;
+
+                    let tex = PIXI.loader.resources['img/tiles/pool0.png'].texture.clone();
+                    tex.frame = new PIXI.Rectangle(
+                        (WIDTH_02 + 2) * 7 + 2, (HEIGHT_02F + 2) * 3 + 2,
+                        WIDTH_02, HEIGHT_02F);
+                    let t1 = new PIXI.Sprite(tex);
+                    this.addChild(t1);
+                    t1.alpha = .5;
+                    t1.x = x + 45;
+                    t1.y = y;
+                    t1.visible = false;
+                    tiles[i] = t1;
+
+                    let cb = new CheckBox('', (cb)=>{
+                        t1.visible = cb.isSelected();
+                    });
+                    this.addChild(cb);
+                    cb.x = x;
+                    cb.y = y;
+                    cbs[i] = cb;
+
+                    t0.interactive = true;
+                    t0.callback_ = ()=>{
+                        cb.setSelected(t1.visible = !cb.isSelected());
+                    };
+                }
+                this.tiles_ = tiles;
+                this.cbs_ = cbs;
+
+                let cb = this.rw_ = new CheckBox('鼠标右键=弃');
+                this.addChild(cb);
+                cb.x = 20;
+                cb.y = height - 220;
+
+                t = new PIXI.Text('注意：此处的设置优先。每盘开始前会重置。', {
+                    fontFamily: FF,
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                    lineHeight: 40
+                });
+                this.addChild(t);
+                t.anchor.x = .5;
+                t.x = width * .5;
+                t.y = height - 160;
+
+                const btnWidth = 120, btnHeight = 50;
+                let btn = new TextButton('取消', {
+                    fontFamily: FF,
+                    fontSize: 32,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                }, btnWidth, btnHeight, ()=>{ this.visible = false; });
+                this.addChild(btn);
+                btn.x = width * .25 - btnWidth;
+                btn.y = height - btnHeight - 20;
+
+                btn = new TextButton('确定', {
+                    fontFamily: FF,
+                    fontSize: 32,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                }, btnWidth, btnHeight, ()=>{
+                    this.visible = false;
+                    let cf = new Array(34);
+                    for (let i = 0; i < 34; ++i) {
+                        cf[i] = tiles[i].visible;
+                    }
+                    callback(cf, cb.isSelected());
+                });
+                this.addChild(btn);
+                btn.x = width * .75;
+                btn.y = height - btnHeight - 20;
+            }
+
+            show(cf, rw) {
+                this.visible = true;
+                let tiles = this.tiles_;
+                let cbs = this.cbs_;
+                for (let i = 0; i < 34; ++i) {
+                    cbs[i].setSelected(tiles[i].visible = cf[i]);
+                }
+                this.rw_.setSelected(rw);
             }
         }
 
