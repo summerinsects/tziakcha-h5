@@ -7750,7 +7750,7 @@
             ctn.addChild(t);
             w += t.width + gp;
 
-            t = new PIXI.Text(`${cfg['s'] ? '有' : '无'}战术鸣牌 | 结束${cfg['o'] ? '' : '不'}显示手牌`, {
+            t = new PIXI.Text(`${cfg['s']?'有':'无'}战术鸣牌 | 结束${cfg['o']?'':'不'}显示手牌`, {
                 fontFamily: FF,
                 fontSize: fs,
                 fill: '#00bfff',
@@ -7759,7 +7759,7 @@
             ctn.addChild(t);
             w += t.width + gp;
 
-            t = new PIXI.Text(`错和${cfg['fa'] ? '-30/+10' : '-40/+0'} ${cfg['fc'] ? '' : '不'}允许鸣牌`, {
+            t = new PIXI.Text(`错和${cfg['fa']?'-30/+10':'-40/+0'} ${cfg['fc']?'':'不'}允许鸣牌`, {
                 fontFamily: FF,
                 fontSize: fs,
                 fill: '#cdcdcd',
