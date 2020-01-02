@@ -1431,6 +1431,7 @@
                 this.stopFlower_ = false;
                 this.rdfsh_ = false;
                 this.callFlags_ = new Array(34);
+                this.ignoreSD_ = false;
                 this.rightWaive_ = false;
 
 /*
@@ -1568,8 +1569,9 @@
                 view.y = (MAX_HEIGHT - view.height) * .5;
                 view.visible = false;
 
-                view = this.callView_ = new CallView((cf, rw)=>{
+                view = this.callView_ = new CallView((cf, ign, rw)=>{
                     this.callFlags_ = cf;
+                    this.ignoreSD_ = ign;
                     this.rightWaive_ = rw;
                 });
                 this.addChild(view);
@@ -1679,6 +1681,7 @@
                 this.stopFlower_ = false;
                 this.timeout_.visible = false;
                 this.callFlags_ = new Array(34);
+                this.ignoreSD_ = false;
                 this.rightWaive_ = false;
             }
 
@@ -2034,7 +2037,7 @@
                         skp = true;
                     }
 
-                    if (selfDrawn && this.callFlags_[this.standing_[0][13].t_>>2]) {
+                    if (selfDrawn && this.ignoreSD_ && this.callFlags_[this.standing_[0][13].t_>>2]) {
                         --size;
                         delete dict[6];
                         skp = true;
@@ -3821,7 +3824,7 @@
                 else {
                     this.removeChild(cs);
                     this.addChild(cs);
-                    cs.show(this.callFlags_, this.rightWaive_);
+                    cs.show(this.callFlags_, this.ignoreSD_, this.rightWaive_);
                 }
             }
 
@@ -6451,7 +6454,7 @@
             constructor(callback) {
                 super();
 
-                const width = (WIDTH_02 + 50) * 9 + 40, height = 780;
+                const width = (WIDTH_02 + 50) * 9 + 40, height = 860;
 
                 this.width = width;
                 this.height = height;
@@ -6511,7 +6514,9 @@
                     tiles[i] = t1;
 
                     let cb = new CheckBox('', (cb)=>{
-                        t1.visible = cb.isSelected();
+                        if (!(t1.visible = cb.isSelected())) {
+                            this.cba_[Math.floor(i / 9)].setSelected(false);
+                        }
                     });
                     this.addChild(cb);
                     cb.x = x;
@@ -6526,10 +6531,32 @@
                 this.tiles_ = tiles;
                 this.cbs_ = cbs;
 
-                let cb = this.rw_ = new CheckBox('鼠标右键=弃');
+                const ti = ['所有万子', '所有条子', '所有饼子', '所有字牌'];
+                let cba = [null, null, null, null];
+                for (let i = 0; i < 4; ++i) {
+                    let cb = cba[i] = new CheckBox(ti[i], (cb)=>{
+                        let s = cb.isSelected();
+                        let tiles = this.tiles_;
+                        let cbs = this.cbs_;
+                        for (let n = i * 9; n < 34 && n < (i + 1) * 9; ++n) {
+                            cbs[n].setSelected(tiles[n].visible = s);
+                        }
+                    });
+                    this.addChild(cb);
+                    cb.x = width * .5 + 240 * (i & 1);
+                    cb.y = height - 310 + 70 * (i >> 1);
+                }
+                this.cba_ = cba;
+
+                let cb = this.ign_ = new CheckBox('自摸也不询问');
                 this.addChild(cb);
                 cb.x = 20;
-                cb.y = height - 220;
+                cb.y = height - 310;
+
+                cb = this.rw_ = new CheckBox('鼠标右键=弃');
+                this.addChild(cb);
+                cb.x = 20;
+                cb.y = height - 230;
 
                 t = new PIXI.Text('注意：此处的设置优先。每盘开始前会重置。', {
                     fontFamily: FF,
@@ -6568,20 +6595,21 @@
                     for (let i = 0; i < 34; ++i) {
                         cf[i] = tiles[i].visible;
                     }
-                    callback(cf, cb.isSelected());
+                    callback(cf, this.ign_.isSelected(), this.rw_.isSelected());
                 });
                 this.addChild(btn);
                 btn.x = width * .75;
                 btn.y = height - btnHeight - 20;
             }
 
-            show(cf, rw) {
+            show(cf, ign, rw) {
                 this.visible = true;
                 let tiles = this.tiles_;
                 let cbs = this.cbs_;
                 for (let i = 0; i < 34; ++i) {
                     cbs[i].setSelected(tiles[i].visible = cf[i]);
                 }
+                this.ign_.setSelected(ign);
                 this.rw_.setSelected(rw);
             }
         }
