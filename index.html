@@ -1683,6 +1683,7 @@
                 this.callFlags_ = new Array(34);
                 this.ignoreSD_ = false;
                 this.rightWaive_ = false;
+                this.callView_.reset_ = true;
             }
 
             sendHandTiles(d, h) {
@@ -6600,6 +6601,7 @@
                 this.addChild(btn);
                 btn.x = width * .75;
                 btn.y = height - btnHeight - 20;
+                this.reset_ = false;
             }
 
             show(cf, ign, rw) {
@@ -6608,6 +6610,13 @@
                 let cbs = this.cbs_;
                 for (let i = 0; i < 34; ++i) {
                     cbs[i].setSelected(tiles[i].visible = cf[i]);
+                }
+                if (this.reset_) {
+                    let cba = this.cba_;
+                    for (let i = 0; i < 4; ++i) {
+                        cba[i].setSelected(false);
+                    }
+                    this.reset_ = false;
                 }
                 this.ign_.setSelected(ign);
                 this.rw_.setSelected(rw);
