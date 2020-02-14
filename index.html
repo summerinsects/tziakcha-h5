@@ -104,7 +104,8 @@
         let lobby, game, topmost, ws, hbt;
 
         function reenter() {
-            ws.send('{"m":4}');
+            topmost.error('数据与服务器不同步，请刷新重试', true);
+            //ws.send('{"m":4}');
         }
 
         function play_snd(s) {
