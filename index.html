@@ -2065,8 +2065,10 @@
 
                 // 过滤之后没有动作了
                 if (size == 0) {
-                    ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
-                    this.removeCD();
+                    if (!selfDrawn) {
+                        ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
+                        this.removeCD();
+                    }
                     return;
                 }
 
