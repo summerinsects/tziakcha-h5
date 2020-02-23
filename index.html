@@ -237,7 +237,7 @@
                 window.setInterval(()=>{
                     if (++hbt == 30) {
                         hbt = 0;
-                        ws.send('');
+                        ws.send(`{"m":5,"t":${new Date().getTime()}}`);
                     }
                 }, 1000);
             };
@@ -267,6 +267,10 @@
                     lobby.visible = false;
                     game.reconnect(resp);
                     game.visible = true;
+                    break;
+                case 5:
+                    lobby.speedTest(resp);
+                    game.speedTest(resp);
                     break;
                 default:
                     break;
@@ -420,6 +424,12 @@
                         }
                     }
                 }
+            }
+
+            speedTest(resp) {
+                let pool = this.pool_;
+                pool.sp_.text = `${new Date().getTime() - resp['t']}ms`;
+                clearTimeout(pool.sp_.ac_);
             }
 
             onmessage(resp) {
@@ -1001,7 +1011,7 @@
                 text.alpha = .5;
                 text.anchor.y = .5;
                 this.addChild(text);
-                text.x = 10;
+                text.x = 130;
                 text.y = HEIGHT_02F + 25;
 
                 this.cfgText2_ = text = new PIXI.Text('', {
@@ -1014,6 +1024,16 @@
                 this.addChild(text);
                 text.x = INFO_OFFSET_X_13 - 160;
                 text.y = INFO_OFFSET_Y_13 - 210;
+
+                this.sp_ = text = new PIXI.Text('-', {
+                    fontFamily: FF,
+                    fontSize: 20,
+                    fill: '#ffffff',
+                });
+                this.addChild(text);
+                text.anchor.set(.5);
+                text.x = 60;
+                text.y = 150;
 
                 this.ready_ = ready;
 
@@ -1473,6 +1493,22 @@
 
                 });
                 this.addChild(btn);
+                btn.zIndex = 500;
+
+                btn = new TextButton('测速', {
+                    fontFamily: FF,
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                }, 120, 60, ()=>{
+                    ws.send(`{"m":5,"t":${new Date().getTime()}}`);
+                    this.sp_.ac_ = setTimeout(()=>{
+                        this.sp_.text = '-';
+                    }, 60000);
+                });
+                this.addChild(btn);
+                btn.y = 70;
                 btn.zIndex = 500;
 
                 btn = new TextButton('鸣牌设置', {
@@ -7082,6 +7118,21 @@
                 container.addChild(btn);
                 btn.x = LOBBY_WIDTH - btnWidth;
 
+                btn = new TextButton('测速', {
+                    fontFamily: FF,
+                    fontSize: 20,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                }, 70, btnHeight, ()=>{
+                    ws.send(`{"m":5,"t":${new Date().getTime()}}`);
+                    this.sp_.ac_ = setTimeout(()=>{
+                        this.sp_.text = '-';
+                    }, 60000);
+                });
+                container.addChild(btn);
+                btn.x = LOBBY_WIDTH - btnWidth - 75;
+
                 btn = new TextButton('主页', {
                     fontFamily: FF,
                     fontSize: 20,
@@ -7101,6 +7152,17 @@
                 container.addChild(btn);
                 btn.x = 75;
 
+                let text = this.sp_ = new PIXI.Text('-', {
+                    fontFamily: FF,
+                    fontSize: 16,
+                    fill: '#ffffff',
+                });
+                container.addChild(text);
+                text.anchor.x = 1;
+                text.anchor.y = .5;
+                text.x = LOBBY_WIDTH - btnWidth - 80;
+                text.y = 20;
+
                 const title = ['空闲：', '等待：', '对局：', '托管：'];
                 let status = [null, null, null, null];
                 for (let i = 0; i < 4; ++i) {
@@ -7111,7 +7173,7 @@
                     });
                     container.addChild(t0);
                     t0.anchor.y = .5;
-                    t0.x = 200 + (i & 1) * 140;
+                    t0.x = 185 + (i & 1) * 140;
                     t0.y = 12 + (i >> 1) * 20;
 
                     let t1 = status[i] = new PIXI.Text('0', {
@@ -7179,6 +7241,11 @@
 
                 let root = this.root_ = new PIXI.Container();
                 container.addChild(root);
+            }
+
+            speedTest(resp) {
+                this.sp_.text = `${new Date().getTime() - resp['t']}ms`;
+                clearTimeout(this.sp_.ac_);
             }
 
             onmessage(resp) {
