@@ -1645,11 +1645,12 @@
                     let ti = t[(this.seat_ + i) & 3];
                     for (let k = 0; k < 24 && k < ti.length; ++k) {
                         let spk = this.pools_[i][k];
-                        spk.visible = true;
+                        spk.visible = spk.v_ = true;
                         spk.update(ti[k]);
                     }
                     for (let k = ti.length; k < 24; ++k) {
-                        this.pools_[i][k].visible = false;
+                        let spk = this.pools_[i][k];
+                        spk.visible = spk.v_ = false;
                     }
                 }
             }
@@ -1658,7 +1659,7 @@
                 for (let i = 0; i < 4; ++i) {
                     for (let k = 0; k < 24; ++k) {
                         let sp = this.pools_[i][k];
-                        sp.visible = false;
+                        sp.visible = sp.v_ = false;
                     }
 
                     if (showWall) {
@@ -2280,7 +2281,7 @@
             _findPoolDest(n) {
                 for (let k = 0; k < 24; ++k) {
                     let sp = this.pools_[n][k];
-                    if (!sp.visible) {
+                    if (!sp.v_) {
                         return sp;
                     }
                 }
@@ -2369,6 +2370,7 @@
                 src.visible = false;
 
                 dst.update(t);
+                dst.v_ = true;
 
                 let sp = new (CTOR_PT[n])(t);
                 sp.x = src.x;
@@ -2573,6 +2575,8 @@
                     let dst = sp.dst_;
                     if (dst) {
                         // 普通打牌
+                        sp.x = dst.x;
+                        sp.y = dst.y;
                         sp.visible = false;
                         dst.visible = true;
                         this.removeChild(sp);
@@ -2885,11 +2889,11 @@
                 }
                 if (req) {
                     req.visible = false;
+                    req.dst_.v_ = false;
                     this.removeChild(req);
                 }
 
                 this.packData_[3].push(pack);
-
                 this._shrink(3, ext, hidden + 3, [idx1, idx2, idx3]);
                 if (type == 2) standing[13].visible = false;
                 else this.setTurn((this.seat_ + 3) & 3);
@@ -3122,6 +3126,7 @@
                 }
                 if (req) {
                     req.visible = false;
+                    req.dst_.v_ = false;
                     this.removeChild(req);
                 }
 
@@ -3360,11 +3365,11 @@
                 }
                 if (req) {
                     req.visible = false;
+                    req.dst_.v_ = false;
                     this.removeChild(req);
                 }
 
                 this.packData_[1].push(pack);
-
                 this._shrink(1, -ext, hidden + 3, [idx1, idx2, idx3]);
                 if (type == 2) standing[13].visible = false;
                 else this.setTurn((this.seat_ + 1) & 3);
@@ -3628,6 +3633,7 @@
                 }
                 if (req) {
                     req.visible = false;
+                    req.dst_.v_ = false;
                     this.removeChild(req);
                 }
 
@@ -4306,6 +4312,7 @@
                     let dst = this._findPoolDest(n);
                     if (dst != null) {
                         dst.update(at);
+                        dst.v_ = true;
 
                         let sp = new (CTOR_PT[n])(at);
                         this.activeTile_ = sp;
