@@ -4475,22 +4475,22 @@
                         t3.position.set(xx + WIDTH_02 * 3, yy - HEIGHT_02F);
                         break;
                     case 4:
-                        t0.position.set(xx, yy - HEIGHT_13F);
-                        t1.position.set(xx, yy - HEIGHT_13F - HEIGHT_13);
+                        t0.position.set(xx, yy - HEIGHT_13F - HEIGHT_13);
+                        t1.position.set(xx, yy - HEIGHT_13F);
                         t2.position.set(xx + WIDTH_13, yy - HEIGHT_02F);
                         t3.position.set(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F);
                         break;
                     case 5:
                         t0.position.set(xx, yy - HEIGHT_02F);
-                        t1.position.set(xx + WIDTH_02, yy - HEIGHT_13F);
-                        t2.position.set(xx + WIDTH_02, yy - HEIGHT_13F - HEIGHT_13);
+                        t1.position.set(xx + WIDTH_02, yy - HEIGHT_13F - HEIGHT_13);
+                        t2.position.set(xx + WIDTH_02, yy - HEIGHT_13F);
                         t3.position.set(xx + WIDTH_02 + WIDTH_13, yy - HEIGHT_02F);
                         break;
                     case 6:
                         t0.position.set(xx, yy - HEIGHT_02F);
                         t1.position.set(xx + WIDTH_02, yy - HEIGHT_02F);
-                        t2.position.set(xx + WIDTH_02 + WIDTH_13, yy - HEIGHT_13F);
-                        t3.position.set(xx + WIDTH_02 + WIDTH_13, yy - HEIGHT_13F - HEIGHT_13);
+                        t2.position.set(xx + WIDTH_02 * 2, yy - HEIGHT_13F - HEIGHT_13);
+                        t3.position.set(xx + WIDTH_02 * 2, yy - HEIGHT_13F);
                         break;
                     }
 
@@ -4794,22 +4794,22 @@
                         t3.x = xx;
                         break;
                     case 4:
-                        t0.position.set(xx + WIDTH_02 * 2, HEIGHT_13);
-                        t1.x = xx + WIDTH_02 * 2;
+                        t0.x = xx + WIDTH_02 * 2;
+                        t1.position.set(xx + WIDTH_02 * 2, HEIGHT_13);
                         t2.x = xx + WIDTH_02;
                         t3.x = xx;
                         break;
                     case 5:
                         t0.x = xx + WIDTH_02 + WIDTH_13;
-                        t1.position.set(xx + WIDTH_02, HEIGHT_13);
-                        t2.x = xx + WIDTH_02;
+                        t1.x = xx + WIDTH_02;
+                        t2.position.set(xx + WIDTH_02, HEIGHT_13);
                         t3.x = xx;
                         break;
                     case 6:
                         t0.x = xx + WIDTH_13 + WIDTH_02;
                         t1.x = xx + WIDTH_13;
-                        t2.position.set(xx, HEIGHT_13);
-                        t3.x = xx;
+                        t2.x = xx;
+                        t3.position.set(xx, HEIGHT_13);
                         break;
                     }
 
