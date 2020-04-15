@@ -1037,6 +1037,17 @@
 
                 this.ready_ = ready;
 
+                text = new PIXI.Text('文明游戏 禁止赌博', {
+                    fontFamily: FF,
+                    fontSize: 22,
+                    fill: '#ffffff',
+                });
+                this.addChild(text);
+                text.anchor.x = 1;
+                text.anchor.y = .5;
+                text.x = MAX_WIDTH - 10;
+                text.y = this.cfgText1_.y;
+
                 {
                     // 四家牌墙
                     let walls = [new Array(36), new Array(36), new Array(36), new Array(36)];
@@ -7194,6 +7205,16 @@
                     t1.y = t0.y;
                 }
                 this.status_ = status;
+
+                text = new PIXI.Text('文明游戏 禁止赌博', {
+                    fontFamily: FF,
+                    fontSize: 20,
+                    fill: '#ffffff',
+                });
+                container.addChild(text);
+                text.anchor.set(.5);
+                text.x = LOBBY_WIDTH * .5;
+                text.y = LOBBY_HEIGHT - btnHeight - 75;
 
                 btn = new TextButton('创建牌桌', {
                     fontFamily: FF,
