@@ -159,7 +159,7 @@
             'snd/19-kong-f.wav',
             'snd/20-win-m.wav',
             'snd/21-win-f.wav',
-            'snd/24-dingdong.wav'
+            'snd/25-xchg.wav'
         ])
         .on('progress', (e)=>{
             console.log('loading progress:', e.progress);
@@ -1970,7 +1970,7 @@
                 (new TWEEN.Tween(bg)).to({alpha:0}, 200).delay(1300).start();
 
                 setTimeout(()=>{ this.removeChild(bg); this.sendHandTiles(d, h); }, 1500);
-                play_snd(this.rd_ ? 'snd/24-dingdong.wav' : 'snd/01-start.wav');
+                play_snd(this.rd_ ? 'snd/25-xchg.wav' : 'snd/01-start.wav');
             }
 
             setTurn(t) {
