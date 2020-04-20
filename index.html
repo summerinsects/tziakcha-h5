@@ -209,6 +209,7 @@
                 //     ws.send(`{"m":1,"r":4,"v":10001,"s":${idx}}`);
                 // }
                 // ws.send('{"m":1,"r":6}');
+                ws.send(`{"m":5,"t":${new Date().getTime()}}`);
                 ws.send('{"m":1,"r":2}');
                 let f = false;
                 let ck = document.cookie;
