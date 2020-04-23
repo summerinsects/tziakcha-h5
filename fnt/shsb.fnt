@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<font>
+  <info face="shsb" size="32" bold="0" italic="0" charset="" unicode="1" stretchH="100" smooth="1" aa="1" padding="0,0,0,0" spacing="1,1" outline="2"/>
+  <common lineHeight="32" base="25" scaleW="256" scaleH="256" pages="1" packed="0" alphaChnl="1" redChnl="0" greenChnl="0" blueChnl="0"/>
+  <pages>
+    <page id="0" file="shsb.png" />
+  </pages>
+  <chars count="16">
+    <char id="49" x="0" y="22" width="14" height="21" xoffset="-1" yoffset="6" xadvance="13" page="0" chnl="15" />
+    <char id="50" x="43" y="0" width="16" height="21" xoffset="-2" yoffset="6" xadvance="13" page="0" chnl="15" />
+    <char id="51" x="60" y="0" width="16" height="21" xoffset="-2" yoffset="6" xadvance="13" page="0" chnl="15" />
+    <char id="52" x="77" y="0" width="16" height="21" xoffset="-2" yoffset="6" xadvance="13" page="0" chnl="15" />
+    <char id="53" x="94" y="0" width="16" height="21" xoffset="-2" yoffset="6" xadvance="13" page="0" chnl="15" />
+    <char id="54" x="162" y="0" width="15" height="21" xoffset="-1" yoffset="6" xadvance="13" page="0" chnl="15" />
+    <char id="55" x="178" y="0" width="15" height="21" xoffset="-1" yoffset="6" xadvance="13" page="0" chnl="15" />
+    <char id="56" x="194" y="0" width="15" height="21" xoffset="-1" yoffset="6" xadvance="13" page="0" chnl="15" />
+    <char id="57" x="210" y="0" width="15" height="21" xoffset="-1" yoffset="6" xadvance="13" page="0" chnl="15" />
+    <char id="67" x="25" y="0" width="17" height="21" xoffset="-1" yoffset="6" xadvance="14" page="0" chnl="15" />
+    <char id="69" x="226" y="0" width="15" height="21" xoffset="0" yoffset="6" xadvance="14" page="0" chnl="15" />
+    <char id="70" x="15" y="22" width="14" height="21" xoffset="0" yoffset="6" xadvance="13" page="0" chnl="15" />
+    <char id="78" x="111" y="0" width="16" height="21" xoffset="0" yoffset="6" xadvance="16" page="0" chnl="15" />
+    <char id="80" x="128" y="0" width="16" height="21" xoffset="0" yoffset="6" xadvance="15" page="0" chnl="15" />
+    <char id="83" x="145" y="0" width="16" height="21" xoffset="-1" yoffset="6" xadvance="14" page="0" chnl="15" />
+    <char id="87" x="0" y="0" width="24" height="21" xoffset="-1" yoffset="6" xadvance="20" page="0" chnl="15" />
+  </chars>
+  <kernings count="3">
+    <kerning first="70" second="83" amount="-1" />
+    <kerning first="67" second="83" amount="-1" />
+    <kerning first="67" second="67" amount="-1" />
+  </kernings>
+</font>

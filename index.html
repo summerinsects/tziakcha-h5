@@ -27,6 +27,12 @@
             51, 51, 51, 51, 52, 52, 52, 52, 53, 53, 53, 53,
             54, 54, 54, 54, 64, 65, 66, 67, 68, 69, 70, 71
         ];
+        const hint_text = [
+            '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            'E', 'S', 'W', 'N', 'C', 'F', 'P', '', ''
+        ];
 
         var pack_get_type = (p)=>(p >> 8) & 3;
         var pack_get_tile = (p)=>(p & 0x3F) << 2;
@@ -101,7 +107,7 @@
 
         let mutecd = parseInt(localStorage.getItem('mutecd'));
         let mutecall = parseInt(localStorage.getItem('mutecall'));
-        let lobby, game, topmost, ws, hbt;
+        let lobby, game, topmost, ws, hbt, nht;
 
         function reenter() {
             topmost.error('数据与服务器不同步，请刷新重试', true);
@@ -140,6 +146,8 @@
             'fnt/SourceHanSansBold.fnt',
             'fnt/STXingkai.png',
             'fnt/STXingkai.fnt',
+            'fnt/shsb.png',
+            'fnt/shsb.fnt',
 
             'snd/01-start.wav',
             'snd/02-dice.wav',
@@ -168,6 +176,9 @@
         .load(()=>{
             app.stage.removeChild(loadingText);
             delete loadingText;
+
+            nht = localStorage.getItem('nht');
+            nht = (nht != undefined) ? parseInt(nht) : 0;
 
             lobby = new LobbyView();
             app.stage.addChild(lobby);
@@ -791,10 +802,27 @@
                     (WIDTH_02 + 2) * (ti & 0xF) + 2, (HEIGHT_02F + 2) * ((ti & 0xF0) >> 4) + 2,
                     WIDTH_02, HEIGHT_02F);
                 super(tex, t);
+
+                if (nht) {
+                    let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
+                    this.addChild(ht);
+                    ht.x = 4;
+                    ht.y = -2;
+                }
             }
 
             update(t) {
                 updatePool02Tile(this, t);
+            }
+
+            layout(){
+                if (nht) {
+                    let ht = this.ht_;
+                    if (ht) {
+                        ht.x = 4 - WIDTH_02 * this.anchor.x;
+                        ht.y = -2 - HEIGHT_02F * this.anchor.y;
+                    }
+                }
             }
         }
 
@@ -806,10 +834,28 @@
                     (WIDTH_13 + 2) * (ti & 0xF) + 2, (HEIGHT_13F + 2) * ((ti & 0xF0) >> 4) + 2,
                     WIDTH_13, HEIGHT_13F);
                 super(tex, t);
+
+                if (nht) {
+                    let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
+                    this.addChild(ht);
+                    ht.rotation = -Math.PI * .5;
+                    ht.x = 0;
+                    ht.y = HEIGHT_13 - 8;
+                }
             }
 
             update(t) {
                 updatePool13Tile(this, t);
+            }
+
+            layout(){
+                if (nht) {
+                    let ht = this.ht_;
+                    if (ht) {
+                        ht.x = - WIDTH_13 * this.anchor.x;
+                        ht.y = HEIGHT_13 - 8 - HEIGHT_13F * this.anchor.y;
+                    }
+                }
             }
         }
 
@@ -821,10 +867,28 @@
                     (WIDTH_02 + 2) * (ti & 0xF) + 2, (HEIGHT_02F + 2) * ((ti & 0xF0) >> 4) + 2,
                     WIDTH_02, HEIGHT_02F);
                 super(tex, t);
+
+                if (nht) {
+                    let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
+                    this.addChild(ht);
+                    ht.rotation = -Math.PI;
+                    ht.x = WIDTH_02 - 5;
+                    ht.y = HEIGHT_02 - 2;
+                }
             }
 
             update(t) {
                 updatePool02Tile(this, t);
+            }
+
+            layout(){
+                if (nht) {
+                    let ht = this.ht_;
+                    if (ht) {
+                        ht.x = WIDTH_02 - 5 - WIDTH_02 * this.anchor.x;
+                        ht.y = HEIGHT_02 - 2 - HEIGHT_02F * this.anchor.y;
+                    }
+                }
             }
         }
 
@@ -836,10 +900,28 @@
                     (WIDTH_13 + 2) * (ti & 0xF) + 2, (HEIGHT_13F + 2) * ((ti & 0xF0) >> 4) + 2,
                     WIDTH_13, HEIGHT_13F);
                 super(tex, t);
+
+                if (nht) {
+                    let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
+                    this.addChild(ht);
+                    ht.rotation = Math.PI * .5;
+                    ht.x = WIDTH_13;
+                    ht.y = 4;
+                }
             }
 
             update(t) {
                 updatePool13Tile(this, t);
+            }
+
+            layout(){
+                if (nht) {
+                    let ht = this.ht_;
+                    if (ht) {
+                        ht.x = WIDTH_13 - WIDTH_13 * this.anchor.x;
+                        ht.y = 4 - HEIGHT_13F * this.anchor.y;
+                    }
+                }
             }
         }
 
@@ -1440,6 +1522,7 @@
                         sp.zIndex = 360 + i;
                         sp.scale.set(HAND_SCALE);
                         sp.anchor.y = 1;
+                        sp.layout();
                         sp.y = MAX_HEIGHT;
                         let xx = x + (WIDTH_02 * i + ((i != 13) ? 0 : GAP_T)) * HAND_SCALE;
                         origin[0][i] = xx;
@@ -4008,6 +4091,7 @@
                         case 0:
                             sp = new PoolTile0(wt);
                             sp.anchor.y = 1;
+                            sp.layout();
                             sp.x = src.x;
                             sp.y = src.y - HEIGHT_02;
                             xx = dst.x;
@@ -4263,6 +4347,7 @@
                     sp1.x = sp0.x;
                     sp1.y = sp0.y;
                     sp1.anchor.y = 1;
+                    sp1.layout();
                     sp1.scale.set(HAND_SCALE);
                     this.addChild(sp1);
                     sp1.zIndex = 360 + i;
@@ -4276,6 +4361,7 @@
                     sp1.x = sp0.x;
                     sp1.y = sp0.y;
                     sp1.anchor.y = 1;
+                    sp1.layout();
                     sp1.scale.set(HAND_SCALE);
                     this.addChild(sp1);
                     sp1.zIndex = 360 + 13;
@@ -5005,6 +5091,13 @@
                 super(tex);
                 this.t_ = t;
 
+                if (nht) {
+                    let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
+                    this.addChild(ht);
+                    ht.x = 4;
+                    ht.y = 18;
+                }
+
                 if (!callback) {
                     return;
                 }
@@ -5038,6 +5131,16 @@
                 updatePool02Tile(this, t);
             }
 
+            layout(){
+                if (nht) {
+                    let ht = this.ht_;
+                    if (ht) {
+                        ht.x = 4 - WIDTH_02 * this.anchor.x;
+                        ht.y = 18 - HEIGHT_02F * this.anchor.y;
+                    }
+                }
+            }
+
             setHighlight(h) {
                 this.fg_.visible = h;
             }
@@ -5058,6 +5161,11 @@
                     (WIDTH_02 + 2) * (ti & 0xF) + 2, (HEIGHT_02F + 2) * ((ti & 0xF0) >> 4) + 2,
                     WIDTH_02, HEIGHT_02F);
                 sp.t_ = t;
+
+                let ht = sp.ht_;
+                if (nht && ht) {
+                    ht.text = hint_text[t >> 2];
+                }
             }
         }
 
@@ -5068,6 +5176,11 @@
                     (WIDTH_13 + 2) * (ti & 0xF) + 2, (HEIGHT_13F + 2) * ((ti & 0xF0) >> 4) + 2,
                     WIDTH_13, HEIGHT_13F);
                 sp.t_ = t;
+
+                let ht = sp.ht_;
+                if (nht && ht) {
+                    ht.text = hint_text[t >> 2];
+                }
             }
         }
 
@@ -5538,6 +5651,7 @@
                                     let s = new (cls[i])(tt[i]);
                                     this.addChild(s);
                                     s.anchor.y = 1;
+                                    s.layout();
                                     s.x = width;
                                     s.y = height;
                                     width += s.width;
@@ -5551,6 +5665,7 @@
                                     let s = new (cls[i])(t);
                                     this.addChild(s);
                                     s.anchor.y = 1;
+                                    s.layout();
                                     s.x = width;
                                     s.y = height;
                                     width += s.width;
@@ -5563,6 +5678,7 @@
                                         let s = (i == 0 || i == 3) ? createWall02Tile() : new PoolTile0(t);
                                         this.addChild(s);
                                         s.anchor.y = 1;
+                                        if (i == 1 || i == 2) s.layout();
                                         s.x = width;
                                         s.y = height;
                                         width += s.width;
@@ -5580,6 +5696,7 @@
                                         let s = new (cls[i])(t);
                                         this.addChild(s);
                                         s.anchor.y = 1;
+                                        s.layout();
                                         s.x = width;
                                         s.y = height;
                                         width += s.width;
@@ -5594,6 +5711,7 @@
                                 let s = new (cls[o - 1])(t);
                                 this.addChild(s);
                                 s.anchor.y = 1;
+                                s.layout();
                                 s.x = width + WIDTH_02 * (o - 1);
                                 s.y = height - HEIGHT_13;
 
@@ -5601,6 +5719,7 @@
                                     let s = new (cls[i])(t);
                                     this.addChild(s);
                                     s.anchor.y = 1;
+                                    s.layout();
                                     s.x = width;
                                     s.y = height;
                                     width += s.width;
@@ -5622,6 +5741,7 @@
                             let s = new PoolTile0(ss[i]);
                             this.addChild(s);
                             s.anchor.y = 1;
+                            s.layout();
                             s.x = width;
                             s.y = height;
                             width += s.width;
@@ -5634,6 +5754,7 @@
                         let s = new PoolTile0(tile);
                         this.addChild(s);
                         s.anchor.y = 1;
+                        s.layout();
                         s.x = width;
                         s.y = height;
                         width += s.width;
@@ -6736,7 +6857,7 @@
             constructor(callback) {
                 super();
 
-                const gap = 30, width2 = 500, height2 = 380;
+                const gap = 30, width2 = 500, height2 = 420;
 
                 this.width = LOBBY_WIDTH;
                 this.height = LOBBY_HEIGHT;
@@ -6776,7 +6897,7 @@
                 this.addChild(t);
                 t.anchor.y = .5;
                 t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
-                t.y = 270;
+                t.y = 260;
 
                 let t0 = new PIXI.Text('100%', {
                     fontFamily: FF,
@@ -6789,14 +6910,14 @@
                 t0.anchor.x = 1;
                 t0.anchor.y = .5;
                 t0.x = (LOBBY_WIDTH + width2) * .5 - gap - 10;
-                t0.y = 270;
+                t0.y = 260;
 
                 let rb = new RangeBar(t0.x - t0.width - t.x - t.width - 15, 30, 15, (v)=>{
                     t0.text = Math.round(v) + '%';
                 });
                 this.addChild(rb);
                 rb.x = t.x + t.width + 10;
-                rb.y = 255;
+                rb.y = 245;
                 let volume = localStorage.getItem('volume');
                 volume = (volume != undefined) ? Math.max(0, Math.min(100, parseFloat(volume))) : 100;
                 t0.text = Math.round(volume) + '%';
@@ -6812,7 +6933,7 @@
                 this.addChild(t);
                 t.anchor.y = .5;
                 t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
-                t.y = 330;
+                t.y = 310;
 
                 let cb1 = new CheckBox('');
                 this.addChild(cb1);
@@ -6831,7 +6952,7 @@
                 this.addChild(t);
                 t.anchor.y = .5;
                 t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
-                t.y = 390;
+                t.y = 360;
 
                 let cb2 = new CheckBox('');
                 this.addChild(cb2);
@@ -6839,6 +6960,25 @@
                 cb2.x = t.x + t.width + 50;
                 cb2.y = t.y - 15;
                 cb2.setSelected(!mutecall);
+
+                t = new PIXI.Text('牌面上角标（刷新后生效）', {
+                    fontFamily: FF,
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                this.addChild(t);
+                t.anchor.y = .5;
+                t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
+                t.y = 410;
+
+                let cb3 = new CheckBox('');
+                this.addChild(cb3);
+                cb3.scale.set(.75);
+                cb3.x = t.x + t.width + 50;
+                cb3.y = t.y - 15;
+                cb3.setSelected(nht);
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
@@ -6865,6 +7005,7 @@
                     localStorage.setItem('volume', volume);
                     localStorage.setItem('mutecd', mutecd);
                     localStorage.setItem('mutecall', mutecall);
+                    localStorage.setItem('nht', cb3.isSelected() ? 1 : 0);
                     PIXI.sound.volumeAll = volume / 100;
                     callback();
                 });
