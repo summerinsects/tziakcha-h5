@@ -381,9 +381,9 @@
                 pool.option_ = panel;
 
                 pool.y = 50;
-                panel.x = 10;
-                panel.y = pool.height + 70;
-                panel.scale.set(pool.width / (panel.width + 20));
+                panel.x = 0;
+                panel.y = pool.height + 55;
+                panel.scale.set(pool.width / (panel.width + 15));
                 this.containerWidth_ = this.width;
                 this.containerHeight_ = this.height;
 
@@ -415,7 +415,7 @@
                     if (piano.visible) {
                         piano.visible = false;
                         piano.y = 0;
-                        panel.y = pool.height + 70;
+                        panel.y = pool.height + 55;
                     }
                 } else {
                     this.x = 0;
@@ -426,13 +426,13 @@
                         if (!piano.visible) {
                             piano.visible = true;
                             piano.y = pool.height + 55;
-                            panel.y = pool.height + 75 + 400;
+                            panel.y = pool.height + 65 + 400;
                         }
                     } else {
                         if (piano.visible) {
                             piano.visible = false;
                             piano.y = 0;
-                            panel.y = pool.height + 70;
+                            panel.y = pool.height + 55;
                         }
                     }
                 }
@@ -953,8 +953,8 @@
                 const CENTER_WIDTH = MAX_WIDTH - HAND_WIDTH_13 * 2 - GAP_W * 4 - WIDTH_02 * 14;
                 const CENTER_HEIGHT = MAX_HEIGHT - HAND_HEIGHT_02 * 2 - GAP_W * 4 - HEIGHT_13 * 14 - OVERLAP * 4;
 
-                this.width = this.width_ = MAX_WIDTH;
-                this.height = this.height_ = MAX_HEIGHT;
+                /*this.width =*/ this.width_ = MAX_WIDTH;
+                /*this.height =*/ this.height_ = MAX_HEIGHT;
 
                 this.callTextPos_ = [
                     {'x':MAX_WIDTH * .5, 'y':MAX_HEIGHT - 120, 'ax':.5, 'ay':1},
@@ -5276,8 +5276,8 @@
                 super();
 
                 const width = 180, height = 160;
-                this.width = width;
-                this.height = height;
+                //this.width = width;
+                //this.height = height;
                 this.pivot.x = width;
 
                 {
@@ -5369,9 +5369,11 @@
 
                 let bg = new PIXI.Sprite(PIXI.loader.resources['img/ui/checkbox_normal.png'].texture);
                 this.addChild(bg);
+                bg.x = 5;
 
                 let tk = this.tk_ = new PIXI.Sprite(PIXI.loader.resources['img/ui/checkbox_tick.png'].texture);
                 this.addChild(tk);
+                tk.x = 5;
                 tk.visible = false;
 
                 let width, height;
@@ -5384,16 +5386,16 @@
                         strokeThickness: 3,
                     });
                     this.addChild(text);
-                    text.x = bg.width + 5;
+                    text.x = bg.width + 10;
 
-                    this.width = width = bg.width + 5 + text.width;
-                    this.height = height = Math.max(bg.height, text.height);
+                    /*this.width =*/ width = bg.width + 10 + text.width + 10;
+                    /*this.height =*/ height = Math.max(bg.height, text.height) + 10;
                     text.anchor.y = .5;
                     text.y = height * .5;
                 }
                 else {
-                    this.width = width = bg.width;
-                    this.height = height = bg.height;
+                    /*this.width =*/ width = bg.width + 10;
+                    /*this.height =*/ height = bg.height + 10;
                 }
                 bg.anchor.y = .5;
                 tk.anchor.y = .5;
@@ -5455,8 +5457,8 @@
             constructor(width, height, callback) {
                 super();
 
-                this.width = width;
-                this.height = height;
+                //this.width = width;
+                //this.height = height;
 
                 let clk = callback.bind(this);
                 let hlt = ()=>{ this.fg_.visible = true; };
@@ -5502,8 +5504,8 @@
             constructor() {
                 super();
 
-                this.width = 150;
-                this.height = 150;
+                //this.width = 150;
+                //this.height = 150;
 
                 let clk = ()=>{ this.callback_(this); };
                 let hlt = ()=>{ this.fg_.visible = true; };
@@ -5554,8 +5556,8 @@
                 const width = WIDTH_02 * HAND_SCALE * 2 + 50;
                 const height = HEIGHT_02F * HAND_SCALE + 70;
 
-                this.width = width * data.length;
-                this.height = height;
+                //this.width = width * data.length;
+                //this.height = height;
 
                 {
                 let bg = new PIXI.Graphics();
@@ -5623,7 +5625,7 @@
                 super();
 
                 const height = Math.max(HEIGHT_13 + HEIGHT_13F, HEIGHT_02);
-                this.height = height;
+                //this.height = height;
 
                 // 加这个布局才正常
                 let bg = new PIXI.Graphics();
@@ -5771,7 +5773,7 @@
                         t.x = width - 80;
                     }
                 }
-                this.width = width;
+                //this.width = width;
 
                 //{
                 //bg.lineStyle(2, 0x0000FF, 1);
@@ -5815,7 +5817,7 @@
 
                 const width = 700, height = 640, gap = 20;
 
-                this.height = height;
+                //this.height = height;
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -6042,7 +6044,7 @@
 
                 const width = 500, gap = 20;
                 let y = 0;
-                this.width = width;
+                //this.width = width;
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -6132,8 +6134,8 @@
                 const width = 600, height = 540, gap = 50;
                 const offsetY = 110, gapY = 60;
 
-                this.width = width;
-                this.height = height;
+                //this.width = width;
+                //this.height = height;
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -6243,8 +6245,8 @@
                 const width = 710, height = 920;
                 // 40+70*9+40
 
-                this.width = width;
-                this.height = height;
+                //this.width = width;
+                //this.height = height;
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -6461,8 +6463,8 @@
                 const width = 640, height = 680;
                 // 40+120*2+80*4+40 40*10
 
-                this.width = width;
-                this.height = height;
+                //this.width = width;
+                //this.height = height;
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -6634,10 +6636,10 @@
             constructor(callback) {
                 super();
 
-                const width = (WIDTH_02 + 50) * 9 + 40, height = 860;
+                const width = (WIDTH_02 + 50) * 9 + 45, height = 860;
 
-                this.width = width;
-                this.height = height;
+                //this.width = width;
+                //this.height = height;
                 this.interactive = true;
 
                 let bg = new PIXI.Graphics();
@@ -6678,7 +6680,7 @@
 
                     let t0 = new StandingTile(i << 2);
                     this.addChild(t0);
-                    t0.x = x + 45;
+                    t0.x = x + 50;
                     t0.y = y;
 
                     let tex = PIXI.loader.resources['img/tiles/pool0.png'].texture.clone();
@@ -6688,7 +6690,7 @@
                     let t1 = new PIXI.Sprite(tex);
                     this.addChild(t1);
                     t1.alpha = .5;
-                    t1.x = x + 45;
+                    t1.x = x + 50;
                     t1.y = y;
                     t1.visible = false;
                     tiles[i] = t1;
@@ -6806,8 +6808,8 @@
             constructor(w, h0, h1, cb) {
                 super();
 
-                this.width = w;
-                this.height = h0;
+                //this.width = w;
+                //this.height = h0;
 
                 this.min_ = h0 * .5;
                 this.max_ = w - h0 * .5;
@@ -6859,8 +6861,8 @@
 
                 const gap = 30, width2 = 500, height2 = 420;
 
-                this.width = LOBBY_WIDTH;
-                this.height = LOBBY_HEIGHT;
+                //this.width = LOBBY_WIDTH;
+                //this.height = LOBBY_HEIGHT;
                 this.interactive = true;
 
                 let bg = new PIXI.Graphics();
@@ -7019,8 +7021,8 @@
             constructor(width, height, clkcb) {
                 super();
 
-                this.width = width;
-                this.height = height;
+                //this.width = width;
+                //this.height = height;
 
                 let clk = clkcb.bind(this);
                 let hlt = ()=>{ this.fg_.visible = true; };
@@ -7054,8 +7056,8 @@
             constructor(width, standing) {
                 super();
 
-                this.width = width;
-                this.height = 400;
+                //this.width = width;
+                //this.height = 400;
 
                 let graph = new PIXI.Graphics();
                 this.addChild(graph);
@@ -7252,8 +7254,8 @@
                 super();
 
                 let container = this.container_ = new PIXI.Container();
-                container.width = LOBBY_WIDTH;
-                container.height = LOBBY_HEIGHT;
+                //container.width = LOBBY_WIDTH;
+                //container.height = LOBBY_HEIGHT;
                 this.addChild(container);
 
                 {
@@ -7777,8 +7779,8 @@
 
                 const gap = 30, offsetY = 80, gapY = 35;
 
-                this.width = LOBBY_WIDTH;
-                this.height = LOBBY_HEIGHT;
+                //this.width = LOBBY_WIDTH;
+                //this.height = LOBBY_HEIGHT;
                 this.interactive = true;
 
                 let bg = new PIXI.Graphics();
@@ -8018,8 +8020,8 @@
             ctn.addChild(t);
             w += t.width;
 
-            ctn.height = t.height;
-            ctn.width = w;
+            //ctn.height = t.height;
+            //ctn.width = w;
 
             return ctn;
         }
@@ -8034,8 +8036,8 @@
 
                 const width = LOBBY_WIDTH - 20, height = 120, gap = 10;
 
-                this.width = width;
-                this.height = height;
+                //this.width = width;
+                //this.height = height;
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -8228,8 +8230,8 @@
 
                 const gap = 30, width2 = 360, height2 = 240;
 
-                this.width = LOBBY_WIDTH;
-                this.height = LOBBY_HEIGHT;
+                //this.width = LOBBY_WIDTH;
+                //this.height = LOBBY_HEIGHT;
                 this.interactive = true;
 
                 let bg = new PIXI.Graphics();
@@ -8299,8 +8301,8 @@
 
                 const gap = 30, width2 = 450, height2 = pzl ? 420 : 320;
 
-                this.width = LOBBY_WIDTH;
-                this.height = LOBBY_HEIGHT;
+                //this.width = LOBBY_WIDTH;
+                //this.height = LOBBY_HEIGHT;
                 this.interactive = true;
 
                 let bg = new PIXI.Graphics();
@@ -8403,8 +8405,8 @@
             constructor() {
                 super();
 
-                this.width = LOBBY_WIDTH;
-                this.height = LOBBY_HEIGHT;
+                //this.width = LOBBY_WIDTH;
+                //this.height = LOBBY_HEIGHT;
             }
 
             adapt() {
