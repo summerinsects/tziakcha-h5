@@ -6102,7 +6102,6 @@
                 bg.drawRect(0, 0, width, height);
                 bg.endFill();
 
-                let thiz = this;
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('OK', {
                     fontFamily: FF,
@@ -6110,7 +6109,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ thiz.parent.removeChild(thiz); });
+                }, btnWidth, btnHeight, ()=>{ this.parent.removeChild(this); });
                 this.addChild(btn);
                 btn.x = width - btnWidth - gap;
                 btn.y = height - btnHeight - gap;
