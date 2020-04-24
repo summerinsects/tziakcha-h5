@@ -971,10 +971,6 @@
                 graph.drawRect(0, 0, MAX_WIDTH, MAX_HEIGHT);
                 graph.endFill();
                 this.addChild(graph);
-                this.bg_ = graph;
-                graph.on('pointerdown', ()=>{ this.settleView_.visible = false; });
-                graph.on('pointerup', ()=>{ this.settleView_.visible = true; });
-                graph.on('pointerupoutside', ()=>{ this.settleView_.visible = true; });
 
                 // 中间的面板
                 graph = new PIXI.Graphics();
@@ -1577,7 +1573,7 @@
                         this.sv_.removeChildren();
                     }
 
-                    let sv = this.sv_ = new SettingView(()=>{
+                    let sv = this.sv_ = new SettingView(MAX_WIDTH, MAX_HEIGHT, ()=>{
                         this.removeChild(this.sv_);
                         this.sv_.removeChildren();
                         delete this.sv_;
@@ -1689,29 +1685,23 @@
                 }
                 this.actionBtns_ = actionBtns;
 
-                let view = this.historyView_ = new HistoryView();
+                let view = this.historyView_ = new HistoryView(MAX_WIDTH, MAX_HEIGHT);
                 this.addChild(view);
                 view.zIndex = 500;
-                view.x = (MAX_WIDTH - view.width) * .5;
-                view.y = (MAX_HEIGHT - view.height) * .5;
                 view.visible = false;
 
-                view = this.chaseView_ = new ChaseView();
+                view = this.chaseView_ = new ChaseView(MAX_WIDTH, MAX_HEIGHT);
                 this.addChild(view);
                 view.zIndex = 500;
-                view.x = (MAX_WIDTH - view.width) * .5;
-                view.y = (MAX_HEIGHT - view.height) * .5;
                 view.visible = false;
 
-                view = this.callView_ = new CallView((cf, ign, rw)=>{
+                view = this.callView_ = new CallView(MAX_WIDTH, MAX_HEIGHT, (cf, ign, rw)=>{
                     this.callFlags_ = cf;
                     this.ignoreSD_ = ign;
                     this.rightWaive_ = rw;
                 });
                 this.addChild(view);
                 view.zIndex = 500;
-                view.x = (MAX_WIDTH - view.width) * .5;
-                view.y = (MAX_HEIGHT - view.height) * .5;
                 view.visible = false;
 
                 text = this.timeout_ = new PIXI.Text('你已超时，服务器自动托管，刷新页面可解除', {
@@ -3906,7 +3896,7 @@
                     this.infoPanels_[(7 - this.seat_) & 3].getName(),
                 ];
 
-                let view = new SettleView(hand, tile, table, detail, names, this.seat_, this.cfg_['r30'],
+                let view = new SettleView(this.width_, this.height_, hand, tile, table, detail, names, this.seat_, this.cfg_['r30'],
                     ()=>{
                         if (!this.rp_) {
                             ws.send('{"m":2,"r":8,"v":0}');
@@ -3919,11 +3909,7 @@
                 );
                 this.addChild(view);
                 view.zIndex = 500;
-                view.scale.set(1.25);
-                view.x = (this.width - view.width) * .5;
-                view.y = (this.height - view.height) * .5;
                 this.settleView_ = view;
-                this.bg_.interactive = true;
 
                 if (!this.rdfsh_) {
                     let rss = (detail['s'] || [0, 0, 0, 0]), rps = detail['n'];
@@ -3942,7 +3928,6 @@
                     this.removeChild(this.settleView_);
                     this.settleView_ = null;
                 }
-                this.bg_.interactive = false;
             }
 
             showFalseWin(f, table) {
@@ -5814,18 +5799,29 @@
             // detail = {"r":0,"f":10,"p":0x0103,"t":[34,-8,-8,-18],"s":[34,-8,-8,-18],"n":[0,0,0,0]}
             // names = ['东','南','西','北']
             // seat = 1
-            constructor(hand, tile, table, detail, names, seat, cd, callback) {
+            constructor(w, h, hand, tile, table, detail, names, seat, cd, callback) {
                 super();
 
                 const width = 700, height = 640, gap = 20;
 
                 //this.height = height;
+                let ctn = new PIXI.Graphics();
+                this.addChild(ctn);
+                ctn.beginFill(0, .1);
+                ctn.drawRect(0, 0, w, h);
+                ctn.endFill();
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
+                bg.interactive = true;
+
+                ctn.interactive = true;
+                ctn.on('pointerdown', ()=>bg.visible = false);
+                ctn.on('pointerup', ()=>bg.visible = true);
+                ctn.on('pointerupoutside', ()=>bg.visible = true);
 
                 let t = new WinHand(hand, tile, table != undefined ? table['81'] : 0);
-                this.addChild(t);
+                bg.addChild(t);
                 t.y = gap;
                 if (t.width > width - gap * 2) {
                     t.scale.set((width - gap * 2) / t.width);
@@ -5861,7 +5857,7 @@
                         stroke: '#0066ff',
                         strokeThickness: 2,
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.x = .5;
                     t.x = width * .5;
                     t.y = y;
@@ -5882,7 +5878,7 @@
                         fontSize: 22,
                         fill: '#99ffff'
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.y = .5;
                     t.x = x0;
                     //t.x = frp + gap; t.anchor.x = 1;
@@ -5898,7 +5894,7 @@
                 {
                     let rd = detail['r'];
                     let t = new PIXI.extras.BitmapText(WIND[rd >> 2] + '风' + WIND[rd & 3], { font: '48px SourceHanSansBold' });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.set(.5);
                     t.x = width * .5;
                     t.y = cy[1];
@@ -5915,12 +5911,12 @@
                     g.beginFill(ri != wn ? (ri != cl ? 0xBBDED6 : 0x89A4C7) : 0xFFAAA5, .5);
                     g.drawRect(0, 0, w0, h0);
                     g.endFill();
-                    this.addChild(g);
+                    bg.addChild(g);
                     g.x = cx[i] - w0 * .5;
                     g.y = cy[i] - h0 * .5;
 
                     let t = new PIXI.extras.BitmapText(WIND[ri], { font: '64px SourceHanSansBold'});
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.y = .5;
                     t.x = cx[i] - w0 * .5 + 10;
                     t.y = cy[i] + 15;
@@ -5945,7 +5941,7 @@
                         //stroke: '#0066ff',
                         //strokeThickness: 2,
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.set(.5);
                     t.x = cx[i];
                     t.y = cy[i] - 30;
@@ -5963,7 +5959,7 @@
                         //stroke: '#0066ff',
                         //strokeThickness: 2,
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.set(.5);
                     t.x = xx;
                     t.y = cy[i] + 2;
@@ -5976,7 +5972,7 @@
                         //stroke: '#0066ff',
                         //strokeThickness: 2,
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.set(.5);
                     t.x = xx;
                     t.y = cy[i] + 32;
@@ -5989,7 +5985,7 @@
                             stroke: '#0066ff',
                             strokeThickness: 2,
                         });
-                        this.addChild(t);
+                        bg.addChild(t);
                         t.anchor.y = .5;
                         t.x = cx[i] - w0 * .5 + 10;
                         t.y = cy[i] + 35;
@@ -6009,7 +6005,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{ callback(); });
-                this.addChild(btn);
+                bg.addChild(btn);
                 btn.x = width - btnWidth - gap;
                 btn.y = height - btnHeight - gap;
 
@@ -6037,6 +6033,10 @@
                         clearInterval(t.timer_);
                     }
                 }, 33.33);
+
+                bg.scale.set(1.25);
+                bg.x = (w - width * 1.25) * .5;
+                bg.y = (h - height * 1.25) * .5;
             }
         }
 
@@ -6240,14 +6240,22 @@
         }
 
         class HistoryView extends PIXI.Container {
-            constructor() {
+            constructor(w, h) {
                 super();
 
                 const width = 710, height = 920;
                 // 40+70*9+40
 
-                //this.width = width;
-                //this.height = height;
+                //this.width = w;
+                //this.height = h;
+
+                let ctn = new PIXI.Graphics();
+                this.addChild(ctn);
+                ctn.beginFill(0, .1);
+                ctn.drawRect(0, 0, w, h);
+                ctn.endFill();
+                ctn.interactive = true;
+                ctn.on('pointerdown', (e)=>this.visible = false);
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -6256,6 +6264,9 @@
                 bg.beginFill(0x060F16, .85);
                 bg.drawRect(0, 0, width, height);
                 bg.endFill();
+                bg.x = (w - width) * .5;
+                bg.y = (h - height) * .5;
+                bg.interactive = true;
 
                 let t = new PIXI.Text('计分表', {
                     fontFamily: FF,
@@ -6264,7 +6275,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.set(.5);
                 t.x = width * .5;
                 t.y = 35;
@@ -6282,7 +6293,7 @@
                     fontWeight: 'bold',
                     fill: '#DCDCDC',
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.set(.5);
                 t.x = 75;
                 t.y = 90;
@@ -6295,7 +6306,7 @@
                         fontWeight: 'bold',
                         fill: '#FFD700',
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.set(.5);
                     t.x = 180 + 140 * i;
                     t.y = 90;
@@ -6306,7 +6317,7 @@
                         fontWeight: 'bold',
                         fill: '#FFD700',
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.set(.5);
                     t.x = 180 + 140 * i;
                     t.y = 810;
@@ -6320,7 +6331,7 @@
                     fontWeight: 'bold',
                     fill: '#DCDCDC',
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.set(.5);
                 t.x = 75;
                 t.y = 130;
@@ -6332,7 +6343,7 @@
                         fontWeight: 'bold',
                         fill: '#DCDCDC',
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.set(.5);
                     t.x = 145 + i * 70;
                     t.y = 130;
@@ -6350,7 +6361,7 @@
                         fontWeight: 'bold',
                         fill: '#DCDCDC',
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.set(.5);
                     t.x = 75;
                     t.y = yy;
@@ -6362,7 +6373,7 @@
                             fontSize: 20,
                             fontWeight: 'bold'
                         });
-                        this.addChild(t);
+                        bg.addChild(t);
                         t.anchor.set(.5);
                         t.x = 145 + k * 70;
                         t.y = yy;
@@ -6379,7 +6390,7 @@
                     fontWeight: 'bold',
                     fill: '#DCDCDC',
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.set(.5);
                 t.x = 75;
                 t.y = 810;
@@ -6404,7 +6415,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{ this.visible = false; });
-                this.addChild(btn);
+                bg.addChild(btn);
                 btn.x = (width - btnWidth) * .5;
                 btn.y = height - btnHeight - 20;
             }
@@ -6458,14 +6469,22 @@
         }
 
         class ChaseView extends PIXI.Container {
-            constructor() {
+            constructor(w, h) {
                 super();
 
                 const width = 640, height = 680;
                 // 40+120*2+80*4+40 40*10
 
-                //this.width = width;
-                //this.height = height;
+                //this.width = w;
+                //this.height = h;
+
+                let ctn = new PIXI.Graphics();
+                this.addChild(ctn);
+                ctn.beginFill(0, .1);
+                ctn.drawRect(0, 0, w, h);
+                ctn.endFill();
+                ctn.interactive = true;
+                ctn.on('pointerdown', (e)=>this.visible = false);
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -6474,6 +6493,9 @@
                 bg.beginFill(0x060F16, .85);
                 bg.drawRect(0, 0, width, height);
                 bg.endFill();
+                bg.x = (w - width) * .5;
+                bg.y = (h - height) * .5;
+                bg.interactive = true;
 
                 let t = new PIXI.Text('追分策略', {
                     fontFamily: FF,
@@ -6482,7 +6504,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.set(.5);
                 t.x = width * .5;
                 t.y = 35;
@@ -6527,7 +6549,7 @@
                         fontWeight: 'bold',
                         fill: cls[i]
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.set(.5);
                     t.x = xps2[i];
                     t.y = 90;
@@ -6543,7 +6565,7 @@
                         fontWeight: 'bold',
                         fill: cls[0],
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.set(.5);
                     t.x = xps2[0];
                     t.y = yps1[i];
@@ -6558,7 +6580,7 @@
                                 fontWeight: 'bold',
                                 fill: cls[l + 1],
                             });
-                            this.addChild(t);
+                            bg.addChild(t);
                             t.anchor.set(.5);
                             t.x = xps2[l + 1];
                             t.y = yps2[i] + 40 * k;
@@ -6576,7 +6598,7 @@
                     strokeThickness: 2,
                     lineHeight: 40
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.set(.5);
                 t.x = width * .5;
                 t.y = height - 130;
@@ -6589,7 +6611,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{ this.visible = false; });
-                this.addChild(btn);
+                bg.addChild(btn);
                 btn.x = (width - btnWidth) * .5;
                 btn.y = height - btnHeight - 20;
             }
@@ -6634,14 +6656,21 @@
         }
 
         class CallView extends PIXI.Container {
-            constructor(callback) {
+            constructor(w, h, callback) {
                 super();
 
                 const width = (WIDTH_02 + 50) * 9 + 45, height = 860;
 
-                //this.width = width;
-                //this.height = height;
-                this.interactive = true;
+                //this.width = w;
+                //this.height = h;
+
+                let ctn = new PIXI.Graphics();
+                this.addChild(ctn);
+                ctn.beginFill(0, .1);
+                ctn.drawRect(0, 0, w, h);
+                ctn.endFill();
+                ctn.interactive = true;
+                ctn.on('pointerdown', (e)=>this.visible = false);
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -6650,6 +6679,9 @@
                 bg.beginFill(0x060F16, .85);
                 bg.drawRect(0, 0, width, height);
                 bg.endFill();
+                bg.x = (w - width) * .5;
+                bg.y = (h - height) * .5;
+                bg.interactive = true;
 
                 let t = new PIXI.Text('鸣牌设置', {
                     fontFamily: FF,
@@ -6658,7 +6690,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.set(.5);
                 t.x = width * .5;
                 t.y = 35;
@@ -6671,7 +6703,7 @@
                     strokeThickness: 2,
                     lineHeight: 40
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.x = 20;
                 t.y = 70;
 
@@ -6680,7 +6712,7 @@
                     let x = 20 + (i % 9) * (WIDTH_02 + 50), y = 120 + Math.floor(i / 9) * (HEIGHT_02F + 30);
 
                     let t0 = new StandingTile(i << 2);
-                    this.addChild(t0);
+                    bg.addChild(t0);
                     t0.x = x + 50;
                     t0.y = y;
 
@@ -6689,7 +6721,7 @@
                         (WIDTH_02 + 2) * 7 + 2, (HEIGHT_02F + 2) * 3 + 2,
                         WIDTH_02, HEIGHT_02F);
                     let t1 = new PIXI.Sprite(tex);
-                    this.addChild(t1);
+                    bg.addChild(t1);
                     t1.alpha = .5;
                     t1.x = x + 50;
                     t1.y = y;
@@ -6701,7 +6733,7 @@
                             this.cba_[Math.floor(i / 9)].setSelected(false);
                         }
                     });
-                    this.addChild(cb);
+                    bg.addChild(cb);
                     cb.x = x;
                     cb.y = y;
                     cbs[i] = cb;
@@ -6725,19 +6757,19 @@
                             cbs[n].setSelected(tiles[n].visible = s);
                         }
                     });
-                    this.addChild(cb);
+                    bg.addChild(cb);
                     cb.x = width * .5 + 240 * (i & 1);
                     cb.y = height - 310 + 70 * (i >> 1);
                 }
                 this.cba_ = cba;
 
                 let cb = this.ign_ = new CheckBox('自摸也不询问');
-                this.addChild(cb);
+                bg.addChild(cb);
                 cb.x = 20;
                 cb.y = height - 310;
 
                 cb = this.rw_ = new CheckBox('鼠标右键=弃');
-                this.addChild(cb);
+                bg.addChild(cb);
                 cb.x = 20;
                 cb.y = height - 230;
 
@@ -6749,7 +6781,7 @@
                     strokeThickness: 2,
                     lineHeight: 40
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.x = .5;
                 t.x = width * .5;
                 t.y = height - 160;
@@ -6762,7 +6794,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{ this.visible = false; });
-                this.addChild(btn);
+                bg.addChild(btn);
                 btn.x = width * .25 - btnWidth;
                 btn.y = height - btnHeight - 20;
 
@@ -6780,7 +6812,7 @@
                     }
                     callback(cf, this.ign_.isSelected(), this.rw_.isSelected());
                 });
-                this.addChild(btn);
+                bg.addChild(btn);
                 btn.x = width * .75;
                 btn.y = height - btnHeight - 20;
                 this.reset_ = false;
@@ -6793,12 +6825,18 @@
                 for (let i = 0; i < 34; ++i) {
                     cbs[i].setSelected(tiles[i].visible = cf[i]);
                 }
+                let cba = this.cba_;
                 if (this.reset_) {
-                    let cba = this.cba_;
                     for (let i = 0; i < 4; ++i) {
                         cba[i].setSelected(false);
                     }
                     this.reset_ = false;
+                }
+                else {
+                    cba[0].setSelected(cf[0]&&cf[1]&&cf[2]&&cf[3]&&cf[4]&&cf[5]&&cf[6]&&cf[7]&&cf[8]);
+                    cba[1].setSelected(cf[9]&&cf[10]&&cf[11]&&cf[12]&&cf[13]&&cf[14]&&cf[15]&&cf[16]&&cf[17]);
+                    cba[2].setSelected(cf[18]&&cf[19]&&cf[20]&&cf[21]&&cf[22]&&cf[23]&&cf[24]&&cf[25]&&cf[26]);
+                    cba[3].setSelected(cf[27]&&cf[28]&&cf[29]&&cf[30]&&cf[31]&&cf[32]&&cf[33]);
                 }
                 this.ign_.setSelected(ign);
                 this.rw_.setSelected(rw);
@@ -6857,26 +6895,32 @@
         }
 
         class SettingView extends PIXI.Container {
-            constructor(callback) {
+            constructor(w, h, callback) {
                 super();
 
-                const gap = 30, width2 = 500, height2 = 420;
+                const width = 500, height = 420;
 
-                //this.width = LOBBY_WIDTH;
-                //this.height = LOBBY_HEIGHT;
-                this.interactive = true;
+                //this.width = w;
+                //this.height = h;
+
+                let ctn = new PIXI.Graphics();
+                this.addChild(ctn);
+                ctn.beginFill(0, .1);
+                ctn.drawRect(0, 0, w, h);
+                ctn.endFill();
+                ctn.interactive = true;
+                ctn.on('pointerdown', (e)=>this.visible = false);
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
 
-                bg.beginFill(0, 0);
-                bg.drawRect(0, 0, LOBBY_WIDTH, LOBBY_HEIGHT);
-                bg.endFill();
-
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x060F16, .85);
-                bg.drawRect((LOBBY_WIDTH - width2) * .5, (LOBBY_HEIGHT - height2) * .5, width2, height2);
+                bg.drawRect(0, 0, width, height);
                 bg.endFill();
+                bg.x = (w - width) * .5;
+                bg.y = (h - height) * .5;
+                bg.interactive = true;
 
                 let t = new PIXI.Text('设置', {
                     fontFamily: FF,
@@ -6885,10 +6929,10 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.set(.5);
-                t.x = LOBBY_WIDTH * .5;
-                t.y = (LOBBY_HEIGHT - height2) * .5 + 40;
+                t.x = width * .5;
+                t.y = 40;
 
                 t = new PIXI.Text('音量', {
                     fontFamily: FF,
@@ -6897,10 +6941,10 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.y = .5;
-                t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
-                t.y = 260;
+                t.x = 30;
+                t.y = 110;
 
                 let t0 = new PIXI.Text('100%', {
                     fontFamily: FF,
@@ -6909,18 +6953,18 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t0);
+                bg.addChild(t0);
                 t0.anchor.x = 1;
                 t0.anchor.y = .5;
-                t0.x = (LOBBY_WIDTH + width2) * .5 - gap - 10;
-                t0.y = 260;
+                t0.x = width - 30;
+                t0.y = 110;
 
                 let rb = new RangeBar(t0.x - t0.width - t.x - t.width - 15, 30, 15, (v)=>{
                     t0.text = Math.round(v) + '%';
                 });
-                this.addChild(rb);
+                bg.addChild(rb);
                 rb.x = t.x + t.width + 10;
-                rb.y = 245;
+                rb.y = 95;
                 let volume = localStorage.getItem('volume');
                 volume = (volume != undefined) ? Math.max(0, Math.min(100, parseFloat(volume))) : 100;
                 t0.text = Math.round(volume) + '%';
@@ -6933,15 +6977,15 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.y = .5;
-                t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
-                t.y = 310;
+                t.x = 30;
+                t.y = 160;
 
                 let cb1 = new CheckBox('');
-                this.addChild(cb1);
+                bg.addChild(cb1);
                 cb1.scale.set(.75);
-                cb1.x = t.x + t.width + 50;
+                cb1.x = t.x + t.width + 40;
                 cb1.y = t.y - 15;
                 cb1.setSelected(!mutecd);
 
@@ -6952,15 +6996,15 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.y = .5;
-                t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
-                t.y = 360;
+                t.x = 30;
+                t.y = 210;
 
                 let cb2 = new CheckBox('');
-                this.addChild(cb2);
+                bg.addChild(cb2);
                 cb2.scale.set(.75);
-                cb2.x = t.x + t.width + 50;
+                cb2.x = t.x + t.width + 40;
                 cb2.y = t.y - 15;
                 cb2.setSelected(!mutecall);
 
@@ -6971,15 +7015,15 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.y = .5;
-                t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
-                t.y = 410;
+                t.x = 30;
+                t.y = 260;
 
                 let cb3 = new CheckBox('');
-                this.addChild(cb3);
+                bg.addChild(cb3);
                 cb3.scale.set(.75);
-                cb3.x = t.x + t.width + 50;
+                cb3.x = t.x + t.width + 40;
                 cb3.y = t.y - 15;
                 cb3.setSelected(nht);
 
@@ -6991,9 +7035,9 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{ callback(); });
-                this.addChild(btn);
-                btn.x = (LOBBY_WIDTH - width2) * .5 + gap;
-                btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
+                bg.addChild(btn);
+                btn.x = 20;
+                btn.y = height - btnHeight - 20;
 
                 btn = new TextButton('确定', {
                     fontFamily: FF,
@@ -7012,9 +7056,9 @@
                     PIXI.sound.volumeAll = volume / 100;
                     callback();
                 });
-                this.addChild(btn);
-                btn.x = (LOBBY_WIDTH + width2) * .5 - btnWidth - gap;
-                btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
+                bg.addChild(btn);
+                btn.x = width - btnWidth - 20;
+                btn.y = height - btnHeight - 20;
             }
         }
 
