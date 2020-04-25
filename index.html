@@ -3935,12 +3935,9 @@
             }
 
             showFalseWin(f, table) {
-                let view = new FalseWinView(f, table);
+                let view = new FalseWinView(this.width_, this.height_, f, table);
                 this.addChild(view);
                 view.zIndex = 500;
-                view.scale.set(1.25);
-                view.x = (this.width - view.width) * .5;
-                view.y = (this.height - view.height) * .5;
                 if (this.turn_ == this.seat_) {
                     setTimeout(()=>{
                         this.addCD(this.cfg_['r30']);
@@ -6038,15 +6035,27 @@
         }
 
         class FalseWinView extends PIXI.Container {
-            constructor(fn, table) {
+            constructor(w, h, fn, table) {
                 super();
 
                 const width = 500, gap = 20;
                 let y = 0;
                 //this.width = width;
 
+                let ctn = new PIXI.Graphics();
+                this.addChild(ctn);
+                ctn.beginFill(0, .1);
+                ctn.drawRect(0, 0, w, h);
+                ctn.endFill();
+
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
+                bg.interactive = true;
+
+                ctn.interactive = true;
+                ctn.on('pointerdown', ()=>bg.visible = false);
+                ctn.on('pointerup', ()=>bg.visible = true);
+                ctn.on('pointerupoutside', ()=>bg.visible = true);
 
                 let t = new PIXI.Text(fn + '番错和', {
                     fontFamily: FF,
@@ -6055,7 +6064,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.x = .5;
                 t.x = width * .5;
                 t.y = gap;
@@ -6072,7 +6081,7 @@
                         fontSize: 22,
                         fill: '#99ffff'
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.x = x0;
                     //t.x = frp + gap; t.anchor.x = 1;
                     t.y = y0;
@@ -6088,7 +6097,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.x = .5;
                 t.x = width * .5;
                 t.y = 220;
@@ -6109,9 +6118,13 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{ this.parent.removeChild(this); });
-                this.addChild(btn);
+                bg.addChild(btn);
                 btn.x = width - btnWidth - gap;
                 btn.y = height - btnHeight - gap;
+
+                bg.scale.set(1.25);
+                bg.x = (w - width * 1.25) * .5;
+                bg.y = (h - height * 1.25) * .5;
             }
         }
 
