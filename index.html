@@ -4003,6 +4003,7 @@
                     if (this.resultView_) {
                         this.removeChild(this.resultView_);
                         this.resultView_ = null;
+                        this.clear();
                         delete this.rp_;
                         delete this.rpt_;
                         ws.send('{"m":1,"r":2}');
