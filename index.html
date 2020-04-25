@@ -3999,7 +3999,7 @@
                     this.resultView_ = null;
                 }
 
-                let view = new ResultView(this.cfg_['t'], this.seat_, this.rp_, this.rpt_, ()=>{
+                let view = new ResultView(this.width_, this.height_, this.cfg_['t'], this.seat_, this.rp_, this.rpt_, ()=>{
                     if (this.resultView_) {
                         this.removeChild(this.resultView_);
                         this.resultView_ = null;
@@ -4017,9 +4017,6 @@
                 });
                 this.addChild(view);
                 view.zIndex = 500;
-                view.scale.set(1.25);
-                view.x = (this.width - view.width) * .5;
-                view.y = (this.height - view.height) * .5;
                 this.resultView_ = view;
             }
 
@@ -6129,7 +6126,7 @@
         }
 
         class ResultView extends PIXI.Container {
-            constructor(title, seat, players, tm, callback) {
+            constructor(w, h, title, seat, players, tm, callback) {
                 super();
 
                 const width = 600, height = 540, gap = 50;
@@ -6138,8 +6135,24 @@
                 //this.width = width;
                 //this.height = height;
 
+                let ctn = new PIXI.Graphics();
+                this.addChild(ctn);
+                ctn.beginFill(0, .1);
+                ctn.drawRect(0, 0, w, h);
+                ctn.endFill();
+
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
+                bg.interactive = true;
+
+                bg.scale.set(1.25);
+                bg.x = (w - width * 1.25) * .5;
+                bg.y = (h - height * 1.25) * .5;
+
+                ctn.interactive = true;
+                ctn.on('pointerdown', ()=>bg.visible = false);
+                ctn.on('pointerup', ()=>bg.visible = true);
+                ctn.on('pointerupoutside', ()=>bg.visible = true);
 
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x060F16, .85);
@@ -6172,7 +6185,7 @@
                     strokeThickness: 2,
                     align: 'center'
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.set(.5);
                 t.x = width * .5;
                 t.y = 60;
@@ -6189,7 +6202,7 @@
                         stroke: '#0066ff',
                         strokeThickness: 2,
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.set(.5);
                     t.x = xx[i];
                     t.y = yy;
@@ -6205,7 +6218,7 @@
                             fontWeight: i != 1 ? 'bold' : '',
                             fill: (seat != players[k]['w']) ? '#ffffff' : '#5cdbd3'
                         });
-                        this.addChild(t);
+                        bg.addChild(t);
                         t.anchor.set(.5);
                         t.x = xx[i];
                         t.y = yy;
@@ -6220,7 +6233,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.set(.5);
                 t.x = width * .5;
                 t.y = height - 105;
@@ -6233,7 +6246,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{ callback(); });
-                this.addChild(btn);
+                bg.addChild(btn);
                 btn.x = (width - btnWidth) * .5;
                 btn.y = height - btnHeight - 30;
             }
