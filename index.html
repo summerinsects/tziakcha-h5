@@ -7892,13 +7892,13 @@
                         let btns = [];
                         for (let k = 0, len = opt.length; k < len; ++k) {
                             let cb = new CheckBox(opt[k], ()=>{
-                                for (let n = 0, len = opt.length; n < len; ++n) {
+                                for (let n = 0; n < len; ++n) {
                                     btns[n].setSelected(n == k);
                                 }
                             });
                             this.addChild(cb);
                             cb.scale.set(.66);
-                            cb.x = xx + 100 * k;
+                            cb.x = xx + (i != 8 ? 95 : 125) * k;
                             cb.y = yy - cb.height * .5;
                             btns.push(cb);
                         }
