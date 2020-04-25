@@ -1611,12 +1611,12 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, 120, 60, ()=>{
-                    this.toggleCall();
+                    this.showCall();
                 });
                 this.addChild(btn);
                 btn.zIndex = 500;
-                btn.x = MAX_WIDTH - 320;
-                btn.y = MAX_HEIGHT - 280;
+                btn.x = MAX_WIDTH - 120;
+                btn.y = MAX_HEIGHT - 200;
 
                 btn = new TextButton('计分表', {
                     fontFamily: FF,
@@ -1625,11 +1625,11 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, 120, 60, ()=>{
-                    this.toggleHistory();
+                    this.showHistory();
                 });
                 this.addChild(btn);
                 btn.zIndex = 500;
-                btn.y = MAX_HEIGHT - 210;
+                btn.y = MAX_HEIGHT - 270;
 
                 btn = new TextButton('追分策略', {
                     fontFamily: FF,
@@ -1638,12 +1638,11 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, 120, 60, ()=>{
-                    this.toggleChase();
+                    this.showChase();
                 });
                 this.addChild(btn);
                 btn.zIndex = 500;
-                btn.x = MAX_WIDTH - 120;
-                btn.y = MAX_HEIGHT - 210;
+                btn.y = MAX_HEIGHT - 200;
 
                 graph = this.cd_ = new PIXI.Graphics();
                 //graph.lineStyle(2, 0x0000FF, 1);
@@ -3944,31 +3943,21 @@
                 }
             }
 
-            toggleCall() {
+            showCall() {
                 let cs = this.callView_;
-                if (cs.visible) {
-                    cs.visible = false;
-                }
-                else {
-                    this.removeChild(cs);
-                    this.addChild(cs);
-                    cs.show(this.callFlags_, this.ignoreSD_, this.rightWaive_);
-                }
-            }
+                this.removeChild(cs);
+                this.addChild(cs);
+                cs.show(this.callFlags_, this.ignoreSD_, this.rightWaive_);
+             }
 
-            toggleHistory() {
+            showHistory() {
                 let hv = this.historyView_;
-                if (hv.visible) {
-                    hv.visible = false;
-                }
-                else {
-                    this.removeChild(hv);
-                    this.addChild(hv);
-                    hv.show(this.players_, this.rd_ + (this.rdfsh_ ? 1 : 0), this.cfg_['i'], -this.cfg_['b']);
-                }
+                this.removeChild(hv);
+                this.addChild(hv);
+                hv.show(this.players_, this.rd_ + (this.rdfsh_ ? 1 : 0), this.cfg_['i'], -this.cfg_['b']);
             }
 
-            toggleChase() {
+            showChase() {
                 // this.seat_ = 0;
                 // this.players_[0]['n'] = '12';
                 // this.rp_ = [{'n':'123','s':123},{'n':'12','s':12},{'n':'-12','s':-12},{'n':'-123','s':-123}];
@@ -3976,32 +3965,27 @@
                 // this.showResult();
                 // return;
                 let cv = this.chaseView_;
-                if (cv.visible) {
-                    cv.visible = false;
+                let fw = this.falseWin_;
+                let penalties = [0, 0, 0, 0];
+                if (this.cfg_['fa']) {
+                    for (let i = 0; i < 4; ++i) {
+                        if (fw[i]) {
+                            for (let k = 0; k < 4; ++k) {
+                                penalties[k] += (i != k) ? 10 : -30;
+                            }
+                        }
+                    }
                 }
                 else {
-                    let fw = this.falseWin_;
-                    let penalties = [0, 0, 0, 0];
-                    if (this.cfg_['fa']) {
-                        for (let i = 0; i < 4; ++i) {
-                            if (fw[i]) {
-                                for (let k = 0; k < 4; ++k) {
-                                    penalties[k] += (i != k) ? 10 : -30;
-                                }
-                            }
+                    for (let i = 0; i < 4; ++i) {
+                        if (fw[i]) {
+                            penalties[i] -= 40;
                         }
                     }
-                    else {
-                        for (let i = 0; i < 4; ++i) {
-                            if (fw[i]) {
-                                penalties[i] -= 40;
-                            }
-                        }
-                    }
-                    this.removeChild(cv);
-                    this.addChild(cv);
-                    cv.show(this.players_, penalties);
                 }
+                this.removeChild(cv);
+                this.addChild(cv);
+                cv.show(this.players_, penalties);
             }
 
             showResult() {
@@ -6255,7 +6239,7 @@
                 ctn.drawRect(0, 0, w, h);
                 ctn.endFill();
                 ctn.interactive = true;
-                ctn.on('pointerdown', (e)=>this.visible = false);
+                ctn.on('click', (e)=>this.visible = false);
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -6484,7 +6468,7 @@
                 ctn.drawRect(0, 0, w, h);
                 ctn.endFill();
                 ctn.interactive = true;
-                ctn.on('pointerdown', (e)=>this.visible = false);
+                ctn.on('click', (e)=>this.visible = false);
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -6670,7 +6654,7 @@
                 ctn.drawRect(0, 0, w, h);
                 ctn.endFill();
                 ctn.interactive = true;
-                ctn.on('pointerdown', (e)=>this.visible = false);
+                ctn.on('click', (e)=>this.visible = false);
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -6909,7 +6893,7 @@
                 ctn.drawRect(0, 0, w, h);
                 ctn.endFill();
                 ctn.interactive = true;
-                ctn.on('pointerdown', (e)=>this.visible = false);
+                ctn.on('click', (e)=>this.visible = false);
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
