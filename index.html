@@ -2227,14 +2227,19 @@
                                 if (view) {
                                     this.removeChild(view);
                                 }
-                                view = new SelectionView(types[i], ab.data_, (a)=>{
-                                    ws.send(`{"m":2,"r":${types[i]},"v":${a}}`);
+                                view = new SelectionView(this.width_, this.height_, types[i], ab.data_, (a)=>{
+                                    if (a != undefined) {
+                                        ws.send(`{"m":2,"r":${types[i]},"v":${a}}`);
+                                    }
+                                    else {
+                                        if (!selfDrawn) {
+                                            ws.send('{"m":2,"r":10,"v":0}');
+                                        }
+                                    }
                                     this.removeBtns();
                                     this.removeCD();
                                 });
                                 this.addChild(view);
-                                view.y = this.height_ - 520;
-                                view.x = (this.width_ - view.width) * .5;
                                 this.selectionView_ = view;
                                 break;
                             }
@@ -5521,72 +5526,82 @@
         }
 
         class SelectionView extends PIXI.Container {
-            constructor(type, data, callback) {
+            constructor(w, h, type, data, callback) {
                 super();
 
-                const width = WIDTH_02 * HAND_SCALE * 2 + 50;
-                const height = HEIGHT_02F * HAND_SCALE + 70;
+                const w0 = WIDTH_02 * HAND_SCALE, h0 = HEIGHT_02F * HAND_SCALE;
+                const width = w0 * 2 + 50;
+                const height = h0 + 50;
 
-                //this.width = width * data.length;
+                //this.width = width * (data.length + 1) + data.length * 10;
                 //this.height = height;
 
-                {
-                let bg = new PIXI.Graphics();
-                //bg.lineStyle(2, 0x0000FF, 1);
-                bg.beginFill(0xFFFFFF, .25);
-                bg.drawRect(0, 0, width * data.length, height);
-                bg.endFill();
-                this.addChild(bg);
-                }
+                let ctn = new PIXI.Graphics();
+                this.addChild(ctn);
+                ctn.beginFill(0, .1);
+                ctn.drawRect(0, 0, w, h);
+                ctn.endFill();
+                ctn.interactive = true;
 
-                for (let i = 0; i < data.length; ++i) {
+                let x = (w - ((width + 10) * data.length + width)) * .5;
+
+                for (let i = 0, c = data.length + 1; i < c; ++i) {
+                    let ai = data[i];
                     let btn = new EmptyButton(width, height, ()=>{
                         //console.log('click action', data[i]);
-                        callback(data[i]);
+                        callback(ai);
                     });
                     this.addChild(btn);
-                    btn.x = width * i;
+                    btn.x = x + (width + 10) * i;
+                    btn.y = h - 550;
 
                     let tl = '';
-                    let t0;
-                    let ai = data[i];
-                    switch (type) {
-                    case 3:
-                        tl = '吃';
+                    let t0, py = 25;
+                    if (ai != undefined) {
+                        switch (type) {
+                        case 3:
+                            tl = '吃';
 
-                        t0 = new StandingTile(hi_byte(ai));
-                        btn.addChild(t0);
-                        t0.scale.set(HAND_SCALE);
-                        t0.x = 25;
-                        t0.y = height - HEIGHT_02F * HAND_SCALE - 5;
+                            t0 = new StandingTile(hi_byte(ai));
+                            btn.addChild(t0);
+                            t0.scale.set(HAND_SCALE);
+                            t0.x = 25;
+                            t0.y = height - h0 - 5;
 
-                        t0 = new StandingTile(lo_byte(ai));
-                        btn.addChild(t0);
-                        t0.scale.set(HAND_SCALE);
-                        t0.x = 25 + WIDTH_02 * HAND_SCALE;
-                        t0.y = height - HEIGHT_02F * HAND_SCALE - 5;
-                        break;
-                    case 5:
-                        tl = '杠';
-                        t0 = new StandingTile(lo_byte(ai));
-                        btn.addChild(t0);
-                        t0.scale.set(HAND_SCALE);
-                        t0.x = 25 + WIDTH_02 * .5 * HAND_SCALE;
-                        t0.y = height - HEIGHT_02F * HAND_SCALE - 5;
-                        break;
-                    default:
+                            t0 = new StandingTile(lo_byte(ai));
+                            btn.addChild(t0);
+                            t0.scale.set(HAND_SCALE);
+                            t0.x = 25 + w0;
+                            t0.y = height - h0 - 5;
+                            break;
+                        case 5:
+                            tl = '杠';
+                            t0 = new StandingTile(lo_byte(ai));
+                            btn.addChild(t0);
+                            t0.scale.set(HAND_SCALE);
+                            t0.x = 25 + w0 * .5;
+                            t0.y = height - h0 - 5;
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                    else {
                         tl = '取消';
-                        break;
+                        py = height * .5;
                     }
 
                     let tx = new PIXI.Text(tl, {
                         fontFamily: FF,
-                        fontSize: 48,
+                        fontSize: 32,
                         fill: '#ffffff',
                         stroke: '#0066ff',
                         strokeThickness: 2,
                     });
                     btn.addChild(tx);
+                    tx.anchor.set(.5);
+                    tx.x = width * .5;
+                    tx.y = py;
                 }
             }
         }
