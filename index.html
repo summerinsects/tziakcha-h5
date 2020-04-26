@@ -4007,6 +4007,15 @@
                         delete lobby.tableid_;
                         this.historyView_.visible = false;
                         this.chaseView_.visible = false;
+
+                        this.roundText_.text = '';
+                        this.remainText_.text = '';
+                        let wt = this.windTexts_;
+                        let ip = this.infoPanels_;
+                        for (let i = 0; i < 4; ++i) {
+                            wt[i].text = '';
+                            ip[i].setName('');
+                        }
                     }
                 });
                 this.addChild(view);
