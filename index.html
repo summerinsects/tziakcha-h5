@@ -7670,8 +7670,6 @@
                     delete this.ctv_;
                 });
                 this.container_.addChild(ctv);
-                ctv.x = (LOBBY_WIDTH - ctv.width) * .5;
-                ctv.y = (LOBBY_HEIGHT - ctv.height) * .5;
             }
 
             _callback(id, s, p) {
@@ -7692,8 +7690,6 @@
                             delete this.pv_;
                         });
                         this.container_.addChild(pv);
-                        pv.x = (LOBBY_WIDTH - pv.width) * .5;
-                        pv.y = (LOBBY_HEIGHT - pv.height) * .5;
                     }
                 }
                 else {
@@ -8117,10 +8113,10 @@
                     strokeThickness: 2,
                 });
                 t.anchor.y = .5;
-                t.x = gap;
+                t.x = gap + 30;
                 t.y = 25;
                 this.addChild(t);
-                scaleText(t, width - 120 - gap * 3);
+                scaleText(t, width - 120 - gap * 3 - 30);
 
                 this.pro_ = t = new PIXI.Text('', {
                     fontFamily: FF,
@@ -8287,23 +8283,27 @@
             constructor(callback) {
                 super();
 
-                const gap = 30, width2 = 360, height2 = 240;
+                const gap = 30, width = 360, height = 240;
 
                 //this.width = LOBBY_WIDTH;
                 //this.height = LOBBY_HEIGHT;
-                this.interactive = true;
+                let ctn = new PIXI.Graphics();
+                this.addChild(ctn);
+                ctn.beginFill(0, .5);
+                ctn.drawRect(0, 0, LOBBY_WIDTH, LOBBY_HEIGHT);
+                ctn.endFill();
+                ctn.interactive = true;
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
 
-                bg.beginFill(0, .5);
-                bg.drawRect(0, 0, LOBBY_WIDTH, LOBBY_HEIGHT);
-                bg.endFill();
-
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x0C1E2C, .85);
-                bg.drawRect((LOBBY_WIDTH - width2) * .5, (LOBBY_HEIGHT - height2) * .5, width2, height2);
+                bg.drawRect(0, 0, width, height);
                 bg.endFill();
+
+                bg.x = (LOBBY_WIDTH - width) * .5;
+                bg.y = (LOBBY_HEIGHT - height) * .5;
 
                 let t = new PIXI.Text('请输入密码', {
                     fontFamily: FF,
@@ -8312,10 +8312,10 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.set(.5);
-                t.x = LOBBY_WIDTH * .5;
-                t.y = (LOBBY_HEIGHT - height2) * .5 + 40;
+                t.x = width * .5;
+                t.y = 40;
 
                 let textInput = new PIXI.TextInput({
                     fontSize: '18px',
@@ -8324,11 +8324,11 @@
                     padding: '6px',
                     paddingLeft: '10px',
                 });
-                textInput.x = LOBBY_WIDTH * .5 - 105;
-                textInput.y = LOBBY_HEIGHT * .5 - 30;
+                textInput.x = 75;
+                textInput.y = 90;
                 textInput.substituteText = false;
                 textInput.destroyBoxCache = ()=>{};
-                this.addChild(textInput);
+                bg.addChild(textInput);
 
                 const btnWidth = 100, btnHeight = 40;
                 let btn = new TextButton('取消', {
@@ -8338,9 +8338,9 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{ callback(); });
-                this.addChild(btn);
-                btn.x = (LOBBY_WIDTH - width2) * .5 + gap;
-                btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
+                bg.addChild(btn);
+                btn.x = gap;
+                btn.y = height - btnHeight - 20;
 
                 btn = new TextButton('确定', {
                     fontFamily: FF,
@@ -8349,9 +8349,9 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{ callback(textInput.text); });
-                this.addChild(btn);
-                btn.x = (LOBBY_WIDTH + width2) * .5 - btnWidth - gap;
-                btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
+                bg.addChild(btn);
+                btn.x = width - btnWidth - gap;
+                btn.y = height - btnHeight - 20;
             }
         }
 
@@ -8359,23 +8359,28 @@
             constructor(pzl, callback) {
                 super();
 
-                const gap = 30, width2 = 450, height2 = pzl ? 420 : 320;
+                const gap = 30, width = 450, height = pzl ? 420 : 320;
 
                 //this.width = LOBBY_WIDTH;
                 //this.height = LOBBY_HEIGHT;
-                this.interactive = true;
+
+                let ctn = new PIXI.Graphics();
+                this.addChild(ctn);
+                ctn.beginFill(0, .5);
+                ctn.drawRect(0, 0, LOBBY_WIDTH, LOBBY_HEIGHT);
+                ctn.endFill();
+                ctn.interactive = true;
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
 
-                bg.beginFill(0, .5);
-                bg.drawRect(0, 0, LOBBY_WIDTH, LOBBY_HEIGHT);
-                bg.endFill();
-
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x0C1E2C, .85);
-                bg.drawRect((LOBBY_WIDTH - width2) * .5, (LOBBY_HEIGHT - height2) * .5, width2, height2);
+                bg.drawRect(0, 0, width, height);
                 bg.endFill();
+
+                bg.x = (LOBBY_WIDTH - width) * .5;
+                bg.y = (LOBBY_HEIGHT - height) * .5;
 
                 let t = new PIXI.Text('登录', {
                     fontFamily: FF,
@@ -8384,16 +8389,16 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                this.addChild(t);
+                bg.addChild(t);
                 t.anchor.set(.5);
-                t.x = LOBBY_WIDTH * .5;
-                t.y = (LOBBY_HEIGHT - height2) * .5 + 40;
+                t.x = width * .5;
+                t.y = 40;
 
                 const prefix = ['昵称', '密码', '验证'];
                 let textInputs = [null, null, null];
                 let plh = [localStorage.getItem('username')];
                 for (let i = 0, c = pzl ? 3 : 2; i < c; ++i) {
-                    let yy = (LOBBY_HEIGHT - height2) * .5 + 110 + 70 * i;
+                    let yy = 110 + 70 * i;
                     t = new PIXI.Text(prefix[i], {
                         fontFamily: FF,
                         fontSize: 22,
@@ -8401,9 +8406,9 @@
                         stroke: '#0066ff',
                         strokeThickness: 2,
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.y = .5;
-                    t.x = (LOBBY_WIDTH - width2) * .5 + gap + 10;
+                    t.x = gap + 10;
                     t.y = yy;
 
                     let textInput = new PIXI.TextInput({
@@ -8413,9 +8418,9 @@
                         padding: '6px',
                         paddingLeft: '10px',
                     });
-                    textInput.x = (LOBBY_WIDTH + width2) * .5 - 300 - gap - 10;
+                    textInput.x = width - 300 - gap - 10;
                     textInput.y = yy - 15;
-                    this.addChild(textInput);
+                    bg.addChild(textInput);
                     textInputs[i] = textInput;
                     textInput.text = plh[i] || '';
                     textInput.substituteText = false;
@@ -8431,10 +8436,10 @@
                         strokeThickness: 2,
                         align: 'center'
                     });
-                    this.addChild(t);
+                    bg.addChild(t);
                     t.anchor.set(.5);
-                    t.x = LOBBY_WIDTH * .5;
-                    t.y = LOBBY_HEIGHT * .5 + 95;
+                    t.x = width * .5;
+                    t.y = height * .5 + 95;
                 }
 
                 const btnWidth = 100, btnHeight = 40;
@@ -8445,9 +8450,9 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{ callback(); });
-                this.addChild(btn);
-                btn.x = (LOBBY_WIDTH - width2) * .5 + gap;
-                btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
+                bg.addChild(btn);
+                btn.x = gap;
+                btn.y = height - btnHeight - 20;
 
                 btn = new TextButton('确定', {
                     fontFamily: FF,
@@ -8456,9 +8461,9 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{ callback(textInputs[0].text.trim(), textInputs[1].text, pzl ? textInputs[2].text : ''); });
-                this.addChild(btn);
-                btn.x = (LOBBY_WIDTH + width2) * .5 - btnWidth - gap;
-                btn.y = (LOBBY_HEIGHT + height2) * .5 - btnHeight - 20;
+                bg.addChild(btn);
+                btn.x = width - btnWidth - gap;
+                btn.y = height - btnHeight - 20;
             }
         }
 
