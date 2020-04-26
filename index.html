@@ -6147,16 +6147,16 @@
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
-                bg.interactive = true;
+                //bg.interactive = true;
 
                 bg.scale.set(1.25);
                 bg.x = (w - width * 1.25) * .5;
                 bg.y = (h - height * 1.25) * .5;
 
-                ctn.interactive = true;
-                ctn.on('pointerdown', ()=>bg.visible = false);
-                ctn.on('pointerup', ()=>bg.visible = true);
-                ctn.on('pointerupoutside', ()=>bg.visible = true);
+                //ctn.interactive = true;
+                //ctn.on('pointerdown', ()=>bg.visible = false);
+                //ctn.on('pointerup', ()=>bg.visible = true);
+                //ctn.on('pointerupoutside', ()=>bg.visible = true);
 
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x060F16, .85);
