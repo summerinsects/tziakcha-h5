@@ -8104,8 +8104,23 @@
 
                 let cfg = data['g'];
                 this.anonym_ = cfg['a'];
+                let r30 = cfg['r30'];
 
-                let t = new PIXI.Text(cfg['t'], {
+                let t = new PIXI.Text('\u25CF', {
+                    fontFamily: FF,
+                    fontSize: 26,
+                    fill: (r30 == 5 ? '#ffffff' : (r30 == 8 ? '#00bfff' : (r30 == 10 ? '#ff6a6a' : '#00cd66'))),
+                });
+                t.anchor.y = .5;
+                t.x = gap;
+                t.y = 25;
+                this.addChild(t);
+                //bg.lineStyle(0);
+                //bg.beginFill(r30 == 5 ? 0xffffff : (r30 == 8 ? 0x00bfff : (r30 == 10 ? 0xff6a6a : 0x00cd66)));
+                //bg.drawCircle(25, 25, 15);
+                //bg.endFill();
+
+                t = new PIXI.Text(cfg['t'], {
                     fontFamily: FF,
                     fontSize: 26,
                     fill: '#ffffff',
