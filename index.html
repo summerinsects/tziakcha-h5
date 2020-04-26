@@ -82,7 +82,12 @@
 
         setInterval(()=>{
             app.renderer.render(app.stage);
-            TWEEN.update();
+            try {
+                TWEEN.update();
+            }
+            catch (e) {
+                console.log(e);
+            }
         }, 33.333);
 
         let loadingText = new PIXI.Text('0%', {
@@ -2317,9 +2322,9 @@
                 }
 
                 (new TWEEN.Tween(sp)).to({x:x,y:y}, DRAW_DT).delay(10).onComplete(()=>{
-                    sp.destroy({children:true});
                     dst.visible = true;
                     this.remainText_.text = '牌墙剩余：' + this.remainCnt_;
+                    sp.destroy({children:true});
                 }).start();
             }
 
@@ -2634,8 +2639,8 @@
                         // 普通打牌
                         (new TWEEN.Tween(sp)).to({x:dst.x,y:dst.y}, DISCARD_DT).onComplete(()=>{
                             dst.visible = true;
-                            sp.destroy({children:true});
                             this.activeTile_ = null;
+                            sp.destroy({children:true});
                         }).start();
                     }
                     else {
@@ -2660,6 +2665,8 @@
                 if (sp) {
                     console.log('active tile is not null');
 
+                    this.activeTile_ = null;
+
                     let dst = sp.dst_;
                     if (dst) {
                         // 普通打牌
@@ -2673,7 +2680,6 @@
                         sp.x = sp.dstx_;
                         sp.y = sp.dsty_;
                     }
-                    this.activeTile_ = null;
                 }
             }
 
