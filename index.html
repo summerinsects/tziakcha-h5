@@ -4097,6 +4097,12 @@
                             break;
                         }
                         this.addChild(sp);
+
+                        let pkt = this.packs_[n1].pop();
+                        if (pkt && !Object.is(src, pkt)) {
+                            this.packs_[n1].push(pkt);
+                        }
+
                         src.destroy({children:true});
                         this.activeTile_ = null;
 
