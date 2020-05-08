@@ -2084,7 +2084,7 @@
                         clearInterval(t.timer_);
                         delete t.timer_;
                     }
-                });
+                }, 100);
                 cd.visible = true;
             }
 
@@ -6038,7 +6038,7 @@
                         callback();
                         clearInterval(t.timer_);
                     }
-                }, 33.33);
+                }, 100);
 
                 bg.scale.set(1.25);
                 bg.x = (w - width * 1.25) * .5;
