@@ -6141,13 +6141,15 @@
         }
 
         function fmt_date(ud) {
-            let y = ud.getUTCFullYear(),
-                m = ud.getUTCMonth() + 1,
-                d = ud.getUTCDate(),
-                h = ud.getUTCHours(),
-                mm = ud.getUTCMinutes(),
-                s = ud.getUTCSeconds();
-            return `${y}-${pad2(m)}-${pad2(d)} ${pad2(h)}:${pad2(mm)}:${pad2(s)}`;
+            let y = ud.getFullYear(),
+                m = ud.getMonth() + 1,
+                d = ud.getDate(),
+                h = ud.getHours(),
+                mm = ud.getMinutes(),
+                s = ud.getSeconds(),
+                o = ud.getTimezoneOffset();
+            let oa = Math.abs(o), oh = Math.floor(oa / 60), om = oa - oh * 60;
+            return `${y}-${pad2(m)}-${pad2(d)} ${pad2(h)}:${pad2(mm)}:${pad2(s)}  UTC${o<=0?'+':'-'}${pad2(oh)}:${pad2(om)}`;
         }
 
         class ResultView extends PIXI.Container {
@@ -6251,7 +6253,7 @@
                     }
                 }
 
-                t = new PIXI.Text(fmt_date(new Date(tm + 28800000)) + ' UTC+08:00', {
+                t = new PIXI.Text(fmt_date(new Date(tm)), {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
