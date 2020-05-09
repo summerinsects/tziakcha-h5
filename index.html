@@ -279,10 +279,12 @@
                 case 3:
                     lobby.visible = false;
                     game.visible = true;
+                    game.pool_.startup(resp['s']);
                     break;
                 case 4:
                     lobby.visible = false;
                     game.reconnect(resp);
+                    game.pool_.startup(resp['s']);
                     game.visible = true;
                     break;
                 case 5:
@@ -723,8 +725,7 @@
                     break;
                 }
                 case 17: {  // 对局结束
-                    pool.rp_ = resp['p'];
-                    pool.rpt_ = resp['t'];
+                    pool.setResult(resp);
                     break;
                 }
                 case 18: {  // 离线/上线
@@ -1133,6 +1134,17 @@
                 text.anchor.y = .5;
                 text.x = MAX_WIDTH - 10;
                 text.y = this.cfgText1_.y;
+
+                text = this.cst_ = new PIXI.Text('', {
+                    fontFamily: FF,
+                    fontSize: 22,
+                    fill: '#dedede',
+                });
+                this.addChild(text);
+                text.anchor.x = 1;
+                text.anchor.y = .5;
+                text.x = MAX_WIDTH - INFO_OFFSET_X_13 + 160;
+                text.y = MAX_HEIGHT - INFO_OFFSET_Y_13 + 215;//180+35;
 
                 {
                     // 四家牌墙
@@ -1722,6 +1734,20 @@
                 scaleText(text, MAX_WIDTH - 50);
 
                 this.sortChildren();
+            }
+
+            startup(ts) {
+                if (this.cstr_) {
+                    clearInterval(this.cstr_);
+                    this.cstr_ = null;
+                }
+                this.stts_ = Math.min(ts, new Date().getTime());
+                this.cstr_ = setInterval(()=>{
+                    let s = Math.floor((new Date().getTime() - this.stts_) / 1000);
+                    let m = Math.floor(s / 60);
+                    s -= m * 60;
+                    this.cst_.text = `${pad2(m)}:${pad2(s)}`;
+                }, 200);
             }
 
             setCfg(cfg) {
@@ -3941,6 +3967,15 @@
                         this.addCD(this.cfg_['r30']);
                     }, 4000);
                 }
+            }
+
+            setResult(resp) {
+                if (this.cstr_) {
+                    clearInterval(this.cstr_);
+                    this.cstr_ = null;
+                }
+                this.rp_ = resp['p'];
+                this.rpt_ = resp['t'];
             }
 
             showCall() {
