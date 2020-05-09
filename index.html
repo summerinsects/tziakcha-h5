@@ -112,7 +112,7 @@
 
         let mutecd = parseInt(localStorage.getItem('mutecd'));
         let mutecall = parseInt(localStorage.getItem('mutecall'));
-        let lobby, game, topmost, ws, hbt, nht;
+        let lobby, game, topmost, ws, hbt, nht, piat;
 
         function reenter() {
             topmost.error('数据与服务器不同步，请刷新重试', true);
@@ -184,6 +184,9 @@
 
             nht = localStorage.getItem('nht');
             nht = (nht != undefined) ? parseInt(nht) : 0;
+
+            piat = localStorage.getItem('piano');
+            piat = (piat != undefined) ? parseInt(piat) : 0;
 
             lobby = new LobbyView();
             app.stage.addChild(lobby);
@@ -396,10 +399,15 @@
                 this.containerWidth_ = this.width;
                 this.containerHeight_ = this.height;
 
-                let piano = new Piano(pool.width, pool.standing_[0]);
-                this.addChild(piano);
-                piano.visible = false;
-                pool.piano_ = piano;
+                let piano3 = new Piano3(pool.width, pool.standing_[0]);
+                this.addChild(piano3);
+                piano3.visible = false;
+                pool.piano3_ = piano3;
+
+                let piano2 = new Piano2(pool.width, pool.standing_[0]);
+                this.addChild(piano2);
+                piano2.visible = false;
+                pool.piano2_ = piano2;
 
                 this.interactive = true;
                 this.on('rightclick', pool.rightclick.bind(pool));
@@ -408,7 +416,8 @@
             adapt() {
                 let pool = this.pool_;
                 let panel = pool.option_;
-                let piano = pool.piano_;
+                let piano3 = pool.piano3_;
+                let piano2 = pool.piano2_;
 
                 let containerWidth = this.containerWidth_;
                 let containerHeight = this.containerHeight_;
@@ -421,28 +430,50 @@
                 let ch = Math.round(containerHeight * ss);
                 if (window.innerHeight <= ch) {
                     this.x = (window.innerWidth - containerWidth * ss) * .5;
-                    if (piano.visible) {
-                        piano.visible = false;
-                        piano.y = 0;
-                        panel.y = pool.height + 55;
+                    if (piano3.visible) {
+                        piano3.visible = false;
+                        piano3.y = 0;
                     }
+                    if (piano2.visible) {
+                        piano2.visible = false;
+                        piano2.y = 0;
+                    }
+                    panel.y = pool.height + 55;
                 } else {
                     this.x = 0;
 
                     let space = window.innerHeight / ss - containerHeight;
                     //console.log('space = ', space);
-                    if (space > 400 + 20) {
-                        if (!piano.visible) {
-                            piano.visible = true;
-                            piano.y = pool.height + 55;
+                    if (space > 400 + 20 && piat === 0) {
+                        if (!piano3.visible) {
+                            piano3.visible = true;
+                            piano3.y = pool.height + 55;
                             panel.y = pool.height + 65 + 400;
                         }
-                    } else {
-                        if (piano.visible) {
-                            piano.visible = false;
-                            piano.y = 0;
-                            panel.y = pool.height + 55;
+                        if (piano2.visible) {
+                            piano2.visible = false;
+                            piano2.y = 0;
                         }
+                    } else if (space > 340 + 20) {
+                        if (!piano2.visible) {
+                            piano2.visible = true;
+                            piano2.y = pool.height + 55;
+                            panel.y = pool.height + 65 + 340;
+                        }
+                        if (piano3.visible) {
+                            piano3.visible = false;
+                            piano3.y = 0;
+                        }
+                    } else {
+                        if (piano3.visible) {
+                            piano3.visible = false;
+                            piano3.y = 0;
+                        }
+                        if (piano2.visible) {
+                            piano2.visible = false;
+                            piano2.y = 0;
+                        }
+                        panel.y = pool.height + 55;
                     }
                 }
             }
@@ -2560,8 +2591,11 @@
                     }
                 }
 
-                if (this.piano_.visible) {
-                    this.piano_.refresh();
+                if (this.piano3_.visible) {
+                    this.piano3_.refresh();
+                }
+                else if (this.piano2_.visible) {
+                    this.piano2_.refresh();
                 }
             }
 
@@ -6972,7 +7006,7 @@
             constructor(w, h, callback) {
                 super();
 
-                const width = 500, height = 420;
+                const width = 540, height = 500;
 
                 //this.width = w;
                 //this.height = h;
@@ -7056,11 +7090,11 @@
                 t.x = 30;
                 t.y = 160;
 
-                let cb1 = new CheckBox('');
+                let cb1 = new CheckBox();
                 bg.addChild(cb1);
                 cb1.scale.set(.75);
                 cb1.x = t.x + t.width + 40;
-                cb1.y = t.y - 15;
+                cb1.y = t.y - 18;
                 cb1.setSelected(!mutecd);
 
                 t = new PIXI.Text('鸣牌提示音效', {
@@ -7075,11 +7109,11 @@
                 t.x = 30;
                 t.y = 210;
 
-                let cb2 = new CheckBox('');
+                let cb2 = new CheckBox();
                 bg.addChild(cb2);
                 cb2.scale.set(.75);
                 cb2.x = t.x + t.width + 40;
-                cb2.y = t.y - 15;
+                cb2.y = t.y - 18;
                 cb2.setSelected(!mutecall);
 
                 t = new PIXI.Text('牌面上角标（刷新后生效）', {
@@ -7094,12 +7128,41 @@
                 t.x = 30;
                 t.y = 260;
 
-                let cb3 = new CheckBox('');
+                let cb3 = new CheckBox();
                 bg.addChild(cb3);
                 cb3.scale.set(.75);
                 cb3.x = t.x + t.width + 40;
-                cb3.y = t.y - 15;
+                cb3.y = t.y - 18;
                 cb3.setSelected(nht);
+
+                t = new PIXI.Text('钢琴键尺寸（刷新后生效）', {
+                    fontFamily: FF,
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                bg.addChild(t);
+                t.anchor.y = .5;
+                t.x = 30;
+                t.y = 310;
+
+                let ti = ['三格', '两格'];
+                let piacbs = [];
+                for (let i = 0; i < 2; ++i) {
+                    let cbx = new CheckBox(ti[i], ()=>{
+                        for (let n = 0; n < 2; ++n) {
+                            piacbs[n].setSelected(n == i);
+                        }
+                    });
+                    bg.addChild(cbx);
+                    cbx.scale.set(.75);
+                    cbx.x = t.x + t.width + 10 + 105 * i;
+                    cbx.y = t.y - 18;
+                    piacbs.push(cbx);
+                }
+                piacbs[0].setSelected(!piat);
+                piacbs[1].setSelected(piat);
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
@@ -7127,6 +7190,7 @@
                     localStorage.setItem('mutecd', mutecd);
                     localStorage.setItem('mutecall', mutecall);
                     localStorage.setItem('nht', cb3.isSelected() ? 1 : 0);
+                    localStorage.setItem('piano', piacbs[0].isSelected() ? 0 : 1);
                     PIXI.sound.volumeAll = volume / 100;
                     callback();
                 });
@@ -7143,7 +7207,7 @@
                 //this.width = width;
                 //this.height = height;
 
-                let clk = clkcb.bind(this);
+                let clk = ()=>{ clkcb(this); };
                 let hlt = ()=>{ this.fg_.visible = true; };
                 let nml = ()=>{ this.fg_.visible = false; };
 
@@ -7171,7 +7235,7 @@
             }
         }
 
-        class Piano extends PIXI.Container {
+        class Piano3 extends PIXI.Container {
             constructor(width, standing) {
                 super();
 
@@ -7216,9 +7280,15 @@
                 const BTN_WIDTH = TILE_WIDTH * 3;
                 let xx = standing[0].x - BTN_WIDTH;
                 let maxx = width - BTN_WIDTH;
+
                 for (let k = 0; k < 3; ++k) {
                     let btnctn = this.btnctns_[k] = new PIXI.Container();
                     this.addChild(btnctn);
+
+                    let graph = new PIXI.Graphics();
+                    btnctn.addChild(graph);
+
+                    let keys = [];
                     for (let i = 0; i < 7; ++i) {
                         let x = xx + BTN_WIDTH * i + k * TILE_WIDTH;
                         let w = BTN_WIDTH;
@@ -7238,10 +7308,9 @@
                             break;
                         }
 
-                        let ri = i * 3 + k - 2;
                         let btn = new PianoKey(w, 240, (btn)=>{
                             let standing = this.standing_;
-                            let sp = standing[ri];
+                            let sp = standing[btn.ri_];
                             if (sp && sp.visible) {
                                 if (sp.isHighlight()) {
                                     sp.click();
@@ -7253,9 +7322,9 @@
                                         let st = standing[n];
                                         st.setHighlight(st == sp);
                                     }
-                                    let chr = btnctn.children;
-                                    for (let n = 0, cnt = chr.length; n < cnt; ++n) {
-                                        chr[n].fg_.visible = false;
+                                    let keys = btnctn.keys_;
+                                    for (let n = 0, cnt = keys.length; n < cnt; ++n) {
+                                        keys[n].fg_.visible = false;
                                     }
 
                                     btn.fg_.visible = true;
@@ -7264,20 +7333,25 @@
                         });
                         btn.x = x;
                         btnctn.addChild(btn);
+                        keys.push(btn);
+                        btn.ri_ = i * 3 + k - 2;
 
-                        let graph = new PIXI.Graphics();
                         if (xh > 0) {
                             graph.lineStyle(5, 0xffffff, 1);
-                            graph.moveTo(xh, 0);
-                            graph.lineTo(xh, 120);
+                            graph.moveTo(x + xh, 0);
+                            graph.lineTo(x + xh, 120);
+
+                            // 以下代码：箭头状
+                            // graph.moveTo(x + xh + 15, 25);
+                            // graph.lineTo(x + xh, 5);
+                            // graph.moveTo(x + xh - 15, 25);
+                            // graph.lineTo(x + xh, 5);
                         }
                         graph.lineStyle(5, 0x808080, 1);
-                        graph.drawRect(0, 0, w, 240);
-                        graph.endFill();
-
-                        btn.addChild(graph);
+                        graph.drawRect(x, 0, w, 240);
                     }
                     btnctn.visible = (k == 0);
+                    btnctn.keys_ = keys;
                 }
             }
 
@@ -7288,7 +7362,7 @@
                 let hlt = -1;
                 for (let i = 0; i < 14; ++i) {
                     let sp = sta[i];
-                    if (sp.visible && sp.isHighlight()) {
+                    if (sp && sp.visible && sp.isHighlight()) {
                         hlt = i;
                         break;
                     }
@@ -7319,12 +7393,11 @@
                     }
                     else {
                         btnctn.visible = true;
-                        let chr = btnctn.children;
-                        let sta = this.standing_;
-                        for (let i = 0, cnt = chr.length; i < cnt; ++i) {
+                        let keys = btnctn.keys_;
+                        for (let i = 0, cnt = keys.length; i < cnt; ++i) {
                             let ri = i * 3 + k - 2;
                             let sp = sta[ri];
-                            chr[i].fg_.visible = (sp && sp.visible && sp.isHighlight());
+                            keys[i].fg_.visible = (sp && sp.visible && sp.isHighlight());
                         }
                     }
                 }
@@ -7334,14 +7407,125 @@
                 for (let k = 0; k < 3; ++k) {
                     let btnctn = this.btnctns_[k];
                     if (btnctn.visible) {
-                        let chr = btnctn.children;
+                        let keys = btnctn.keys_;
                         let sta = this.standing_;
-                        for (let i = 0, cnt = chr.length; i < cnt; ++i) {
+                        for (let i = 0, cnt = keys.length; i < cnt; ++i) {
                             let ri = i * 3 + k - 2;
                             let sp = sta[ri];
-                            chr[i].fg_.visible = (sp && sp.visible && sp.isHighlight());
+                            keys[i].fg_.visible = (sp && sp.visible && sp.isHighlight());
                         }
                     }
+                }
+            }
+        }
+
+        class Piano2 extends PIXI.Container {
+            constructor(width, standing) {
+                super();
+
+                //this.width = width;
+                //this.height = 340;
+
+                let graph = new PIXI.Graphics();
+                graph.lineStyle(5, 0x808080, 1);
+                graph.beginFill(0x0C1E2C, .85);
+                graph.drawRect(0, 0, width, 340);
+                graph.endFill();
+
+                this.standing_ = standing;
+                this.keys_ = new Array(14);
+                this.o_ = -1;
+                this.hlt_ = -1;
+
+                const TILE_WIDTH = WIDTH_02 * HAND_SCALE;
+                const BTN_WIDTH = TILE_WIDTH * 2;
+                let cb = (btn)=>{
+                    let standing = this.standing_;
+                    let sp = standing[btn.ri_];
+                    if (sp && sp.visible) {
+                        if (sp.isHighlight()) {
+                            sp.click();
+                            sp.setHighlight(false);
+                        }
+                        else {
+                            sp.setHighlight(true);
+                            for (let n = 0; n < 14; ++n) {
+                                let st = standing[n];
+                                st.setHighlight(st == sp);
+                            }
+                            let keys = this.keys_;
+                            for (let n = 0; n < 14; ++n) {
+                                keys[n].fg_.visible = false;
+                            }
+
+                            btn.fg_.visible = true;
+                        }
+                    }
+                };
+
+                for (let i = 0; i < 7; ++i) {
+                    let x = BTN_WIDTH * i;
+                    let btn = new PianoKey(BTN_WIDTH, 170, cb);
+                    btn.x = x;
+                    this.addChild(btn);
+                    btn.ri_ = i * 2;
+                    this.keys_[i * 2] = btn;
+
+                    graph.lineStyle(5, 0xffffff, 1);
+                    graph.beginFill(0xffffff, 1);
+                    graph.drawRect(x, 0, TILE_WIDTH, 20);
+                    graph.endFill();
+
+                    graph.lineStyle(5, 0x808080, 1);
+                    graph.drawRect(x, 0, BTN_WIDTH, 170);
+                }
+
+                for (let i = 0; i < 6; ++i) {
+                    let x = TILE_WIDTH + BTN_WIDTH * i;
+                    let btn = new PianoKey(BTN_WIDTH, 170, cb);
+                    btn.x = x;
+                    btn.y = 170;
+                    this.addChild(btn);
+                    btn.ri_ = i * 2 + 1;
+                    this.keys_[i * 2 + 1] = btn;
+
+                    graph.lineStyle(5, 0xffffff, 1);
+                    graph.beginFill(0xffffff, 1);
+                    graph.drawRect(x, 170, TILE_WIDTH, 20);
+                    graph.endFill();
+
+                    graph.lineStyle(5, 0x808080, 1);
+                    graph.drawRect(x, 170, BTN_WIDTH, 170);
+                }
+
+                {
+                    let x = TILE_WIDTH + BTN_WIDTH * 6;
+                    let w = width - BTN_WIDTH;
+                    let btn = new PianoKey(w, 170, cb);
+                    btn.x = x;
+                    btn.y = 170;
+                    this.addChild(btn);
+                    btn.ri_ = 13;
+                    this.keys_[13] = btn;
+
+                    graph.lineStyle(5, 0xffffff, 1);
+                    graph.beginFill(0xffffff, 1);
+                    graph.drawRect(x, 170, TILE_WIDTH, 20);
+                    graph.endFill();
+
+                    graph.lineStyle(5, 0x808080, 1);
+                    graph.drawRect(x, 170, w, 170);
+                }
+
+                this.addChild(graph);
+            }
+
+            refresh() {
+                let keys = this.keys_;
+                let sta = this.standing_;
+                for (let i = 0, cnt = keys.length; i < cnt; ++i) {
+                    let sp = sta[i];
+                    keys[i].fg_.visible = (sp && sp.visible && sp.isHighlight());
                 }
             }
         }
