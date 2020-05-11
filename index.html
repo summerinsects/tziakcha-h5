@@ -7745,6 +7745,9 @@
                     case 13: topmost.error('账号和密码不匹配'); break;
                     case 14: topmost.error('验证码已过期'); break;
                     case 15: topmost.error('验证码错误'); break;
+                    case 17: topmost.error('不支持该配置'); break;
+                    case 18: topmost.error('该桌IP限制'); break;
+                    case 19: topmost.error('账号未激活'); break;
                     case 16: {
                         document.cookie = '__p=;Path=/;Max-Age=0';
                         let un, pw;
@@ -7757,7 +7760,6 @@
                         }
                         break;
                     }
-                    case 17: topmost.error('不支持该配置'); break;
                     }
                     break;
                 case 2: {
