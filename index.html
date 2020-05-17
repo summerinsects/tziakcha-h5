@@ -34,12 +34,12 @@
             'E', 'S', 'W', 'N', 'C', 'F', 'P', '', ''
         ];
 
-        var pack_get_type = (p)=>(p >> 8) & 3;
-        var pack_get_tile = (p)=>(p & 0x3F) << 2;
-        var pack_get_offer = (p)=>(p >> 6) & 3;
-        var is_promoted_kong = (p)=>(p & 0x0300) == 0x0300;
-        var lo_byte = (w)=>w & 0xFF;
-        var hi_byte = (w)=>(w >> 8) & 0xFF;
+        function pack_get_type(p) { return (p >> 8) & 3; }
+        function pack_get_tile(p) { return (p & 0x3F) << 2; }
+        function pack_get_offer(p) { return (p >> 6) & 3; }
+        function is_promoted_kong(p) { return (p & 0x0300) == 0x0300; }
+        function lo_byte(w) { return w & 0xFF; }
+        function hi_byte(w) { return (w >> 8) & 0xFF; }
         function shuffle_array(arr, beg, end) {
             for (let i = beg, len = arr.length; i < end && i < len; ++i) {
                 let j = Math.floor(Math.random() * (end - beg)) + beg;
@@ -50,8 +50,8 @@
                 }
             }
         }
-        var plus_sign = (x)=>(x >= 0 ? `+${x}` : x);
-        var pad2 = (x)=>(x < 10 ? `0${x}` : x);
+        function plus_sign(x) { return (x >= 0 ? `+${x}` : x); }
+        function pad2(x) { return (x < 10 ? `0${x}` : x); }
 
         const FF = [
             '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif',
@@ -5861,7 +5861,8 @@
             '花牌'
             , '明暗杠'
         ];
-        let fan_item = (f, v)=>{
+
+        function fan_item(f, v) {
             let c = ((v >> 8) & 0xFF) + 1;
             return `${FAN_NAME[f]} ${c==1?`${v&0xFF}番`:`${v&0xFF}番\x20\u00D7\x20${c}`}`;
         };
