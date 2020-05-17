@@ -128,6 +128,15 @@
             }
         }
 
+        PIXI.DisplayObject.prototype.dstry = function() {
+            try {
+                this.destroy({children:true});
+            }
+            catch (e) {
+                console.log(e);
+            }
+        }
+
         PIXI.loader.add([
             'img/ui/checkbox_normal.png',
             'img/ui/checkbox_tick.png',
@@ -179,7 +188,7 @@
             loadingText.text = e.progress.toFixed(2) + '%';
         })
         .load(()=>{
-            loadingText.destroy({children:true});
+            loadingText.dstry();
             delete loadingText;
 
             nht = localStorage.getItem('nht');
@@ -1620,7 +1629,7 @@
                     }
 
                     let sv = this.sv_ = new SettingView(MAX_WIDTH, MAX_HEIGHT, ()=>{
-                        this.sv_.destroy({children:true});
+                        this.sv_.dstry();
                         delete this.sv_;
                     });
                     this.addChild(sv);
@@ -1820,11 +1829,11 @@
 
                     let sp;
                     while (sp = this.packs_[i].pop()) {
-                        sp.destroy({children:true});
+                        sp.dstry();
                     }
 
                     while (sp = this.openTiles_[i].pop()) {
-                        sp.destroy({children:true});
+                        sp.dstry();
                     }
 
                     this.openPos_[i] = this.origin_[i][0];
@@ -1855,7 +1864,7 @@
                 }
 
                 if (this.activeTile_) {
-                    this.activeTile_.destroy({children:true});
+                    this.activeTile_.dstry();
                     this.activeTile_ = null;
                 }
 
@@ -1905,8 +1914,8 @@
                 play_snd('snd/02-dice.wav');
                 let dir2 = (d[0] + d[1] - 1 + 4) & 3;
                 setTimeout(()=>{
-                    dss[0].destroy({children:true});
-                    dss[1].destroy({children:true});
+                    dss[0].dstry();
+                    dss[1].dstry();
                     this.setTurn(dir2);
                     play_snd('snd/02-dice.wav');
 
@@ -1920,8 +1929,8 @@
                     }
                 }, 1000);
                 setTimeout(()=>{
-                    dss[0].destroy({children:true});
-                    dss[1].destroy({children:true});
+                    dss[0].dstry();
+                    dss[1].dstry();
                     this.setTurn(0);
                 }, 2000);
 
@@ -2101,7 +2110,7 @@
 
                 (new TWEEN.Tween(bg)).to({alpha:0}, 200).delay(1300).start();
 
-                setTimeout(()=>{ bg.destroy({children:true}); this.sendHandTiles(d, h); }, 1500);
+                setTimeout(()=>{ bg.dstry(); this.sendHandTiles(d, h); }, 1500);
                 play_snd(this.rd_ ? 'snd/25-xchg.wav' : 'snd/01-start.wav');
             }
 
@@ -2283,7 +2292,7 @@
                             default: {
                                 let view = this.selectionView_;
                                 if (view) {
-                                    view.destroy({children:true});
+                                    view.dstry();
                                 }
                                 view = new SelectionView(this.width_, this.height_, types[i], ab.data_, (a)=>{
                                     if (a != undefined) {
@@ -2335,7 +2344,7 @@
             removeBtns() {
                 let v = this.selectionView_;
                 if (v) {
-                    v.destroy({children:true});
+                    v.dstry();
                     delete this.selectionView_;
                 }
 
@@ -2380,7 +2389,7 @@
                 (new TWEEN.Tween(sp)).to({x:x,y:y}, DRAW_DT).delay(10).onComplete(()=>{
                     dst.visible = true;
                     this.remainText_.text = '牌墙剩余：' + this.remainCnt_;
-                    sp.destroy({children:true});
+                    sp.dstry();
                 }).start();
             }
 
@@ -2699,7 +2708,7 @@
                         (new TWEEN.Tween(sp)).to({x:dst.x,y:dst.y}, DISCARD_DT).onComplete(()=>{
                             dst.visible = true;
                             this.activeTile_ = null;
-                            sp.destroy({children:true});
+                            sp.dstry();
                         }).start();
                     }
                     else {
@@ -2732,7 +2741,7 @@
                         sp.x = dst.x;
                         sp.y = dst.y;
                         dst.visible = true;
-                        sp.destroy({children:true});
+                        sp.dstry();
                     }
                     else {
                         // 加杠
@@ -2757,7 +2766,7 @@
                 (new TWEEN.Tween(text.scale)).to({x:1,y:1}, 100).onComplete(()=>{
                     (new TWEEN.Tween(text)).to({alpha:0}, 100).delay(1200).start();
                     (new TWEEN.Tween(text.scale)).to({x:2,y:2}, 100).delay(1200).onComplete(()=>{
-                        text.destroy({children:true});
+                        text.dstry();
                     }).start();
                 }).start();
 
@@ -3041,7 +3050,7 @@
                 }
                 if (req) {
                     req.dst_.v_ = false;
-                    req.destroy({children:true});
+                    req.dstry();
                 }
 
                 this.packData_[3].push(pack);
@@ -3277,7 +3286,7 @@
                 }
                 if (req) {
                     req.dst_.v_ = false;
-                    req.destroy({children:true});
+                    req.dstry();
                 }
 
                 this.packData_[2].push(pack);
@@ -3515,7 +3524,7 @@
                 }
                 if (req) {
                     req.dst_.v_ = false;
-                    req.destroy({children:true});
+                    req.dstry();
                 }
 
                 this.packData_[1].push(pack);
@@ -3782,7 +3791,7 @@
                 }
                 if (req) {
                     req.dst_.v_ = false;
-                    req.destroy({children:true});
+                    req.dstry();
                 }
 
                 this.packData_[0].push(pack);
@@ -3986,7 +3995,7 @@
 
             closeSettleView() {
                 if (this.settleView_) {
-                    this.settleView_.destroy({children:true});
+                    this.settleView_.dstry();
                     this.settleView_ = null;
                 }
             }
@@ -4058,12 +4067,12 @@
 
             showResult() {
                 if (this.resultView_) {
-                    this.resultView_.destroy({children:true});
+                    this.resultView_.dstry();
                 }
 
                 let view = new ResultView(this.width_, this.height_, this.cfg_['t'], this.seat_, this.rp_, this.rpt_, ()=>{
                     if (this.resultView_) {
-                        this.resultView_.destroy({children:true});
+                        this.resultView_.dstry();
                         this.resultView_ = null;
                         this.clear();
                         delete this.rp_;
@@ -4094,7 +4103,7 @@
             _removeOpenTiles(n, cnt) {
                 let sp;
                 while (sp = this.openTiles_[n].pop()) {
-                    sp.destroy({children:true});
+                    sp.dstry();
                 }
 
                 let hidden = this.packData_[n].length * 3;
@@ -4171,10 +4180,10 @@
                             this.packs_[n1].push(pkt);
                         }
 
-                        src.destroy({children:true});
+                        src.dstry();
                         this.activeTile_ = null;
 
-                        (new TWEEN.Tween(sp)).to({x:xx,y:yy}, DISCARD_DT).onComplete(()=>{ sp.destroy({children:true}); }).start();
+                        (new TWEEN.Tween(sp)).to({x:xx,y:yy}, DISCARD_DT).onComplete(()=>{ sp.dstry(); }).start();
 
                         if (n0 == 0) {
                             (new TWEEN.Tween(sp.scale)).to({x:HAND_SCALE,y:HAND_SCALE}, DISCARD_DT).start();
@@ -6198,7 +6207,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ this.destroy({children:true}); });
+                }, btnWidth, btnHeight, ()=>{ this.dstry(); });
                 bg.addChild(btn);
                 btn.x = width - btnWidth - gap;
                 btn.y = height - btnHeight - gap;
@@ -7770,7 +7779,7 @@
 
                     let tv;
                     while (tv = this.tables_.pop()) {
-                        tv.destroy({children:true});
+                        tv.dstry();
                     }
                     // 无需break，接着走case 3一样的逻辑
                 }
@@ -7873,7 +7882,7 @@
                         ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}","z":"${pzl}","s":"${sln}"}`);
                         localStorage.setItem('username', un);
                     }
-                    this.uv_.destroy({children:true});
+                    this.uv_.dstry();
                     delete this.uv_;
                 });
                 this.container_.addChild(uv);
@@ -7910,7 +7919,7 @@
                         ws.send(JSON.stringify({'m':1,'r':3,'g':cfg}));
                     }
 
-                    this.ctv_.destroy({children:true});
+                    this.ctv_.dstry();
                     delete this.ctv_;
                 });
                 this.container_.addChild(ctv);
@@ -7930,7 +7939,7 @@
                             if (p) {
                                 ws.send(`{"m":1,"r":4,"v":${id},"s":${s},"p":"${p}"}`);
                             }
-                            this.pv_.destroy({children:true});
+                            this.pv_.dstry();
                             delete this.pv_;
                         });
                         this.container_.addChild(pv);
@@ -7993,7 +8002,7 @@
                     let tbs = this.tables_;
                     let tv = tbs[i];
                     tbs.splice(i, 1);
-                    tv.destroy({children:true});
+                    tv.dstry();
                     this._refresh();
                 }
             }
@@ -8770,7 +8779,7 @@
 
                 if (!r) {
                     (new TWEEN.Tween(bg)).to({alpha:1}, 100).onComplete(()=>{
-                        (new TWEEN.Tween(bg)).to({alpha:0}, 100).delay(1300).onComplete(()=>{ bg.destroy({children:true}); }).start();
+                        (new TWEEN.Tween(bg)).to({alpha:0}, 100).delay(1300).onComplete(()=>{ bg.dstry(); }).start();
                     }).start();
                 }
             }
