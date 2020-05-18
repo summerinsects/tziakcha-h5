@@ -277,8 +277,9 @@
             ws.onclose = ()=>{
                 console.log('close');
             };
-            ws.onmessage = (e)=>{
-                let resp = JSON.parse(e.data);
+            ws.onmessage = (p)=>{
+                try {
+                let resp = JSON.parse(p.data);
                 console.log(resp);
                 let m = resp['m'];
                 switch (m) {
@@ -305,6 +306,9 @@
                     break;
                 default:
                     break;
+                }
+                } catch (e) {
+                console.log(e);
                 }
                 hbt = 0;
             };
