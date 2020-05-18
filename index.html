@@ -103,7 +103,7 @@
             loadingText.x = window.innerWidth * .5;
             loadingText.y = window.innerHeight * .5;
             loadingText.scale.set(Math.min(window.innerWidth / 680, window.innerHeight / 700));
-        }
+        };
         adaptLoadingText();
         window.onresize = ()=>{
             app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -135,7 +135,7 @@
             catch (e) {
                 console.log(e);
             }
-        }
+        };
 
         PIXI.loader.add([
             'img/ui/checkbox_normal.png',
@@ -498,11 +498,12 @@
                 let r = resp['r'];
 
                 switch (r) {
-                case 1:  // 初始化桌子
+                case 1:  { // 初始化桌子
                     let cfg = pool.cfg_ = resp['g'];
                     this.setTitle(cfg);
                     pool.step_ = 0;
                     break;
+                }
                 case 2: { // 起手
                     pool.clear();
                     pool.option_.reset();
@@ -5874,7 +5875,7 @@
         function fan_item(f, v) {
             let c = ((v >> 8) & 0xFF) + 1;
             return `${FAN_NAME[f]} ${c==1?`${v&0xFF}番`:`${v&0xFF}番\x20\u00D7\x20${c}`}`;
-        };
+        }
 
         class SettleView extends PIXI.Container {
             // hand = {"s":[22,22,22,23,35,35,35,38,39,40,52,53,54]}
