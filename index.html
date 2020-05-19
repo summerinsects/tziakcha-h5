@@ -2544,7 +2544,10 @@
                 this.addChild(sp);
                 sp.zIndex = dst.zIndex;
                 sp.dst_ = dst;
-                (new TWEEN.Tween(sp)).to({x:(dst.x + DOX[n]),y:(dst.y + DOY[n])}, DISCARD_DT).start();
+                (new TWEEN.Tween(sp)).to({x:(dst.x + DOX[n]),y:(dst.y + DOY[n])}, DISCARD_DT).onComplete(()=>{
+                    sp.cplt_ = true;
+                    if (!sp.visible) sp.dstry();
+                }).start();
                 if (n == 0) {
                     sp.scale.set(HAND_SCALE);
                     (new TWEEN.Tween(sp.scale)).to({x:1,y:1}, DISCARD_DT).start();
@@ -2713,7 +2716,8 @@
                         (new TWEEN.Tween(sp)).to({x:dst.x,y:dst.y}, DISCARD_DT).onComplete(()=>{
                             dst.visible = true;
                             this.activeTile_ = null;
-                            sp.dstry();
+                            if (sp.cplt_) sp.dstry();
+                            else sp.visible = false;
                         }).start();
                     }
                     else {
@@ -2746,7 +2750,8 @@
                         sp.x = dst.x;
                         sp.y = dst.y;
                         dst.visible = true;
-                        sp.dstry();
+                        if (sp.cplt_) sp.dstry();
+                        else sp.visible = false;
                     }
                     else {
                         // 加杠
@@ -3055,7 +3060,8 @@
                 }
                 if (req) {
                     req.dst_.v_ = false;
-                    req.dstry();
+                    if (req.cplt_) req.dstry();
+                    else req.visible = false;
                 }
 
                 this.packData_[3].push(pack);
@@ -3291,7 +3297,8 @@
                 }
                 if (req) {
                     req.dst_.v_ = false;
-                    req.dstry();
+                    if (req.cplt_) req.dstry();
+                    else req.visible = false;
                 }
 
                 this.packData_[2].push(pack);
@@ -3529,7 +3536,8 @@
                 }
                 if (req) {
                     req.dst_.v_ = false;
-                    req.dstry();
+                    if (req.cplt_) req.dstry();
+                    else req.visible = false;
                 }
 
                 this.packData_[1].push(pack);
@@ -3796,7 +3804,8 @@
                 }
                 if (req) {
                     req.dst_.v_ = false;
-                    req.dstry();
+                    if (req.cplt_) req.dstry();
+                    else req.visible = false;
                 }
 
                 this.packData_[0].push(pack);
@@ -4185,7 +4194,8 @@
                             this.packs_[n1].push(pkt);
                         }
 
-                        src.dstry();
+                        if (src.cplt_) src.dstry();
+                        else src.visible = false;
                         this.activeTile_ = null;
 
                         (new TWEEN.Tween(sp)).to({x:xx,y:yy}, DISCARD_DT).onComplete(()=>{ sp.dstry(); }).start();
