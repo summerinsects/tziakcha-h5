@@ -145,6 +145,7 @@
             }
         };
 
+        function start_load() {
         PIXI.loader.add([
             'img/ui/checkbox_normal.png',
             'img/ui/checkbox_tick.png',
@@ -194,8 +195,10 @@
         .on('progress', (e)=>{
             console.log('loading progress:', e.progress);
             loadingText.text = e.progress.toFixed(2) + '%';
-        })
-        .load(()=>{
+        }).load(start_game);
+        }
+
+        function start_game() {
             loadingText.dstry();
             delete loadingText;
 
@@ -360,7 +363,7 @@
             //     view.y = pool.height_ - 450;
             //     view.x = (pool.width_ - view.width) * .5;
             // }
-        });
+        }
 
         class GameView extends PIXI.Container {
             constructor() {
@@ -8826,6 +8829,7 @@
             }
         }
 
+        start_load();
     </script>
 </body>
 </html>
