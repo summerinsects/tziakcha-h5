@@ -146,56 +146,56 @@
         };
 
         function start_load() {
-        PIXI.loader.add([
-            'img/ui/checkbox_normal.png',
-            'img/ui/checkbox_tick.png',
+            PIXI.loader.add([
+                'img/ui/checkbox_normal.png',
+                'img/ui/checkbox_tick.png',
 
-            'img/tiles/standing1.png',
-            'img/tiles/standing3.png',
-            'img/tiles/pool0.png',
-            'img/tiles/pool1.png',
-            'img/tiles/pool2.png',
-            'img/tiles/pool3.png',
-            'img/tiles/standing0.png',
+                'img/tiles/standing1.png',
+                'img/tiles/standing3.png',
+                'img/tiles/pool0.png',
+                'img/tiles/pool1.png',
+                'img/tiles/pool2.png',
+                'img/tiles/pool3.png',
+                'img/tiles/standing0.png',
 
-            'img/dice/1.png',
-            'img/dice/2.png',
-            'img/dice/3.png',
-            'img/dice/4.png',
-            'img/dice/5.png',
-            'img/dice/6.png',
+                'img/dice/1.png',
+                'img/dice/2.png',
+                'img/dice/3.png',
+                'img/dice/4.png',
+                'img/dice/5.png',
+                'img/dice/6.png',
 
-            'fnt/SourceHanSansBold.png',
-            'fnt/SourceHanSansBold.fnt',
-            'fnt/STXingkai.png',
-            'fnt/STXingkai.fnt',
-            'fnt/shsb.png',
-            'fnt/shsb.fnt',
+                'fnt/SourceHanSansBold.png',
+                'fnt/SourceHanSansBold.fnt',
+                'fnt/STXingkai.png',
+                'fnt/STXingkai.fnt',
+                'fnt/shsb.png',
+                'fnt/shsb.fnt',
 
-            'snd/01-start.wav',
-            'snd/02-dice.wav',
-            'snd/03-cd.wav',
-            'snd/05-draw.wav',
-            'snd/06-discard.wav',
-            'snd/08-inquire.wav',
-            'snd/09-cpk.wav',
-            'snd/10-win.wav',
-            'snd/12-flower-m.wav',
-            'snd/13-flower-f.wav',
-            'snd/14-chow-m.wav',
-            'snd/15-chow-f.wav',
-            'snd/16-pung-m.wav',
-            'snd/17-pung-f.wav',
-            'snd/18-kong-m.wav',
-            'snd/19-kong-f.wav',
-            'snd/20-win-m.wav',
-            'snd/21-win-f.wav',
-            'snd/25-xchg.wav'
-        ])
-        .on('progress', (e)=>{
-            console.log('loading progress:', e.progress);
-            loadingText.text = e.progress.toFixed(2) + '%';
-        }).load(start_game);
+                'snd/01-start.wav',
+                'snd/02-dice.wav',
+                'snd/03-cd.wav',
+                'snd/05-draw.wav',
+                'snd/06-discard.wav',
+                'snd/08-inquire.wav',
+                'snd/09-cpk.wav',
+                'snd/10-win.wav',
+                'snd/12-flower-m.wav',
+                'snd/13-flower-f.wav',
+                'snd/14-chow-m.wav',
+                'snd/15-chow-f.wav',
+                'snd/16-pung-m.wav',
+                'snd/17-pung-f.wav',
+                'snd/18-kong-m.wav',
+                'snd/19-kong-f.wav',
+                'snd/20-win-m.wav',
+                'snd/21-win-f.wav',
+                'snd/25-xchg.wav'
+            ])
+            .on('progress', (e)=>{
+                console.log('loading progress:', e.progress);
+                loadingText.text = e.progress.toFixed(2) + '%';
+            }).load(start_game);
         }
 
         function start_game() {
@@ -290,36 +290,36 @@
             };
             ws.onmessage = (p)=>{
                 try {
-                let resp = JSON.parse(p.data);
-                console.log(resp);
-                let m = resp['m'];
-                switch (m) {
-                case 1:
-                    lobby.onmessage(resp);
-                    break;
-                case 2:
-                    game.onmessage(resp);
-                    break;
-                case 3:
-                    lobby.visible = false;
-                    game.visible = true;
-                    game.pool_.startup(resp['s']);
-                    break;
-                case 4:
-                    lobby.visible = false;
-                    game.reconnect(resp);
-                    game.pool_.startup(resp['s']);
-                    game.visible = true;
-                    break;
-                case 5:
-                    lobby.speedTest(resp);
-                    game.speedTest(resp);
-                    break;
-                default:
-                    break;
-                }
+                    let resp = JSON.parse(p.data);
+                    console.log(resp);
+                    let m = resp['m'];
+                    switch (m) {
+                    case 1:
+                        lobby.onmessage(resp);
+                        break;
+                    case 2:
+                        game.onmessage(resp);
+                        break;
+                    case 3:
+                        lobby.visible = false;
+                        game.visible = true;
+                        game.pool_.startup(resp['s']);
+                        break;
+                    case 4:
+                        lobby.visible = false;
+                        game.reconnect(resp);
+                        game.pool_.startup(resp['s']);
+                        game.visible = true;
+                        break;
+                    case 5:
+                        lobby.speedTest(resp);
+                        game.speedTest(resp);
+                        break;
+                    default:
+                        break;
+                    }
                 } catch (e) {
-                console.log(e);
+                    console.log(e);
                 }
                 hbt = 0;
             };
