@@ -27,6 +27,14 @@
             51, 51, 51, 51, 52, 52, 52, 52, 53, 53, 53, 53,
             54, 54, 54, 54, 64, 65, 66, 67, 68, 69, 70, 71
         ];
+
+        const seat_2_org = [
+            [0, 1, 2, 3], [3, 0, 1, 2], [2, 3, 0, 1], [1, 2, 3, 0],
+            [1, 0, 3, 2], [0, 3, 2, 1], [3, 2, 1, 0], [2, 1, 0, 3],
+            [3, 2, 0, 1], [2, 1, 3, 0], [1, 0, 2, 3], [0, 3, 1, 2],
+            [2, 3, 1, 0], [1, 2, 0, 3], [0, 1, 3, 2], [3, 0, 2, 1]
+        ];
+
         const hint_text = [
             '1', '2', '3', '4', '5', '6', '7', '8', '9',
             '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -4045,7 +4053,13 @@
                 let hv = this.historyView_;
                 this.removeChild(hv);
                 this.addChild(hv);
-                hv.show(this.players_, this.rd_ + (this.rdfsh_ ? 1 : 0), this.cfg_['i'], -this.cfg_['b']);
+                let rd = this.rd_;
+                let pl = this.players_;
+                let idx = [seat_2_org[rd][0], seat_2_org[rd][1], seat_2_org[rd][2], seat_2_org[rd][3]];
+                let ns = [pl[idx[0]]['n'], pl[idx[1]]['n'], pl[seat_2_org[rd][2]]['n'], pl[seat_2_org[rd][3]]['n']];
+                let rss = [pl[idx[0]]['rs'], pl[idx[1]]['rs'], pl[idx[2]]['rs'], pl[idx[3]]['rs']];
+                let rps = [pl[idx[0]]['rp'], pl[idx[1]]['rp'], pl[idx[2]]['rp'], pl[idx[3]]['rp']];
+                hv.show(ns, rss, rps, rd + (this.rdfsh_ ? 1 : 0), this.cfg_['i'], -this.cfg_['b']);
             }
 
             showChase() {
@@ -6558,23 +6572,24 @@
                 btn.y = height - btnHeight - 20;
             }
 
-            show(players, rd, is, nbp) {
+            show(ns, rss, rps, rd, is, nbp) {
                 this.visible = true;
 
                 let ntt = this.ntt_, ttt = this.ttt_, rtt = this.rtt_;
 
-                let rss = [players[0]['rs'], players[1]['rs'], players[2]['rs'], players[3]['rs']];
-                let rps = [players[0]['rp'], players[1]['rp'], players[2]['rp'], players[3]['rp']];
                 let tl = [is, is, is, is];
-
+                let rssi = [0, 0, 0, 0];
+                let rspi = [0, 0, 0, 0];
                 for (let i = 0; i < 16; ++i) {
-                    let rssi = [rss[0][i], rss[1][i], rss[2][i], rss[3][i]];
-                    let rspi = [rps[0][i], rps[1][i], rps[2][i], rps[3][i]];
-                    let sd = (rssi[0] != nbp && rssi[1] != nbp && rssi[2] != nbp && rssi[3] != nbp);
-                    let tie = (rssi[0] == 0 && rssi[1] == 0 && rssi[2] == 0 && rssi[3] == 0);
-                    for (let k = 0; k < 8; ++k) {
-                        let tx = '', cl = '#DCDCDC';
-                        if (i < rd) {
+                    if (i < rd) {
+                        for (let n = 0; n < 4; ++n) {
+                            rssi[n] = rss[n][i];
+                            rspi[n] = rps[n][i];
+                        }
+                        let sd = rssi.every((rs)=>rs != nbp);
+                        let tie = rssi.every((rs)=>rs == 0);
+                        for (let k = 0; k < 8; ++k) {
+                            let tx = '', cl = '#DCDCDC';
                             let rs = rssi[k >> 1], rp = rspi[k >> 1];
                             let rr = rs + rp;
                             if (k & 1) {
@@ -6587,17 +6602,23 @@
                                 }
                             }
                             tx = rr;
-                        }
 
-                        let t = rtt[i][k];
-                        t.text = tx;
-                        t.style.fill = cl;
+                            let t = rtt[i][k];
+                            t.text = tx;
+                            t.style.fill = cl;
+                            t.visible = true;
+                        }
+                    }
+                    else {
+                        for (let k = 0; k < 8; ++k) {
+                            rtt[i][k].visible = false;
+                        }
                     }
                 }
 
                 for (let i = 0; i < 4; ++i) {
                     let t = ntt[i];
-                    t.text = players[i]['n'];
+                    t.text = ns[i];
                     scaleText(t, 130);
 
                     t = ttt[i];
