@@ -505,6 +505,13 @@
                 this.addChild(panel);
                 pool.option_ = panel;
 
+                let tail = new PIXI.Graphics();
+                this.addChild(tail);
+                tail.beginFill(0, 0);
+                tail.drawRect(0, 0, 1, 1);
+                tail.endFill();
+                tail.y = pool.height + 105;
+
                 pool.y = 50;
                 panel.x = 0;
                 panel.y = pool.height + 55;
@@ -557,7 +564,7 @@
 
                     let space = window.innerHeight / ss - containerHeight;
                     //console.log('space = ', space);
-                    if (space > 400 + 20 && tz.piat === 0) {
+                    if (space > 400 + 10 && tz.piat === 0) {
                         if (!piano3.visible) {
                             piano3.visible = true;
                             piano3.y = pool.height + 55;
@@ -567,7 +574,7 @@
                             piano2.visible = false;
                             piano2.y = 0;
                         }
-                    } else if (space > 340 + 20) {
+                    } else if (space > 340 + 10) {
                         if (!piano2.visible) {
                             piano2.visible = true;
                             piano2.y = pool.height + 55;
