@@ -13,7 +13,7 @@
     <script src="js/Tween.min.js"></script>
     <script src="js/PIXI.TextInput.min.js"></script>
     <script>
-        const all_tiles = [
+        const all_tiles = Uint8Array.of(
             0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2,
             3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5,
             6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8,
@@ -26,7 +26,7 @@
             48, 48, 48, 48, 49, 49, 49, 49, 50, 50, 50, 50,
             51, 51, 51, 51, 52, 52, 52, 52, 53, 53, 53, 53,
             54, 54, 54, 54, 64, 65, 66, 67, 68, 69, 70, 71
-        ];
+        );
 
         const seat_2_org = [
             [0, 1, 2, 3], [3, 0, 1, 2], [2, 3, 0, 1], [1, 2, 3, 0],
@@ -163,35 +163,13 @@
             }
         }, 33.333);
 
-        let loadingText = new PIXI.Text('0%', {
-            fontFamily: FF,
-            fontSize: 32,
-            fill: '#ffffff',
-            stroke: '#0066ff',
-            strokeThickness: 2,
-        });
-        app.stage.addChild(loadingText);
-        loadingText.anchor.set(.5);
-        let adaptLoadingText = ()=>{
-            loadingText.x = window.innerWidth * .5;
-            loadingText.y = window.innerHeight * .5;
-            loadingText.scale.set(Math.min(window.innerWidth / 680, window.innerHeight / 700));
-        };
-        adaptLoadingText();
-        window.onresize = ()=>{
-            app.renderer.resize(window.innerWidth, window.innerHeight);
-            adaptLoadingText();
-        };
-
-        let mutecd = parseInt(localStorage.getItem('mutecd'));
-        let mutecall = parseInt(localStorage.getItem('mutecall'));
-        let lobby, game, topmost, ws, hbt, nht, piat;
+        var tz = {};
 
         /**
          * 提示数据不同步（以前的版本是直接重新加载页面，但效果不好）
          */
         function reenter() {
-            topmost.error('数据与服务器不同步，请刷新重试', true);
+            tz.topmost.error('数据与服务器不同步，请刷新重试', true);
             //ws.send('{"m":4}');
         }
 
@@ -221,6 +199,29 @@
          * 开始加载
          */
         function start_load() {
+            let lt = new PIXI.Text('0%', {
+                fontFamily: FF,
+                fontSize: 32,
+                fill: '#ffffff',
+                stroke: '#0066ff',
+                strokeThickness: 2,
+            });
+            app.stage.addChild(lt);
+            lt.anchor.set(.5);
+            let adapt = ()=>{
+                lt.x = window.innerWidth * .5;
+                lt.y = window.innerHeight * .5;
+                lt.scale.set(Math.min(window.innerWidth / 680, window.innerHeight / 700));
+            };
+            adapt();
+            window.onresize = ()=>{
+                app.renderer.resize(window.innerWidth, window.innerHeight);
+                adapt();
+            };
+    
+            tz.mutecd = parseInt(localStorage.getItem('mutecd'));
+            tz.mutecall = parseInt(localStorage.getItem('mutecall'));
+
             PIXI.loader.add([
                 'img/tiles/standing1.png',
                 'img/tiles/standing3.png',
@@ -266,40 +267,41 @@
             ])
             .on('progress', (e)=>{
                 console.log('loading progress:', e.progress);
-                loadingText.text = e.progress.toFixed(2) + '%';
-            }).load(start_game);
+                lt.text = e.progress.toFixed(2) + '%';
+            }).load(()=>{
+                lt.dstry();
+                start_game();
+            });
         }
 
         /**
          * 开始游戏
          */
         function start_game() {
-            loadingText.dstry();
-            delete loadingText;
+            let res = PIXI.loader.resources;
+            StandingTile.tex0 = res['img/tiles/standing0.png'].texture;
+            StandingTile.tex1 = res['img/tiles/standing1.png'].texture;
+            StandingTile.tex3 = res['img/tiles/standing3.png'].texture;
+            PoolTile.tex0 = res['img/tiles/pool0.png'].texture;
+            PoolTile.tex1 = res['img/tiles/pool1.png'].texture;
+            PoolTile.tex2 = res['img/tiles/pool2.png'].texture;
+            PoolTile.tex3 = res['img/tiles/pool3.png'].texture;
 
-            StandingTile.tex0 = PIXI.loader.resources['img/tiles/standing0.png'].texture;
-            StandingTile.tex1 = PIXI.loader.resources['img/tiles/standing1.png'].texture;
-            StandingTile.tex3 = PIXI.loader.resources['img/tiles/standing3.png'].texture;
-            PoolTile.tex0 = PIXI.loader.resources['img/tiles/pool0.png'].texture;
-            PoolTile.tex1 = PIXI.loader.resources['img/tiles/pool1.png'].texture;
-            PoolTile.tex2 = PIXI.loader.resources['img/tiles/pool2.png'].texture;
-            PoolTile.tex3 = PIXI.loader.resources['img/tiles/pool3.png'].texture;
+            let nht = localStorage.getItem('nht');
+            tz.nht = nht = (nht != undefined) ? parseInt(nht) : 0;
 
-            nht = localStorage.getItem('nht');
-            nht = (nht != undefined) ? parseInt(nht) : 0;
+            let piat = localStorage.getItem('piano');
+            tz.piat = piat = (piat != undefined) ? parseInt(piat) : 0;
 
-            piat = localStorage.getItem('piano');
-            piat = (piat != undefined) ? parseInt(piat) : 0;
-
-            lobby = new LobbyView();
+            let lobby = tz.lobby = new LobbyView();
             app.stage.addChild(lobby);
 
-            game = new GameView();
+            let game = tz.game = new GameView();
             app.stage.addChild(game);
 
             game.visible = false;
 
-            topmost = new TopView();
+            let topmost = tz.topmost = new TopView();
             app.stage.addChild(topmost);
 
             document.oncontextmenu = ()=>false;
@@ -318,7 +320,7 @@
             volume = (volume != undefined) ? Math.max(0, Math.min(100, parseFloat(volume))) : 100;
             PIXI.sound.volumeAll = volume / 100;
 
-            ws = new WebSocket('ws://127.0.0.1:5333/ws');
+            let ws = tz.ws = new WebSocket('ws://127.0.0.1:5333/ws');
             ws.onopen = ()=>{
                 console.log('open');
                 // 测试直接创建桌子/坐下
@@ -356,10 +358,10 @@
                     }
                 }
 
-                hbt = 0;
+                tz.hbt = 0;
                 window.setInterval(()=>{
-                    if (++hbt == 30) {
-                        hbt = 0;
+                    if (++tz.hbt == 30) {
+                        tz.hbt = 0;
                         ws.send(`{"m":5,"t":${new Date().getTime()}}`);
                     }
                 }, 1000);
@@ -404,7 +406,7 @@
                 } catch (e) {
                     console.log(e);
                 }
-                hbt = 0;
+                tz.hbt = 0;
             };
 
             // {
@@ -555,7 +557,7 @@
 
                     let space = window.innerHeight / ss - containerHeight;
                     //console.log('space = ', space);
-                    if (space > 400 + 20 && piat === 0) {
+                    if (space > 400 + 20 && tz.piat === 0) {
                         if (!piano3.visible) {
                             piano3.visible = true;
                             piano3.y = pool.height + 55;
@@ -968,7 +970,7 @@
                     WIDTH_02, HEIGHT_02F);
                 super(tex, t);
 
-                if (nht) {
+                if (tz.nht) {
                     let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
                     this.addChild(ht);
                     ht.x = 4;
@@ -988,7 +990,7 @@
              * 重新布局，需在改变锚点后调用
              */
             layout(){
-                if (nht) {
+                if (tz.nht) {
                     let ht = this.ht_;
                     if (ht) {
                         ht.x = 4 - WIDTH_02 * this.anchor.x;
@@ -1014,7 +1016,7 @@
                     WIDTH_13, HEIGHT_13F);
                 super(tex, t);
 
-                if (nht) {
+                if (tz.nht) {
                     let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
                     this.addChild(ht);
                     ht.rotation = -Math.PI * .5;
@@ -1035,7 +1037,7 @@
              * 重新布局，需在改变锚点后调用
              */
             layout(){
-                if (nht) {
+                if (tz.nht) {
                     let ht = this.ht_;
                     if (ht) {
                         ht.x = - WIDTH_13 * this.anchor.x;
@@ -1061,7 +1063,7 @@
                     WIDTH_02, HEIGHT_02F);
                 super(tex, t);
 
-                if (nht) {
+                if (tz.nht) {
                     let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
                     this.addChild(ht);
                     ht.rotation = -Math.PI;
@@ -1082,7 +1084,7 @@
              * 重新布局，需在改变锚点后调用
              */
             layout(){
-                if (nht) {
+                if (tz.nht) {
                     let ht = this.ht_;
                     if (ht) {
                         ht.x = WIDTH_02 - 5 - WIDTH_02 * this.anchor.x;
@@ -1108,7 +1110,7 @@
                     WIDTH_13, HEIGHT_13F);
                 super(tex, t);
 
-                if (nht) {
+                if (tz.nht) {
                     let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
                     this.addChild(ht);
                     ht.rotation = Math.PI * .5;
@@ -1129,7 +1131,7 @@
              * 重新布局，需在改变锚点后调用
              */
             layout(){
-                if (nht) {
+                if (tz.nht) {
                     let ht = this.ht_;
                     if (ht) {
                         ht.x = WIDTH_13 - WIDTH_13 * this.anchor.x;
@@ -1819,7 +1821,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, 120, 60, ()=>{
-                    ws.send(`{"m":5,"t":${new Date().getTime()}}`);
+                    tz.ws.send(`{"m":5,"t":${new Date().getTime()}}`);
                     this.sp_.ac_ = setTimeout(()=>{
                         this.sp_.text = '-';
                     }, 60000);
@@ -2340,7 +2342,7 @@
                         let tt = parseInt(t.text);
                         if (tt != s) {
                             t.text = s;
-                            if (!mutecd && s <= 3) {
+                            if (!tz.mutecd && s <= 3) {
                                 play_snd('snd/03-cd.wav');
                             }
                         }
@@ -2376,7 +2378,7 @@
 
                 // 别人打牌，设置了不鸣这张，直接过或者弃
                 if (!selfDrawn && this.activeTile_ != null && this.callFlags_[this.activeTile_.t_>>2]) {
-                    ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
+                    tz.ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
                     this.removeCD();
                     return;
                 }
@@ -2409,7 +2411,7 @@
 
                 if (status[0] && dict[1] && !this.stopFlower_ ) {  // 自动补花
                     setTimeout(()=>{
-                        ws.send('{"m":2,"r":1,"v":0}');
+                        tz.ws.send('{"m":2,"r":1,"v":0}');
                         this.removeCD();
                     }, DISCARD_DT * 2);
                     return;
@@ -2445,7 +2447,7 @@
 
                     if (!skp && status[5]) {  // 自动和牌
                         setTimeout(()=>{
-                            ws.send(`{"m":2,"r":6,"v":${dict[6][0]}}`);
+                            tz.ws.send(`{"m":2,"r":6,"v":${dict[6][0]}}`);
                             this.removeCD();
                         }, DISCARD_DT * 2);
                         return;
@@ -2464,7 +2466,7 @@
                 // 过滤之后没有动作了
                 if (size == 0) {
                     if (!selfDrawn) {
-                        ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
+                        tz.ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
                         this.removeCD();
                     }
                     return;
@@ -2489,12 +2491,12 @@
                             switch (ab.data_.length) {
                             case 0:
                                 this.removeBtns();
-                                ws.send(`{"m":2,"r":${types[i]},"v":0}`);
+                                tz.ws.send(`{"m":2,"r":${types[i]},"v":0}`);
                                 this.removeCD();
                                 break;
                             case 1:
                                 this.removeBtns();
-                                ws.send(`{"m":2,"r":${types[i]},"v":${ab.data_[0]}}`);
+                                tz.ws.send(`{"m":2,"r":${types[i]},"v":${ab.data_[0]}}`);
                                 this.removeCD();
                                 break;
                             default: {
@@ -2504,11 +2506,11 @@
                                 }
                                 view = new SelectionView(this.width_, this.height_, types[i], ab.data_, (a)=>{
                                     if (a != undefined) {
-                                        ws.send(`{"m":2,"r":${types[i]},"v":${a}}`);
+                                        tz.ws.send(`{"m":2,"r":${types[i]},"v":${a}}`);
                                     }
                                     else {
                                         if (!selfDrawn) {
-                                            ws.send('{"m":2,"r":10,"v":0}');
+                                            tz.ws.send('{"m":2,"r":10,"v":0}');
                                         }
                                     }
                                     this.removeBtns();
@@ -2544,7 +2546,7 @@
                     --cnt;
                 }
 
-                if (!mutecall && cnt > 0) {
+                if (!tz.mutecall && cnt > 0) {
                     play_snd('snd/08-inquire.wav');
                 }
             }
@@ -2567,7 +2569,7 @@
             rightclick() {
                 if (this.actionBtns_[0].visible) {
                     this.removeBtns();
-                    ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
+                    tz.ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
                     this.removeCD();
                 }
             }
@@ -2845,7 +2847,7 @@
                 //this.discard(0, sp);
                 let t = sp.t_;
                 if (t != 0xFF && this.standing_[0][13].visible) {
-                    ws.send(`{"m":2,"r":2,"v":${t}}`);
+                    tz.ws.send(`{"m":2,"r":2,"v":${t}}`);
                     this.removeCD();
                 }
             }
@@ -4342,7 +4344,7 @@
                 let view = new SettleView(this.width_, this.height_, hand, tile, table, detail, names, this.seat_, this.cfg_['r30'],
                     ()=>{
                         if (!this.rp_) {
-                            ws.send('{"m":2,"r":8,"v":0}');
+                            tz.ws.send('{"m":2,"r":8,"v":0}');
                         }
                         else {
                             this.showResult();
@@ -4480,11 +4482,11 @@
                         this.clear();
                         delete this.rp_;
                         delete this.rpt_;
-                        ws.send('{"m":1,"r":2}');
-                        game.visible = false;
-                        lobby.visible = true;
-                        delete lobby.seat_;
-                        delete lobby.tableid_;
+                        tz.ws.send('{"m":1,"r":2}');
+                        tz.game.visible = false;
+                        tz.lobby.visible = true;
+                        delete tz.lobby.seat_;
+                        delete tz.lobby.tableid_;
                         this.historyView_.visible = false;
                         this.chaseView_.visible = false;
 
@@ -5598,7 +5600,7 @@
                 super(tex);
                 this.t_ = t;
 
-                if (nht) {
+                if (tz.nht) {
                     let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
                     this.addChild(ht);
                     ht.x = 4;
@@ -5646,7 +5648,7 @@
              * 重新布局，需在改变锚点后调用
              */
             layout(){
-                if (nht) {
+                if (tz.nht) {
                     let ht = this.ht_;
                     if (ht) {
                         ht.x = 4 - WIDTH_02 * this.anchor.x;
@@ -5693,7 +5695,7 @@
                 sp.t_ = t;
 
                 let ht = sp.ht_;
-                if (nht && ht) {
+                if (tz.nht && ht) {
                     ht.text = hint_text[t >> 2];
                 }
             }
@@ -5713,7 +5715,7 @@
                 sp.t_ = t;
 
                 let ht = sp.ht_;
-                if (nht && ht) {
+                if (tz.nht && ht) {
                     ht.text = hint_text[t >> 2];
                 }
             }
@@ -7849,7 +7851,7 @@
                 cb1.scale.set(.75);
                 cb1.x = t.x + t.width + 40;
                 cb1.y = t.y - 18;
-                cb1.setSelected(!mutecd);
+                cb1.setSelected(!tz.mutecd);
 
                 t = new PIXI.Text('鸣牌提示音效', {
                     fontFamily: FF,
@@ -7868,7 +7870,7 @@
                 cb2.scale.set(.75);
                 cb2.x = t.x + t.width + 40;
                 cb2.y = t.y - 18;
-                cb2.setSelected(!mutecall);
+                cb2.setSelected(!tz.mutecall);
 
                 t = new PIXI.Text('牌面上角标（刷新后生效）', {
                     fontFamily: FF,
@@ -7887,7 +7889,7 @@
                 cb3.scale.set(.75);
                 cb3.x = t.x + t.width + 40;
                 cb3.y = t.y - 18;
-                cb3.setSelected(nht);
+                cb3.setSelected(tz.nht);
 
                 t = new PIXI.Text('钢琴键尺寸（刷新后生效）', {
                     fontFamily: FF,
@@ -7915,8 +7917,8 @@
                     cbx.y = t.y - 18;
                     piacbs.push(cbx);
                 }
-                piacbs[0].setSelected(!piat);
-                piacbs[1].setSelected(piat);
+                piacbs[0].setSelected(!tz.piat);
+                piacbs[1].setSelected(tz.piat);
 
                 const btnWidth = 120, btnHeight = 50;
                 let btn = new TextButton('取消', {
@@ -7938,11 +7940,11 @@
                     strokeThickness: 2,
                 }, btnWidth, btnHeight, ()=>{
                     let volume = rb.getValue();
-                    mutecd = cb1.isSelected() ? 0 : 1;
-                    mutecall = cb2.isSelected() ? 0 : 1;
+                    tz.mutecd = cb1.isSelected() ? 0 : 1;
+                    tz.mutecall = cb2.isSelected() ? 0 : 1;
                     localStorage.setItem('volume', volume);
-                    localStorage.setItem('mutecd', mutecd);
-                    localStorage.setItem('mutecall', mutecall);
+                    localStorage.setItem('mutecd', tz.mutecd);
+                    localStorage.setItem('mutecall', tz.mutecall);
                     localStorage.setItem('nht', cb3.isSelected() ? 1 : 0);
                     localStorage.setItem('piano', piacbs[0].isSelected() ? 0 : 1);
                     PIXI.sound.volumeAll = volume / 100;
@@ -8381,7 +8383,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ ws.send('{"m":1,"r":10}'); });
+                }, btnWidth, btnHeight, ()=>{ tz.ws.send('{"m":1,"r":10}'); });
                 container.addChild(btn);
                 btn.x = LOBBY_WIDTH - btnWidth;
 
@@ -8392,7 +8394,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, 70, btnHeight, ()=>{
-                    ws.send(`{"m":5,"t":${new Date().getTime()}}`);
+                    tz.ws.send(`{"m":5,"t":${new Date().getTime()}}`);
                     this.sp_.ac_ = setTimeout(()=>{
                         this.sp_.text = '-';
                     }, 60000);
@@ -8531,6 +8533,7 @@
 
             onmessage(resp) {
                 let r = resp['r'];
+                let topmost = tz.topmost;
                 switch (r) {
                 case 1:
                     switch (resp['e']) {
@@ -8559,7 +8562,7 @@
                         let un, pw;
                         if (this.tlr_ && (un = localStorage.getItem('username')) && (pw = localStorage.getItem('password'))) {
                             this.tlr_ = false;
-                            ws.send(`{"m":1,"r":12,"u":"${un}","p":"${pw}"}`);
+                            tz.ws.send(`{"m":1,"r":12,"u":"${un}","p":"${pw}"}`);
                         }
                         else {
                             topmost.error('自动登录失败，请输入账号密码登录');
@@ -8679,7 +8682,7 @@
                 let uv = this.uv_ = new UserView(pzl, (un, pw, sln)=>{
                     console.log('un pw', un, pw);
                     if (un && pw) {
-                        ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}","z":"${pzl}","s":"${sln}"}`);
+                        tz.ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}","z":"${pzl}","s":"${sln}"}`);
                         localStorage.setItem('username', un);
                     }
                     this.uv_.dstry();
@@ -8702,6 +8705,7 @@
                     //console.log('cfg', cfg);
                     if (cfg) {
                         let bl = bytes_len(cfg['t']);
+                        let topmost = tz.topmost;
                         if (bl == 0) {
                             topmost.error('对局名称不能为空');
                             return;
@@ -8719,7 +8723,7 @@
                             topmost.error('密码最长6位');
                             return;
                         }
-                        ws.send(JSON.stringify({'m':1,'r':3,'g':cfg}));
+                        tz.ws.send(JSON.stringify({'m':1,'r':3,'g':cfg}));
                     }
 
                     this.ctv_.dstry();
@@ -8738,7 +8742,7 @@
                 //console.log(`{"m":1,"r":4,"v":${id},"s":${s}}`);
                 if (s != this.seat_) {
                     if (!p || this.tableid_ == id) {
-                        ws.send(`{"m":1,"r":4,"v":${id},"s":${s}}`);
+                        tz.ws.send(`{"m":1,"r":4,"v":${id},"s":${s}}`);
                     }
                     else {
                         if (this.pv_) {
@@ -8746,7 +8750,7 @@
                         }
                         let pv = this.pv_ = new PasswordView((p)=>{
                             if (p) {
-                                ws.send(`{"m":1,"r":4,"v":${id},"s":${s},"p":"${p}"}`);
+                                tz.ws.send(`{"m":1,"r":4,"v":${id},"s":${s},"p":"${p}"}`);
                             }
                             this.pv_.dstry();
                             delete this.pv_;
@@ -8755,7 +8759,7 @@
                     }
                 }
                 else {
-                    ws.send('{"m":1,"r":5}');
+                    tz.ws.send('{"m":1,"r":5}');
                 }
             }
 
@@ -9278,7 +9282,7 @@
                     strokeThickness: 2,
                 }, 120, 40, ()=>{
                     //console.log(`{"m":1,"r":6,"v":${this.readyBtn_.value_}}`);
-                    ws.send(`{"m":1,"r":6,"v":${this.readyBtn_.value_}}`);
+                    tz.ws.send(`{"m":1,"r":6,"v":${this.readyBtn_.value_}}`);
                 });
                 btn.x = width - gap - 120;
                 btn.y = 5;
