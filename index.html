@@ -61,6 +61,12 @@
         function plus_sign(x) { return (x >= 0 ? `+${x}` : x); }
         function pad2(x) { return (x < 10 ? `0${x}` : x); }
 
+        function base64Tex(b) {
+            let img = new Image();
+            img.src = b;
+            return PIXI.Texture.from(img);
+        }
+
         const FF = [
             '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif',
             'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
@@ -147,9 +153,6 @@
 
         function start_load() {
             PIXI.loader.add([
-                'img/ui/checkbox_normal.png',
-                'img/ui/checkbox_tick.png',
-
                 'img/tiles/standing1.png',
                 'img/tiles/standing3.png',
                 'img/tiles/pool0.png',
@@ -1098,18 +1101,14 @@
                     this.addChild(panel);
 
                     let pos = this.callTextPos_[i];
-                    text = new PIXI.Text('\uD83D\uDC4C', {
-                        fontFamily: FF,
-                        fontSize: 80,
-                        fill: '#ffffff',
-                    });
-                    text.anchor.x = pos['ax'];
-                    text.anchor.y = pos['ay'];
-                    text.x = pos['x'];
-                    text.y = pos['y'];
-                    text.zIndex = 501;
-                    this.addChild(text);
-                    ready[i] = text;
+                    let sp = new PIXI.Sprite(Pool.readyTex);
+                    sp.anchor.x = pos['ax'];
+                    sp.anchor.y = pos['ay'];
+                    sp.x = pos['x'];
+                    sp.y = pos['y'];
+                    sp.zIndex = 501;
+                    this.addChild(sp);
+                    ready[i] = sp;
                 }
 
                 const WIND_OFFSET = 25;
@@ -5181,6 +5180,8 @@
 
         }
 
+        Pool.readyTex = base64Tex('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAB3RJTUUH5AMRFScVQ/GOCwAAAAZiS0dEAP8A/wD/oL2nkwAAD8pJREFUeNrtnXt0HNV9xz/3zuyutKuXJRvbsiXZxsZQi5jQmIJjbDAQXi2EgAklTkpympASaHwAEwLhEXJo3TQk5FEnUJK0B0II1E1iH1KKT0OA8MYBAyXY2NRgsB62JVmynrszt3/MzGp2Je3sEmW1s7nfc/YcPWZnduc739/r3vu7oKGhoaGhoaGhoaGhoaGhoVEmEGX+3aqAGvfnXqAPUJrgcMMAjgM+DiwHZrrfsxN4DngIeB5IaX2HD1XA9cA+V6njvfYDXwPq9O0KF2LABmAkB7neKwVsdB8IbaJDgk8AdwNxgIZ6g7/8SDUnLosjBbz48iBbHumjvTNtmUeAdcD3tTamHhJYAFzsmuCbgM8BfwFUAvXAbz2FtjRF1C/va1Yj7UuU6mpVqqtVJTuWqK3/OU8tXhjzK3k7MEff3qlFI3A7sBtI+sixgS5gE3CjFyGbplAb/7lRqYOtKtW5JOOlulrVT+6aqyoqhHeOYeDCcldGKeNo4F7gy66CzSz3Mg34GHCL50/nNUU4+4wqlBqbDdmW4vRVVRy9MOb9KQocW84EmyX82Y4A7gRWe3+oqZbMb44Siwnea0vR1pHEtgGIeMdMbzCprTYYh1+UgqqE5IgZGV+7zn1YZgMtQDXQD+x1o/GUJviPg8uAMwCEgNNWVnHdVdNZemwFEVPQ1pHk3p/1sPFHXfT22aMqtdW46vXOY9uK4ZGM/zcB3wTOcv1x1HUF7cDjwD1u3mxrgicPM9xChQQ4+cQ493y7kZbmKLblkDOtLsZtN8ykusrglg2dpKz8ClS2gmQy49jz3OKIyEq5Frqvc928+V9d4rUPngQsBhYBRKOCK/62gZbmKFZKoZRjai0LTAM+s7aOY5fERr+QFAgxcfbnvFdlP+QCoKJCMK3OIF6ZcVtmAf8EfForeHIj5zjA9HqD41orUPY4QZMNMxpMjmut5KVXhtJmOAe/2Dae304jEZesOb+Gi86vZc4sk/0HLbY80sd9D/bQfcjyKmQ34JQ6t2uC/3CkTaZhCCJm7npMNCJ8Cg4w0bbC8hEciwpuunYGX7y8gYpK6UhcCE5dkWBpawVXf6XN8/EtwNqwEVyqJtr2m1SVw71KCfG4yAikghU8esJTT07wd5+pJxoVWCmFZYGVUkgJay+u5YJza/xvP9UtqmiCJ0HBaQJzqVIIQUVs9AApxIQEC5wAa3h4lOCVyxPU1IxNq5SCWEzykdVVGIbwu44jNMGT4zrEaNAUbHbTJMocChaQSimSqdHjq+K5b0FdjYE56sgibhqlCZ6szyUleRDse6PIPYIipED6DjCM3OceGlbYVvrXJM4ghSZ4shRsSEfFE0PhD7CFdB2xmljt/gfCZ34nSKuU/1ReDVsTPHkKdk20mpDfDBPt+WCVIw/2DhcCTLOcZy2FJcgSufSbaaILiaKFCDbR40TwWsGTTbCQue+q30RLmdsHK5Vpok2jIAWHbsLeVBY66oGlOGXJKqAHeB142U+wIQUyoPTor3IVUskSQgQqOOxzMKeC4DiwBrgc+ACQ8N3KPuAZf6RacBQdEEbbPp8t8lCwCjnJxSa4Fmdk5rNAxTh1iBrgTP8t9Uw0eZpoEZAm2bYzUOFdMVDBIde0WeRrXQ9c4ZngaEQwpzFCbbXkYLdFW3vKG/YTfkXmDLKyo2jJhAwLL03yRdEyDx8cZitdTIJXuWbZAFi4IMr6K6dzxilVVFdJurotNj/Sx7e+f4B97SkKMdEqo9AhJlawcNTr99mGLCiK1kFWjqj4Upw5VMyZHeGuOxpZvaoKZTtjvA31Btdc2UDTnAifv3ofPb1WuhCRu9AxNorOBcvKVLBhFJwH6zRpHEzHmeIKwCUfq+WUFQmslJOyOGbWUeJHz6nmzNOqMgmxg0x0NsETF6Mta1SVgvflg3WhYxw0uCRjmoLlJ8TH9X3eCM6CeaP1/J5em4FBOyD1yc8HA1iuxchXwSrkYXSxCDa8axkSKmK5oyb/lBrbR0g+laycPhjHB3sPhJTC8cFKK/gPhfKnlDlNLr40BudhiJg5Bv0VYwcbAnxwWsGyYB+sBxtyXEemU5M8SEhLP48gS2Wb6AAFewTLfGvRSis4HxMtRv1e/kGTaYicpKlxKlm5/LU/aHNMdHnnwUVXsBSuIlW+Cg5QpVL5p0kCLNunYAnSKGd6i0vwqIJlbgWnfD44rzw4Yzw4nzxYpQnOL4rWPrgggoPKg3YBCh6bB+cuRmf6YDeKLuMwuuhpUj4Ktsb44NwmvZDxYMtS6dJmWsE6TZpkBRcURTvHq5xBVqEm2p8m5eZXz+goOE0Kjlz9ebBp5i5coDIHG0TAuVMW6dWHUpBXFK3TpIJ9cICJ9ik4YooCB/wJTJP8/joois6KqpQmOI9CR6CC7SwFB026U/kXOlKpzDQpUMEh98/FDLLSZlHmiFyzFWyaAePBamwtOl//LmX5z+iYkkpW7jRJjfHBuRiWEiorRr9GVULmfCBSvlq0IfMog4Y8ijaLrWAhco/gKJwhvXyDrGhU8KlL6ti9Z4TaaskF51YHBlkZEboIYFHPqixQwTKo9JhpcoOCLNuG886q5qQPVdqmKUT9NEPkGq1KpTKDrKA512Gnu+gEOz5Y5LxTfj4DfbCLI2Y4a1BUAAXRiLu0RUG8MnhxufbBhQZZAUtRTFPQ0pzuisS85mjgxDiP2CByla1Y9eEEq09O0Dw3wifW1DGtzsg9oUCb6AIV7JrFCZ84AesubyBeIamslFz213XY+d3kQCnaNixaEOWBe5ro7bOZ02jmZR2Unvg+eQq2FSyYF2XDrTMReSqzIPuqoH6aQUO9kXNmyQT2OHSjScUiWI4qOLic6M2i+GPdyYIeGqXHgws20bK8l+T+SRIs/T5WhIjgSdTvNGA+o4vtyorgcqkbvB/MwlmyswWn9+XPgGXl5oOV/6cwuTXx/syNAJpxelF/Emj13esmnF6cF+F0tC0vgsMWs3guRY0uKRYBFnERcIn7OmoCK7kMp8/1t8uFYNsl2Wm1HioFj1GmnOA+tuK0OrwQp+1h+p2xmOCED1bSfcjmtd8Peec5DfgBTtf50Ptgn4JVqPxwVkuIbAVHgZOA7wG/Aq4B5nnHJOKSM1dX8ePvzmHz/S2svbjWf+oFOAvey9BEh4jhrIERj9wYsAKnafnZOIvr0qitMVh9coLLLq1j1fIEtTUGSJiZ2Wm+krFdDnSQNRVBlk/BEZwG4acAp2crcHqDwdmnV/M3H6/jxGVxEnHpdLe1FIYQGZ3pcbrmJcuJYN9CTBUigj3hKnAakX6DrH6VjbNMzju7hk9eXMefL60gFhslNs3miGLby4P+t+3D2U+x/Ex0mBScNY9eeuQKAfOaolx0fg2XXljLkqMriEQElqWyO8pjGIKnnu/n0ccO+//8LDBQngSHKMiKRNzFb+5MEEPCUQtjXHJBLWs+WstRR0aRBtjWmK0C0sfv3D3Ml27t8O+6th/YXJ6FjhBZaGUrWo+JcfzSCra/Nswxi2OsXeM0CW9uirhde/B3ox0ToLXvt1h/czvPvjjg//b/BrxQbgSrsCnYtmF+S5T7725izzsjLF4UY/YsMz2tSAX47sP9Nrdu6GTLf/f5//Vz4OujNqHsTHS4bLRSMK85wvyWqNNjKw9ahNt4/JsbD/Kj+7v9McdTwHrgQLE+v/bBeSq50E/97w/0cMe/HPDv0fQGzm6nbxU1SCzWPcqw1WU8pGRIeHhrHzf/Yyd9h9Nfuw24Gnix6FnAVBQ6ynXM0DAEz20b5NqbMiLmXpzdUf9rStK8Il0n6anYspxNMUQZKnfHrmHW3djOzt3p8YMRN6C6d8ry+CJdp9clmaFhRc8hK1zTOoJuooS2jhTX3JSRDtk4G1veyRTuYFosgg8ChwEGBhVtHamy2VxeCOjts7nx9k5+tTUjHfoFzr7G/VP68BXpOvuBTs9E79g1XBZ+WAgYGVFsuHM/9z7Y4w8enwCuLWY6NNUE9wA7vV9+98oQQ0N26Am2bfjBj7v4zt1d/jVPrwFfBP6vJNxHEYOsdIqw/dUh3t2XDFysXep+98FfHOK2b+xnYDD9sL7jkvtyyXzOIl7rKTfY4p33kjz57EDgBPjSTYdg62P9fOmrHXT3WP444zrg1yX1IBbxWq8Cr3h+eNOWXg4ftkIXTBuG4PnfDbLuxjbe3Zcerx8AbgMeKjlLU8Rr9QC/TEchT/fz5DMDgSvsS025b+wc5u+vb+P3O9O5bgr4FnAXvopdyXzmIl+vEzgHqB8ZURzqszn3jGpisdInWUrY+16SK9a38cTTGUN/P3TToYGSfCiLfL0unA2xTgHYszfJ3MYIH/pgZUnXp6WEzgMW625oyx7624Qzk7K7ZK3OFFxzj0vwLMuC13cMc9KyOE1zoiVJspTQ1W1x3Vfb+emmQ/5//Q/wBZyBBDTBozjkRtNnAdGeQxZv7h5h1YoE9dOMkiLZMKC9I8X6Wzq476Ee/3ri53DWG+0u+bhhiq77Js4mHScA4u29Sd7em2TFiQnqamVJkGwYgtffGOaq69vZtKXXT+6rwOe8jEATPD4s4CVgCc5aHnbsGubNt0Y44fg4DfXmlJEspdNp7+FH+/jCdW389tmM2Gm7q9wXCAmmctegfpzq1vE4K/HYuWuEF14a5KgjozTPjRQ1R/a22HmvLcXXv3OAm/+hkz17M+alP+GSuy1UefsUX/+g688+4JH87r4kjz7WjwAWL4qRSBhFIba3z2bT5l6u/ko7/7H5EAODaROSBH4KXAXsIGQolQR0Ic6Kgb/yii8RU7ByeZwrP9vAaSsTVFcbKFvl1Tglny8tpLMs5WBXil8/2c8P7+vm8af7GRrK8A3twB1uEaOPEKKUKgzTcYbYPo+zDS0AiYRk1fIEl15Yy6oPJ5g908QwRXrPw3x8tbdC0FvMPTBos+utEbb+5jA/f7iXbdsHs4lNumnQ7cDTpVihCiPB4CzuOgf4Ms4i6XQpNRoRLDoyyqrlCVYuT3Dsn8WYPTNCVUK63fCy9mpw+UqlFENDNge7LXbvGeHFlwZ58pkBtm0fpKMzld2Dywb+F9gIPIBTXg01SrVGOBv4FPBpN8rOqJlHTMH06QYtc6PMb4kwtzHCjAaT6ipJxBRYtuJwv83BLot9HUne2Zvk7XeTtHekGBiwx5trkMLZXv4nrr/di0ZRHr75rtl+DqfWqybxZePMuHjYfZAay/UmhgENONvTngksB450/XSho2GDQIdbrHgc+I2r3MFyVknYPu80nPYHrcAxrspnuoRXuqmfDQzhlEQPuCb3TZzVBTtx6sfD/AmgHOY2GjitECrcIE26BKdcEocowkp6DQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDY1Jw/8DfzHUjiF21CoAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjAtMDMtMTdUMjE6Mzk6MTIrMDA6MDDXr5I5AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIwLTAzLTE3VDIxOjM5OjEyKzAwOjAwpvIqhQAAAABJRU5ErkJggg==');
+
         class StandingTile extends PIXI.Sprite {
             constructor(t, callback) {
                 let ti = all_tiles[t];
@@ -5417,14 +5418,21 @@
                 text.x = width * .5;
                 text.y = height * .5;
 
-                text = this.flowerText_ = new PIXI.Text('\uD83C\uDF38 \u00D7 0', {
+                let flw = new PIXI.Sprite(WinHand.flwTex);
+                this.addChild(flw);
+                flw.scale.set(.8);
+                flw.anchor.set(.5);
+                flw.x = width * .5 - 23;
+                flw.y = height - 25;
+
+                text = this.flowerText_ = new PIXI.Text('\u00D7 0', {
                     fontFamily: FF,
                     fontSize: 26,
                     fill: '#ffffff'
                 });
                 text.anchor.set(.5);
                 this.addChild(text);
-                text.x = width * .5;
+                text.x = width * .5 + 17;
                 text.y = height - 25;
 
                 text = this.fwText_ = new PIXI.Text('错和', {
@@ -5440,7 +5448,7 @@
             }
 
             reset() {
-                this.flowerText_.text = '\uD83C\uDF38 \u00D7 0';
+                this.flowerText_.text = '\u00D7 0';
                 this.fwText_.visible = false;
             }
 
@@ -5455,7 +5463,7 @@
             }
 
             setFlower(f) {
-                this.flowerText_.text = '\uD83C\uDF38 \u00D7 ' + parseInt(f);
+                this.flowerText_.text = '\u00D7 ' + parseInt(f);
             }
 
             setConnection(lc) {
@@ -5471,11 +5479,11 @@
             constructor(str, callback) {
                 super();
 
-                let bg = new PIXI.Sprite(PIXI.loader.resources['img/ui/checkbox_normal.png'].texture);
+                let bg = new PIXI.Sprite(CheckBox.bgTex);
                 this.addChild(bg);
                 bg.x = 5;
 
-                let tk = this.tk_ = new PIXI.Sprite(PIXI.loader.resources['img/ui/checkbox_tick.png'].texture);
+                let tk = this.tk_ = new PIXI.Sprite(CheckBox.tkTex);
                 this.addChild(tk);
                 tk.x = 5;
                 tk.visible = false;
@@ -5556,6 +5564,9 @@
                 }
             }
         }
+
+        CheckBox.bgTex = base64Tex('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoBAMAAAB+0KVeAAAAIVBMVEUmJij19fnn5+s6Ojy6ur2cnJ8rKy2bm56VlZg5OTw8PD5Ii9qAAAAAQElEQVQoz2NIVRREA0JhDIWCGECCQdGZAQ2YCDEIGqALMgsyCDJggFHBUcHBI4iRaDkFGRQ90QWXCGHNCFizDACdVg4t30uVKQAAAABJRU5ErkJggg==');
+        CheckBox.tkTex = base64Tex('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoBAMAAAB+0KVeAAAAGFBMVEUAAAD19fn19fn19fn19fn19fn19fn19fn8h/qnAAAAB3RSTlMAJeSAcaBJxjzuQwAAAGRJREFUKM/lzrENgDAMRNEgGCBCMEAaaOlo6dgHilsfich8YTIBuc7nJ8uhygyFrpmXb9nrLEBps6GLBnVEK9f0wGRde+8d3DMAIoDcMvimQOgEhEpAKBDqIT96mqGnQDLG8ONcEMQfjD5vxOcAAAAASUVORK5CYII=');
 
         class EmptyButton extends PIXI.Container {
             constructor(width, height, callback) {
@@ -5738,7 +5749,7 @@
             constructor(hand, tile, flw) {
                 super();
 
-                const height = Math.max(HEIGHT_13 + HEIGHT_13F, HEIGHT_02);
+                const height = Math.max(HEIGHT_13 + HEIGHT_13F, HEIGHT_02 + 40);
                 //this.height = height;
 
                 // 加这个布局才正常
@@ -5878,13 +5889,22 @@
 
                     // 花
                     if (flw != undefined && flw > 0) {
-                        let t = new PIXI.Text(`\uD83C\uDF38 \u00D7 ${((flw>>8)&0xFF)+1}`, {
+                        let s = new PIXI.Sprite(WinHand.flwTex);
+                        this.addChild(s);
+                        s.scale.set(.6);
+                        s.anchor.set(.5);
+                        s.x = width - 55;
+                        s.y = 15;
+
+                        let t = new PIXI.Text(`\u00D7 ${((flw>>8)&0xFF)+1}`, {
                             fontFamily: FF,
                             fontSize: 18,
                             fill: '#ffffff'
                         });
                         this.addChild(t);
-                        t.x = width - 80;
+                        t.anchor.set(.5);
+                        t.x = width - 25;
+                        t.y = 15;
                     }
                 }
                 //this.width = width;
@@ -5897,6 +5917,8 @@
                 //}
             }
         }
+
+        WinHand.flwTex = base64Tex('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAE/0lEQVR42sVYfWwTZRzuxBgiEfUfo4nGL/4yaqKJiYliJEHUZBEzg4kGNSoiEiYiCDLYum8mDhkb2xhsdrR3vWshwGY/7rbBnB/xH6JAkLBkQjJBhTHMHGzd1vbxeXsbXffR3smKTd703u/nnt/32WzX98uADRljnZN27y1izPY//DJGZN/CiKK1se0UA72SNDei6L+wtYzI2oIbhgRe7yyCKIHaMgxPC/gfCruDyyKqXh3rs0U5F3FrBbDbb0o7IF60npdGxy6fvumRsKKvSTM72jyKpD81GKORtb5BZ/ODaWQnWGwWzDVQSktu+hhS9e8sA1L1w2kBY6eCUoFPWWdIO3Hdl/dKgblDkv+xYVfwqUHJf7+wrBhDHv2oVUBRVftpzDrBs8SZQ6rv0Z6GpttSAgm5hNJqDiruRWElhlnroaiq/8wxuzFulSH9z4iq5VF0x3jO0JgF8vkC5+oh+x6aEkzYrb/Khb2mLpIDsApseh3TLkHVMhPAjEj+Z6Iek+b8+WZg8ctAcbnRVzSgbh+wwwGUVRCsH9bFqv8Dd+sTcXNWtP2mD1j6BrBoPrBypdHPrwKyC4BMglz0LJCT91+Y6h1yBx+Pm7MSfIAoT5vaXOsCNmwC/D6g4SDwcREBFQKvZQEvPU/mvrQuNreWN9npqYw9Vg5q6wD2NRtgBKitZCq3DKg/gFFjsCKyk2ElsBxS4F6hP88JkTEgXjGlzCW7qEfbgKIa4NAhYH2ZAarRCawtpR7VAwXVZJE6VrzLkgHQEiuF/nxhmpXS3XFGRPtsC5lQgMJcoEniWGHivHgu22PFRZTawmowyzSgTdvjl8UaL+T7oItsnNnJNWsnzLPl7jANKCxri21/Ow7eQRmeM7VpW2MiAxvzgeMfAd1k52wdcGINRZU/bg3/K1xm/VG3iBCGU1S0D6555mRNKGqlDORVAqtLqE9kpotAushSJ8V2SrDhBiSuqW4A9ngA1zd0BXbgq9pk50bC7sB7cbNn4KQulYuJpIDqeUEu33rvfvb5vJvOsIpAflwF/JBNBnOAVZzfSKBNrUDH9wSyFXiB/umVFwnUN5WFRWJ6PDG7FANhJfgWPXbXtBnhu+8YTvH9t+PWlU3RrC40WvYUylz1NZCVCaxYQSa08edFaVVdTH+X2pOluqhrvhUebQGdVdUkQMIhZi6kt16WqLif0to+KUkYi64rp9UcMfa5A+P9EoFoFaIQOM+7TKcg1Ks3JzElDnU2GT5mPKAaleLam6DwoZxGXJT6EFa/ncg0z9Ret5QPiRyIdPZMq0siZGxmIN3AMLHdaQAVQXYL/dS6sph7uNpwFH9IUfTIfdSTtolKfGFA0e8znzuTUlNuYKrwIICNjve7O3FJvkyTPjxVJlluCoyoPpnl/TZT+U6S+NUJe/vNKQFddWn38A0H0g+o5Uq/88BdKQENMOISfSjdgOiIB+D135261KEpijz4BojsdzjaZ5urvxTdk25AVGrZtJUNS4GnxUcEC6XOaVpmp6m1Hj3KswdFOWStbFb0fCr3ZVJ7JgWYblG/h9TAw0iVNah6B8PHk3QN862XzaJSlX13wtt6u6ihpsnwjjHtfGRsjygueenxJGKqnZmPDIpeJMpow3vr59g/EpYDy/9yOudMehGnPocB80OKsJ0vcn50z68EUxNyNc2bsdreu2TJLHHZWYdjttk9Yq3YY+XD1b94sRp9iYCMcwAAAABJRU5ErkJggg==');
 
         const FAN_NAME = ['无',
             '大四喜', '大三元', '绿一色', '九莲宝灯', '四杠', '连七对', '十三幺',
@@ -7021,8 +7043,8 @@
                 //this.width = w;
                 //this.height = h0;
 
-                this.min_ = h0 * .5;
-                this.max_ = w - h0 * .5;
+                this.min_ = h0 * .5 - 3;
+                this.max_ = w - h0 * .5 + 3;
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -7032,12 +7054,11 @@
                 bg.drawRect(0, (h0 - h1) * .5, w, h1);
                 bg.endFill();
 
-                let thmb = this.thmb_ = new PIXI.Graphics();
-                thmb.beginFill(0xffffff, 1);
-                thmb.drawCircle(h0 * .25, h0 * .25, h0 * .5);
-                thmb.endFill();
+                let thmb = this.thmb_ = new PIXI.Sprite(RangeBar.cycleTex);
                 this.addChild(thmb);
-                thmb.x = thmb.y = h0 * .25;
+                thmb.scale.set(h0 / 64);
+                thmb.anchor.set(.5);
+                thmb.x = thmb.y = h0 * .5;
 
                 this.dragging_ = false;
                 thmb.interactive = true;
@@ -7049,7 +7070,7 @@
                     let pt = this.toLocal(e.data.global);
                     let v0 = this.min_, v1 = this.max_;
                     let vx = Math.max(v0, Math.min(v1, pt.x));
-                    this.thmb_.x = vx - v0 * .5;
+                    this.thmb_.x = vx;
                     this.value_ = (vx - v0) * 100 / (v1 - v0);
                     cb(this.value_);
                 });
@@ -7057,13 +7078,15 @@
 
             setValue(v) {
                 this.value_ = v;
-                this.thmb_.x = this.min_ * .5 + (this.max_ - this.min_) * v / 100;
+                this.thmb_.x = this.min_ + (this.max_ - this.min_) * v / 100;
             }
 
             getValue() {
                 return this.value_;
             }
         }
+
+        RangeBar.cycleTex = base64Tex('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABr0lEQVR42u1bWZHEIBCNg5EwEiIhEiIhEiIhEiIhEpCwEiIhEuIgvVDVX6mtJQdHX6+KryEM7wFNNzRNYzAYcgMAOl9GX5bjOH7+K6EO1u04E/76MiGhV8A2ptAmB+J9CtIRMXp1xMkK4TvxwTVbC+G/PzVHfYPKwD70pcmPQA9jKfIL0MWSm/wE9DHlIj8AHwzJDR7wQ5+KfOvLzlCA0Oc2xT6/Al+sr/wEJkYvj1HEqS8F95dCSd++ROzwJH6Xhk7l6N+eBXiYIRVfLZb/+Y7AfN+P+gWap398GTD1+dPFCP7HWYEAs6rt79Z2KNwAxg0hKIEJYAKYACaACWB+gAmgLhSOh8QWDGkPh9EObILX/3blREhySDxruxA5o716MiwxLF6lX4c/t/52NSb/eqx7ekPsBJB3bxMkdsbkQ9/fJVIyXwppMs6BZmJkDGkTJ4F2guQZeRImmYiQPVt0IEx+aEqAqAhlyJ/cZQoxwwq1Hk+gn1DTWXJQ68HEH77CWnjU6b0qC3tvzhMlbHtsqANnhEvkRu/YFs93hChGOG53V2YH1nH4Dd/HkwYDD/wCGrE2KfciIV0AAAAASUVORK5CYII=');
 
         class SettingView extends PIXI.Container {
             constructor(w, h, callback) {
@@ -8332,18 +8355,9 @@
             }
         }
 
-        function cfg_richtext(lk, fs, cfg){
+        function cfg_richtext(fs, cfg){
             let ctn = new PIXI.Container();
             let t, w = 0, gp = fs * .4;
-            if (lk) {
-                t = new PIXI.Text('\uD83D\uDD12', {
-                    fontFamily: FF,
-                    fontSize: fs,
-                    fill: '#ffffff',
-                });
-                ctn.addChild(t);
-                w += t.width + gp;
-            }
 
             t = new PIXI.Text(`${cfg['n']}盘 | ${cfg['l']}番 (${cfg['b']})`, {
                 fontFamily: FF,
@@ -8412,21 +8426,24 @@
                 this.anonym_ = cfg['a'];
                 let r30 = cfg['r30'];
 
-                let t = new PIXI.Text('\u25CF', {
-                    fontFamily: FF,
-                    fontSize: 26,
-                    fill: (r30 == 5 ? '#ffffff' : (r30 == 8 ? '#00bfff' : (r30 == 10 ? '#ff6a6a' : '#00cd66'))),
-                });
-                t.anchor.y = .5;
-                t.x = gap;
-                t.y = 25;
-                this.addChild(t);
-                //bg.lineStyle(0);
-                //bg.beginFill(r30 == 5 ? 0xffffff : (r30 == 8 ? 0x00bfff : (r30 == 10 ? 0xff6a6a : 0x00cd66)));
-                //bg.drawCircle(25, 25, 15);
-                //bg.endFill();
+                let sp = new PIXI.Sprite(RangeBar.cycleTex);
+                sp.scale.set(.4);
+                sp.anchor.y = .5;
+                sp.x = gap;
+                sp.y = 25;
+                sp.tint = (r30 == 5 ? 0xffffff : (r30 == 8 ? 0x00bfff : (r30 == 10 ? 0xff6a6a : 0x00cd66)));
+                this.addChild(sp);
 
-                t = new PIXI.Text(cfg['t'], {
+                if (this.pw_) {
+                    sp = new PIXI.Sprite(TableInfoView.lockTex);
+                    this.addChild(sp);
+                    sp.anchor.set(.5);
+                    sp.scale.set(.7);
+                    sp.x = gap + 40;
+                    sp.y = 25;
+                }
+
+                let t = new PIXI.Text(cfg['t'], {
                     fontFamily: FF,
                     fontSize: 26,
                     fill: '#ffffff',
@@ -8434,10 +8451,10 @@
                     strokeThickness: 2,
                 });
                 t.anchor.y = .5;
-                t.x = gap + 30;
+                t.x = gap + 55;
                 t.y = 25;
                 this.addChild(t);
-                scaleText(t, width - 120 - gap * 3 - 30);
+                scaleText(t, width - 120 - gap * 3 - 55);
 
                 this.pro_ = t = new PIXI.Text('', {
                     fontFamily: FF,
@@ -8471,14 +8488,14 @@
                 btn.value_ = 1;
                 this.readyBtn_ = btn;
 
-                let ctn = cfg_richtext(this.pw_, 18, cfg);
+                let ctn = cfg_richtext(18, cfg);
                 ctn.x = gap;
                 ctn.y = 60;
                 ctn.pivot.y = ctn.height * .5;
                 this.addChild(ctn);
                 let xx = ctn.width;
                 if (xx + gap * 2 > width) {
-                    ctn.scale.set((width - gap * 2) / xx);
+                    ctn.scale.set((width - 25 - gap * 2) / xx);
                 }
 
                 let name = new Array(4);
@@ -8507,7 +8524,7 @@
                     t.y = 100;
                     this.addChild(t);
 
-                    let sp = new PIXI.Sprite(PIXI.loader.resources['img/ui/checkbox_tick.png'].texture);
+                    let sp = new PIXI.Sprite(CheckBox.tkTex);
                     sp.anchor.set(.5);
                     sp.x = xx + 37;
                     sp.y = 100;
@@ -8599,6 +8616,8 @@
                 this.pro_.text = `${p}/${r}`;
             }
         }
+
+        TableInfoView.lockTex = base64Tex('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADRklEQVR42tWXW0iTURzAN/dtc7Z921rqnHPTlZcphA9lhfWkBgZp6kO+Be4hC42KegvSIKiGqWsGakpW3i+pmfNCXslrkPYSPYQIXTQh27SLW/Pf/8RnEImba2514Af7zs75/j/+/3MO52Ox/sPGRoKRLMSIlCCnEA3is9WB9yM9fD5/MTY21p6WlgYZGekQF7fXLvTzW8L/RpFjCMfdwbnIaQxsyUhPh4b6OujuMkFtTTXUVD+ALlMntLW2gi4rC2iaXsGx1xGROwXOCYVCMN4yQH/fE8jMPL6KMlbstxC4XO5KSkrKak93F7Q0N0FgQABgf6m7SpIgEAjMRUWF0NjYAGq1mry8DznErAUFsg9pl8sD7eVlpdDc1AhyuZxk4ixTOpcbSeMLnU4HJkyzQqEgwQ2IcJ2xfOSyRCKxE4Er+flk7DtG0OV2VCqVWrsxtampqav4PIhsc7BWag7Gx68ODw1CZGSEncmCS42s5J7s7JNQV1sDFEWZ8TnCiXlBbDZ7obKyAvLy8gB/T2OfrysCITweb6m+rhZyc3JIOscQnhPzKJIpIt7W+hB8fX2/4nOYKwIHxDQNQ4MDkJSUCByOj3ETc41HkpNhoL8faJGIyO9xReCwTCaDsdERctCAQMC/sIm51xITE4CsA7GYBuYA29SJxykuLj5SeLMAJifGoeJOOZSUGHKYfc1xgM9to8F4/14VjI+Ngl5/w67X63c7ezr6IU3IhJgWvYqJjoY1/P1lM2w2a8IZVKqQhbV5Wm2Unc/jTZF3IgWODicZx4e1ePVSADTfVbmNlioV5J6QkFJMOVrIOyiK9Wn4cRjYF2Lchu11BJRf3I5bkjXttMD3DzFuwfZWC8t9Kig7L/W8gG0+GpafhoLlkdI7At9ehoO5QwmWDi8IWGejwGxSgrndCwK2OUz9UCiYMfUEjwqQun95rvkV3OMCKzOY+k6ldwRsb7Rg7g35WXevCHyeDPstsMcESN3XtpxXBKx42lm6Q9YNvuUCZMstDar/qPtfCfS2qMEyq3WKj892wvsmBcxtwHyzAoxnJIAXDYcCUnKVVsop6y4N1yk0wZRVE8RxiL+YTT5kRpib84YtnPnQ2AqC/7lP7R/yJtLQGsQ4rAAAAABJRU5ErkJggg==');
 
         class PasswordView extends PIXI.Container {
             constructor(callback) {
