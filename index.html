@@ -4612,20 +4612,10 @@
                 let cv = this.chaseView_;
                 let fw = this.falseWin_;
                 let penalties = [0, 0, 0, 0];
-                if (this.cfg_['fa']) {
-                    for (let i = 0; i < 4; ++i) {
-                        if (fw[i]) {
-                            for (let k = 0; k < 4; ++k) {
-                                penalties[k] += (i != k) ? 10 : -30;
-                            }
-                        }
-                    }
-                }
-                else {
-                    for (let i = 0; i < 4; ++i) {
-                        if (fw[i]) {
-                            penalties[i] -= 40;
-                        }
+                for (let i = 0; i < 4; ++i) {
+                    if (fw[i]) {
+                        // 无论-30/+10或者-40/+0，分差都是40
+                        penalties[(i + this.seat_) & 3] -= 40;
                     }
                 }
                 this.removeChild(cv);
