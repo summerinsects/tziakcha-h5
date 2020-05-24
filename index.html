@@ -3266,6 +3266,21 @@
             }
 
             /**
+             * 检查玩家副露是否已经超出
+             * @param {number} n 玩家
+             */
+            _chck_call(n) {
+                let pplen = this.packData_[n].length;
+                let hdn = pplen * 3;
+                if (hdn >= 12) {
+                    console.log('ui error');
+                    reenter();
+                    return -1;
+                }
+                return pplen;
+            }
+
+            /**
              * 缩减手牌
              * @param {number} n 玩家
              * @param {array} indices 缩减的下标
@@ -3394,6 +3409,19 @@
             }
 
             /**
+             * 上家移动旧副露
+             * @param {number} dis 距离
+             */
+            _mv_prev3(dis) {
+                this.openPos_[3] += dis;
+                let prev = this.packs_[3];
+                for (let i = 0, len = prev.length; i < len; ++i) {
+                    let sp = prev[i];
+                    (new TWEEN.Tween(sp)).to({y:(sp.y - dis)}, DISCARD_DT).start();
+                }
+            }
+
+            /**
              * 上家吃/碰/大明杠
              * @param {number} pack 副露
              */
@@ -3404,122 +3432,114 @@
                 this.rmBtns();
                 this.rmCD();
 
-                let pplen = this.packData_[3].length;
-                let hdn = pplen * 3;
-                if (hdn >= 12) {
-                    console.log('ui error');
-                    reenter();
-                    return;
-                }
+                let pplen = this._chck_call(3);
+                if (pplen < 0) return;
 
                 let sta = this.standing_[3];
                 let ext = (type != 2) ? EXT_CP_13 : EXT_DK_13;
 
-                // 立牌往下，已有的副露往上
-                this.openPos_[3] += ext;
-                let prev = this.packs_[3];
-                for (let i = 0, len = prev.length; i < len; ++i) {
-                    let sp = prev[i];
-                    (new TWEEN.Tween(sp)).to({y:(sp.y - ext)}, DISCARD_DT).start();
-                }
+                this._mv_prev3(ext);
 
-                let idx1 = this._randomIdx(3);
-                let idx2, idx3;
-                do { idx2 = this._randomIdx(3); } while (idx1 == idx2);
+                let idx = new Uint8Array(3);
+                idx[0] = this._randomIdx(3);
+                do { idx[1] = this._randomIdx(3); } while (idx[0] == idx[1]);
 
                 // 生成一组副露
-                let t0, t1, t2, t3;
+                let t = [];
                 let hz = 0;
                 switch (type) {
                 case 0:
-                    idx3 = 13;
+                    idx[2] = 13;
                     switch (pack_offer(pack)) {
-                    default: t0 = new PoolTile0(tile - 4); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile + 4); break;
-                    case 2: t0 = new PoolTile0(tile); t1 = new PoolTile3(tile - 4); t2 = new PoolTile3(tile + 4); break;
-                    case 3: t0 = new PoolTile0(tile + 4); t1 = new PoolTile3(tile - 4); t2 = new PoolTile3(tile); break;
+                    default: t.push(new PoolTile0(tile - 4)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile + 4)); break;
+                    case 2: t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile - 4)); t.push(new PoolTile3(tile + 4)); break;
+                    case 3: t.push(new PoolTile0(tile + 4)); t.push(new PoolTile3(tile - 4)); t.push(new PoolTile3(tile)); break;
                     }
                     break;
                 case 1:
-                    idx3 = 13;
+                    idx[2] = 13;
                     switch (pack_offer(pack)) {
-                    default: hz = 0; t0 = new PoolTile0(tile); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile); t0.pr_ = true; break;
-                    case 2: hz = 1; t0 = new PoolTile3(tile); t1 = new PoolTile0(tile); t2 = new PoolTile3(tile); t1.pr_ = true; break;
-                    case 3: hz = 2; t0 = new PoolTile3(tile); t1 = new PoolTile3(tile); t2 = new PoolTile2(tile); t2.pr_ = true; break;
+                    default: hz = 0; t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t[0].pr_ = true; break;
+                    case 2: hz = 1; t.push(new PoolTile3(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t[1].pr_ = true; break;
+                    case 3: hz = 2; t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t[2].pr_ = true; break;
                     }
                     break;
                 case 2:
-                    do { idx3 = this._randomIdx(1); } while (idx1 == idx3 || idx2 == idx3);
+                    do { idx[2] = this._randomIdx(3); } while (idx[0] == idx[2] || idx[1] == idx[2]);
                     switch (pack_offer(pack)) {
-                    default: hz = 0; t0 = new PoolTile0(tile); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile); t3 = new PoolTile3(tile); break;
-                    case 2: hz = 1; t0 = new PoolTile3(tile); t1 = new PoolTile0(tile); t2 = new PoolTile3(tile); t3 = new PoolTile3(tile); break;
-                    case 3: hz = 2; t0 = new PoolTile3(tile); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile); t3 = new PoolTile2(tile); break;
+                    default: hz = 0; t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); break;
+                    case 2: hz = 1;  t.push(new PoolTile3(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); break;
+                    case 3: hz = 2;  t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); break;
                     }
                     break;
                 }
 
-                this.addChild(t0); this.packs_[3].push(t0); t0.zIndex = 240 + pplen * 4;
-                this.addChild(t1); this.packs_[3].push(t1); t1.zIndex = 241 + pplen * 4;
-                this.addChild(t2); this.packs_[3].push(t2); t2.zIndex = 242 + pplen * 4;
-                if (type == 2) { this.addChild(t3); this.packs_[3].push(t3); t3.zIndex = 243 + pplen * 4; }
+                for (let i = 0, c = t.length; i < c; ++i) {
+                    let ti = t[i];
+                    this.addChild(ti); this.packs_[3].push(ti); ti.zIndex = 240 + i + pplen * 4;
+                }
 
                 // 动画
+                let hdn = pplen * 3;
                 let yy = sta[hdn + 3].y + ext - GAP_T;
 
                 // 来源牌
                 let req = this.flyTile_;
                 this.flyTile_ = null;
 
+                idx.sort();
+
                 switch (hz) {
                 case 0:
-                    if (req) t0.x = req.x, t0.y = req.y;
-                    t1.y = sta[idx1].y;
-                    t2.y = sta[idx2].y;
+                    if (req) t[0].x = req.x, t[0].y = req.y;
+                    t[1].y = sta[idx[0]].y;
+                    t[2].y = sta[idx[1]].y;
                     if (type != 2) {
-                        (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02),x:0}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[0])).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02),x:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
                     }
                     else {
-                        t3.y = sta[idx3].y;
-                        (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_13 * 3 - HEIGHT_02),x:0}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_13 * 3)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3)).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
+                        t[3].y = sta[idx[2]].y;
+                        (new TWEEN.Tween(t[0])).to({y:(yy - HEIGHT_13 * 3 - HEIGHT_02),x:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({y:(yy - HEIGHT_13 * 3)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3])).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
                     }
                     break;
                 case 1:
-                    t0.y = sta[idx1].y;
-                    if (req) t1.x = req.x, t1.y = req.y;
-                    t2.y = sta[idx2].y;
+                    t[0].y = sta[idx[0]].y;
+                    if (req) t[1].x = req.x, t[1].y = req.y;
+                    t[2].y = sta[idx[1]].y;
                     if (type != 2) {
-                        (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_13 - HEIGHT_02),x:0}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[0])).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({y:(yy - HEIGHT_13 - HEIGHT_02),x:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
                     }
                     else {
-                        t3.y = sta[idx3].y;
-                        (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_13 * 3 - HEIGHT_02)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02),x:0}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3)).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
+                        t[3].y = sta[idx[2]].y;
+                        (new TWEEN.Tween(t[0])).to({y:(yy - HEIGHT_13 * 3 - HEIGHT_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02),x:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3])).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
                     }
                     break;
                 case 2:
-                    t0.y = sta[idx1].y;
-                    t1.y = sta[idx2].y;
+                    t[0].y = sta[idx[0]].y;
+                    t[1].y = sta[idx[1]].y;
                     if (type != 2) {
-                        if (req) t2.x = req.x, t2.y = req.y;
-                        (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 2)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_02 - HEIGHT_13)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_02),x:0}, DISCARD_DT).start();
+                        if (req) t[2].x = req.x, t[2].y = req.y;
+                        (new TWEEN.Tween(t[0])).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({y:(yy - HEIGHT_02 - HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({y:(yy - HEIGHT_02),x:0}, DISCARD_DT).start();
                     }
                     else {
-                        t2.y = sta[idx3].y;
-                        if (req) t3.x = req.x, t3.y = req.y;
-                        (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 3)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 2)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_02 - HEIGHT_13)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3)).to({y:(yy - HEIGHT_02),x:0}, DISCARD_DT).start();
+                        t[2].y = sta[idx[2]].y;
+                        if (req) t[3].x = req.x, t[3].y = req.y;
+                        (new TWEEN.Tween(t[0])).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 3)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({y:(yy - HEIGHT_02 - HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3])).to({y:(yy - HEIGHT_02),x:0}, DISCARD_DT).start();
                     }
                     break;
                 }
@@ -3530,7 +3550,7 @@
                 }
 
                 this.packData_[3].push(pack);
-                this._shrink(3, [idx1, idx2, idx3]);
+                this._shrink(3, idx);
                 this._srt_shrk3();
                 if (type == 2) sta[13].visible = false;
                 else this.setTurn((this.seat_ + 3) & 3);
@@ -3544,24 +3564,14 @@
              * @param {number} h 手牌四张true，抓来暗杠false
              */
             ck3(h) {
-                let pplen = this.packData_[3].length;
-                let hdn = pplen * 3;
-                if (hdn >= 12) {
-                    console.log('ui error');
-                    reenter();
-                    return;
-                }
+                let pplen = this._chck_call(3);
+                if (pplen < 0) return;
 
                 let sta = this.standing_[3];
                 let ext = EXT_CK_13;
 
                 // 立牌往下，已有的副露往上
-                this.openPos_[3] += ext;
-                let prev = this.packs_[3];
-                for (let i = 0, len = prev.length; i < len; ++i) {
-                    let sp = prev[i];
-                    (new TWEEN.Tween(sp)).to({y:(sp.y - ext)}, DISCARD_DT).start();
-                }
+                this._mv_prev3(ext);
 
                 let idx = [this._randomIdx(3), 0, 0, 13];
                 do { idx[1] = this._randomIdx(3); } while (idx[1] == idx[0]);
@@ -3569,6 +3579,7 @@
                 if (h) do { idx[3] = this._randomIdx(3); } while (idx[3] == idx[0] || idx[3] == idx[1] || idx[3] == idx[2]);
 
                 // 生成一组副露
+                let hdn = pplen * 3;
                 let yy = sta[hdn + 3].y + ext - GAP_T;
 
                 for (let i = 0; i < 4; ++i) {
@@ -3646,6 +3657,19 @@
             }
 
             /**
+             * 对家移动旧副露
+             * @param {number} dis 距离
+             */
+            _mv_prev2(dis) {
+                this.openPos_[2] -= dis;
+                let prev = this.packs_[2];
+                for (let i = 0, len = prev.length; i < len; ++i) {
+                    let sp = prev[i];
+                    (new TWEEN.Tween(sp)).to({x:(sp.x + dis)}, DISCARD_DT).start();
+                }
+            }
+
+            /**
              * 对家吃/碰/大明杠
              * @param {number} pack 副露
              */
@@ -3656,122 +3680,114 @@
                 this.rmBtns();
                 this.rmCD();
 
-                let pplen = this.packData_[2].length;
-                let hdn = pplen * 3;
-                if (hdn >= 12) {
-                    console.log('ui error');
-                    reenter();
-                    return;
-                }
+                let pplen = this._chck_call(2);
+                if (pplen < 0) return;
 
                 let sta = this.standing_[2];
                 let ext = (type != 2) ? EXT_CP_02 : EXT_DK_02;
 
-                // 立牌往左，已有的副露往右
-                this.openPos_[2] -= ext;
-                let prev = this.packs_[2];
-                for (let i = 0, len = prev.length; i < len; ++i) {
-                    let sp = prev[i];
-                    (new TWEEN.Tween(sp)).to({x:(sp.x + ext)}, DISCARD_DT).start();
-                }
+                this._mv_prev2(ext);
 
-                let idx1 = this._randomIdx(2);
-                let idx2, idx3;
-                do { idx2 = this._randomIdx(2); } while (idx1 == idx2);
+                let idx = new Uint8Array(3);
+                idx[0] = this._randomIdx(2);
+                do { idx[1] = this._randomIdx(2); } while (idx[0] == idx[1]);
 
                 // 生成一组副露
-                let t0, t1, t2, t3;
+                let t = [];
                 let hz = 0;
                 switch (type) {
                 case 0:
-                    idx3 = 13;
+                    idx[2] = 13;
                     switch (pack_offer(pack)) {
-                    default: t0 = new PoolTile3(tile - 4); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile + 4); break;
-                    case 2: t0 = new PoolTile3(tile); t1 = new PoolTile2(tile - 4); t2 = new PoolTile2(tile + 4); break;
-                    case 3: t0 = new PoolTile3(tile + 4); t1 = new PoolTile2(tile - 4); t2 = new PoolTile2(tile); break;
+                    default: t.push(new PoolTile3(tile - 4)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile + 4)); break;
+                    case 2: t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile - 4)); t.push(new PoolTile2(tile + 4)); break;
+                    case 3: t.push(new PoolTile3(tile + 4)); t.push(new PoolTile2(tile - 4)); t.push(new PoolTile2(tile)); break;
                     }
                     break;
                 case 1:
-                    idx3 = 13;
+                    idx[2] = 13;
                     switch (pack_offer(pack)) {
-                    default: hz = 0; t0 = new PoolTile3(tile); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile); t0.pr_ = true; break;
-                    case 2: hz = 1; t0 = new PoolTile2(tile); t1 = new PoolTile3(tile); t2 = new PoolTile2(tile); t1.pr_ = true; break;
-                    case 3: hz = 2; t0 = new PoolTile2(tile); t1 = new PoolTile2(tile); t2 = new PoolTile1(tile); t2.pr_ = true; break;
+                    default: hz = 0; t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t[0].pr_ = true; break;
+                    case 2: hz = 1; t.push(new PoolTile2(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t[1].pr_ = true; break;
+                    case 3: hz = 2; t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t[2].pr_ = true; break;
                     }
                     break;
                 case 2:
-                    do { idx3 = this._randomIdx(1); } while (idx1 == idx3 || idx2 == idx3);
+                    do { idx[2] = this._randomIdx(2); } while (idx[0] == idx[2] || idx[0] == idx[2]);
                     switch (pack_offer(pack)) {
-                    default: hz = 0; t0 = new PoolTile3(tile); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile); t3 = new PoolTile2(tile); break;
-                    case 2: hz = 1; t0 = new PoolTile2(tile); t1 = new PoolTile3(tile); t2 = new PoolTile2(tile); t3 = new PoolTile2(tile); break;
-                    case 3: hz = 2; t0 = new PoolTile2(tile); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile); t3 = new PoolTile1(tile); break;
+                    default: hz = 0; t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); break;
+                    case 2: hz = 1; t.push(new PoolTile2(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); break;
+                    case 3: hz = 2; t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); break;
                     }
                     break;
                 }
 
-                this.addChild(t0); this.packs_[2].push(t0); t0.zIndex = 170 + pplen * 4;
-                this.addChild(t1); this.packs_[2].push(t1); t1.zIndex = 171 + pplen * 4;
-                this.addChild(t2); this.packs_[2].push(t2); t2.zIndex = 172 + pplen * 4;
-                if (type == 2) { this.addChild(t3); this.packs_[2].push(t3); t3.zIndex = 173 + pplen * 4; }
+                for (let i = 0, c = t.length; i < c; ++i) {
+                    let ti = t[i];
+                    this.addChild(ti); this.packs_[2].push(ti); ti.zIndex = 170 + i + pplen * 4;
+                }
 
                 // 动画
+                let hdn = pplen * 3;
                 let xx = sta[hdn + 3].x - ext + GAP_T + WIDTH_02;
 
                 // 来源牌
                 let req = this.flyTile_;
                 this.flyTile_ = null;
 
+                idx.sort();
+
                 switch (hz) {
                 case 0:
-                    if (req) t0.x = req.x, t0.y = req.y;
-                    t1.x = sta[idx1].x;
-                    t2.x = sta[idx2].x;
+                    if (req) t[0].x = req.x, t[0].y = req.y;
+                    t[1].x = sta[idx[0]].x;
+                    t[2].x = sta[idx[1]].x;
                     if (type != 2) {
-                        (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_02 * 2),y:0}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({x:(xx)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[0])).to({x:(xx + WIDTH_02 * 2),y:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({x:(xx)}, DISCARD_DT).start();
                     }
                     else {
-                        t3.x = sta[idx3].x;
-                        (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_02 * 3),y:0}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02 * 2)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3)).to({x:(xx)}, DISCARD_DT).start();
+                        t[3].x = sta[idx[2]].x;
+                        (new TWEEN.Tween(t[0])).to({x:(xx + WIDTH_02 * 3),y:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_02 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3])).to({x:(xx)}, DISCARD_DT).start();
                     }
                     break;
                 case 1:
-                    t0.x = sta[idx1].x;
-                    if (req) t1.x = req.x, t1.y = req.y;
-                    t2.x = sta[idx2].x;
+                    t[0].x = sta[idx[0]].x;
+                    if (req) t[1].x = req.x, t[1].y = req.y;
+                    t[2].x = sta[idx[1]].x;
                     if (type != 2) {
-                        (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_02 + WIDTH_13)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:0}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({x:(xx)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[0])).to({x:(xx + WIDTH_02 + WIDTH_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_02),y:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({x:(xx)}, DISCARD_DT).start();
                     }
                     else {
-                        t3.x = sta[idx3].x;
-                        (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_02 * 2 + WIDTH_13)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02 * 2),y:0}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3)).to({x:(xx)}, DISCARD_DT).start();
+                        t[3].x = sta[idx[2]].x;
+                        (new TWEEN.Tween(t[0])).to({x:(xx + WIDTH_02 * 2 + WIDTH_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_02 * 2),y:0}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3])).to({x:(xx)}, DISCARD_DT).start();
                     }
                     break;
                 case 2:
-                    t0.x = sta[idx1].x;
-                    t1.x = sta[idx2].x;
+                    t[0].x = sta[idx[0]].x;
+                    t[1].x = sta[idx[1]].x;
                     if (type != 2) {
-                        if (req) t2.x = req.x, t2.y = req.y;
-                        (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_13 + WIDTH_02)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_13)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({x:(xx),y:0}, DISCARD_DT).start();
+                        if (req) t[2].x = req.x, t[2].y = req.y;
+                        (new TWEEN.Tween(t[0])).to({x:(xx + WIDTH_13 + WIDTH_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({x:(xx),y:0}, DISCARD_DT).start();
                     }
                     else {
-                        t2.x = sta[idx3].x;
-                        if (req) t3.x = req.x, t3.y = req.y;
-                        (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_13 + WIDTH_02 * 2)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_13 + WIDTH_02)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_13)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3)).to({x:(xx),y:0}, DISCARD_DT).start();
+                        t[2].x = sta[idx[2]].x;
+                        if (req) t[3].x = req.x, t[3].y = req.y;
+                        (new TWEEN.Tween(t[0])).to({x:(xx + WIDTH_13 + WIDTH_02 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_13 + WIDTH_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({x:(xx + WIDTH_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3])).to({x:(xx),y:0}, DISCARD_DT).start();
                     }
                     break;
                 }
@@ -3782,7 +3798,7 @@
                 }
 
                 this.packData_[2].push(pack);
-                this._shrink(2, [idx1, idx2, idx3]);
+                this._shrink(2, idx);
                 this._srt_shrk2();
                 if (type == 2) sta[13].visible = false;
                 else this.setTurn((this.seat_ + 2) & 3);
@@ -3796,24 +3812,13 @@
              * @param {number} h 手牌四张true，抓来暗杠false
              */
             ck2(h) {
-                let pplen = this.packData_[2].length;
-                let hdn = pplen * 3;
-                if (hdn >= 12) {
-                    console.log('ui error');
-                    reenter();
-                    return;
-                }
+                let pplen = this._chck_call(2);
+                if (pplen < 0) return;
 
                 let sta = this.standing_[2];
                 let ext = EXT_CK_02;
 
-                // 立牌往左，已有的副露往右
-                this.openPos_[2] -= ext;
-                let prev = this.packs_[2];
-                for (let i = 0, len = prev.length; i < len; ++i) {
-                    let sp = prev[i];
-                    (new TWEEN.Tween(sp)).to({x:(sp.x + ext)}, DISCARD_DT).start();
-                }
+                this._mv_prev2(ext);
 
                 let idx = [this._randomIdx(2), 0, 0, 13];
                 do { idx[1] = this._randomIdx(2); } while (idx[1] == idx[0]);
@@ -3821,6 +3826,7 @@
                 if (h) do { idx[3] = this._randomIdx(2); } while (idx[3] == idx[0] || idx[3] == idx[1] || idx[3] == idx[2]);
 
                 // 生成一组副露
+                let hdn = pplen * 3;
                 let xx = sta[hdn + 3].x - ext + GAP_T + WIDTH_02;
 
                 for (let i = 0; i < 4; ++i) {
@@ -3898,6 +3904,19 @@
             }
 
             /**
+             * 下家移动旧副露
+             * @param {number} dis 距离
+             */
+            _mv_prev1(dis) {
+                this.openPos_[1] -= dis;
+                let prev = this.packs_[1];
+                for (let i = 0, len = prev.length; i < len; ++i) {
+                    let sp = prev[i];
+                    (new TWEEN.Tween(sp)).to({y:(sp.y + dis)}, DISCARD_DT).start();
+                }
+            }
+
+            /**
              * 下家吃/碰/大明杠
              * @param {number} pack 副露
              */
@@ -3908,124 +3927,116 @@
                 this.rmBtns();
                 this.rmCD();
 
-                let pplen = this.packData_[1].length;
-                let hdn = pplen * 3;
-                if (hdn >= 12) {
-                    console.log('ui error');
-                    reenter();
-                    return;
-                }
+                let pplen = this._chck_call(1);
+                if (pplen < 0) return;
 
                 let sta = this.standing_[1];
                 let ext = (type != 2) ? EXT_CP_13 : EXT_DK_13;
 
-                // 立牌往上，已有的副露往下
-                this.openPos_[1] -= ext;
-                let prev = this.packs_[1];
-                for (let i = 0, len = prev.length; i < len; ++i) {
-                    let sp = prev[i];
-                    (new TWEEN.Tween(sp)).to({y:(sp.y + ext)}, DISCARD_DT).start();
-                }
+                this._mv_prev1(ext);
 
                 let xx = sta[0].x;
 
-                let idx1 = this._randomIdx(1);
-                let idx2, idx3;
-                do { idx2 = this._randomIdx(1); } while (idx1 == idx2);
+                let idx = new Uint8Array(3);
+                idx[0] = this._randomIdx(1);
+                do { idx[1] = this._randomIdx(1); } while (idx[0] == idx[1]);
 
                 // 生成一组副露
-                let t0, t1, t2, t3;
+                let t =[];
                 let hz = 0;
                 switch (type) {
                 case 0:
-                    idx3 = 13;
+                    idx[2] = 13;
                     switch (pack_offer(pack)) {
-                    default: t0 = new PoolTile2(tile - 4); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile + 4); break;
-                    case 2: t0 = new PoolTile2(tile); t1 = new PoolTile1(tile - 4); t2 = new PoolTile1(tile + 4); break;
-                    case 3: t0 = new PoolTile2(tile + 4); t1 = new PoolTile1(tile - 4); t2 = new PoolTile1(tile); break;
+                    default: t.push(new PoolTile2(tile - 4)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile + 4)); break;
+                    case 2: t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile - 4)); t.push(new PoolTile1(tile + 4)); break;
+                    case 3: t.push(new PoolTile2(tile + 4)); t.push(new PoolTile1(tile - 4)); t.push(new PoolTile1(tile)); break;
                     }
                     break;
                 case 1:
-                    idx3 = 13;
+                    idx[2] = 13;
                     switch (pack_offer(pack)) {
-                    default: hz = 0; t0 = new PoolTile2(tile); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile); t0.pr_ = true; break;
-                    case 2: hz = 1; t0 = new PoolTile1(tile); t1 = new PoolTile2(tile); t2 = new PoolTile1(tile); t1.pr_ = true; break;
-                    case 3: hz = 2; t0 = new PoolTile1(tile); t1 = new PoolTile1(tile); t2 = new PoolTile0(tile); t2.pr_ = true; break;
+                    default: hz = 0; t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t[0].pr_ = true; break;
+                    case 2: hz = 1; t.push(new PoolTile1(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t[1].pr_ = true; break;
+                    case 3: hz = 2; t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t[2].pr_ = true; break;
                     }
                     break;
                 case 2:
-                    do { idx3 = this._randomIdx(1); } while (idx1 == idx3 || idx2 == idx3);
+                    do { idx[2] = this._randomIdx(1); } while (idx[0] == idx[2] || idx[1] == idx[2]);
                     switch (pack_offer(pack)) {
-                    default: hz = 0; t0 = new PoolTile2(tile); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile); t3 = new PoolTile1(tile); break;
-                    case 2: hz = 1; t0 = new PoolTile1(tile); t1 = new PoolTile2(tile); t2 = new PoolTile1(tile); t3 = new PoolTile1(tile); break;
-                    case 3: hz = 2; t0 = new PoolTile1(tile); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile); t3 = new PoolTile0(tile); break;
+                    default: hz = 0; t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); break;
+                    case 2: hz = 1; t.push(new PoolTile1(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); break;
+                    case 3: hz = 2; t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); break;
                     }
                     break;
                 }
 
-                this.addChild(t0); this.packs_[1].push(t0); t0.zIndex = 169 - pplen * 4;
-                this.addChild(t1); this.packs_[1].push(t1); t1.zIndex = 168 - pplen * 4;
-                this.addChild(t2); this.packs_[1].push(t2); t2.zIndex = 167 - pplen * 4;
-                if (type == 2) { this.addChild(t3); this.packs_[1].push(t3); t3.zIndex = 166 - pplen * 4; }
+                for (let i = 0, c = t.length; i < c; ++i) {
+                    let ti = t[i];
+                    this.addChild(ti); this.packs_[1].push(ti); ti.zIndex = 169 - i - pplen * 4;
+                }
 
                 // 动画
+                let hdn = pplen * 3;
                 let yy = sta[hdn + 3].y - ext + GAP_T + HEIGHT_13 * 2;
 
                 // 来源牌
                 let req = this.flyTile_;
                 this.flyTile_ = null;
 
+                idx.sort();
+
                 switch (hz) {
                 case 0:
-                    if (req) t0.x = req.x, t0.y = req.y;
-                    t1.x = xx - (WIDTH_13 - WIDTH_13S); t1.y = sta[idx1].y;
-                    t2.x = t1.x; t2.y = sta[idx2].y;
+                    if (req) t[0].x = req.x, t[0].y = req.y;
+                    t[1].x = xx - (WIDTH_13 - WIDTH_13S); t[1].y = sta[idx[0]].y;
+                    t[2].x = t[1].x; t[2].y = sta[idx[1]].y;
                     if (type != 2) {
-                        (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_13 * 2),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({y:(yy)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[0])).to({y:(yy + HEIGHT_13 * 2),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({y:(yy)}, DISCARD_DT).start();
                     }
                     else {
-                        t3.x = t1.x; t3.y = sta[idx3].y;
-                        (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_13 * 3),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_13 * 2)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3)).to({y:(yy)}, DISCARD_DT).start();
+                        t[3].x = t[1].x; t[3].y = sta[idx[2]].y;
+                        (new TWEEN.Tween(t[0])).to({y:(yy + HEIGHT_13 * 3),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({y:(yy + HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3])).to({y:(yy)}, DISCARD_DT).start();
                     }
                     break;
                 case 1:
-                    t0.x = xx - (WIDTH_13 - WIDTH_13S); t0.y = sta[idx1].y;
-                    if (req) t1.x = req.x, t1.y = req.y;
-                    t2.x = t0.x; t2.y = sta[idx2].y;
+                    t[0].x = xx - (WIDTH_13 - WIDTH_13S); t[0].y = sta[idx[0]].y;
+                    if (req) t[1].x = req.x, t[1].y = req.y;
+                    t[2].x = t[0].x; t[2].y = sta[idx[1]].y;
                     if (type != 2) {
-                        (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_13 + HEIGHT_02)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_13),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({y:(yy)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[0])).to({y:(yy + HEIGHT_13 + HEIGHT_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({y:(yy + HEIGHT_13),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({y:(yy)}, DISCARD_DT).start();
                     }
                     else {
-                        t3.x = t0.x; t3.y = sta[idx3].y;
-                        (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_13 * 2 + HEIGHT_02)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_13 * 2),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3)).to({y:(yy)}, DISCARD_DT).start();
+                        t[3].x = t[0].x; t[3].y = sta[idx[2]].y;
+                        (new TWEEN.Tween(t[0])).to({y:(yy + HEIGHT_13 * 2 + HEIGHT_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({y:(yy + HEIGHT_13 * 2),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3])).to({y:(yy)}, DISCARD_DT).start();
                     }
                     break;
                 case 2:
-                    t0.x = xx - (WIDTH_13 - WIDTH_13S); t0.y = sta[idx1].y;
-                    t1.x = t0.x; t1.y = sta[idx2].y;
+                    t[0].x = xx - (WIDTH_13 - WIDTH_13S); t[0].y = sta[idx[0]].y;
+                    t[1].x = t[0].x; t[1].y = sta[idx[1]].y;
                     if (type != 2) {
-                        if (req) t2.x = req.x, t2.y = req.y;
-                        (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_02 + HEIGHT_13)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_02)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({y:(yy),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
+                        if (req) t[2].x = req.x, t[2].y = req.y;
+                        (new TWEEN.Tween(t[0])).to({y:(yy + HEIGHT_02 + HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({y:(yy + HEIGHT_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({y:(yy),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
                     }
                     else {
-                        t2.x = t0.x; t2.y = sta[idx3].y;
-                        if (req) t3.x = req.x, t3.y = req.y;
-                        (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_02 + HEIGHT_13 * 2)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_02 + HEIGHT_13)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({y:(yy + HEIGHT_02)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3)).to({y:(yy),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
+                        t[2].x = t[0].x; t[2].y = sta[idx[2]].y;
+                        if (req) t[3].x = req.x, t[3].y = req.y;
+                        (new TWEEN.Tween(t[0])).to({y:(yy + HEIGHT_02 + HEIGHT_13 * 2)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({y:(yy + HEIGHT_02 + HEIGHT_13)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({y:(yy + HEIGHT_02)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3])).to({y:(yy),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
                     }
                     break;
                 }
@@ -4036,7 +4047,7 @@
                 }
 
                 this.packData_[1].push(pack);
-                this._shrink(1, [idx1, idx2, idx3]);
+                this._shrink(1, idx);
                 this._srt_shrk1();
                 if (type == 2) sta[13].visible = false;
                 else this.setTurn((this.seat_ + 1) & 3);
@@ -4050,24 +4061,13 @@
              * @param {number} h 手牌四张true，抓来暗杠false
              */
             ck1(h) {
-                let pplen = this.packData_[1].length;
-                let hdn = pplen * 3;
-                if (hdn >= 12) {
-                    console.log('ui error');
-                    reenter();
-                    return;
-                }
+                let pplen = this._chck_call(1);
+                if (pplen < 0) return;
 
                 let sta = this.standing_[1];
                 let ext = EXT_CK_13;
 
-                // 立牌往上，已有的副露往下
-                this.openPos_[1] -= ext;
-                let prev = this.packs_[1];
-                for (let i = 0, len = prev.length; i < len; ++i) {
-                    let sp = prev[i];
-                    (new TWEEN.Tween(sp)).to({y:(sp.y + ext)}, DISCARD_DT).start();
-                }
+                this._mv_prev1(ext);
 
                 let xx = sta[0].x;
 
@@ -4077,6 +4077,7 @@
                 if (h) do { idx[3] = this._randomIdx(1); } while (idx[3] == idx[0] || idx[3] == idx[1] || idx[3] == idx[2]);
 
                 // 生成一组副露
+                let hdn = pplen * 3;
                 let yy = sta[hdn + 3].y - ext + GAP_T;
 
                 for (let i = 0; i < 4; ++i) {
@@ -4163,71 +4164,66 @@
 
                 this.rmCD();
 
-                let pplen = this.packData_[0].length;
-                let hdn = pplen * 3;
-                if (hdn >= 12) {
-                    console.log('ui error');
-                    reenter();
-                    return;
-                }
+                let pplen = this._chck_call(0);
+                if (pplen < 0) return;
 
                 let sta = this.standing_[0];
-                let idx1, idx2, idx3;
+                let idx = new Uint8Array(3);
 
                 // 生成一组副露
-                let t0, t1, t2, t3;
+                let t = [];
                 let hz = 0;
                 switch (type) {
                 case 0: {
                     let tt0 = tile - 4 + ((pack >> 10) & 3);
                     let tt1 = tile + ((pack >> 12) & 3);
                     let tt2 = tile + 4 + ((pack >> 14) & 3);
-                    idx3 = 13;
+                    idx[2] = 13;
                     switch (pack_offer(pack)) {
                     default:
-                        idx1 = this._findIdx(0, tt1); idx2 = this._findIdx(0, tt2);
-                        t0 = new PoolTile1(tt0); t1 = new PoolTile0(tt1); t2 = new PoolTile0(tt2);
+                        idx[0] = this._findIdx(0, tt1); idx[1] = this._findIdx(0, tt2);
+                        t.push(new PoolTile1(tt0)); t.push(new PoolTile0(tt1)); t.push(new PoolTile0(tt2));
                         break;
                     case 2:
-                        idx1 = this._findIdx(0, tt0); idx2 = this._findIdx(0, tt2);
-                        t0 = new PoolTile1(tt1); t1 = new PoolTile0(tt0); t2 = new PoolTile0(tt2);
+                        idx[0] = this._findIdx(0, tt0); idx[1] = this._findIdx(0, tt2);
+                        t.push(new PoolTile1(tt1)); t.push(new PoolTile0(tt0)); t.push(new PoolTile0(tt2));
                         break;
                     case 3:
-                        idx1 = this._findIdx(0, tt0); idx2 = this._findIdx(0, tt1);
-                        t0 = new PoolTile1(tt2); t1 = new PoolTile0(tt0); t2 = new PoolTile0(tt1);
+                        idx[0] = this._findIdx(0, tt0); idx[1] = this._findIdx(0, tt1);
+                        t.push(new PoolTile1(tt2)); t.push(new PoolTile0(tt0)); t.push(new PoolTile0(tt1));
                         break;
                     }
                     break;
                 }
                 case 1: {
                     let tm = tile + ((pack >> 10) & 3);
-                    idx1 = this._findIdxN(0, tm);
-                    idx2 = this._findIdxN(idx1 + 1, tm);
-                    idx3 = 13;
+                    idx[0] = this._findIdxN(0, tm);
+                    idx[1] = this._findIdxN(idx[0] + 1, tm);
+                    idx[2] = 13;
                     switch (pack_offer(pack)) {
-                    default: hz = 0; t0 = new PoolTile1(tile); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile); t0.pr_ = true; break;
-                    case 2: hz = 1; t0 = new PoolTile0(tile); t1 = new PoolTile1(tile); t2 = new PoolTile0(tile); t1.pr_ = true; break;
-                    case 3: hz = 2; t0 = new PoolTile0(tile); t1 = new PoolTile0(tile); t2 = new PoolTile3(tile); t2.pr_ = true; break;
+                    default: hz = 0; t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t[0].pr_ = true; break;
+                    case 2: hz = 1; t.push(new PoolTile0(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t[1].pr_ = true; break;
+                    case 3: hz = 2; t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t[2].pr_ = true; break;
                     }
                     break;
                 }
                 case 2:
                     this.stopFlower_ = true;
-                    idx1 = this._findIdxA(0, tile);
-                    idx2 = this._findIdxA(idx1 + 1, tile);
-                    idx3 = this._findIdxA(idx2 + 1, tile);
+                    idx[0] = this._findIdxA(0, tile);
+                    idx[1] = this._findIdxA(idx[0] + 1, tile);
+                    idx[2] = this._findIdxA(idx[1] + 1, tile);
                     switch (pack_offer(pack)) {
-                    default: hz = 0; t0 = new PoolTile1(tile); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile); t3 = new PoolTile0(tile); break;
-                    case 2: hz = 1; t0 = new PoolTile0(tile); t1 = new PoolTile1(tile); t2 = new PoolTile0(tile); t3 = new PoolTile0(tile); break;
-                    case 3: hz = 2; t0 = new PoolTile0(tile); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile); t3 = new PoolTile3(tile); break;
+                    default: hz = 0; t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); break;
+                    case 2: hz = 1; t.push(new PoolTile0(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); break;
+                    case 3: hz = 2; t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); break;
                     }
                     break;
                 }
 
-                this.addChild(t0); this.packs_[0].push(t0); t0.zIndex = 340 + pplen * 4;
-                this.addChild(t1); this.packs_[0].push(t1); t1.zIndex = 341 + pplen * 4;
-                this.addChild(t2); this.packs_[0].push(t2); t2.zIndex = 342 + pplen * 4;
-                if (type == 2) { this.addChild(t3); this.packs_[0].push(t3); t3.zIndex = 343 + pplen * 4; }
+                for (let i = 0, c = t.length; i < c; ++i) {
+                    let ti = t[i];
+                    this.addChild(ti); this.packs_[0].push(ti); ti.zIndex = 340 + i + pplen * 4;
+                }
 
                 // 动画
                 let xx = this.openPos_[0];
@@ -4239,76 +4235,76 @@
 
                 switch (hz) {
                 case 0:
-                    if (req) t0.x = req.x, t0.y = req.y;
-                    t1.x = sta[idx1].x; t1.y = yy - HEIGHT_02F * HAND_SCALE; t1.scale.set(HAND_SCALE);
-                    t2.x = sta[idx2].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
+                    if (req) t[0].x = req.x, t[0].y = req.y;
+                    t[1].x = sta[idx[0]].x; t[1].y = yy - HEIGHT_02F * HAND_SCALE; t[1].scale.set(HAND_SCALE);
+                    t[2].x = sta[idx[1]].x; t[2].y = yy - HEIGHT_02F * HAND_SCALE; t[2].scale.set(HAND_SCALE);
                     if (type != 2) {
-                        (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_13 + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[0])).to({x:(xx),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({x:(xx + WIDTH_13 + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
 
-                        (new TWEEN.Tween(t1.scale)).to({x:1,y:1}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1].scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2].scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     else {
-                        t3.x = sta[idx3].x; t3.y = yy - HEIGHT_02F * HAND_SCALE; t3.scale.set(HAND_SCALE);
-                        (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_13 + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3)).to({x:(xx + WIDTH_13 + WIDTH_02 * 2),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        t[3].x = sta[idx[2]].x; t[3].y = yy - HEIGHT_02F * HAND_SCALE; t[3].scale.set(HAND_SCALE);
+                        (new TWEEN.Tween(t[0])).to({x:(xx),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({x:(xx + WIDTH_13 + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3])).to({x:(xx + WIDTH_13 + WIDTH_02 * 2),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
 
-                        (new TWEEN.Tween(t1.scale)).to({x:1,y:1}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2.scale)).to({x:1,y:1}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1].scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2].scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3].scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     break;
                 case 1:
-                    t0.x = sta[idx1].x; t0.y = yy - HEIGHT_02F * HAND_SCALE; t0.scale.set(HAND_SCALE);
-                    if (req) t1.x = req.x, t1.y = req.y;
-                    t2.x = sta[idx2].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
+                    t[0].x = sta[idx[0]].x; t[0].y = yy - HEIGHT_02F * HAND_SCALE; t[0].scale.set(HAND_SCALE);
+                    if (req) t[1].x = req.x, t[1].y = req.y;
+                    t[2].x = sta[idx[1]].x; t[2].y = yy - HEIGHT_02F * HAND_SCALE; t[2].scale.set(HAND_SCALE);
                     if (type != 2) {
-                        (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02 + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[0])).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({x:(xx + WIDTH_02 + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
 
-                        (new TWEEN.Tween(t0.scale)).to({x:1,y:1}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[0].scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2].scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     else {
-                        t3.x = sta[idx3].x; t3.y = yy - HEIGHT_02F * HAND_SCALE; t3.scale.set(HAND_SCALE);
-                        (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02 + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3)).to({x:(xx + WIDTH_02 * 2 + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        t[3].x = sta[idx[2]].x; t[3].y = yy - HEIGHT_02F * HAND_SCALE; t[3].scale.set(HAND_SCALE);
+                        (new TWEEN.Tween(t[0])).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({x:(xx + WIDTH_02 + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3])).to({x:(xx + WIDTH_02 * 2 + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
 
-                        (new TWEEN.Tween(t0.scale)).to({x:1,y:1}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2.scale)).to({x:1,y:1}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[0].scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2].scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3].scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     break;
                 case 2:
-                    t0.x = sta[idx1].x; t0.y = yy - HEIGHT_02F * HAND_SCALE; t0.scale.set(HAND_SCALE);
-                    t1.x = sta[idx2].x; t1.y = yy - HEIGHT_02F * HAND_SCALE; t1.scale.set(HAND_SCALE);
+                    t[0].x = sta[idx[0]].x; t[0].y = yy - HEIGHT_02F * HAND_SCALE; t[0].scale.set(HAND_SCALE);
+                    t[1].x = sta[idx[1]].x; t[1].y = yy - HEIGHT_02F * HAND_SCALE; t[1].scale.set(HAND_SCALE);
                     if (type != 2) {
-                        if (req) t2.x = req.x, t2.y = req.y;
-                        (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02 * 2),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
+                        if (req) t[2].x = req.x, t[2].y = req.y;
+                        (new TWEEN.Tween(t[0])).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({x:(xx + WIDTH_02 * 2),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
 
-                        (new TWEEN.Tween(t0.scale)).to({x:1,y:1}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[0].scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1].scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     else {
-                        t2.x = sta[idx3].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
-                        if (req) t3.x = req.x, t3.y = req.y;
-                        (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02 * 2),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t3)).to({x:(xx + WIDTH_02 * 3),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
+                        t[2].x = sta[idx[2]].x; t[2].y = yy - HEIGHT_02F * HAND_SCALE; t[2].scale.set(HAND_SCALE);
+                        if (req) t[3].x = req.x, t[3].y = req.y;
+                        (new TWEEN.Tween(t[0])).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2])).to({x:(xx + WIDTH_02 * 2),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[3])).to({x:(xx + WIDTH_02 * 3),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
 
-                        (new TWEEN.Tween(t0.scale)).to({x:1,y:1}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t1.scale)).to({x:1,y:1}, DISCARD_DT).start();
-                        (new TWEEN.Tween(t2.scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[0].scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[1].scale)).to({x:1,y:1}, DISCARD_DT).start();
+                        (new TWEEN.Tween(t[2].scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     break;
                 }
@@ -4319,7 +4315,7 @@
                 }
 
                 this.packData_[0].push(pack);
-                this._shrink(0, [idx1, idx2, idx3]);
+                this._shrink(0, idx);
                 this._srt_shrk0();
                 if (type != 2) {
                     this.openPos_[0] = xx + WIDTH_13 + WIDTH_02 * 2 + GAP_T;
@@ -4340,13 +4336,8 @@
              * @param {number} pack 副露
              */
             ck0(pack) {
-                let pplen = this.packData_[0].length;
-                let hdn = pplen * 3;
-                if (hdn >= 12) {
-                    console.log('ui error');
-                    reenter();
-                    return;
-                }
+                let pplen = this._chck_call(0);
+                if (pplen < 0) return;
 
                 let sta = this.standing_[0];
                 let tile = pack_tile(pack);
@@ -4399,6 +4390,7 @@
 
                     sta.sort(function(a, b) { return a.t_ - b.t_; });
 
+                    let hdn = pplen * 3;
                     for (let i = 0; i < 14; ++i) {
                         let sp = sta[i];
                         sp.zIndex = 360 + i;
