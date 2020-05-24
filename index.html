@@ -47,28 +47,28 @@
          * @param {number} p pack
          * @return {number}
          */
-        function pack_get_type(p) { return (p >> 8) & 3; }
+        function pack_type(p) { return (p >> 8) & 3; }
 
         /**
          * 获取pack的牌
          * @param {number} p pack
          * @return {number}
          */
-        function pack_get_tile(p) { return (p & 0x3F) << 2; }
+        function pack_tile(p) { return (p & 0x3F) << 2; }
 
         /**
          * 获取pack的供牌者
          * @param {number} p pack
          * @return {number}
          */
-        function pack_get_offer(p) { return (p >> 6) & 3; }
+        function pack_offer(p) { return (p >> 6) & 3; }
 
         /**
          * pack是否为加杠
          * @param {number} p pack
          * @return {boolean}
          */
-        function is_promoted_kong(p) { return (p & 0x0300) == 0x0300; }
+        function is_pk(p) { return (p & 0x0300) == 0x0300; }
 
         /**
          * 获取word的低字节
@@ -218,7 +218,7 @@
                 app.renderer.resize(window.innerWidth, window.innerHeight);
                 adapt();
             };
-    
+
             tz.mutecd = parseInt(localStorage.getItem('mutecd'));
             tz.mutecall = parseInt(localStorage.getItem('mutecall'));
 
@@ -441,8 +441,8 @@
             //     let pool = game.pool_;
             //     let view = new SelectionView(5, [0x0001, 0x0102], (a)=>{
             //         //ws.send(`{"m":2,"r":${types[i]},"v":${a}}`);
-            //         //this.removeBtns();
-            //         //this.removeCD();
+            //         //this.rmBtns();
+            //         //this.rmCD();
             //     });
             //     pool.addChild(view);
             //     view.y = pool.height_ - 450;
@@ -641,8 +641,8 @@
                     let v = resp['v'];
                     pool.setTurn(v);
                     if (v != pool.seat_) {
-                        pool.removeCD();
-                        pool.removeBtns();
+                        pool.rmCD();
+                        pool.rmBtns();
                     }
                     else {
                         if (resp['f']) {
@@ -650,8 +650,8 @@
                             pool.addCD(pool.cfg_['r12']);
                         }
                         else {
-                            pool.removeCD();
-                            pool.removeBtns();
+                            pool.rmCD();
+                            pool.rmBtns();
                         }
                     }
                     break;
@@ -668,7 +668,7 @@
                     pool.turn_ = v;
                     if (v != pool.seat_) {
                         pool.flower123((v + 4 - pool.seat_) & 3, resp['h']);
-                        pool.removeCD();
+                        pool.rmCD();
                     } else {
                         let t = resp['t'];
                         pool.flower0(lo_byte(t), hi_byte(t), resp['h']);
@@ -687,8 +687,8 @@
                     pool.isDiscarding_ = true;
                     pool.setTurn(0);
                     if (pool.seat_ != 0) {
-                        pool.removeCD();
-                        pool.removeBtns();
+                        pool.rmCD();
+                        pool.rmBtns();
                     }
                     else {
                         pool.addCD(pool.cfg_['r30']);
@@ -746,7 +746,7 @@
                     }
                     else {
                         play_snd(!pool.players_[v]['g'] ? (r == 8 ? 'snd/14-chow-m.wav' : 'snd/16-pung-m.wav') : (r == 8 ? 'snd/15-chow-f.wav' : 'snd/17-pung-f.wav'));
-                        pool.showCallText(idx, r == 8 ? '吃' : '碰');
+                        pool.showCall(idx, r == 8 ? '吃' : '碰');
 
                         let a = resp['a'];
                         if (a && a.length > 0) {
@@ -769,7 +769,7 @@
                     let p = resp['p'];
                     if (!p) {
                         play_snd(!pool.players_[v]['g'] ? 'snd/18-kong-m.wav' : 'snd/19-kong-f.wav');
-                        pool.showCallText(idx, '杠');
+                        pool.showCall(idx, '杠');
 
                         let a = resp['a'];
                         if (a && a.length > 0) {
@@ -777,12 +777,12 @@
                             pool.addBtns(a);
                         }
                     }
-                    else if (!is_promoted_kong(p)) {
+                    else if (!is_pk(p)) {
                         pool['cpk' + idx].call(pool, p);
                     }
                     else {
                         play_snd(!pool.players_[v]['g'] ? 'snd/18-kong-m.wav' : 'snd/19-kong-f.wav');
-                        pool.showCallText(idx, '杠');
+                        pool.showCall(idx, '杠');
 
                         pool['pk' + idx].call(pool, p, false);
                         let a = resp['a'];
@@ -803,7 +803,7 @@
                     let v = resp['v'];
                     play_snd(!pool.players_[v]['g'] ? 'snd/18-kong-m.wav' : 'snd/19-kong-f.wav');
                     let idx = (v + 4 - pool.seat_) & 3;
-                    pool.showCallText(idx, '杠');
+                    pool.showCall(idx, '杠');
                     pool['ck' + idx].call(pool, resp['p'], false);
                     break;
                 }
@@ -822,7 +822,7 @@
                     let detail = resp['d'];
                     if (detail == undefined) {
                         play_snd(!pool.players_[wp]['g'] ? 'snd/20-win-m.wav' : 'snd/21-win-f.wav');
-                        pool.showCallText(n, '和');
+                        pool.showCall(n, '和');
                         let a = resp['a'];
                         if (a && a.length > 0) {
                             pool.addCD(pool.cfg_['r12']);
@@ -834,7 +834,7 @@
                     let succeed = detail['w'];
 
                     let tiles = resp['t'];
-                    pool.openHand(tiles, succeed, wp, cp, resp['w']);
+                    pool.op_ht(tiles, succeed, wp, cp, resp['w']);
                     if (!succeed) {
                         pool.falseWin_[n] = true;
                         pool.infoPanels_[n].setFalseWin(true);
@@ -844,13 +844,13 @@
                         }
                         break;
                     }
-                    pool.removeCD();
-                    pool.removeBtns();
+                    pool.rmCD();
+                    pool.rmBtns();
                     pool.showSettleView(tiles[wp], resp['w'], resp['p'], detail);
                     break;
                 }
                 case 13: {  // 流局
-                    pool.openHand(resp['t'], true);
+                    pool.op_ht(resp['t'], true);
                     pool.showSettleView(null, 0, null, resp['d']);
                     break;
                 }
@@ -990,13 +990,13 @@
              * @param {number} t 牌张
              */
             update(t) {
-                updatePool02Tile(this, t);
+                update_t02(this, t);
             }
 
             /**
              * 重新布局，需在改变锚点后调用
              */
-            layout(){
+            layout() {
                 if (tz.nht) {
                     let ht = this.ht_;
                     if (ht) {
@@ -1037,13 +1037,13 @@
              * @param {number} t 牌张
              */
             update(t) {
-                updatePool13Tile(this, t);
+                update_t13(this, t);
             }
 
             /**
              * 重新布局，需在改变锚点后调用
              */
-            layout(){
+            layout() {
                 if (tz.nht) {
                     let ht = this.ht_;
                     if (ht) {
@@ -1084,13 +1084,13 @@
              * @param {number} t 牌张
              */
             update(t) {
-                updatePool02Tile(this, t);
+                update_t02(this, t);
             }
 
             /**
              * 重新布局，需在改变锚点后调用
              */
-            layout(){
+            layout() {
                 if (tz.nht) {
                     let ht = this.ht_;
                     if (ht) {
@@ -1131,13 +1131,13 @@
              * @param {number} t 牌张
              */
             update(t) {
-                updatePool13Tile(this, t);
+                update_t13(this, t);
             }
 
             /**
              * 重新布局，需在改变锚点后调用
              */
-            layout(){
+            layout() {
                 if (tz.nht) {
                     let ht = this.ht_;
                     if (ht) {
@@ -1377,7 +1377,7 @@
                             let pier = (i >> 1), down = (i & 1);
                             let realIdx = (17 - pier) * 2 + (1 - down);
 
-                            let t = createWall13Tile();
+                            let t = create_w13();
                             this.addChild(t);
                             walls[3][realIdx] = t;
                             t.x = x;
@@ -1391,7 +1391,7 @@
                             let pier = (i >> 1), down = 1 - (i & 1);
                             let realIdx = (17 - pier) * 2 + down;
 
-                            let t = createWall13Tile();
+                            let t = create_w13();
                             this.addChild(t);
                             walls[3][realIdx] = t;
                             t.x = x - WIDTH_13 * down;
@@ -1407,7 +1407,7 @@
                             let pier = (i >> 1), down = (i & 1);
                             let realIdx = pier * 2 + (1 - down);
 
-                            let t = createWall02Tile();
+                            let t = create_w02();
                             this.addChild(t);
                             walls[2][realIdx] = t;
                             t.x = x + WIDTH_02 * pier;
@@ -1421,7 +1421,7 @@
                             let pier = (i >> 1), down = 1 - (i & 1);
                             let realIdx = pier * 2 + down;
 
-                            let t = createWall02Tile();
+                            let t = create_w02();
                             this.addChild(t);
                             walls[2][realIdx] = t;
                             t.x = x + WIDTH_02 * pier;
@@ -1437,7 +1437,7 @@
                             let pier = (i >> 1), down = (i & 1);
                             let realIdx = pier * 2 + (1 - down);
 
-                            let t = createWall13Tile();
+                            let t = create_w13();
                             this.addChild(t);
                             walls[1][realIdx] = t;
                             t.x = x;
@@ -1450,7 +1450,7 @@
                         for (let i = 0; i < 36; ++i) {
                             let pier = (i >> 1), down = (i & 1);
 
-                            let t = createWall13Tile();
+                            let t = create_w13();
                             this.addChild(t);
                             walls[1][i] = t;
                             t.x = x + WIDTH_13 * down;
@@ -1466,7 +1466,7 @@
                             let pier = (i >> 1), down = 1 - (i & 1);
                             let realIdx = pier * 2 + down;
 
-                            let t = createWall02Tile();
+                            let t = create_w02();
                             this.addChild(t);
                             walls[0][realIdx] = t;
                             t.x = x - WIDTH_02 * pier;
@@ -1478,7 +1478,7 @@
                         y = MAX_HEIGHT - HAND_HEIGHT_02 - GAP_W - HEIGHT_02 * 2 + OVERLAP;
                         for (let i = 0; i < 36; ++i) {
                             let pier = (i >> 1), down = (i & 1);
-                            let t = createWall02Tile();
+                            let t = create_w02();
                             this.addChild(t);
                             walls[0][i] = t;
                             t.x = x - WIDTH_02 * pier;
@@ -1583,8 +1583,8 @@
                 //}
 
                 // 四家手牌
-                let standing = [new Array(14), new Array(14), new Array(14), new Array(14)];
-                let origin = [new Array(14), new Array(14), new Array(14), new Array(14)];
+                let sta = [new Array(14), new Array(14), new Array(14), new Array(14)];
+                let ori = [new Array(14), new Array(14), new Array(14), new Array(14)];
 
                 // 上家
                 {
@@ -1623,13 +1623,13 @@
 
                     y = MAX_HEIGHT * .5 - (HEIGHT_13 * 13 + HEIGHT_13SF + GAP_T) * .5;
                     for (let i = 0; i < 14; ++i) {
-                        let sp = createStandingTile3();
+                        let sp = create_st3();
                         this.addChild(sp);
                         sp.zIndex = 260 + i;
                         let yy = y + HEIGHT_13 * i + ((i != 13) ? 0 : GAP_T);
-                        origin[3][i] = yy;
+                        ori[3][i] = yy;
                         sp.y = yy;
-                        standing[3][i] = sp;
+                        sta[3][i] = sp;
                     }
                 }
 
@@ -1673,13 +1673,13 @@
 
                     x = MAX_WIDTH * .5 + (WIDTH_02 * 14 + GAP_T) * .5;
                     for (let i = 0; i < 14; ++i) {
-                        let sp = createStandingTile2();
+                        let sp = create_st2();
                         this.addChild(sp);
                         sp.zIndex = 190 + i;
                         let xx = x - WIDTH_02 * (i + 1) - ((i != 13) ? 0 : GAP_T);
-                        origin[2][i] = xx;
+                        ori[2][i] = xx;
                         sp.x = xx;
-                        standing[2][i] = sp;
+                        sta[2][i] = sp;
                     }
                 }
 
@@ -1726,14 +1726,14 @@
 
                     y = MAX_HEIGHT * .5 - (HEIGHT_13 * 13 + HEIGHT_13SF + GAP_T) * .5 + GAP_T;
                     for (let i = 0; i < 14; ++i) {
-                        let sp = createStandingTile1();
+                        let sp = create_st1();
                         this.addChild(sp);
                         sp.zIndex = 130 + i;
                         sp.x = MAX_WIDTH - WIDTH_13S;
                         let yy = y + ((i != 0) ? HEIGHT_13 * i : -GAP_T);
-                        origin[1][13 - i] = yy;
+                        ori[1][13 - i] = yy;
                         sp.y = yy;
-                        standing[1][13 - i] = sp;
+                        sta[1][13 - i] = sp;
                     }
                 }
 
@@ -1758,22 +1758,22 @@
                         sp.layout();
                         sp.y = MAX_HEIGHT;
                         let xx = x + (WIDTH_02 * i + ((i != 13) ? 0 : GAP_T)) * HAND_SCALE;
-                        origin[0][i] = xx;
+                        ori[0][i] = xx;
                         sp.x = xx;
-                        standing[0][i] = sp;
+                        sta[0][i] = sp;
                     }
                 }
 
                 this.players_ = [{}, {}, {}, {}];
-                this.origin_ = origin;
-                this.standing_ = standing;
+                this.origin_ = ori;
+                this.standing_ = sta;
                 this.packs_ = [[], [], [], []];
                 this.packData_ = [[], [], [], []];
                 this.flowers_ = [0, 0, 0, 0];
                 this.falseWin_ = [false, false, false, false];
                 this.seat_ = 0;
                 this.turn_ = 0;
-                this.activeTile_ = null;
+                this.flyTile_ = null;
                 this.openTiles_ = [[], [], [], []];
                 this.openPos_ = [0, 0, 0, 0];
                 this.step_ = 0;
@@ -1844,7 +1844,7 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, 120, 60, ()=>{
-                    this.showCall();
+                    this.showCallOpt();
                 });
                 this.addChild(btn);
                 btn.zIndex = 500;
@@ -2054,9 +2054,9 @@
                     sp.y = this.origin_[3][k];
                 }
 
-                if (this.activeTile_) {
-                    this.activeTile_.dstry();
-                    this.activeTile_ = null;
+                if (this.flyTile_) {
+                    this.flyTile_.dstry();
+                    this.flyTile_ = null;
                 }
 
                 this.packData_ = [[], [], [], []];
@@ -2218,57 +2218,57 @@
                 setTimeout(()=>{
                     this.setTurn(0);
 
-                    let standing, origin;
+                    let sta, ori;
 
                     // 上家
-                    origin = this.origin_[3];
-                    standing = this.standing_[3];
+                    ori = this.origin_[3];
+                    sta = this.standing_[3];
 
-                    shuffle_array(standing, 0, 13);
+                    shuffle_array(sta, 0, 13);
                     for (let i = 0; i < 14; ++i) {
-                        let sp = standing[i];
+                        let sp = sta[i];
                         sp.zIndex = 260 + i;
-                        if (sp.y != origin[i]) {
-                            (new TWEEN.Tween(sp)).to({y:origin[i]}, SORT_DT).start();
+                        if (sp.y != ori[i]) {
+                            (new TWEEN.Tween(sp)).to({y:ori[i]}, SORT_DT).start();
                         }
                     }
 
                     // 对家
-                    origin = this.origin_[2];
-                    standing = this.standing_[2];
+                    ori = this.origin_[2];
+                    sta = this.standing_[2];
 
-                    shuffle_array(standing, 0, 13);
+                    shuffle_array(sta, 0, 13);
                     for (let i = 0; i < 14; ++i) {
-                        let sp = standing[i];
+                        let sp = sta[i];
                         sp.zIndex = 190 + i;
-                        if (sp.x != origin[i]) {
-                            (new TWEEN.Tween(sp)).to({x:origin[i]}, SORT_DT).start();
+                        if (sp.x != ori[i]) {
+                            (new TWEEN.Tween(sp)).to({x:ori[i]}, SORT_DT).start();
                         }
                     }
 
                     // 下家
-                    origin = this.origin_[1];
-                    standing = this.standing_[1];
+                    ori = this.origin_[1];
+                    sta = this.standing_[1];
 
-                    shuffle_array(standing, 0, 13);
+                    shuffle_array(sta, 0, 13);
                     for (let i = 0; i < 14; ++i) {
-                        let sp = standing[i];
+                        let sp = sta[i];
                         sp.zIndex = 130 + 13 - i;
-                        if (sp.y != origin[i]) {
-                            (new TWEEN.Tween(sp)).to({y:origin[i]}, SORT_DT).start();
+                        if (sp.y != ori[i]) {
+                            (new TWEEN.Tween(sp)).to({y:ori[i]}, SORT_DT).start();
                         }
                     }
 
                     // 自己
-                    origin = this.origin_[0];
-                    standing = this.standing_[0];
+                    ori = this.origin_[0];
+                    sta = this.standing_[0];
 
-                    standing.sort(function(a, b) { return a.t_ - b.t_; });
+                    sta.sort(function(a, b) { return a.t_ - b.t_; });
                     for (let i = 0; i < 14; ++i) {
-                        let sp = standing[i];
+                        let sp = sta[i];
                         sp.zIndex = 360 + i;
-                        if (sp.x != origin[i]) {
-                            (new TWEEN.Tween(sp)).to({x:origin[i]}, SORT_DT).start();
+                        if (sp.x != ori[i]) {
+                            (new TWEEN.Tween(sp)).to({x:ori[i]}, SORT_DT).start();
                         }
                     }
 
@@ -2366,7 +2366,7 @@
             /**
              * 移除读秒
              */
-            removeCD() {
+            rmCD() {
                 let cd = this.cd_;
                 let t = cd.text_;
                 if (t.timer_) {
@@ -2378,21 +2378,21 @@
 
             /**
              * 添加鸣牌按钮
-             * @param {array} actions 可选择的鸣牌
+             * @param {array} a 可选择的鸣牌
              */
-            addBtns(actions) {
+            addBtns(a) {
                 let selfDrawn = (this.turn_ == this.seat_);
 
                 // 别人打牌，设置了不鸣这张，直接过或者弃
-                if (!selfDrawn && this.activeTile_ != null && this.callFlags_[this.activeTile_.t_>>2]) {
+                if (!selfDrawn && this.flyTile_ != null && this.callFlags_[this.flyTile_.t_>>2]) {
                     tz.ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
-                    this.removeCD();
+                    this.rmCD();
                     return;
                 }
 
                 let status = this.option_.status();
 
-                if (!actions) {
+                if (!a) {
                     if (status[6] && selfDrawn) {  // 自动摸打
                         setTimeout(()=>{
                             this._discard(this.standing_[0][13]);
@@ -2402,8 +2402,8 @@
                 }
 
                 let dict = {}, size = 0;
-                for (let i = 0, len = actions.length; i < len; ++i) {
-                    let ac = actions[i];
+                for (let i = 0, len = a.length; i < len; ++i) {
+                    let ac = a[i];
                     let type = (ac >> 16) & 0xFFFF, data = (ac & 0xFFFF);
                     if (dict[type] == undefined) {
                         dict[type] = [data];
@@ -2419,7 +2419,7 @@
                 if (status[0] && dict[1] && !this.stopFlower_ ) {  // 自动补花
                     setTimeout(()=>{
                         tz.ws.send('{"m":2,"r":1,"v":0}');
-                        this.removeCD();
+                        this.rmCD();
                     }, DISCARD_DT * 2);
                     return;
                 }
@@ -2455,7 +2455,7 @@
                     if (!skp && status[5]) {  // 自动和牌
                         setTimeout(()=>{
                             tz.ws.send(`{"m":2,"r":6,"v":${dict[6][0]}}`);
-                            this.removeCD();
+                            this.rmCD();
                         }, DISCARD_DT * 2);
                         return;
                     }
@@ -2474,7 +2474,7 @@
                 if (size == 0) {
                     if (!selfDrawn) {
                         tz.ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
-                        this.removeCD();
+                        this.rmCD();
                     }
                     return;
                 }
@@ -2497,14 +2497,14 @@
                             //console.log(ab.data_);
                             switch (ab.data_.length) {
                             case 0:
-                                this.removeBtns();
+                                this.rmBtns();
                                 tz.ws.send(`{"m":2,"r":${types[i]},"v":0}`);
-                                this.removeCD();
+                                this.rmCD();
                                 break;
                             case 1:
-                                this.removeBtns();
+                                this.rmBtns();
                                 tz.ws.send(`{"m":2,"r":${types[i]},"v":${ab.data_[0]}}`);
-                                this.removeCD();
+                                this.rmCD();
                                 break;
                             default: {
                                 let view = this.selectionView_;
@@ -2520,8 +2520,8 @@
                                             tz.ws.send('{"m":2,"r":10,"v":0}');
                                         }
                                     }
-                                    this.removeBtns();
-                                    this.removeCD();
+                                    this.rmBtns();
+                                    this.rmCD();
                                 });
                                 this.addChild(view);
                                 this.selectionView_ = view;
@@ -2561,7 +2561,7 @@
             /**
              * 移除鸣牌按钮
              */
-            removeBtns() {
+            rmBtns() {
                 let v = this.selectionView_;
                 if (v) {
                     v.dstry();
@@ -2575,27 +2575,27 @@
 
             rightclick() {
                 if (this.actionBtns_[0].visible) {
-                    this.removeBtns();
+                    this.rmBtns();
                     tz.ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
-                    this.removeCD();
+                    this.rmCD();
                 }
             }
 
             /**
              * 抓牌效果
              * @param {number} n 玩家
-             * @param {object} wall 牌墙上的牌
+             * @param {object} tw 牌墙上的牌
              * @param {number} idx 放入手牌的位置
              */
-            _drawEffect(n, wall, idx) {
+            _drawEffect(n, tw, idx) {
                 play_snd('snd/05-draw.wav');
 
-                wall.visible = false;
-                let sp = (n % 2 == 0) ? createWall02Tile() : createWall13Tile();
+                tw.visible = false;
+                let sp = (n % 2 == 0) ? create_w02() : create_w13();
                 this.addChild(sp);
                 sp.anchor.set(.5);
-                sp.x = wall.x + wall.width * .5;
-                sp.y = wall.y + wall.height * .5;
+                sp.x = tw.x + tw.width * .5;
+                sp.y = tw.y + tw.height * .5;
                 let dst = this.standing_[n][idx];
                 sp.zIndex = dst.zIndex;
                 this.sortChildren();
@@ -2767,9 +2767,9 @@
              * @returns {number} 下标或者-1
              */
             _findIdx(b, t) {
-                let standing = this.standing_[0];
-                for (let i = b, len = standing.length; i < len; ++i) {
-                    let sp = standing[i];
+                let sta = this.standing_[0];
+                for (let i = b, len = sta.length; i < len; ++i) {
+                    let sp = sta[i];
                     if (sp.visible && sp.t_ == t) {
                         return i;
                     }
@@ -2784,9 +2784,9 @@
              * @returns {number} 下标或者-1
              */
             _findIdxA(b, t) {
-                let standing = this.standing_[0];
-                for (let i = b, len = standing.length; i < len; ++i) {
-                    let sp = standing[i];
+                let sta = this.standing_[0];
+                for (let i = b, len = sta.length; i < len; ++i) {
+                    let sp = sta[i];
                     if (sp.visible && (sp.t_ & 0xFC) == (t & 0xFC)) {
                         return i;
                     }
@@ -2801,9 +2801,9 @@
              * @returns {number} 下标或者-1
              */
             _findIdxN(b, t) {
-                let standing = this.standing_[0];
-                for (let i = b, len = standing.length; i < len; ++i) {
-                    let sp = standing[i];
+                let sta = this.standing_[0];
+                for (let i = b, len = sta.length; i < len; ++i) {
+                    let sp = sta[i];
                     if (sp.visible && (sp.t_ & 0xFC) == (t & 0xFC) && (sp.t_ != t)) {
                         return i;
                     }
@@ -2819,15 +2819,15 @@
              */
             discard(n, t, h) {
                 play_snd('snd/06-discard.wav');
-                this.removeCD();
-                this.removeBtns();
+                this.rmCD();
+                this.rmBtns();
 
-                this.removeActive();
+                this.rmFly();
 
-                let standing = this.standing_[n];
-                if (!standing[13].visible) {
-                    console.log('standing 13 is not visible', n);
-                    standing[13].visible = true;
+                let sta = this.standing_[n];
+                if (!sta[13].visible) {
+                    console.log('sta 13 is not visible', n);
+                    sta[13].visible = true;
                 }
 
                 let dst = this._findPoolDest(n);
@@ -2842,14 +2842,14 @@
                 }
                 else {
                     for (let i = 0; i < 14; ++i) {
-                        let sp = standing[i];
+                        let sp = sta[i];
                         if (sp.visible && sp.t_ == t) {
                             idx = i;
                             break;
                         }
                     }
                 }
-                let src = standing[idx];
+                let src = sta[idx];
                 if (src == undefined) {
                     console.log('ui error');
                     reenter();
@@ -2865,7 +2865,7 @@
                 sp.y = src.y;
                 if (n == 1) sp.x -= (WIDTH_13 - WIDTH_13S);
                 else if (n == 0) sp.y -= src.height;
-                this.activeTile_ = sp;
+                this.flyTile_ = sp;
                 this.addChild(sp);
                 sp.zIndex = dst.zIndex;
                 sp.dst_ = dst;
@@ -2884,8 +2884,8 @@
                     setTimeout(()=>{
                         if (n) {
                             this['_srt_ist' + n].call(this, idx, 12);
-                            standing[idx].visible = true;
-                            standing[13].visible = false;
+                            sta[idx].visible = true;
+                            sta[13].visible = false;
                         }
                         else {
                             let op = this.origin_[0][0];
@@ -2893,10 +2893,10 @@
 
                             src.t_ = 0xFF;
                             src.visible = false;
-                            standing.sort(function(a, b) { return a.t_ - b.t_; });
+                            sta.sort(function(a, b) { return a.t_ - b.t_; });
 
                             for (let i = 0; i < 14; ++i) {
-                                let sp = standing[i];
+                                let sp = sta[i];
                                 sp.zIndex = 360 + i;
                                 let dp = op + i * dx;
                                 if (i == 13) dp += GAP_W;
@@ -2920,7 +2920,7 @@
                 let t = sp.t_;
                 if (t != 0xFF && this.standing_[0][13].visible) {
                     tz.ws.send(`{"m":2,"r":2,"v":${t}}`);
-                    this.removeCD();
+                    this.rmCD();
                 }
             }
 
@@ -2929,14 +2929,14 @@
              * @param {object} sp 牌张（精灵）
              */
             _click(sp) {
-                let standing = this.standing_[0];
+                let sta = this.standing_[0];
                 if (sp.isHighlight()) {
                     this._discard(sp);
                     sp.setHighlight(false);
                 }
                 else {
                     for (let i = 0; i < 14; ++i) {
-                        let st = standing[i];
+                        let st = sta[i];
                         st.setHighlight(st == sp);
                     }
                 }
@@ -2953,7 +2953,7 @@
              * 正向摸牌
              * @param {number} n 玩家
              */
-            _drawTileF(n) {
+            _draw_f(n) {
                 let pier = this.frontPier_;
                 let dir = pier['dir'];
                 let off = pier['off'];
@@ -3000,7 +3000,7 @@
              * @param {number} n 玩家
              * @param {number} idx 摸上的牌将要到达的位置
              */
-            _drawTileB(n, idx) {
+            _draw_b(n, idx) {
                 let pier = this.backPier_;
                 let dir = pier['dir'];
                 let off = pier['off'];
@@ -3052,19 +3052,19 @@
              * @param {number} rm 牌墙剩余
              */
             draw(n, b, t, rm) {
-                this.removeBtns();
+                this.rmBtns();
 
                 this.setTurn((this.seat_ + n) & 3);
                 this.remainCnt_ = rm;
 
-                let sp = this.activeTile_;
+                let sp = this.flyTile_;
                 if (sp) {
                     let dst = sp.dst_;
                     if (dst) {
                         // 普通打牌
                         (new TWEEN.Tween(sp)).to({x:dst.x,y:dst.y}, DISCARD_DT).onComplete(()=>{
                             dst.visible = true;
-                            this.activeTile_ = null;
+                            this.flyTile_ = null;
                             if (sp.cplt_) sp.dstry();
                             else sp.visible = false;
                         }).start();
@@ -3072,7 +3072,7 @@
                     else {
                         // 加杠
                         (new TWEEN.Tween(sp)).to({x:sp.dstx_,y:sp.dsty_}, DISCARD_DT).onComplete(()=>{
-                            this.activeTile_ = null;
+                            this.flyTile_ = null;
                         }).start();
                     }
                 }
@@ -3082,19 +3082,19 @@
                     if (n == 0) {
                         this.standing_[n][13].update(t);
                     }
-                    !b ? this._drawTileF(n) : this._drawTileB(n, 13);
+                    !b ? this._draw_f(n) : this._draw_b(n, 13);
                 }
             }
 
             /**
              * 删除当前活动的牌
              */
-            removeActive() {
-                let sp = this.activeTile_;
+            rmFly() {
+                let sp = this.flyTile_;
                 if (sp) {
                     console.log('active tile is not null');
 
-                    this.activeTile_ = null;
+                    this.flyTile_ = null;
 
                     let dst = sp.dst_;
                     if (dst) {
@@ -3118,7 +3118,7 @@
              * @param {number} n 玩家
              * @param {string} s 文本
              */
-            showCallText(n, s) {
+            showCall(n, s) {
                 let pos = this.callTextPos_[n];
                 let text = new PIXI.extras.BitmapText(s, { font:'128px STXingkai' });
                 text.anchor.x = pos['ax'];
@@ -3146,18 +3146,18 @@
              * @param {number} rm 牌墙剩余
              */
             flower123(n, rm) {
-                this.showCallText(n, '花');
+                this.showCall(n, '花');
                 this.infoPanels_[n].setFlower(++this.flowers_[n]);
                 this.remainCnt_ = rm;
 
                 let sta = this.standing_[n];
                 if (sta[13].visible) {
                     sta[13].visible = false;
-                    this._drawTileB(n, 13);
+                    this._draw_b(n, 13);
                 }
                 else {
                     let idx = this._randomIdx(n);
-                    this._drawTileB(n, idx);
+                    this._draw_b(n, idx);
 
                     let pos = this._randomIdx(n);
                     switch (n) {
@@ -3204,7 +3204,7 @@
              * @param {number} rm 牌墙剩余
              */
             flower0(ot, nt, rm) {
-                this.showCallText(0, '花');
+                this.showCall(0, '花');
                 this.infoPanels_[0].setFlower(++this.flowers_[0]);
                 this.remainCnt_ = rm;
 
@@ -3224,7 +3224,7 @@
                 this.stopFlower_ = false;
 
                 if (idx == 13) {
-                    this._drawTileB(0, 13);
+                    this._draw_b(0, 13);
                     sta[13].update(nt);
                 }
                 else if (sta[13].visible) {
@@ -3241,13 +3241,13 @@
                         }
                     }
 
-                    this._drawTileB(0, 13);
+                    this._draw_b(0, 13);
                     sta[13].update(nt);
                 }
                 else {
                     sta[13].t_ = 0xFF;
 
-                    this._drawTileB(0, idx);
+                    this._draw_b(0, idx);
                     sta[idx].update(nt);
                     sta.sort(function(a, b) { return a.t_ - b.t_; });
 
@@ -3296,13 +3296,13 @@
              */
             _srt_shrk0() {
                 let sta = this.standing_[0];
-                let hidden = this.packData_[0].length * 3;
+                let hdn = this.packData_[0].length * 3;
                 let zi = sta[0].zIndex;
                 let dp = this.origin_[0];
                 for (let i = 0; i < 14; ++i) {
                     let sp = sta[i];
                     sp.zIndex = zi + i;
-                    if (i < hidden) {
+                    if (i < hdn) {
                         sp.visible = false;
                         sp.x = dp[i];
                     }
@@ -3320,7 +3320,7 @@
              */
             _srt_shrk1() {
                 let sta = this.standing_[1];
-                let hidden = this.packData_[1].length * 3;
+                let hdn = this.packData_[1].length * 3;
                 let zi = sta[0].zIndex;
                 let dp0 = this.openPos_[1];
                 for (let i = 0; i < 14; ++i) {
@@ -3328,7 +3328,7 @@
                     sp.zIndex = zi - i;
                     let dp1 = dp0 - HEIGHT_13 * i;
                     if (i == 13) dp1 -= GAP_W;
-                    if (i < hidden) {
+                    if (i < hdn) {
                         sp.visible = false;
                         sp.y = dp1;
                     }
@@ -3346,7 +3346,7 @@
              */
             _srt_shrk2() {
                 let sta = this.standing_[2];
-                let hidden = this.packData_[2].length * 3;
+                let hdn = this.packData_[2].length * 3;
                 let zi = sta[0].zIndex;
                 let dp0 = this.openPos_[2];
                 for (let i = 0; i < 14; ++i) {
@@ -3354,7 +3354,7 @@
                     sp.zIndex = zi + i;
                     let dp1 = dp0 - WIDTH_02 * i;
                     if (i == 13) dp1 -= GAP_W;
-                    if (i < hidden) {
+                    if (i < hdn) {
                         sp.visible = false;
                         sp.x = dp1;
                     }
@@ -3372,7 +3372,7 @@
              */
             _srt_shrk3() {
                 let sta = this.standing_[3];
-                let hidden = this.packData_[3].length * 3;
+                let hdn = this.packData_[3].length * 3;
                 let zi = sta[0].zIndex;
                 let dp0 = this.openPos_[3];
                 for (let i = 0; i < 14; ++i) {
@@ -3380,7 +3380,7 @@
                     sp.zIndex = zi + i;
                     let dp1 = dp0 + HEIGHT_13 * i;
                     if (i == 13) dp1 += GAP_W;
-                    if (i < hidden) {
+                    if (i < hdn) {
                         sp.visible = false;
                         sp.y = dp1;
                     }
@@ -3398,21 +3398,21 @@
              * @param {number} pack 副露
              */
             cpk3(pack) {
-                let type = pack_get_type(pack);
-                let tile = pack_get_tile(pack);
+                let type = pack_type(pack);
+                let tile = pack_tile(pack);
 
-                this.removeBtns();
-                this.removeCD();
+                this.rmBtns();
+                this.rmCD();
 
                 let pplen = this.packData_[3].length;
-                let hidden = pplen * 3;
-                if (hidden >= 12) {
+                let hdn = pplen * 3;
+                if (hdn >= 12) {
                     console.log('ui error');
                     reenter();
                     return;
                 }
 
-                let standing = this.standing_[3];
+                let sta = this.standing_[3];
                 let ext = (type != 2) ? EXT_CP_13 : EXT_DK_13;
 
                 // 立牌往下，已有的副露往上
@@ -3433,7 +3433,7 @@
                 switch (type) {
                 case 0:
                     idx3 = 13;
-                    switch (pack_get_offer(pack)) {
+                    switch (pack_offer(pack)) {
                     default: t0 = new PoolTile0(tile - 4); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile + 4); break;
                     case 2: t0 = new PoolTile0(tile); t1 = new PoolTile3(tile - 4); t2 = new PoolTile3(tile + 4); break;
                     case 3: t0 = new PoolTile0(tile + 4); t1 = new PoolTile3(tile - 4); t2 = new PoolTile3(tile); break;
@@ -3441,7 +3441,7 @@
                     break;
                 case 1:
                     idx3 = 13;
-                    switch (pack_get_offer(pack)) {
+                    switch (pack_offer(pack)) {
                     default: hz = 0; t0 = new PoolTile0(tile); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile); t0.pr_ = true; break;
                     case 2: hz = 1; t0 = new PoolTile3(tile); t1 = new PoolTile0(tile); t2 = new PoolTile3(tile); t1.pr_ = true; break;
                     case 3: hz = 2; t0 = new PoolTile3(tile); t1 = new PoolTile3(tile); t2 = new PoolTile2(tile); t2.pr_ = true; break;
@@ -3449,7 +3449,7 @@
                     break;
                 case 2:
                     do { idx3 = this._randomIdx(1); } while (idx1 == idx3 || idx2 == idx3);
-                    switch (pack_get_offer(pack)) {
+                    switch (pack_offer(pack)) {
                     default: hz = 0; t0 = new PoolTile0(tile); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile); t3 = new PoolTile3(tile); break;
                     case 2: hz = 1; t0 = new PoolTile3(tile); t1 = new PoolTile0(tile); t2 = new PoolTile3(tile); t3 = new PoolTile3(tile); break;
                     case 3: hz = 2; t0 = new PoolTile3(tile); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile); t3 = new PoolTile2(tile); break;
@@ -3463,24 +3463,24 @@
                 if (type == 2) { this.addChild(t3); this.packs_[3].push(t3); t3.zIndex = 243 + pplen * 4; }
 
                 // 动画
-                let yy = standing[hidden + 3].y + ext - GAP_T;
+                let yy = sta[hdn + 3].y + ext - GAP_T;
 
                 // 来源牌
-                let req = this.activeTile_;
-                this.activeTile_ = null;
+                let req = this.flyTile_;
+                this.flyTile_ = null;
 
                 switch (hz) {
                 case 0:
                     if (req) t0.x = req.x, t0.y = req.y;
-                    t1.y = standing[idx1].y;
-                    t2.y = standing[idx2].y;
+                    t1.y = sta[idx1].y;
+                    t2.y = sta[idx2].y;
                     if (type != 2) {
                         (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02),x:0}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
                     }
                     else {
-                        t3.y = standing[idx3].y;
+                        t3.y = sta[idx3].y;
                         (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_13 * 3 - HEIGHT_02),x:0}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_13 * 3)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
@@ -3488,16 +3488,16 @@
                     }
                     break;
                 case 1:
-                    t0.y = standing[idx1].y;
+                    t0.y = sta[idx1].y;
                     if (req) t1.x = req.x, t1.y = req.y;
-                    t2.y = standing[idx2].y;
+                    t2.y = sta[idx2].y;
                     if (type != 2) {
                         (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_13 - HEIGHT_02),x:0}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
                     }
                     else {
-                        t3.y = standing[idx3].y;
+                        t3.y = sta[idx3].y;
                         (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_13 * 3 - HEIGHT_02)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02),x:0}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
@@ -3505,8 +3505,8 @@
                     }
                     break;
                 case 2:
-                    t0.y = standing[idx1].y;
-                    t1.y = standing[idx2].y;
+                    t0.y = sta[idx1].y;
+                    t1.y = sta[idx2].y;
                     if (type != 2) {
                         if (req) t2.x = req.x, t2.y = req.y;
                         (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 2)}, DISCARD_DT).start();
@@ -3514,7 +3514,7 @@
                         (new TWEEN.Tween(t2)).to({y:(yy - HEIGHT_02),x:0}, DISCARD_DT).start();
                     }
                     else {
-                        t2.y = standing[idx3].y;
+                        t2.y = sta[idx3].y;
                         if (req) t3.x = req.x, t3.y = req.y;
                         (new TWEEN.Tween(t0)).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 3)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 2)}, DISCARD_DT).start();
@@ -3532,7 +3532,7 @@
                 this.packData_[3].push(pack);
                 this._shrink(3, [idx1, idx2, idx3]);
                 this._srt_shrk3();
-                if (type == 2) standing[13].visible = false;
+                if (type == 2) sta[13].visible = false;
                 else this.setTurn((this.seat_ + 3) & 3);
 
                 setTimeout(()=>{ this.sortChildren(); }, DISCARD_DT);
@@ -3545,14 +3545,14 @@
              */
             ck3(h) {
                 let pplen = this.packData_[3].length;
-                let hidden = pplen * 3;
-                if (hidden >= 12) {
+                let hdn = pplen * 3;
+                if (hdn >= 12) {
                     console.log('ui error');
                     reenter();
                     return;
                 }
 
-                let standing = this.standing_[3];
+                let sta = this.standing_[3];
                 let ext = EXT_CK_13;
 
                 // 立牌往下，已有的副露往上
@@ -3569,23 +3569,23 @@
                 if (h) do { idx[3] = this._randomIdx(3); } while (idx[3] == idx[0] || idx[3] == idx[1] || idx[3] == idx[2]);
 
                 // 生成一组副露
-                let yy = standing[hidden + 3].y + ext - GAP_T;
+                let yy = sta[hdn + 3].y + ext - GAP_T;
 
                 for (let i = 0; i < 4; ++i) {
-                    let t = createWall13Tile();
+                    let t = create_w13();
                     if (i == 1 || i == 2) t.ck_ = true;
                     this.addChild(t);
                     t.zIndex = 240 + pplen * 4 + i;
                     this.packs_[3].push(t);
 
-                    t.y = standing[idx[i]].y;
+                    t.y = sta[idx[i]].y;
                     (new TWEEN.Tween(t)).to({y:yy - HEIGHT_13 * (4 - i)}, DISCARD_DT).start();
                 }
 
                 this.packData_[3].push(0x300);
                 this._shrink(3, idx);
                 this._srt_shrk3();
-                standing[13].visible = false;
+                sta[13].visible = false;
 
                 this.sortChildren();
                 play_snd('snd/09-cpk.wav');
@@ -3597,7 +3597,7 @@
              * @param {number} h 手牌true，抓来false
              */
             pk3(pack, h) {
-                let tile = pack_get_tile(pack);
+                let tile = pack_tile(pack);
 
                 let prev = this.packs_[3];
                 let pr = null;
@@ -3631,7 +3631,7 @@
                 (new TWEEN.Tween(sp)).to({x:(pr.x + WIDTH_02 + 10),y:(pr.y)}, DISCARD_DT).start();
                 sp.dstx_ = pr.x + WIDTH_02;
                 sp.dsty_ = pr.y;
-                this.activeTile_ = sp;
+                this.flyTile_ = sp;
 
                 // 插入手牌动画
                 if (idx != 13) {
@@ -3650,21 +3650,21 @@
              * @param {number} pack 副露
              */
             cpk2(pack) {
-                let type = pack_get_type(pack);
-                let tile = pack_get_tile(pack);
+                let type = pack_type(pack);
+                let tile = pack_tile(pack);
 
-                this.removeBtns();
-                this.removeCD();
+                this.rmBtns();
+                this.rmCD();
 
                 let pplen = this.packData_[2].length;
-                let hidden = pplen * 3;
-                if (hidden >= 12) {
+                let hdn = pplen * 3;
+                if (hdn >= 12) {
                     console.log('ui error');
                     reenter();
                     return;
                 }
 
-                let standing = this.standing_[2];
+                let sta = this.standing_[2];
                 let ext = (type != 2) ? EXT_CP_02 : EXT_DK_02;
 
                 // 立牌往左，已有的副露往右
@@ -3685,7 +3685,7 @@
                 switch (type) {
                 case 0:
                     idx3 = 13;
-                    switch (pack_get_offer(pack)) {
+                    switch (pack_offer(pack)) {
                     default: t0 = new PoolTile3(tile - 4); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile + 4); break;
                     case 2: t0 = new PoolTile3(tile); t1 = new PoolTile2(tile - 4); t2 = new PoolTile2(tile + 4); break;
                     case 3: t0 = new PoolTile3(tile + 4); t1 = new PoolTile2(tile - 4); t2 = new PoolTile2(tile); break;
@@ -3693,7 +3693,7 @@
                     break;
                 case 1:
                     idx3 = 13;
-                    switch (pack_get_offer(pack)) {
+                    switch (pack_offer(pack)) {
                     default: hz = 0; t0 = new PoolTile3(tile); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile); t0.pr_ = true; break;
                     case 2: hz = 1; t0 = new PoolTile2(tile); t1 = new PoolTile3(tile); t2 = new PoolTile2(tile); t1.pr_ = true; break;
                     case 3: hz = 2; t0 = new PoolTile2(tile); t1 = new PoolTile2(tile); t2 = new PoolTile1(tile); t2.pr_ = true; break;
@@ -3701,7 +3701,7 @@
                     break;
                 case 2:
                     do { idx3 = this._randomIdx(1); } while (idx1 == idx3 || idx2 == idx3);
-                    switch (pack_get_offer(pack)) {
+                    switch (pack_offer(pack)) {
                     default: hz = 0; t0 = new PoolTile3(tile); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile); t3 = new PoolTile2(tile); break;
                     case 2: hz = 1; t0 = new PoolTile2(tile); t1 = new PoolTile3(tile); t2 = new PoolTile2(tile); t3 = new PoolTile2(tile); break;
                     case 3: hz = 2; t0 = new PoolTile2(tile); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile); t3 = new PoolTile1(tile); break;
@@ -3715,24 +3715,24 @@
                 if (type == 2) { this.addChild(t3); this.packs_[2].push(t3); t3.zIndex = 173 + pplen * 4; }
 
                 // 动画
-                let xx = standing[hidden + 3].x - ext + GAP_T + WIDTH_02;
+                let xx = sta[hdn + 3].x - ext + GAP_T + WIDTH_02;
 
                 // 来源牌
-                let req = this.activeTile_;
-                this.activeTile_ = null;
+                let req = this.flyTile_;
+                this.flyTile_ = null;
 
                 switch (hz) {
                 case 0:
                     if (req) t0.x = req.x, t0.y = req.y;
-                    t1.x = standing[idx1].x;
-                    t2.x = standing[idx2].x;
+                    t1.x = sta[idx1].x;
+                    t2.x = sta[idx2].x;
                     if (type != 2) {
                         (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_02 * 2),y:0}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({x:(xx)}, DISCARD_DT).start();
                     }
                     else {
-                        t3.x = standing[idx3].x;
+                        t3.x = sta[idx3].x;
                         (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_02 * 3),y:0}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02 * 2)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
@@ -3740,16 +3740,16 @@
                     }
                     break;
                 case 1:
-                    t0.x = standing[idx1].x;
+                    t0.x = sta[idx1].x;
                     if (req) t1.x = req.x, t1.y = req.y;
-                    t2.x = standing[idx2].x;
+                    t2.x = sta[idx2].x;
                     if (type != 2) {
                         (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_02 + WIDTH_13)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:0}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({x:(xx)}, DISCARD_DT).start();
                     }
                     else {
-                        t3.x = standing[idx3].x;
+                        t3.x = sta[idx3].x;
                         (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_02 * 2 + WIDTH_13)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02 * 2),y:0}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
@@ -3757,8 +3757,8 @@
                     }
                     break;
                 case 2:
-                    t0.x = standing[idx1].x;
-                    t1.x = standing[idx2].x;
+                    t0.x = sta[idx1].x;
+                    t1.x = sta[idx2].x;
                     if (type != 2) {
                         if (req) t2.x = req.x, t2.y = req.y;
                         (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_13 + WIDTH_02)}, DISCARD_DT).start();
@@ -3766,7 +3766,7 @@
                         (new TWEEN.Tween(t2)).to({x:(xx),y:0}, DISCARD_DT).start();
                     }
                     else {
-                        t2.x = standing[idx3].x;
+                        t2.x = sta[idx3].x;
                         if (req) t3.x = req.x, t3.y = req.y;
                         (new TWEEN.Tween(t0)).to({x:(xx + WIDTH_13 + WIDTH_02 * 2)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_13 + WIDTH_02)}, DISCARD_DT).start();
@@ -3784,7 +3784,7 @@
                 this.packData_[2].push(pack);
                 this._shrink(2, [idx1, idx2, idx3]);
                 this._srt_shrk2();
-                if (type == 2) standing[13].visible = false;
+                if (type == 2) sta[13].visible = false;
                 else this.setTurn((this.seat_ + 2) & 3);
 
                 setTimeout(()=>{ this.sortChildren(); }, DISCARD_DT);
@@ -3797,14 +3797,14 @@
              */
             ck2(h) {
                 let pplen = this.packData_[2].length;
-                let hidden = pplen * 3;
-                if (hidden >= 12) {
+                let hdn = pplen * 3;
+                if (hdn >= 12) {
                     console.log('ui error');
                     reenter();
                     return;
                 }
 
-                let standing = this.standing_[2];
+                let sta = this.standing_[2];
                 let ext = EXT_CK_02;
 
                 // 立牌往左，已有的副露往右
@@ -3821,23 +3821,23 @@
                 if (h) do { idx[3] = this._randomIdx(2); } while (idx[3] == idx[0] || idx[3] == idx[1] || idx[3] == idx[2]);
 
                 // 生成一组副露
-                let xx = standing[hidden + 3].x - ext + GAP_T + WIDTH_02;
+                let xx = sta[hdn + 3].x - ext + GAP_T + WIDTH_02;
 
                 for (let i = 0; i < 4; ++i) {
-                    let t = createWall02Tile();
+                    let t = create_w02();
                     if (i == 1 || i == 2) t.ck_ = true;
                     this.addChild(t);
                     t.zIndex = 170 + pplen * 4 + i;
                     this.packs_[2].push(t);
 
-                    t.x = standing[idx[i]].x;
+                    t.x = sta[idx[i]].x;
                     (new TWEEN.Tween(t)).to({x:(xx + WIDTH_02 * i)}, DISCARD_DT).start();
                 }
 
                 this.packData_[2].push(0x300);
                 this._shrink(2, idx);
                 this._srt_shrk2();
-                standing[13].visible = false;
+                sta[13].visible = false;
 
                 this.sortChildren();
                 play_snd('snd/09-cpk.wav');
@@ -3849,7 +3849,7 @@
              * @param {number} h 手牌true，抓来false
              */
             pk2(pack, h) {
-                let tile = pack_get_tile(pack);
+                let tile = pack_tile(pack);
 
                 let prev = this.packs_[2];
                 let pr = null;
@@ -3883,7 +3883,7 @@
                 (new TWEEN.Tween(sp)).to({x:pr.x,y:(pr.y + HEIGHT_13 + 10)}, DISCARD_DT).start();
                 sp.dstx_ = pr.x;
                 sp.dsty_ = pr.y + HEIGHT_13;
-                this.activeTile_ = sp;
+                this.flyTile_ = sp;
 
                 // 插入手牌动画
                 if (idx != 13) {
@@ -3902,21 +3902,21 @@
              * @param {number} pack 副露
              */
             cpk1(pack) {
-                let type = pack_get_type(pack);
-                let tile = pack_get_tile(pack);
+                let type = pack_type(pack);
+                let tile = pack_tile(pack);
 
-                this.removeBtns();
-                this.removeCD();
+                this.rmBtns();
+                this.rmCD();
 
                 let pplen = this.packData_[1].length;
-                let hidden = pplen * 3;
-                if (hidden >= 12) {
+                let hdn = pplen * 3;
+                if (hdn >= 12) {
                     console.log('ui error');
                     reenter();
                     return;
                 }
 
-                let standing = this.standing_[1];
+                let sta = this.standing_[1];
                 let ext = (type != 2) ? EXT_CP_13 : EXT_DK_13;
 
                 // 立牌往上，已有的副露往下
@@ -3927,7 +3927,7 @@
                     (new TWEEN.Tween(sp)).to({y:(sp.y + ext)}, DISCARD_DT).start();
                 }
 
-                let xx = standing[0].x;
+                let xx = sta[0].x;
 
                 let idx1 = this._randomIdx(1);
                 let idx2, idx3;
@@ -3939,7 +3939,7 @@
                 switch (type) {
                 case 0:
                     idx3 = 13;
-                    switch (pack_get_offer(pack)) {
+                    switch (pack_offer(pack)) {
                     default: t0 = new PoolTile2(tile - 4); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile + 4); break;
                     case 2: t0 = new PoolTile2(tile); t1 = new PoolTile1(tile - 4); t2 = new PoolTile1(tile + 4); break;
                     case 3: t0 = new PoolTile2(tile + 4); t1 = new PoolTile1(tile - 4); t2 = new PoolTile1(tile); break;
@@ -3947,7 +3947,7 @@
                     break;
                 case 1:
                     idx3 = 13;
-                    switch (pack_get_offer(pack)) {
+                    switch (pack_offer(pack)) {
                     default: hz = 0; t0 = new PoolTile2(tile); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile); t0.pr_ = true; break;
                     case 2: hz = 1; t0 = new PoolTile1(tile); t1 = new PoolTile2(tile); t2 = new PoolTile1(tile); t1.pr_ = true; break;
                     case 3: hz = 2; t0 = new PoolTile1(tile); t1 = new PoolTile1(tile); t2 = new PoolTile0(tile); t2.pr_ = true; break;
@@ -3955,7 +3955,7 @@
                     break;
                 case 2:
                     do { idx3 = this._randomIdx(1); } while (idx1 == idx3 || idx2 == idx3);
-                    switch (pack_get_offer(pack)) {
+                    switch (pack_offer(pack)) {
                     default: hz = 0; t0 = new PoolTile2(tile); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile); t3 = new PoolTile1(tile); break;
                     case 2: hz = 1; t0 = new PoolTile1(tile); t1 = new PoolTile2(tile); t2 = new PoolTile1(tile); t3 = new PoolTile1(tile); break;
                     case 3: hz = 2; t0 = new PoolTile1(tile); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile); t3 = new PoolTile0(tile); break;
@@ -3969,24 +3969,24 @@
                 if (type == 2) { this.addChild(t3); this.packs_[1].push(t3); t3.zIndex = 166 - pplen * 4; }
 
                 // 动画
-                let yy = standing[hidden + 3].y - ext + GAP_T + HEIGHT_13 * 2;
+                let yy = sta[hdn + 3].y - ext + GAP_T + HEIGHT_13 * 2;
 
                 // 来源牌
-                let req = this.activeTile_;
-                this.activeTile_ = null;
+                let req = this.flyTile_;
+                this.flyTile_ = null;
 
                 switch (hz) {
                 case 0:
                     if (req) t0.x = req.x, t0.y = req.y;
-                    t1.x = xx - (WIDTH_13 - WIDTH_13S); t1.y = standing[idx1].y;
-                    t2.x = t1.x; t2.y = standing[idx2].y;
+                    t1.x = xx - (WIDTH_13 - WIDTH_13S); t1.y = sta[idx1].y;
+                    t2.x = t1.x; t2.y = sta[idx2].y;
                     if (type != 2) {
                         (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_13 * 2),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({y:(yy)}, DISCARD_DT).start();
                     }
                     else {
-                        t3.x = t1.x; t3.y = standing[idx3].y;
+                        t3.x = t1.x; t3.y = sta[idx3].y;
                         (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_13 * 3),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_13 * 2)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
@@ -3994,16 +3994,16 @@
                     }
                     break;
                 case 1:
-                    t0.x = xx - (WIDTH_13 - WIDTH_13S); t0.y = standing[idx1].y;
+                    t0.x = xx - (WIDTH_13 - WIDTH_13S); t0.y = sta[idx1].y;
                     if (req) t1.x = req.x, t1.y = req.y;
-                    t2.x = t0.x; t2.y = standing[idx2].y;
+                    t2.x = t0.x; t2.y = sta[idx2].y;
                     if (type != 2) {
                         (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_13 + HEIGHT_02)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_13),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({y:(yy)}, DISCARD_DT).start();
                     }
                     else {
-                        t3.x = t0.x; t3.y = standing[idx3].y;
+                        t3.x = t0.x; t3.y = sta[idx3].y;
                         (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_13 * 2 + HEIGHT_02)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_13 * 2),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
@@ -4011,8 +4011,8 @@
                     }
                     break;
                 case 2:
-                    t0.x = xx - (WIDTH_13 - WIDTH_13S); t0.y = standing[idx1].y;
-                    t1.x = t0.x; t1.y = standing[idx2].y;
+                    t0.x = xx - (WIDTH_13 - WIDTH_13S); t0.y = sta[idx1].y;
+                    t1.x = t0.x; t1.y = sta[idx2].y;
                     if (type != 2) {
                         if (req) t2.x = req.x, t2.y = req.y;
                         (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_02 + HEIGHT_13)}, DISCARD_DT).start();
@@ -4020,7 +4020,7 @@
                         (new TWEEN.Tween(t2)).to({y:(yy),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
                     }
                     else {
-                        t2.x = t0.x; t2.y = standing[idx3].y;
+                        t2.x = t0.x; t2.y = sta[idx3].y;
                         if (req) t3.x = req.x, t3.y = req.y;
                         (new TWEEN.Tween(t0)).to({y:(yy + HEIGHT_02 + HEIGHT_13 * 2)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({y:(yy + HEIGHT_02 + HEIGHT_13)}, DISCARD_DT).start();
@@ -4038,7 +4038,7 @@
                 this.packData_[1].push(pack);
                 this._shrink(1, [idx1, idx2, idx3]);
                 this._srt_shrk1();
-                if (type == 2) standing[13].visible = false;
+                if (type == 2) sta[13].visible = false;
                 else this.setTurn((this.seat_ + 1) & 3);
 
                 setTimeout(()=>{ this.sortChildren(); }, DISCARD_DT);
@@ -4051,14 +4051,14 @@
              */
             ck1(h) {
                 let pplen = this.packData_[1].length;
-                let hidden = pplen * 3;
-                if (hidden >= 12) {
+                let hdn = pplen * 3;
+                if (hdn >= 12) {
                     console.log('ui error');
                     reenter();
                     return;
                 }
 
-                let standing = this.standing_[1];
+                let sta = this.standing_[1];
                 let ext = EXT_CK_13;
 
                 // 立牌往上，已有的副露往下
@@ -4069,7 +4069,7 @@
                     (new TWEEN.Tween(sp)).to({y:(sp.y + ext)}, DISCARD_DT).start();
                 }
 
-                let xx = standing[0].x;
+                let xx = sta[0].x;
 
                 let idx = [this._randomIdx(1), 0, 0, 13];
                 do { idx[1] = this._randomIdx(1); } while (idx[1] == idx[0]);
@@ -4077,23 +4077,23 @@
                 if (h) do { idx[3] = this._randomIdx(1); } while (idx[3] == idx[0] || idx[3] == idx[1] || idx[3] == idx[2]);
 
                 // 生成一组副露
-                let yy = standing[hidden + 3].y - ext + GAP_T;
+                let yy = sta[hdn + 3].y - ext + GAP_T;
 
                 for (let i = 0; i < 4; ++i) {
-                    let t = createWall13Tile();
+                    let t = create_w13();
                     if (i == 1 || i == 2) t.ck_ = true;
                     this.addChild(t);
                     t.zIndex = 169 - pplen * 4 - i;
                     this.packs_[1].push(t);
 
-                    t.x = xx - (WIDTH_13 - WIDTH_13S); t.y = standing[idx[i]].y;
+                    t.x = xx - (WIDTH_13 - WIDTH_13S); t.y = sta[idx[i]].y;
                     (new TWEEN.Tween(t)).to({y:(yy + HEIGHT_13 * (5 - i))}, DISCARD_DT).start();
                 }
 
                 this.packData_[1].push(0x300);
                 this._shrink(1, idx);
                 this._srt_shrk1();
-                standing[13].visible = false;
+                sta[13].visible = false;
 
                 this.sortChildren();
                 play_snd('snd/09-cpk.wav');
@@ -4105,7 +4105,7 @@
              * @param {number} h 手牌true，抓来false
              */
             pk1(pack, h) {
-                let tile = pack_get_tile(pack);
+                let tile = pack_tile(pack);
 
                 let prev = this.packs_[1];
                 let pr = null;
@@ -4139,7 +4139,7 @@
                 (new TWEEN.Tween(sp)).to({x:(pr.x - WIDTH_02 - 10),y:pr.y}, DISCARD_DT).start();
                 sp.dstx_ = pr.x - WIDTH_02;
                 sp.dsty_ = pr.y;
-                this.activeTile_ = sp;
+                this.flyTile_ = sp;
 
                 // 插入手牌动画
                 if (idx != 13) {
@@ -4158,20 +4158,20 @@
              * @param {number} pack 副露
              */
             cpk0(pack) {
-                let type = pack_get_type(pack);
-                let tile = pack_get_tile(pack);
+                let type = pack_type(pack);
+                let tile = pack_tile(pack);
 
-                this.removeCD();
+                this.rmCD();
 
                 let pplen = this.packData_[0].length;
-                let hidden = pplen * 3;
-                if (hidden >= 12) {
+                let hdn = pplen * 3;
+                if (hdn >= 12) {
                     console.log('ui error');
                     reenter();
                     return;
                 }
 
-                let standing = this.standing_[0];
+                let sta = this.standing_[0];
                 let idx1, idx2, idx3;
 
                 // 生成一组副露
@@ -4183,7 +4183,7 @@
                     let tt1 = tile + ((pack >> 12) & 3);
                     let tt2 = tile + 4 + ((pack >> 14) & 3);
                     idx3 = 13;
-                    switch (pack_get_offer(pack)) {
+                    switch (pack_offer(pack)) {
                     default:
                         idx1 = this._findIdx(0, tt1); idx2 = this._findIdx(0, tt2);
                         t0 = new PoolTile1(tt0); t1 = new PoolTile0(tt1); t2 = new PoolTile0(tt2);
@@ -4204,7 +4204,7 @@
                     idx1 = this._findIdxN(0, tm);
                     idx2 = this._findIdxN(idx1 + 1, tm);
                     idx3 = 13;
-                    switch (pack_get_offer(pack)) {
+                    switch (pack_offer(pack)) {
                     default: hz = 0; t0 = new PoolTile1(tile); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile); t0.pr_ = true; break;
                     case 2: hz = 1; t0 = new PoolTile0(tile); t1 = new PoolTile1(tile); t2 = new PoolTile0(tile); t1.pr_ = true; break;
                     case 3: hz = 2; t0 = new PoolTile0(tile); t1 = new PoolTile0(tile); t2 = new PoolTile3(tile); t2.pr_ = true; break;
@@ -4216,7 +4216,7 @@
                     idx1 = this._findIdxA(0, tile);
                     idx2 = this._findIdxA(idx1 + 1, tile);
                     idx3 = this._findIdxA(idx2 + 1, tile);
-                    switch (pack_get_offer(pack)) {
+                    switch (pack_offer(pack)) {
                     default: hz = 0; t0 = new PoolTile1(tile); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile); t3 = new PoolTile0(tile); break;
                     case 2: hz = 1; t0 = new PoolTile0(tile); t1 = new PoolTile1(tile); t2 = new PoolTile0(tile); t3 = new PoolTile0(tile); break;
                     case 3: hz = 2; t0 = new PoolTile0(tile); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile); t3 = new PoolTile3(tile); break;
@@ -4231,17 +4231,17 @@
 
                 // 动画
                 let xx = this.openPos_[0];
-                let yy = standing[0].y;
+                let yy = sta[0].y;
 
                 // 来源牌
-                let req = this.activeTile_;
-                this.activeTile_ = null;
+                let req = this.flyTile_;
+                this.flyTile_ = null;
 
                 switch (hz) {
                 case 0:
                     if (req) t0.x = req.x, t0.y = req.y;
-                    t1.x = standing[idx1].x; t1.y = yy - HEIGHT_02F * HAND_SCALE; t1.scale.set(HAND_SCALE);
-                    t2.x = standing[idx2].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
+                    t1.x = sta[idx1].x; t1.y = yy - HEIGHT_02F * HAND_SCALE; t1.scale.set(HAND_SCALE);
+                    t2.x = sta[idx2].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
                     if (type != 2) {
                         (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
@@ -4251,7 +4251,7 @@
                         (new TWEEN.Tween(t2.scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     else {
-                        t3.x = standing[idx3].x; t3.y = yy - HEIGHT_02F * HAND_SCALE; t3.scale.set(HAND_SCALE);
+                        t3.x = sta[idx3].x; t3.y = yy - HEIGHT_02F * HAND_SCALE; t3.scale.set(HAND_SCALE);
                         (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_13 + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
@@ -4263,9 +4263,9 @@
                     }
                     break;
                 case 1:
-                    t0.x = standing[idx1].x; t0.y = yy - HEIGHT_02F * HAND_SCALE; t0.scale.set(HAND_SCALE);
+                    t0.x = sta[idx1].x; t0.y = yy - HEIGHT_02F * HAND_SCALE; t0.scale.set(HAND_SCALE);
                     if (req) t1.x = req.x, t1.y = req.y;
-                    t2.x = standing[idx2].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
+                    t2.x = sta[idx2].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
                     if (type != 2) {
                         (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
@@ -4275,7 +4275,7 @@
                         (new TWEEN.Tween(t2.scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     else {
-                        t3.x = standing[idx3].x; t3.y = yy - HEIGHT_02F * HAND_SCALE; t3.scale.set(HAND_SCALE);
+                        t3.x = sta[idx3].x; t3.y = yy - HEIGHT_02F * HAND_SCALE; t3.scale.set(HAND_SCALE);
                         (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t2)).to({x:(xx + WIDTH_02 + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
@@ -4287,8 +4287,8 @@
                     }
                     break;
                 case 2:
-                    t0.x = standing[idx1].x; t0.y = yy - HEIGHT_02F * HAND_SCALE; t0.scale.set(HAND_SCALE);
-                    t1.x = standing[idx2].x; t1.y = yy - HEIGHT_02F * HAND_SCALE; t1.scale.set(HAND_SCALE);
+                    t0.x = sta[idx1].x; t0.y = yy - HEIGHT_02F * HAND_SCALE; t0.scale.set(HAND_SCALE);
+                    t1.x = sta[idx2].x; t1.y = yy - HEIGHT_02F * HAND_SCALE; t1.scale.set(HAND_SCALE);
                     if (type != 2) {
                         if (req) t2.x = req.x, t2.y = req.y;
                         (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
@@ -4299,7 +4299,7 @@
                         (new TWEEN.Tween(t1.scale)).to({x:1,y:1}, DISCARD_DT).start();
                     }
                     else {
-                        t2.x = standing[idx3].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
+                        t2.x = sta[idx3].x; t2.y = yy - HEIGHT_02F * HAND_SCALE; t2.scale.set(HAND_SCALE);
                         if (req) t3.x = req.x, t3.y = req.y;
                         (new TWEEN.Tween(t0)).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t1)).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
@@ -4328,7 +4328,7 @@
                 }
                 else {
                     this.openPos_[0] = xx + WIDTH_13 + WIDTH_02 * 3 + GAP_T;
-                    standing[13].visible = false;
+                    sta[13].visible = false;
                 }
 
                 setTimeout(()=>{ this.sortChildren(); }, DISCARD_DT);
@@ -4341,15 +4341,15 @@
              */
             ck0(pack) {
                 let pplen = this.packData_[0].length;
-                let hidden = pplen * 3;
-                if (hidden >= 12) {
+                let hdn = pplen * 3;
+                if (hdn >= 12) {
                     console.log('ui error');
                     reenter();
                     return;
                 }
 
-                let standing = this.standing_[0];
-                let tile = pack_get_tile(pack);
+                let sta = this.standing_[0];
+                let tile = pack_tile(pack);
 
                 let idx = [0, 0, 0, 0];
                 idx[0] = this._findIdxA(0, tile);
@@ -4359,15 +4359,15 @@
 
                 // 生成一组副露
                 let xx = this.openPos_[0];
-                let yy = standing[0].y;
+                let yy = sta[0].y;
 
                 for (let i = 0; i < 4; ++i) {
-                    let t = (i == 0 || i == 3) ? createWall02Tile() : new PoolTile0(tile);
+                    let t = (i == 0 || i == 3) ? create_w02() : new PoolTile0(tile);
                     this.addChild(t);
                     t.zIndex = 340 + pplen * 4 + i;
                     this.packs_[0].push(t);
 
-                    t.x = standing[idx[3 - i]].x;
+                    t.x = sta[idx[3 - i]].x;
                     t.y = yy - HEIGHT_02F * HAND_SCALE;
                     t.scale.set(HAND_SCALE);
                     (new TWEEN.Tween(t)).to({x:(xx + WIDTH_02 * i),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
@@ -4387,7 +4387,7 @@
                 else {
                     let dp = new Array(14);
                     for (let i = 0; i < 14; ++i) {
-                        let sp = standing[i];
+                        let sp = sta[i];
                         dp[i] = sp.x;
                         if (i == idx[0] || i == idx[1] || i == idx[2]) {
                             sp.t_ = -1;
@@ -4397,12 +4397,12 @@
                         }
                     }
 
-                    standing.sort(function(a, b) { return a.t_ - b.t_; });
+                    sta.sort(function(a, b) { return a.t_ - b.t_; });
 
                     for (let i = 0; i < 14; ++i) {
-                        let sp = standing[i];
+                        let sp = sta[i];
                         sp.zIndex = 360 + i;
-                        if (i < hidden + 3) {
+                        if (i < hdn + 3) {
                             sp.visible = false;
                             sp.x = dp[i];
                         }
@@ -4414,7 +4414,7 @@
                         }
                     }
                 }
-                standing[13].visible = false;
+                sta[13].visible = false;
 
                 this.sortChildren();
                 play_snd('snd/09-cpk.wav');
@@ -4425,7 +4425,7 @@
              * @param {number} pack 副露
              */
             pk0(pack) {
-                let tile = pack_get_tile(pack);
+                let tile = pack_tile(pack);
 
                 let prev = this.packs_[0];
                 let pr = null;
@@ -4461,22 +4461,22 @@
                 (new TWEEN.Tween(sp.scale)).to({x:1,y:1}, DISCARD_DT).start();
                 sp.dstx_ = pr.x;
                 sp.dsty_ = pr.y - HEIGHT_13;
-                this.activeTile_ = sp;
+                this.flyTile_ = sp;
 
                 // 插入手牌动画
                 if (idx != 13) {
-                    let standing = this.standing_[0];
+                    let sta = this.standing_[0];
                     let dp = new Array(14);
                     for (let i = 0; i < 14; ++i) {
-                        dp[i] = standing[i].x;
+                        dp[i] = sta[i].x;
                     }
 
                     src.t_ = 0xFF;
                     src.visible = false;
-                    standing.sort(function(a, b) { return a.t_ - b.t_; });
+                    sta.sort(function(a, b) { return a.t_ - b.t_; });
 
                     for (let i = 0; i < 14; ++i) {
-                        let sp = standing[i];
+                        let sp = sta[i];
                         sp.zIndex = 360 + i;
                         if (sp.x != dp[i]) {
                             (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
@@ -4576,7 +4576,7 @@
             /**
              * 显示鸣牌设置界面
              */
-            showCall() {
+            showCallOpt() {
                 let cs = this.callView_;
                 this.removeChild(cs);
                 this.addChild(cs);
@@ -4666,16 +4666,16 @@
              * @param {number} n 玩家
              * @param {number} cnt 牌张数
              */
-            _removeOpenTiles(n, cnt) {
+            _rm_ot(n, cnt) {
                 let sp;
                 while (sp = this.openTiles_[n].pop()) {
                     sp.dstry();
                 }
 
-                let hidden = this.packData_[n].length * 3;
-                let standing = this.standing_[n];
-                for (let i = hidden; i < cnt; ++i) {
-                    standing[i].visible = true;
+                let hdn = this.packData_[n].length * 3;
+                let sta = this.standing_[n];
+                for (let i = hdn; i < cnt; ++i) {
+                    sta[i].visible = true;
                 }
 
                 let packs = this.packs_[n];
@@ -4692,7 +4692,7 @@
              * @param {number} cp 放炮者
              * @param {number} wt 和牌张
              */
-            openHand(tiles, succeed, wp, cp, wt) {
+            op_ht(tiles, succeed, wp, cp, wt) {
                 if (succeed) {
                     setTimeout(()=>{
                         let p = (this.seat_ + 1) & 3;
@@ -4707,7 +4707,7 @@
                     if (wp != undefined && cp != undefined && wp != cp) {
                         let n0 = (wp + 4 - this.seat_) & 3;
                         let n1 = (cp + 4 - this.seat_) & 3;
-                        let src = this.activeTile_;
+                        let src = this.flyTile_;
                         let dst = this.standing_[n0][13];
                         let xx, yy, sp;
                         if (!src) {
@@ -4756,7 +4756,7 @@
 
                         if (src.cplt_) src.dstry();
                         else src.visible = false;
-                        this.activeTile_ = null;
+                        this.flyTile_ = null;
 
                         (new TWEEN.Tween(sp)).to({x:xx,y:yy}, DISCARD_DT).onComplete(()=>{ sp.dstry(); }).start();
 
@@ -4792,7 +4792,7 @@
                 }
                 else {
                     let n = (wp + 4 - this.seat_) & 3;
-                    this.showCallText(n, '错和');
+                    this.showCall(n, '错和');
                     switch (n) {
                     case 0: this._open0(tiles[this.seat_], wt); break;
                     case 1: this._open1(tiles[(this.seat_ + 1) & 3], wt); break;
@@ -4800,7 +4800,7 @@
                     case 3: this._open3(tiles[(this.seat_ + 3) & 3], wt); break;
                     }
                     setTimeout(()=>{
-                        this._removeOpenTiles(n, (this.turn_ != wp ? 13 : 14));
+                        this._rm_ot(n, (this.turn_ != wp ? 13 : 14));
                     }, 5000);
                 }
             }
@@ -4813,7 +4813,7 @@
             _open3(ht, wt) {
                 let ot = this.openTiles_[3];
 
-                let standing = this.standing_[3];
+                let sta = this.standing_[3];
                 let yy = HEIGHT_13SF - HEIGHT_13F;
 
                 let ps = ht['p'] || [];
@@ -4821,8 +4821,8 @@
                 let offset = ps.length * 3;
                 let pos = this.openPos_[3];
                 for (let i = 0, len = st.length; i < len; ++i) {
-                    let sp0 = standing[offset + i];
-                    let sp1 = (st[i] != 255) ? new PoolTile3(st[i]) : createWall13Tile();
+                    let sp0 = sta[offset + i];
+                    let sp1 = (st[i] != 255) ? new PoolTile3(st[i]) : create_w13();
                     sp1.x = sp0.x;
                     sp1.y = pos + (offset + i) * HEIGHT_13 + yy;
                     this.addChild(sp1);
@@ -4832,7 +4832,7 @@
                 }
 
                 if (wt != undefined) {
-                    let sp0 = standing[13];
+                    let sp0 = sta[13];
                     let sp1 = new PoolTile3(wt);
                     sp1.x = sp0.x;
                     sp1.y = pos + 13 * HEIGHT_13 + GAP_T + yy;
@@ -4849,7 +4849,7 @@
                         for (let k = 0, len2 = packs.length, cnt = 0; k < len2 && cnt < 2; ++k) {
                             let sp0 = packs[k];
                             if (sp0.visible && sp0.ck_) {
-                                let sp1 = new PoolTile3(pack_get_tile(p));
+                                let sp1 = new PoolTile3(pack_tile(p));
                                 sp1.x = sp0.x;
                                 sp1.y = sp0.y;
                                 this.addChild(sp1);
@@ -4872,15 +4872,15 @@
             _open2(ht, wt) {
                 let ot = this.openTiles_[2];
 
-                let standing = this.standing_[2];
+                let sta = this.standing_[2];
 
                 let ps = ht['p'] || [];
                 let st = ht['s'];
                 let offset = ps.length * 3;
                 let pos = this.openPos_[2];
                 for (let i = 0, len = st.length; i < len; ++i) {
-                    let sp0 = standing[offset + i];
-                    let sp1 = (st[i] != 255) ? new PoolTile2(st[i]) : createWall02Tile();
+                    let sp0 = sta[offset + i];
+                    let sp1 = (st[i] != 255) ? new PoolTile2(st[i]) : create_w02();
                     sp1.x = pos - (offset + i) * WIDTH_02;
                     sp1.y = sp0.y;
                     this.addChild(sp1);
@@ -4890,7 +4890,7 @@
                 }
 
                 if (wt != undefined) {
-                    let sp0 = standing[13];
+                    let sp0 = sta[13];
                     let sp1 = new PoolTile2(wt);
                     sp1.x = pos - 13 * WIDTH_02 - GAP_T;
                     sp1.y = sp0.y;
@@ -4907,7 +4907,7 @@
                         for (let k = 0, len2 = packs.length, cnt = 0; k < len2 && cnt < 2; ++k) {
                             let sp0 = packs[k];
                             if (sp0.visible && sp0.ck_) {
-                                let sp1 = new PoolTile2(pack_get_tile(p));
+                                let sp1 = new PoolTile2(pack_tile(p));
                                 sp1.x = sp0.x;
                                 sp1.y = sp0.y;
                                 this.addChild(sp1);
@@ -4930,7 +4930,7 @@
             _open1(ht, wt) {
                 let ot = this.openTiles_[1];
 
-                let standing = this.standing_[1];
+                let sta = this.standing_[1];
                 let xx = WIDTH_13 - WIDTH_13S;
                 let yy = HEIGHT_13SF - HEIGHT_13F;
 
@@ -4939,8 +4939,8 @@
                 let offset = ps.length * 3;
                 let pos = this.openPos_[1];
                 for (let i = 0, len = st.length; i < len; ++i) {
-                    let sp0 = standing[offset + i];
-                    let sp1 = (st[i] != 255) ? new PoolTile1(st[i]) : createWall13Tile();
+                    let sp0 = sta[offset + i];
+                    let sp1 = (st[i] != 255) ? new PoolTile1(st[i]) : create_w13();
                     sp1.x = sp0.x - xx;
                     sp1.y = pos - (offset + i - 1) * HEIGHT_13 - yy;
                     this.addChild(sp1);
@@ -4950,7 +4950,7 @@
                 }
 
                 if (wt != undefined) {
-                    let sp0 = standing[13];
+                    let sp0 = sta[13];
                     let sp1 = new PoolTile1(wt);
                     sp1.x = sp0.x - xx;
                     sp1.y = pos - 12 * HEIGHT_13 - GAP_T - yy;
@@ -4967,7 +4967,7 @@
                         for (let k = 0, len2 = packs.length, cnt = 0; k < len2 && cnt < 2; ++k) {
                             let sp0 = packs[k];
                             if (sp0.visible && sp0.ck_) {
-                                let sp1 = new PoolTile1(pack_get_tile(p));
+                                let sp1 = new PoolTile1(pack_tile(p));
                                 sp1.x = sp0.x;
                                 sp1.y = sp0.y;
                                 this.addChild(sp1);
@@ -4990,14 +4990,14 @@
             _open0(ht, wt) {
                 let ot = this.openTiles_[0];
 
-                let standing = this.standing_[0];
+                let sta = this.standing_[0];
 
                 let ps = ht['p'] || [];
                 let st = ht['s'];
                 let offset = ps.length * 3;
                 for (let i = 0, len = st.length; i < len; ++i) {
                     if (st[i] == 255) continue;
-                    let sp0 = standing[offset + i];
+                    let sp0 = sta[offset + i];
                     let sp1 = new PoolTile0(st[i]);
                     sp1.x = sp0.x;
                     sp1.y = sp0.y;
@@ -5011,7 +5011,7 @@
                 }
 
                 if (wt != undefined) {
-                    let sp0 = standing[13];
+                    let sp0 = sta[13];
                     let sp1 = new PoolTile0(wt);
                     sp1.x = sp0.x;
                     sp1.y = sp0.y;
@@ -5072,7 +5072,7 @@
                         dst.v_ = true;
 
                         let sp = new (CTOR_PT[n])(at);
-                        this.activeTile_ = sp;
+                        this.flyTile_ = sp;
                         this.addChild(sp);
                         sp.zIndex = dst.zIndex;
                         sp.dst_ = dst;
@@ -5100,10 +5100,10 @@
                 this.remainCnt_ = 144 - f - b;
                 this.remainText_.text = '牌墙剩余：' + this.remainCnt_;
                 for (; f > 0; --f) {
-                    this._drawTileF();
+                    this._draw_f();
                 }
                 for (; b > 0; --b) {
-                    this._drawTileB();
+                    this._draw_b();
                 }
 
                 // 自己手牌
@@ -5111,9 +5111,9 @@
                 let p = h['p'] || [];
                 let s = h['s'];
                 let o = p.length * 3;
-                let standing = this.standing_[0];
+                let sta = this.standing_[0];
                 for (let i = 0; i < 13; ++i) {
-                    let sp = standing[i];
+                    let sp = sta[i];
                     if (i >= o) {
                         sp.visible = true;
                         sp.update(s[i - o]);
@@ -5123,20 +5123,20 @@
                     }
                 }
                 if (s[13 - o] != undefined) {
-                    let sp = standing[13];
+                    let sp = sta[13];
                     sp.visible = true;
                     sp.update(s[13 - o]);
                 }
 
                 for (let k = 0; k < p.length; ++k) {
                     let pack = p[k];
-                    let type = pack_get_type(pack);
-                    let tile = pack_get_tile(pack);
+                    let type = pack_type(pack);
+                    let tile = pack_tile(pack);
                     let pplen = this.packData_[0].length;
                     let ext = (3 * WIDTH_02 * HAND_SCALE) - (WIDTH_02 * 2 + WIDTH_13 + GAP_T);
                     if (type == 2) {
                         ext -= WIDTH_02;
-                        if (pack_get_offer(pack) == 0) {
+                        if (pack_offer(pack) == 0) {
                             ext += (WIDTH_13 - WIDTH_02);
                         }
                     }
@@ -5146,29 +5146,29 @@
                     let hz = 0;
                     switch (type) {
                     case 0:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: t0 = new PoolTile1(tile - 4); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile + 4); break;
                         case 2: t0 = new PoolTile1(tile); t1 = new PoolTile0(tile - 4); t2 = new PoolTile0(tile + 4); break;
                         case 3: t0 = new PoolTile1(tile + 4); t1 = new PoolTile0(tile - 4); t2 = new PoolTile0(tile); break;
                         }
                         break;
                     case 1:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: hz = 0; t0 = new PoolTile1(tile); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile); t0.pr_ = true; break;
                         case 2: hz = 1; t0 = new PoolTile0(tile); t1 = new PoolTile1(tile); t2 = new PoolTile0(tile); t1.pr_ = true; break;
                         case 3: hz = 2; t0 = new PoolTile0(tile); t1 = new PoolTile0(tile); t2 = new PoolTile3(tile); t2.pr_ = true; break;
                         }
                         break;
                     case 2:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: hz = 0; t0 = new PoolTile1(tile); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile); t3 = new PoolTile0(tile); break;
                         case 2: hz = 1; t0 = new PoolTile0(tile); t1 = new PoolTile1(tile); t2 = new PoolTile0(tile); t3 = new PoolTile0(tile); break;
                         case 3: hz = 2; t0 = new PoolTile0(tile); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile); t3 = new PoolTile3(tile); break;
-                        case 0: hz = 3; t0 = createWall02Tile(); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile); t3 = createWall02Tile(); break;
+                        case 0: hz = 3; t0 = create_w02(); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile); t3 = create_w02(); break;
                         }
                         break;
                     case 3:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: hz = 4; t0 = new PoolTile1(tile); t1 = new PoolTile1(tile); t2 = new PoolTile0(tile); t3 = new PoolTile0(tile); break;
                         case 2: hz = 5; t0 = new PoolTile0(tile); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile); t3 = new PoolTile0(tile); break;
                         case 3: hz = 6; t0 = new PoolTile0(tile); t1 = new PoolTile0(tile); t2 = new PoolTile3(tile); t3 = new PoolTile3(tile); break;
@@ -5183,7 +5183,7 @@
 
                     // 不是动画
                     let xx = this.openPos_[0];
-                    let yy = standing[0].y;
+                    let yy = sta[0].y;
 
                     switch (hz) {
                     case 0:
@@ -5269,28 +5269,28 @@
                 p = h['p'] || [];
                 s = h['s'];
                 o = p.length * 3;
-                standing = this.standing_[1];
+                sta = this.standing_[1];
                 for (let i = 0; i < 13; ++i) {
-                    let sp = standing[i];
+                    let sp = sta[i];
                     if (i >= o) {
                         sp.visible = true;
                     }
                 }
                 if (s[13 - o] != undefined) {
-                    let sp = standing[13];
+                    let sp = sta[13];
                     sp.visible = true;
                 }
 
                 for (let k = 0; k < p.length; ++k) {
                     let pack = p[k];
-                    let type = pack_get_type(pack);
-                    let tile = pack_get_tile(pack);
+                    let type = pack_type(pack);
+                    let tile = pack_tile(pack);
                     let pplen = this.packData_[1].length;
-                    let hidden = pplen * 3;
+                    let hdn = pplen * 3;
                     let ext = (HEIGHT_02 - HEIGHT_13 + GAP_T) * .5;
                     if (type == 2) {
                         ext += HEIGHT_13 * .5;
-                        if (pack_get_offer(pack) == 0) {
+                        if (pack_offer(pack) == 0) {
                             ext -= (HEIGHT_02 - HEIGHT_13) * .5;
                         }
                     }
@@ -5308,29 +5308,29 @@
                     let hz = 0;
                     switch (type) {
                     case 0:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: t0 = new PoolTile2(tile - 4); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile + 4); break;
                         case 2: t0 = new PoolTile2(tile); t1 = new PoolTile1(tile - 4); t2 = new PoolTile1(tile + 4); break;
                         case 3: t0 = new PoolTile2(tile + 4); t1 = new PoolTile1(tile - 4); t2 = new PoolTile1(tile); break;
                         }
                         break;
                     case 1:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: hz = 0; t0 = new PoolTile2(tile); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile); t0.pr_ = true; break;
                         case 2: hz = 1; t0 = new PoolTile1(tile); t1 = new PoolTile2(tile); t2 = new PoolTile1(tile); t1.pr_ = true; break;
                         case 3: hz = 2; t0 = new PoolTile1(tile); t1 = new PoolTile1(tile); t2 = new PoolTile0(tile); t2.pr_ = true; break;
                         }
                         break;
                     case 2:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: hz = 0; t0 = new PoolTile2(tile); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile); t3 = new PoolTile1(tile); break;
                         case 2: hz = 1; t0 = new PoolTile1(tile); t1 = new PoolTile2(tile); t2 = new PoolTile1(tile); t3 = new PoolTile1(tile); break;
                         case 3: hz = 2; t0 = new PoolTile1(tile); t1 = new PoolTile1(tile); t2 = new PoolTile1(tile); t3 = new PoolTile0(tile); break;
-                        case 0: hz = 3; t0 = createWall13Tile(); t1 = createWall13Tile(); t2 = createWall13Tile(); t3 = createWall13Tile(); t1.ck_ = true; t2.ck_ = true; break;
+                        case 0: hz = 3; t0 = create_w13(); t1 = create_w13(); t2 = create_w13(); t3 = create_w13(); t1.ck_ = true; t2.ck_ = true; break;
                         }
                         break;
                     case 3:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: hz = 4; t0 = new PoolTile2(tile); t1 = new PoolTile2(tile); t2 = new PoolTile1(tile); t3 = new PoolTile1(tile); break;
                         case 2: hz = 5; t0 = new PoolTile1(tile); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile); t3 = new PoolTile1(tile); break;
                         case 3: hz = 6; t0 = new PoolTile1(tile); t1 = new PoolTile1(tile); t2 = new PoolTile0(tile); t3 = new PoolTile0(tile); break;
@@ -5344,9 +5344,9 @@
                     if (t3 != undefined) { this.addChild(t3); this.packs_[1].push(t3); t3.zIndex = 166 - pplen * 4; }
 
                     // 不是动画
-                    let xx = standing[0].x;
+                    let xx = sta[0].x;
                     let x0 = xx - (WIDTH_13 - WIDTH_13S);
-                    let yy = standing[hidden + 3].y - ext + GAP_T + HEIGHT_13 * 2;
+                    let yy = sta[hdn + 3].y - ext + GAP_T + HEIGHT_13 * 2;
 
                     switch (hz) {
                     case 0:
@@ -5418,7 +5418,7 @@
 
                     // 移动余下立牌
                     for (let i = 0; i < 14; ++i) {
-                        standing[i].y -= ext;
+                        sta[i].y -= ext;
                     }
                 }
 
@@ -5427,28 +5427,28 @@
                 p = h['p'] || [];
                 s = h['s'];
                 o = p.length * 3;
-                standing = this.standing_[2];
+                sta = this.standing_[2];
                 for (let i = 0; i < 13; ++i) {
-                    let sp = standing[i];
+                    let sp = sta[i];
                     if (i >= o) {
                         sp.visible = true;
                     }
                 }
                 if (s[13 - o] != undefined) {
-                    let sp = standing[13];
+                    let sp = sta[13];
                     sp.visible = true;
                 }
 
                 for (let k = 0; k < p.length; ++k) {
                     let pack = p[k];
-                    let type = pack_get_type(pack);
-                    let tile = pack_get_tile(pack);
+                    let type = pack_type(pack);
+                    let tile = pack_tile(pack);
                     let pplen = this.packData_[2].length;
-                    let hidden = pplen * 3;
+                    let hdn = pplen * 3;
                     let ext = (WIDTH_13 - WIDTH_02 + GAP_T) * .5;
                     if (type == 2) {
                         ext += WIDTH_02 * .5;
-                        if (pack_get_offer(pack) == 0) {
+                        if (pack_offer(pack) == 0) {
                             ext -= (WIDTH_13 - WIDTH_02) * .5;
                         }
                     }
@@ -5466,29 +5466,29 @@
                     let hz = 0;
                     switch (type) {
                     case 0:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: t0 = new PoolTile3(tile - 4); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile + 4); break;
                         case 2: t0 = new PoolTile3(tile); t1 = new PoolTile2(tile - 4); t2 = new PoolTile2(tile + 4); break;
                         case 3: t0 = new PoolTile3(tile + 4); t1 = new PoolTile2(tile - 4); t2 = new PoolTile2(tile); break;
                         }
                         break;
                     case 1:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: hz = 0; t0 = new PoolTile3(tile); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile); t0.pr_ = true; break;
                         case 2: hz = 1; t0 = new PoolTile2(tile); t1 = new PoolTile3(tile); t2 = new PoolTile2(tile); t1.pr_ = true; break;
                         case 3: hz = 2; t0 = new PoolTile2(tile); t1 = new PoolTile2(tile); t2 = new PoolTile1(tile); t2.pr_ = true; break;
                         }
                         break;
                     case 2:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: hz = 0; t0 = new PoolTile3(tile); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile); t3 = new PoolTile2(tile); break;
                         case 2: hz = 1; t0 = new PoolTile2(tile); t1 = new PoolTile3(tile); t2 = new PoolTile2(tile); t3 = new PoolTile2(tile); break;
                         case 3: hz = 2; t0 = new PoolTile2(tile); t1 = new PoolTile2(tile); t2 = new PoolTile2(tile); t3 = new PoolTile1(tile); break;
-                        case 0: hz = 3; t0 = createWall02Tile(); t1 = createWall02Tile(); t2 = createWall02Tile(); t3 = createWall02Tile(); t1.ck_ = true; t2.ck_ = true; break;
+                        case 0: hz = 3; t0 = create_w02(); t1 = create_w02(); t2 = create_w02(); t3 = create_w02(); t1.ck_ = true; t2.ck_ = true; break;
                         }
                         break;
                     case 3:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: hz = 4; t0 = new PoolTile3(tile); t1 = new PoolTile3(tile); t2 = new PoolTile2(tile); t3 = new PoolTile2(tile); break;
                         case 2: hz = 5; t0 = new PoolTile2(tile); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile); t3 = new PoolTile2(tile); break;
                         case 3: hz = 6; t0 = new PoolTile2(tile); t1 = new PoolTile2(tile); t2 = new PoolTile1(tile); t3 = new PoolTile1(tile); break;
@@ -5502,7 +5502,7 @@
                     if (t3 != undefined) { this.addChild(t3); this.packs_[2].push(t3); t3.zIndex = 173 + pplen * 4; }
 
                     // 不是动画
-                    let xx = standing[hidden + 3].x - ext + GAP_T + WIDTH_02;
+                    let xx = sta[hdn + 3].x - ext + GAP_T + WIDTH_02;
 
                     switch (hz) {
                     case 0:
@@ -5574,7 +5574,7 @@
 
                     // 移动余下立牌
                     for (let i = 0; i < 14; ++i) {
-                        standing[i].x -= ext;
+                        sta[i].x -= ext;
                     }
                 }
 
@@ -5583,28 +5583,28 @@
                 p = h['p'] || [];
                 s = h['s'];
                 o = p.length * 3;
-                standing = this.standing_[3];
+                sta = this.standing_[3];
                 for (let i = 0; i < 13; ++i) {
-                    let sp = standing[i];
+                    let sp = sta[i];
                     if (i >= o) {
                         sp.visible = true;
                     }
                 }
                 if (s[13 - o] != undefined) {
-                    let sp = standing[13];
+                    let sp = sta[13];
                     sp.visible = true;
                 }
 
                 for (let k = 0; k < p.length; ++k) {
                     let pack = p[k];
-                    let type = pack_get_type(pack);
-                    let tile = pack_get_tile(pack);
+                    let type = pack_type(pack);
+                    let tile = pack_tile(pack);
                     let pplen = this.packData_[3].length;
-                    let hidden = pplen * 3;
+                    let hdn = pplen * 3;
                     let ext = (HEIGHT_02 - HEIGHT_13 + GAP_T) * .5;
                     if (type == 2) {
                         ext += HEIGHT_13 * .5;
-                        if (pack_get_offer(pack) == 0) {
+                        if (pack_offer(pack) == 0) {
                             ext -= (HEIGHT_02 - HEIGHT_13) * .5;
                         }
                     }
@@ -5622,29 +5622,29 @@
                     let hz = 0;
                     switch (type) {
                     case 0:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: t0 = new PoolTile0(tile - 4); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile + 4); break;
                         case 2: t0 = new PoolTile0(tile); t1 = new PoolTile3(tile - 4); t2 = new PoolTile3(tile + 4); break;
                         case 3: t0 = new PoolTile0(tile + 4); t1 = new PoolTile3(tile - 4); t2 = new PoolTile3(tile); break;
                         }
                         break;
                     case 1:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: hz = 0; t0 = new PoolTile0(tile); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile); t0.pr_ = true; break;
                         case 2: hz = 1; t0 = new PoolTile3(tile); t1 = new PoolTile0(tile); t2 = new PoolTile3(tile); t1.pr_ = true; break;
                         case 3: hz = 2; t0 = new PoolTile3(tile); t1 = new PoolTile3(tile); t2 = new PoolTile2(tile); t2.pr_ = true; break;
                         }
                         break;
                     case 2:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: hz = 0; t0 = new PoolTile0(tile); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile); t3 = new PoolTile3(tile); break;
                         case 2: hz = 1; t0 = new PoolTile3(tile); t1 = new PoolTile0(tile); t2 = new PoolTile3(tile); t3 = new PoolTile3(tile); break;
                         case 3: hz = 2; t0 = new PoolTile3(tile); t1 = new PoolTile3(tile); t2 = new PoolTile3(tile); t3 = new PoolTile2(tile); break;
-                        case 0: hz = 3; t0 = createWall13Tile(); t1 = createWall13Tile(); t2 = createWall13Tile(); t3 = createWall13Tile(); t1.ck_ = true; t2.ck_ = true; break;
+                        case 0: hz = 3; t0 = create_w13(); t1 = create_w13(); t2 = create_w13(); t3 = create_w13(); t1.ck_ = true; t2.ck_ = true; break;
                         }
                         break;
                     case 3:
-                        switch (pack_get_offer(pack)) {
+                        switch (pack_offer(pack)) {
                         default: hz = 4; t0 = new PoolTile0(tile); t1 = new PoolTile0(tile); t2 = new PoolTile3(tile); t3 = new PoolTile3(tile); break;
                         case 2: hz = 5; t0 = new PoolTile3(tile); t1 = new PoolTile0(tile); t2 = new PoolTile0(tile); t3 = new PoolTile3(tile); break;
                         case 3: hz = 6; t0 = new PoolTile3(tile); t1 = new PoolTile3(tile); t2 = new PoolTile2(tile); t3 = new PoolTile2(tile); break;
@@ -5658,7 +5658,7 @@
                     if (t3 != undefined) { this.addChild(t3); this.packs_[3].push(t3); t3.zIndex = 243 + pplen * 4; }
 
                     // 不是动画
-                    let yy = standing[hidden + 3].y + ext - GAP_T;
+                    let yy = sta[hdn + 3].y + ext - GAP_T;
 
                     switch (hz) {
                     case 0:
@@ -5730,7 +5730,7 @@
 
                     // 移动余下立牌
                     for (let i = 0; i < 14; ++i) {
-                        standing[i].y += ext;
+                        sta[i].y += ext;
                     }
                 }
 
@@ -5747,7 +5747,11 @@
          * @typedef {object} StandingTile
          */
         class StandingTile extends PIXI.Sprite {
-            constructor(t, callback) {
+            /**
+             * @param {number} t 牌张
+             * @param {function(StandingTile):void} cb 点击回调
+             */
+            constructor(t, cb) {
                 let ti = all_tiles[t];
                 let tex = StandingTile.tex0.clone();
                 tex.frame = new PIXI.Rectangle(
@@ -5763,7 +5767,7 @@
                     ht.y = 18;
                 }
 
-                if (!callback) {
+                if (!cb) {
                     return;
                 }
 
@@ -5778,7 +5782,7 @@
                 this.fg_ = fg;
                 fg.visible = false;
 
-                this.callback_ = callback;
+                this.cb_ = cb;
                 let hlt = ()=>{ this.fg_.visible = true; };
                 let nml = ()=>{ this.fg_.visible = false; };
 
@@ -5797,13 +5801,13 @@
              * @param {number} t 牌张
              */
             update(t) {
-                updatePool02Tile(this, t);
+                update_t02(this, t);
             }
 
             /**
              * 重新布局，需在改变锚点后调用
              */
-            layout(){
+            layout() {
                 if (tz.nht) {
                     let ht = this.ht_;
                     if (ht) {
@@ -5833,7 +5837,7 @@
              * 点击这张牌
              */
             click() {
-                this.callback_(this);
+                this.cb_(this);
             }
         }
 
@@ -5842,7 +5846,7 @@
          * @param {object} sp 要更新的牌（精灵）
          * @param {number} t 牌张
          */
-        function updatePool02Tile(sp, t) {
+        function update_t02(sp, t) {
             if (sp.t_ != t) {
                 let ti = all_tiles[t];
                 sp.texture.frame = new PIXI.Rectangle(
@@ -5862,7 +5866,7 @@
          * @param {object} sp 要更新的牌（精灵）
          * @param {number} t 牌张
          */
-        function updatePool13Tile(sp, t) {
+        function update_t13(sp, t) {
             if (sp.t_ != t) {
                 let ti = all_tiles[t];
                 sp.texture.frame = new PIXI.Rectangle(
@@ -5880,7 +5884,7 @@
         /**
          * 创建牌墙（自己、对家）
          */
-        function createWall02Tile() {
+        function create_w02() {
             let tex = PoolTile.tex0.clone();
             tex.frame = new PIXI.Rectangle(
                 (WIDTH_02 + 2) * 8 + 2, (HEIGHT_02F + 2) * 4 + 2,
@@ -5891,7 +5895,7 @@
         /**
          * 创建牌墙（下家、上家）
          */
-        function createWall13Tile() {
+        function create_w13() {
             let tex = PoolTile.tex1.clone();
             tex.frame = new PIXI.Rectangle(
                 (WIDTH_13 + 2) * 8 + 2, (HEIGHT_13F + 2) * 4 + 2,
@@ -5902,14 +5906,14 @@
         /**
          * 创建立牌（下家）
          */
-        function createStandingTile1() {
+        function create_st1() {
             return new PIXI.Sprite(StandingTile.tex1);
         }
 
         /**
          * 创建立牌（对家）
          */
-        function createStandingTile2() {
+        function create_st2() {
             let tex = PoolTile.tex2.clone();
             tex.frame = new PIXI.Rectangle(
                 (WIDTH_02 + 2) * 8 + 2, (HEIGHT_02F + 2) * 4 + 2,
@@ -5920,7 +5924,7 @@
         /**
          * 创建立牌（上家）
          */
-        function createStandingTile3() {
+        function create_st3() {
             let tex = StandingTile.tex3;
             return new PIXI.Sprite(StandingTile.tex3);
         }
@@ -6129,10 +6133,10 @@
          */
         class CheckBox extends PIXI.Container {
             /**
-             * @param {string} str 文本
-             * @param {function(CheckBox):void} callback 回调
+             * @param {string} s 文本
+             * @param {function(CheckBox):void} cb 回调
              */
-            constructor(str, callback) {
+            constructor(s, cb) {
                 super();
 
                 let bg = new PIXI.Sprite(CheckBox.bgTex);
@@ -6145,8 +6149,8 @@
                 tk.visible = false;
 
                 let width, height;
-                if (str) {
-                    let text = this.text_ = new PIXI.Text(str, {
+                if (s) {
+                    let text = this.text_ = new PIXI.Text(s, {
                         fontFamily: FF,
                         fontSize: 30,
                         fill: '#ffffff',
@@ -6192,8 +6196,8 @@
                         }
                     }
 
-                    if (callback) {
-                        callback(this);
+                    if (cb) {
+                        cb(this);
                     }
                 };
                 let hlt = ()=>{ this.fg_.visible = true; };
@@ -6230,29 +6234,29 @@
          */
         class EmptyButton extends PIXI.Container {
             /**
-             * @param {number} width 宽
-             * @param {number} height 高
-             * @param {function():void} callback 点击回调
+             * @param {number} w 宽
+             * @param {number} h 高
+             * @param {function():void} cb 点击回调
              */
-            constructor(width, height, callback) {
+            constructor(w, h, cb) {
                 super();
 
                 //this.width = width;
                 //this.height = height;
 
-                let clk = callback.bind(this);
+                let clk = cb.bind(this);
                 let hlt = ()=>{ this.fg_.visible = true; };
                 let nml = ()=>{ this.fg_.visible = false; };
 
                 let bg = new PIXI.Graphics();
                 bg.beginFill(0x000000, .25);
-                bg.drawRect(0, 0, width, height);
+                bg.drawRect(0, 0, w, h);
                 bg.endFill();
                 this.addChild(bg);
 
                 let fg = this.fg_ = new PIXI.Graphics();
                 fg.beginFill(0xFFFFFF, .25);
-                fg.drawRect(0, 0, width, height);
+                fg.drawRect(0, 0, w, h);
                 fg.endFill();
                 this.addChild(fg);
                 fg.visible = false;
@@ -6274,20 +6278,20 @@
          */
         class TextButton extends EmptyButton {
             /**
-             * @param {string} str 文本
-             * @param {object} style 文本样式
-             * @param {number} width 宽
-             * @param {number} height 高
-             * @param {function():void} callback 回调
+             * @param {string} t 文本
+             * @param {object} s 文本样式
+             * @param {number} w 宽
+             * @param {number} h 高
+             * @param {function():void} cb 回调
              */
-            constructor(str, style, width, height, callback) {
-                super(width, height, callback);
+            constructor(t, s, w, h, cb) {
+                super(w, h, cb);
 
-                let text = this.face_ = new PIXI.Text(str, style);
-                text.anchor.set(.5);
-                text.x = width * .5;
-                text.y = height * .5;
-                this.addChild(text);
+                let f = this.face_ = new PIXI.Text(t, s);
+                f.anchor.set(.5);
+                f.x = w * .5;
+                f.y = h * .5;
+                this.addChild(f);
             }
         }
 
@@ -6302,7 +6306,7 @@
                 //this.width = 150;
                 //this.height = 150;
 
-                let clk = ()=>{ this.callback_(this); };
+                let clk = ()=>{ this.cb_(this); };
                 let hlt = ()=>{ this.fg_.visible = true; };
                 let nml = ()=>{ this.fg_.visible = false; };
 
@@ -6316,11 +6320,11 @@
                 this.addChild(fg);
                 fg.visible = false;
 
-                let text = this.face_ = new PIXI.extras.BitmapText('', { font:'100px STXingkai' });
-                text.anchor.set(.5);
-                text.x = 75;
-                text.y = 75;
-                this.addChild(text);
+                let f = this.face_ = new PIXI.extras.BitmapText('', { font:'100px STXingkai' });
+                f.anchor.set(.5);
+                f.x = 75;
+                f.y = 75;
+                this.addChild(f);
 
                 this.interactive = true;
                 this.on('click', clk);
@@ -6335,11 +6339,11 @@
             /**
              * 设置
              * @param {number} idx ACTION数组中的索引
-             * @param {function(ActionButton):void} callback 点击回调
+             * @param {function(ActionButton):void} cb 点击回调
              */
-            setup(idx, callback) {
+            setup(idx, cb) {
                 this.face_.text = ACTION[idx];
-                this.callback_ = callback;
+                this.cb_ = cb;
 
                 let bg = this.bg_;
                 bg.clear();
@@ -6357,18 +6361,18 @@
             /**
              * @param {number} w 遮罩宽
              * @param {number} h 遮罩高
-             * @param {number} type 鸣牌类型，吃=3，杠=5
-             * @param {array} data 可选择的鸣牌
-             * @param {function():void} callback 回调
+             * @param {number} t 鸣牌类型，吃=3，杠=5
+             * @param {array} a 可选择的鸣牌
+             * @param {function(number):void} cb 回调
              */
-            constructor(w, h, type, data, callback) {
+            constructor(w, h, t, a, cb) {
                 super();
 
                 const w0 = WIDTH_02 * HAND_SCALE, h0 = HEIGHT_02F * HAND_SCALE;
                 const width = w0 * 2 + 50;
                 const height = h0 + 50;
 
-                //this.width = width * (data.length + 1) + data.length * 10;
+                //this.width = width * (a.length + 1) + a.length * 10;
                 //this.height = height;
 
                 let ctn = new PIXI.Graphics();
@@ -6378,13 +6382,13 @@
                 ctn.endFill();
                 ctn.interactive = true;
 
-                let x = (w - ((width + 10) * data.length + width)) * .5;
+                let x = (w - ((width + 10) * a.length + width)) * .5;
 
-                for (let i = 0, c = data.length + 1; i < c; ++i) {
-                    let ai = data[i];
+                for (let i = 0, c = a.length + 1; i < c; ++i) {
+                    let ai = a[i];
                     let btn = new EmptyButton(width, height, ()=>{
-                        //console.log('click action', data[i]);
-                        callback(ai);
+                        //console.log('click action', a[i]);
+                        cb(ai);
                     });
                     this.addChild(btn);
                     btn.x = x + (width + 10) * i;
@@ -6393,7 +6397,7 @@
                     let tl = '';
                     let t0, py = 25;
                     if (ai != undefined) {
-                        switch (type) {
+                        switch (t) {
                         case 3:
                             tl = '吃';
 
@@ -6447,11 +6451,11 @@
          */
         class WinHand extends PIXI.Container {
             /**
-             * @param {object} hand 手牌
-             * @param {number} tile 和牌
+             * @param {object} ht 手牌
+             * @param {number} wt 和牌
              * @param {number} flw 花
              */
-            constructor(hand, tile, flw) {
+            constructor(ht, wt, flw) {
                 super();
 
                 const height = Math.max(HEIGHT_13 + HEIGHT_13F, HEIGHT_02 + 40);
@@ -6462,15 +6466,15 @@
                 //this.addChild(bg);
 
                 let width = 0;
-                if (hand != undefined) {
+                if (ht != undefined) {
                     // 副露
-                    let ps = hand['p'];
+                    let ps = ht['p'];
                     if (ps != undefined) {
                         for (let i = 0; i < ps.length; ++i) {
                             let p = ps[i];
-                            let o = pack_get_offer(p);
-                            let t = pack_get_tile(p);
-                            switch (pack_get_type(p)) {
+                            let o = pack_offer(p);
+                            let t = pack_tile(p);
+                            switch (pack_type(p)) {
                             case 0: {  // 吃
                                 let cls = [PoolTile1, PoolTile0, PoolTile0];
                                 let tt;
@@ -6507,7 +6511,7 @@
                             case 2: {  // 杠
                                 if (o == 0) {  // 暗杠
                                     for (let i = 0; i < 4; ++i) {
-                                        let s = (i == 0 || i == 3) ? createWall02Tile() : new PoolTile0(t);
+                                        let s = (i == 0 || i == 3) ? create_w02() : new PoolTile0(t);
                                         this.addChild(s);
                                         s.anchor.y = 1;
                                         if (i == 1 || i == 2) s.layout();
@@ -6567,7 +6571,7 @@
                     }
 
                     // 立牌
-                    let ss = hand['s'];
+                    let ss = ht['s'];
                     if (ss != undefined) {
                         for (let i = 0; i < ss.length; ++i) {
                             let s = new PoolTile0(ss[i]);
@@ -6582,8 +6586,8 @@
                     }
 
                     // 和牌
-                    if (tile != undefined) {
-                        let s = new PoolTile0(tile);
+                    if (wt != undefined) {
+                        let s = new PoolTile0(wt);
                         this.addChild(s);
                         s.anchor.y = 1;
                         s.layout();
@@ -6657,30 +6661,30 @@
          * @typedef {object} SettleView
          */
         class SettleView extends PIXI.Container {
-            // hand = {"s":[22,22,22,23,35,35,35,38,39,40,52,53,54]}
-            // tile = 21
-            // table = {"50":6,"62":2,"68":2}
-            // detail = {"r":0,"f":10,"p":0x0103,"t":[34,-8,-8,-18],"s":[34,-8,-8,-18],"n":[0,0,0,0]}
-            // names = ['东','南','西','北']
-            // seat = 1
+            // ht = {"s":[22,22,22,23,35,35,35,38,39,40,52,53,54]}
+            // wt = 21
+            // ft = {"50":6,"62":2,"68":2}
+            // dt = {"r":0,"f":10,"p":0x0103,"t":[34,-8,-8,-18],"s":[34,-8,-8,-18],"n":[0,0,0,0]}
+            // ns = ['东','南','西','北']
+            // vs = 1
             /**
              * @param {number} w 遮罩宽
              * @param {number} h 遮罩高
-             * @param {object} hand 手牌
-             * @param {number} tile 和牌
-             * @param {object} table 番表
-             * @param {object} detail 详情
-             * @param {array} names 玩家名字
-             * @param {number} seat 视角
+             * @param {object} ht 手牌
+             * @param {number} wt 和牌
+             * @param {object} ft 番表
+             * @param {object} dt 详情
+             * @param {array} ns 玩家名字
+             * @param {number} vs 视角
              * @param {number} cd 倒时计
-             * @param {function():void} callback 关闭回调
+             * @param {function():void} cb 关闭回调
              */
-            constructor(w, h, hand, tile, table, detail, names, seat, cd, callback) {
+            constructor(w, h, ht, wt, ft, dt, ns, vs, cd, cb) {
                 super();
 
-                const width = 700, height = 640, gap = 20;
+                const w0 = 700, h0 = 640, gap = 20;
 
-                //this.height = height;
+                //this.height = h0;
                 let ctn = new PIXI.Graphics();
                 this.addChild(ctn);
                 ctn.beginFill(0, .1);
@@ -6696,18 +6700,18 @@
                 ctn.on('pointerup', ()=>bg.visible = true);
                 ctn.on('pointerupoutside', ()=>bg.visible = true);
 
-                let t = new WinHand(hand, tile, table != undefined ? table['81'] : 0);
+                let t = new WinHand(ht, wt, ft != undefined ? ft['81'] : 0);
                 bg.addChild(t);
                 t.y = gap;
-                if (t.width > width - gap * 2) {
-                    t.scale.set((width - gap * 2) / t.width);
+                if (t.width > w0 - gap * 2) {
+                    t.scale.set((w0 - gap * 2) / t.width);
                     t.x = gap;
                 }
                 else {
-                    t.x = (width - t.width) * .5;
+                    t.x = (w0 - t.width) * .5;
                 }
 
-                let p = detail['p'], cl = -1, wn = -1;
+                let p = dt['p'], cl = -1, wn = -1;
                 if (p == undefined) {
                     p = -1;
                 }
@@ -6719,12 +6723,12 @@
                 let y = 125;
                 {
                     let tx = '';
-                    let f = detail['f'];
+                    let f = dt['f'];
                     if (p < 0) {
                         tx = '荒庄';
                     }
                     else {
-                        tx = `「${names[wn]}」${cl!=wn?`和牌 「${names[cl]}」点炮`:'自摸'}  ${f}番`;
+                        tx = `「${ns[wn]}」${cl!=wn?`和牌 「${ns[cl]}」点炮`:'自摸'}  ${f}番`;
                     }
                     let t = new PIXI.Text(tx, {
                         fontFamily: FF,
@@ -6735,20 +6739,20 @@
                     });
                     bg.addChild(t);
                     t.anchor.x = .5;
-                    t.x = width * .5;
+                    t.x = w0 * .5;
                     t.y = y;
-                    scaleText(t, width - gap * 2);
+                    scaleText(t, w0 - gap * 2);
 
                     y += t.height + gap;
                 }
 
                 let i = 0;
-                const frp = (width - gap * 2) / 3;
-                for (let f in table) {
+                const frp = (w0 - gap * 2) / 3;
+                for (let f in ft) {
                     let x0 = gap + 5 + (i % 3) * frp;
                     let y0 = y + 5 + 35 * Math.floor(i / 3);
 
-                    let v = table[f];
+                    let v = ft[f];
                     let t = new PIXI.Text(fan_item(f, v), {
                         fontFamily: FF,
                         fontSize: 22,
@@ -6763,38 +6767,39 @@
                     ++i;
                 }
 
-                const x0 = 200, /*y0 = 400,*/ w0 = 200, h0 = 100;
-                let cx = [width * .5, width - gap - x0 * .5, width * .5, gap + x0 * .5];
-                let cy = [height - gap - h0 * .5, height - h0 - gap * 2.5, height - h0 * 1.5 - gap * 4, height - h0 - gap * 2.5];
+
+                const x1 = 200, /*y1 = 400,*/ w1 = 200, h1 = 100;
+                let cx = [w0 * .5, w0 - gap - x1 * .5, w0 * .5, gap + x1 * .5];
+                let cy = [h0 - gap - h1 * .5, h0 - h1 - gap * 2.5, h0 - h1 * 1.5 - gap * 4, h0 - h1 - gap * 2.5];
 
                 {
-                    let rd = detail['r'];
+                    let rd = dt['r'];
                     let t = new PIXI.extras.BitmapText(WIND[rd >> 2] + '风' + WIND[rd & 3], { font: '48px SourceHanSansBold' });
                     bg.addChild(t);
                     t.anchor.set(.5);
-                    t.x = width * .5;
+                    t.x = w0 * .5;
                     t.y = cy[1];
                 }
 
-                let ts = detail['t'];
-                let ss = detail['s'];
-                let ps = detail['n'];
+                let ts = dt['t'];
+                let ss = dt['s'];
+                let ps = dt['n'];
                 for (let i = 0; i < 4; ++i) {
-                    let ri = (i + seat) & 3;
+                    let ri = (i + vs) & 3;
 
                     let g = new PIXI.Graphics();
                     //g.lineStyle(2, 0x0000FF, 1);
                     g.beginFill(ri != wn ? (ri != cl ? 0xBBDED6 : 0x89A4C7) : 0xFFAAA5, .5);
-                    g.drawRect(0, 0, w0, h0);
+                    g.drawRect(0, 0, w1, h1);
                     g.endFill();
                     bg.addChild(g);
-                    g.x = cx[i] - w0 * .5;
-                    g.y = cy[i] - h0 * .5;
+                    g.x = cx[i] - w1 * .5;
+                    g.y = cy[i] - h1 * .5;
 
                     let t = new PIXI.extras.BitmapText(WIND[ri], { font: '64px SourceHanSansBold'});
                     bg.addChild(t);
                     t.anchor.y = .5;
-                    t.x = cx[i] - w0 * .5 + 10;
+                    t.x = cx[i] - w1 * .5 + 10;
                     t.y = cy[i] + 15;
 
                     // t = new PIXI.Text(i, {
@@ -6809,7 +6814,7 @@
                     // t.x = cx[i];
                     // t.y = cy[i];
 
-                    t = new PIXI.Text(names[ri], {
+                    t = new PIXI.Text(ns[ri], {
                         fontFamily: FF,
                         fontSize: 24,
                         fontWeight:'bold',
@@ -6821,7 +6826,7 @@
                     t.anchor.set(.5);
                     t.x = cx[i];
                     t.y = cy[i] - 30;
-                    scaleText(t, w0 - 10);
+                    scaleText(t, w1 - 10);
 
                     let xx = cx[i] + 25;
                     if (ss == undefined) {
@@ -6863,27 +6868,27 @@
                         });
                         bg.addChild(t);
                         t.anchor.y = .5;
-                        t.x = cx[i] - w0 * .5 + 10;
+                        t.x = cx[i] - w1 * .5 + 10;
                         t.y = cy[i] + 35;
                     }
                 }
 
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x060F16, .85);
-                bg.drawRect(0, 0, width, height);
+                bg.drawRect(0, 0, w0, h0);
                 bg.endFill();
 
-                const btnWidth = 120, btnHeight = 50;
+                const wb0 = 120, wh0 = 50;
                 let btn = new TextButton('OK', {
                     fontFamily: FF,
                     fontSize: 36,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(); });
+                }, wb0, wh0, ()=>{ cb(); });
                 bg.addChild(btn);
-                btn.x = width - btnWidth - gap;
-                btn.y = height - btnHeight - gap;
+                btn.x = w0 - wb0 - gap;
+                btn.y = h0 - wh0 - gap;
 
                 t = new PIXI.Text(cd, {
                     fontFamily: FF,
@@ -6893,8 +6898,8 @@
                     strokeThickness: 2,
                 });
                 t.anchor.set(1);
-                t.x = btnWidth;
-                t.y = btnHeight;
+                t.x = wb0;
+                t.y = wh0;
                 btn.addChild(t);
 
                 t.end_ = new Date().getTime() + cd * 1000;
@@ -6905,14 +6910,14 @@
                         t.text = s;
                     }
                     else {
-                        callback();
+                        cb();
                         clearInterval(t.timer_);
                     }
                 }, 100);
 
                 bg.scale.set(1.25);
-                bg.x = (w - width * 1.25) * .5;
-                bg.y = (h - height * 1.25) * .5;
+                bg.x = (w - w0 * 1.25) * .5;
+                bg.y = (h - h0 * 1.25) * .5;
             }
         }
 
@@ -6925,14 +6930,14 @@
              * @param {number} w 遮罩宽
              * @param {number} h 遮罩高
              * @param {number} fn 番数
-             * @param {object} table 番表
+             * @param {object} ft 番表
              */
-            constructor(w, h, fn, table) {
+            constructor(w, h, fn, ft) {
                 super();
 
-                const width = 500, gap = 20;
+                const w0 = 500, gap = 20;
                 let y = 0;
-                //this.width = width;
+                //this.width = w0;
 
                 let ctn = new PIXI.Graphics();
                 this.addChild(ctn);
@@ -6958,16 +6963,16 @@
                 });
                 bg.addChild(t);
                 t.anchor.x = .5;
-                t.x = width * .5;
+                t.x = w0 * .5;
                 t.y = gap;
 
                 let i = 0;
-                const frp = (width - gap * 2) / 2;
-                for (let f in table) {
+                const frp = (w0 - gap * 2) / 2;
+                for (let f in ft) {
                     let x0 = gap + (i & 1) * frp;
                     let y0 = 70 + 35 * (i >> 1);
 
-                    let v = table[f];
+                    let v = ft[f];
                     let t = new PIXI.Text(fan_item(f, v), {
                         fontFamily: FF,
                         fontSize: 22,
@@ -6991,32 +6996,32 @@
                 });
                 bg.addChild(t);
                 t.anchor.x = .5;
-                t.x = width * .5;
+                t.x = w0 * .5;
                 t.y = 220;
-                scaleText(t, width - gap * 2);
+                scaleText(t, w0 - gap * 2);
 
-                let height = Math.max(y + 110, 340);
+                let h0 = Math.max(y + 110, 340);
 
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x060F16, .85);
-                bg.drawRect(0, 0, width, height);
+                bg.drawRect(0, 0, w0, h0);
                 bg.endFill();
 
-                const btnWidth = 120, btnHeight = 50;
+                const wb0 = 120, wh0 = 50;
                 let btn = new TextButton('OK', {
                     fontFamily: FF,
                     fontSize: 36,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ this.dstry(); });
+                }, wb0, wh0, ()=>{ this.dstry(); });
                 bg.addChild(btn);
-                btn.x = width - btnWidth - gap;
-                btn.y = height - btnHeight - gap;
+                btn.x = w0 - wb0 - gap;
+                btn.y = h0 - wh0 - gap;
 
                 bg.scale.set(1.25);
-                bg.x = (w - width * 1.25) * .5;
-                bg.y = (h - height * 1.25) * .5;
+                bg.x = (w - w0 * 1.25) * .5;
+                bg.y = (h - h0 * 1.25) * .5;
             }
         }
 
@@ -7036,7 +7041,6 @@
             let oa = Math.abs(o), oh = Math.floor(oa / 60), om = oa - oh * 60;
             return `${y}-${pad2(m)}-${pad2(d)} ${pad2(h)}:${pad2(mm)}:${pad2(s)}  UTC${o<=0?'+':'-'}${pad2(oh)}:${pad2(om)}`;
         }
-
         /**
          * 对局结果界面
          * @typedef {object} ResultView
@@ -7045,20 +7049,20 @@
             /**
              * @param {number} w 遮罩宽
              * @param {number} h 遮罩高
-             * @param {string} title 标题
-             * @param {number} seat 视角
-             * @param {array} players 玩家
+             * @param {string} ti 标题
+             * @param {number} vs 视角
+             * @param {array} pl 玩家
              * @param {Date} tm 时间戳（服务器）
-             * @param {function():void} callback 关闭回调
+             * @param {function():void} cb 关闭回调
              */
-            constructor(w, h, title, seat, players, tm, callback) {
+            constructor(w, h, ti, vs, pl, tm, cb) {
                 super();
 
-                const width = 600, height = 540, gap = 50;
-                const offsetY = 110, gapY = 60;
+                const w0 = 600, h0 = 540, gap = 50;
+                const oy = 110, gy = 60;
 
-                //this.width = width;
-                //this.height = height;
+                //this.width = w0;
+                //this.height = h0;
 
                 let ctn = new PIXI.Graphics();
                 this.addChild(ctn);
@@ -7071,8 +7075,8 @@
                 //bg.interactive = true;
 
                 bg.scale.set(1.25);
-                bg.x = (w - width * 1.25) * .5;
-                bg.y = (h - height * 1.25) * .5;
+                bg.x = (w - w0 * 1.25) * .5;
+                bg.y = (h - h0 * 1.25) * .5;
 
                 //ctn.interactive = true;
                 //ctn.on('pointerdown', ()=>bg.visible = false);
@@ -7081,28 +7085,28 @@
 
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x060F16, .85);
-                bg.drawRect(0, 0, width, height);
+                bg.drawRect(0, 0, w0, h0);
                 bg.endFill();
 
                 bg.lineStyle(2, 0x808080, 1);
-                bg.moveTo(gap, offsetY);
-                bg.lineTo(gap, offsetY + gapY * 5);
-                bg.lineTo(width - gap, offsetY + gapY * 5);
-                bg.lineTo(width - gap, offsetY);
-                bg.lineTo(gap, offsetY);
+                bg.moveTo(gap, oy);
+                bg.lineTo(gap, oy + gy * 5);
+                bg.lineTo(w0 - gap, oy + gy * 5);
+                bg.lineTo(w0 - gap, oy);
+                bg.lineTo(gap, oy);
 
                 for (let i = 1; i < 5; ++i) {
-                    bg.moveTo(gap, offsetY + gapY * i);
-                    bg.lineTo(width - gap, offsetY + gapY * i);
+                    bg.moveTo(gap, oy + gy * i);
+                    bg.lineTo(w0 - gap, oy + gy * i);
                 }
 
-                bg.moveTo(gap + 80, offsetY);
-                bg.lineTo(gap + 80, offsetY + gapY * 5);
+                bg.moveTo(gap + 80, oy);
+                bg.lineTo(gap + 80, oy + gy * 5);
 
-                bg.moveTo(width - gap - 120, offsetY);
-                bg.lineTo(width - gap - 120, offsetY + gapY * 5);
+                bg.moveTo(w0 - gap - 120, oy);
+                bg.lineTo(w0 - gap - 120, oy + gy * 5);
 
-                let t = new PIXI.Text(title + '\n对战结果', {
+                let t = new PIXI.Text(ti + '\n对战结果', {
                     fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
@@ -7112,15 +7116,15 @@
                 });
                 bg.addChild(t);
                 t.anchor.set(.5);
-                t.x = width * .5;
+                t.x = w0 * .5;
                 t.y = 60;
-                scaleText(t, width - 20);
+                scaleText(t, w0 - 20);
 
-                const ti = ['名次', '昵称', '分数'];
-                let xx = [gap + 40, width * .5 + 40 - 60, width - gap - 60];
-                let yy = offsetY + gapY * .5;
+                const pfx = ['名次', '昵称', '分数'];
+                let xx = [gap + 40, w0 * .5 + 40 - 60, w0 - gap - 60];
+                let yy = oy + gy * .5;
                 for (let i = 0; i < 3; ++i) {
-                    t = new PIXI.Text(ti[i], {
+                    t = new PIXI.Text(pfx[i], {
                         fontFamily: FF,
                         fontSize: 24,
                         fill: '#ffffff',
@@ -7134,14 +7138,14 @@
                 }
 
                 for (let k = 0; k < 4; ++k) {
-                    let yy = offsetY + gapY * (k + 1.5);
-                    let text = [k + 1, players[k]['n'], players[k]['s']];
+                    let yy = oy + gy * (k + 1.5);
+                    let vl = [k + 1, pl[k]['n'], pl[k]['s']];
                     for (let i = 0; i < 3; ++i) {
-                        t = new PIXI.Text(text[i], {
+                        t = new PIXI.Text(vl[i], {
                             fontFamily: FF,
                             fontSize: 24,
                             fontWeight: i != 1 ? 'bold' : '',
-                            fill: (seat != players[k]['w']) ? '#ffffff' : '#5cdbd3'
+                            fill: (vs != pl[k]['w']) ? '#ffffff' : '#5cdbd3'
                         });
                         bg.addChild(t);
                         t.anchor.set(.5);
@@ -7160,20 +7164,20 @@
                 });
                 bg.addChild(t);
                 t.anchor.set(.5);
-                t.x = width * .5;
-                t.y = height - 105;
+                t.x = w0 * .5;
+                t.y = h0 - 105;
 
-                const btnWidth = 120, btnHeight = 50;
+                const wb0 = 120, wh0 = 50;
                 let btn = new TextButton('OK', {
                     fontFamily: FF,
                     fontSize: 36,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(); });
+                }, wb0, wh0, ()=>{ cb(); });
                 bg.addChild(btn);
-                btn.x = (width - btnWidth) * .5;
-                btn.y = height - btnHeight - 30;
+                btn.x = (w0 - wb0) * .5;
+                btn.y = h0 - wh0 - 30;
             }
         }
 
@@ -7189,7 +7193,7 @@
             constructor(w, h) {
                 super();
 
-                const width = 710, height = 920;
+                const w0 = 710, h0 = 920;
                 // 40+70*9+40
 
                 //this.width = w;
@@ -7208,10 +7212,10 @@
 
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x060F16, .85);
-                bg.drawRect(0, 0, width, height);
+                bg.drawRect(0, 0, w0, h0);
                 bg.endFill();
-                bg.x = (w - width) * .5;
-                bg.y = (h - height) * .5;
+                bg.x = (w - w0) * .5;
+                bg.y = (h - h0) * .5;
                 bg.interactive = true;
 
                 let t = new PIXI.Text('计分表', {
@@ -7223,14 +7227,14 @@
                 });
                 bg.addChild(t);
                 t.anchor.set(.5);
-                t.x = width * .5;
+                t.x = w0 * .5;
                 t.y = 35;
 
                 bg.lineStyle(2, 0x808080, 1);
                 bg.moveTo(40, 70);
                 bg.lineTo(40, 830);
-                bg.lineTo(width - 40, 830);
-                bg.lineTo(width - 40, 70);
+                bg.lineTo(w0 - 40, 830);
+                bg.lineTo(w0 - 40, 70);
                 bg.lineTo(40, 70);
 
                 t = new PIXI.Text('昵称', {
@@ -7296,7 +7300,7 @@
                 }
 
                 bg.moveTo(40, 110);
-                bg.lineTo(width - 40, 110);
+                bg.lineTo(w0 - 40, 110);
 
                 let rtt = new Array(16);
                 for (let i = 0; i < 16; ++i) {
@@ -7326,7 +7330,7 @@
                     }
 
                     bg.moveTo(40, yy - 20);
-                    bg.lineTo(width - 40, yy - 20);
+                    bg.lineTo(w0 - 40, yy - 20);
                 }
                 this.rtt_ = rtt;
 
@@ -7342,7 +7346,7 @@
                 t.y = 810;
 
                 bg.moveTo(40, 790);
-                bg.lineTo(width - 40, 790);
+                bg.lineTo(w0 - 40, 790);
 
                 for (let i = 0; i < 4; ++i) {
                     let xx = 110 + 140 * i;
@@ -7353,17 +7357,17 @@
                     bg.lineTo(xx, 790);
                 }
 
-                const btnWidth = 120, btnHeight = 50;
+                const wb0 = 120, wh0 = 50;
                 let btn = new TextButton('OK', {
                     fontFamily: FF,
                     fontSize: 36,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ this.visible = false; });
+                }, wb0, wh0, ()=>{ this.visible = false; });
                 bg.addChild(btn);
-                btn.x = (width - btnWidth) * .5;
-                btn.y = height - btnHeight - 20;
+                btn.x = (w0 - wb0) * .5;
+                btn.y = h0 - wh0 - 20;
             }
 
             /**
@@ -7442,7 +7446,7 @@
             constructor(w, h) {
                 super();
 
-                const width = 640, height = 680;
+                const w0 = 640, h0 = 680;
                 // 40+120*2+80*4+40 40*10
 
                 //this.width = w;
@@ -7461,10 +7465,10 @@
 
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x060F16, .85);
-                bg.drawRect(0, 0, width, height);
+                bg.drawRect(0, 0, w0, h0);
                 bg.endFill();
-                bg.x = (w - width) * .5;
-                bg.y = (h - height) * .5;
+                bg.x = (w - w0) * .5;
+                bg.y = (h - h0) * .5;
                 bg.interactive = true;
 
                 let t = new PIXI.Text('追分策略', {
@@ -7476,21 +7480,21 @@
                 });
                 bg.addChild(t);
                 t.anchor.set(.5);
-                t.x = width * .5;
+                t.x = w0 * .5;
                 t.y = 35;
 
                 bg.lineStyle(2, 0x808080, 1);
                 bg.moveTo(40, 70);
                 bg.lineTo(40, 470);
-                bg.lineTo(width - 40, 470);
-                bg.lineTo(width - 40, 70);
+                bg.lineTo(w0 - 40, 470);
+                bg.lineTo(w0 - 40, 70);
                 bg.lineTo(40, 70);
 
                 const xps1 = [40, 40, 40, 40, 160, 40, 40, 160, 160];
                 for (let i = 0; i < 9; ++i) {
                     let yy = 110 + 40 * i;
                     bg.moveTo(xps1[i], yy);
-                    bg.lineTo(width - 40, yy);
+                    bg.lineTo(w0 - 40, yy);
                 }
 
                 const xps = [160, 280, 360, 440, 520];
@@ -7570,35 +7574,35 @@
                 });
                 bg.addChild(t);
                 t.anchor.set(.5);
-                t.x = width * .5;
-                t.y = height - 130;
+                t.x = w0 * .5;
+                t.y = h0 - 130;
 
-                const btnWidth = 120, btnHeight = 50;
+                const wb0 = 120, wh0 = 50;
                 let btn = new TextButton('OK', {
                     fontFamily: FF,
                     fontSize: 36,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ this.visible = false; });
+                }, wb0, wh0, ()=>{ this.visible = false; });
                 bg.addChild(btn);
-                btn.x = (width - btnWidth) * .5;
-                btn.y = height - btnHeight - 20;
+                btn.x = (w0 - wb0) * .5;
+                btn.y = h0 - wh0 - 20;
             }
 
             /**
              * 显示
-             * @param {array} players 玩家
-             * @param {array} penalties 罚分
+             * @param {array} pl 玩家
+             * @param {array} ps 罚分
              */
-            show(players, penalties) {
+            show(pl, ps) {
                 this.visible = true;
 
                 let pls = [
-                    {'n':players[0]['n'],'s':players[0]['s'] + penalties[0]},
-                    {'n':players[1]['n'],'s':players[1]['s'] + penalties[1]},
-                    {'n':players[2]['n'],'s':players[2]['s'] + penalties[2]},
-                    {'n':players[3]['n'],'s':players[3]['s'] + penalties[3]}
+                    {'n':pl[0]['n'],'s':pl[0]['s'] + ps[0]},
+                    {'n':pl[1]['n'],'s':pl[1]['s'] + ps[1]},
+                    {'n':pl[2]['n'],'s':pl[2]['s'] + ps[2]},
+                    {'n':pl[3]['n'],'s':pl[3]['s'] + ps[3]}
                 ];
                 pls.sort(function(a, b) { return b['s'] - a['s']; });
 
@@ -7643,7 +7647,7 @@
             constructor(w, h, callback) {
                 super();
 
-                const width = (WIDTH_02 + 50) * 9 + 50, height = 860;
+                const w0 = (WIDTH_02 + 50) * 9 + 50, h0 = 860;
 
                 //this.width = w;
                 //this.height = h;
@@ -7661,10 +7665,10 @@
 
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x060F16, .85);
-                bg.drawRect(0, 0, width, height);
+                bg.drawRect(0, 0, w0, h0);
                 bg.endFill();
-                bg.x = (w - width) * .5;
-                bg.y = (h - height) * .5;
+                bg.x = (w - w0) * .5;
+                bg.y = (h - h0) * .5;
                 bg.interactive = true;
 
                 let t = new PIXI.Text('鸣牌设置', {
@@ -7676,7 +7680,7 @@
                 });
                 bg.addChild(t);
                 t.anchor.set(.5);
-                t.x = width * .5;
+                t.x = w0 * .5;
                 t.y = 35;
 
                 t = new PIXI.Text('不询问以下选中的牌：', {
@@ -7744,20 +7748,20 @@
                         }
                     });
                     bg.addChild(cb);
-                    cb.x = width * .5 + 240 * (i & 1);
-                    cb.y = height - 310 + 70 * (i >> 1);
+                    cb.x = w0 * .5 + 240 * (i & 1);
+                    cb.y = h0 - 310 + 70 * (i >> 1);
                 }
                 this.cba_ = cba;
 
                 let cb = this.ign_ = new CheckBox('自摸也不询问');
                 bg.addChild(cb);
                 cb.x = 20;
-                cb.y = height - 310;
+                cb.y = h0 - 310;
 
                 cb = this.rw_ = new CheckBox('鼠标右键=弃');
                 bg.addChild(cb);
                 cb.x = 20;
-                cb.y = height - 230;
+                cb.y = h0 - 230;
 
                 t = new PIXI.Text('注意：此处的设置优先。每盘开始前会重置。', {
                     fontFamily: FF,
@@ -7769,20 +7773,20 @@
                 });
                 bg.addChild(t);
                 t.anchor.x = .5;
-                t.x = width * .5;
-                t.y = height - 160;
+                t.x = w0 * .5;
+                t.y = h0 - 160;
 
-                const btnWidth = 120, btnHeight = 50;
+                const wb0 = 120, wh0 = 50;
                 let btn = new TextButton('取消', {
                     fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ this.visible = false; });
+                }, wb0, wh0, ()=>{ this.visible = false; });
                 bg.addChild(btn);
-                btn.x = width * .25 - btnWidth;
-                btn.y = height - btnHeight - 20;
+                btn.x = w0 * .25 - wb0;
+                btn.y = h0 - wh0 - 20;
 
                 btn = new TextButton('确定', {
                     fontFamily: FF,
@@ -7790,7 +7794,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{
+                }, wb0, wh0, ()=>{
                     this.visible = false;
                     let cf = new Array(34);
                     for (let i = 0; i < 34; ++i) {
@@ -7799,8 +7803,8 @@
                     callback(cf, this.ign_.isSelected(), this.rw_.isSelected());
                 });
                 bg.addChild(btn);
-                btn.x = width * .75;
-                btn.y = height - btnHeight - 20;
+                btn.x = w0 * .75;
+                btn.y = h0 - wh0 - 20;
                 this.reset_ = false;
             }
 
@@ -7913,12 +7917,12 @@
             /**
              * @param {number} w 遮罩宽
              * @param {number} h 遮罩高
-             * @param {function():void} callback 关闭回调
+             * @param {function():void} cb 关闭回调
              */
-            constructor(w, h, callback) {
+            constructor(w, h, cb) {
                 super();
 
-                const width = 540, height = 500;
+                const w0 = 540, h0 = 500;
 
                 //this.width = w;
                 //this.height = h;
@@ -7936,10 +7940,10 @@
 
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x060F16, .85);
-                bg.drawRect(0, 0, width, height);
+                bg.drawRect(0, 0, w0, h0);
                 bg.endFill();
-                bg.x = (w - width) * .5;
-                bg.y = (h - height) * .5;
+                bg.x = (w - w0) * .5;
+                bg.y = (h - h0) * .5;
                 bg.interactive = true;
 
                 let t = new PIXI.Text('设置', {
@@ -7951,7 +7955,7 @@
                 });
                 bg.addChild(t);
                 t.anchor.set(.5);
-                t.x = width * .5;
+                t.x = w0 * .5;
                 t.y = 40;
 
                 t = new PIXI.Text('音量', {
@@ -7976,7 +7980,7 @@
                 bg.addChild(t0);
                 t0.anchor.x = 1;
                 t0.anchor.y = .5;
-                t0.x = width - 30;
+                t0.x = w0 - 30;
                 t0.y = 110;
 
                 let rb = new RangeBar(t0.x - t0.width - t.x - t.width - 15, 30, 15, (v)=>{
@@ -8076,17 +8080,17 @@
                 piacbs[0].setSelected(!tz.piat);
                 piacbs[1].setSelected(tz.piat);
 
-                const btnWidth = 120, btnHeight = 50;
+                const wb0 = 120, wh0 = 50;
                 let btn = new TextButton('取消', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(); });
+                }, wb0, wh0, ()=>{ cb(); });
                 bg.addChild(btn);
                 btn.x = 20;
-                btn.y = height - btnHeight - 20;
+                btn.y = h0 - wh0 - 20;
 
                 btn = new TextButton('确定', {
                     fontFamily: FF,
@@ -8094,7 +8098,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{
+                }, wb0, wh0, ()=>{
                     let volume = rb.getValue();
                     tz.mutecd = cb1.isSelected() ? 0 : 1;
                     tz.mutecall = cb2.isSelected() ? 0 : 1;
@@ -8104,11 +8108,11 @@
                     localStorage.setItem('nht', cb3.isSelected() ? 1 : 0);
                     localStorage.setItem('piano', piacbs[0].isSelected() ? 0 : 1);
                     PIXI.sound.volumeAll = volume / 100;
-                    callback();
+                    cb();
                 });
                 bg.addChild(btn);
-                btn.x = width - btnWidth - 20;
-                btn.y = height - btnHeight - 20;
+                btn.x = w0 - wb0 - 20;
+                btn.y = h0 - wh0 - 20;
             }
         }
 
@@ -8118,29 +8122,29 @@
          */
         class PianoKey extends PIXI.Container {
             /**
-             * @param {number} width 宽
-             * @param {number} height 高
-             * @param {function(PianoKey):void} clkcb 点击回调
+             * @param {number} w 宽
+             * @param {number} h 高
+             * @param {function(PianoKey):void} cb 点击回调
              */
-            constructor(width, height, clkcb) {
+            constructor(w, h, cb) {
                 super();
 
-                //this.width = width;
-                //this.height = height;
+                //this.width = w;
+                //this.height = h;
 
-                let clk = ()=>{ clkcb(this); };
+                let clk = ()=>{ cb(this); };
                 let hlt = ()=>{ this.fg_.visible = true; };
                 let nml = ()=>{ this.fg_.visible = false; };
 
                 let bg = new PIXI.Graphics();
                 bg.beginFill(0, .25);
-                bg.drawRect(0, 0, width, height);
+                bg.drawRect(0, 0, w, h);
                 bg.endFill();
                 this.addChild(bg);
 
                 let fg = this.fg_ = new PIXI.Graphics();
                 fg.beginFill(0xFFFFFF, .25);
-                fg.drawRect(0, 0, width, height);
+                fg.drawRect(0, 0, w, h);
                 fg.endFill();
                 this.addChild(fg);
                 fg.visible = false;
@@ -8162,31 +8166,31 @@
          */
         class Piano3 extends PIXI.Container {
             /**
-             * @param {number} width 总宽度
-             * @param {array} standing 手牌
+             * @param {number} w 总宽度
+             * @param {array} st 手牌
              */
-            constructor(width, standing) {
+            constructor(w, st) {
                 super();
 
-                //this.width = width;
+                //this.width = w;
                 //this.height = 400;
 
                 let graph = new PIXI.Graphics();
                 this.addChild(graph);
                 graph.lineStyle(5, 0x808080, 1);
                 graph.beginFill(0x0C1E2C, .85);
-                graph.drawRect(0, 0, width, 240);
-                graph.drawRect(0, 240, width, 160);
+                graph.drawRect(0, 0, w, 240);
+                graph.drawRect(0, 240, w, 160);
                 graph.endFill();
-                graph.moveTo(width * .5, 240);
-                graph.lineTo(width * .5, 400);
+                graph.moveTo(w * .5, 240);
+                graph.lineTo(w * .5, 400);
 
                 let btn = new TextButton('<', {
                     fontFamily: FF,
                     fontSize: 64,
                     fill: '#ffffff',
                     strokeThickness: 2,
-                }, width * .5, 160, ()=>{ this.offset(-1); });
+                }, w * .5, 160, ()=>{ this.offset(-1); });
                 btn.y = 240;
                 this.addChild(btn);
 
@@ -8195,20 +8199,20 @@
                     fontSize: 64,
                     fill: '#ffffff',
                     strokeThickness: 2,
-                }, width * .5, 160, ()=>{ this.offset(1); });
-                btn.x = width * .5;
+                }, w * .5, 160, ()=>{ this.offset(1); });
+                btn.x = w * .5;
                 btn.y = 240;
                 this.addChild(btn);
 
-                this.standing_ = standing;
+                this.standing_ = st;
                 this.btnctns_ = new Array(3);
                 this.o_ = -1;
                 this.hlt_ = -1;
 
                 const TILE_WIDTH = WIDTH_02 * HAND_SCALE;
                 const BTN_WIDTH = TILE_WIDTH * 3;
-                let xx = standing[0].x - BTN_WIDTH;
-                let maxx = width - BTN_WIDTH;
+                let xx = st[0].x - BTN_WIDTH;
+                let maxx = w - BTN_WIDTH;
 
                 for (let k = 0; k < 3; ++k) {
                     let btnctn = this.btnctns_[k] = new PIXI.Container();
@@ -8220,26 +8224,26 @@
                     let keys = [];
                     for (let i = 0; i < 7; ++i) {
                         let x = xx + BTN_WIDTH * i + k * TILE_WIDTH;
-                        let w = BTN_WIDTH;
+                        let w1 = BTN_WIDTH;
                         let xh = BTN_WIDTH * .5;
                         if (x < 0) {
-                            w = BTN_WIDTH + x;
+                            w1 = BTN_WIDTH + x;
                             x = 0;
-                            xh = w - BTN_WIDTH * .5;
+                            xh = w1 - BTN_WIDTH * .5;
                         }
                         else if (x > maxx) {
-                            w = BTN_WIDTH - (x - maxx);
-                            if (w < BTN_WIDTH * .5) {
+                            w1 = BTN_WIDTH - (x - maxx);
+                            if (w1 < BTN_WIDTH * .5) {
                                 xh = -1;
                             }
                         }
-                        else if (x >= width) {
+                        else if (x >= w) {
                             break;
                         }
 
                         let btn = new PianoKey(w, 240, (btn)=>{
-                            let standing = this.standing_;
-                            let sp = standing[btn.ri_];
+                            let sta = this.standing_;
+                            let sp = sta[btn.ri_];
                             if (sp && sp.visible) {
                                 if (sp.isHighlight()) {
                                     sp.click();
@@ -8248,7 +8252,7 @@
                                 else {
                                     sp.setHighlight(true);
                                     for (let n = 0; n < 14; ++n) {
-                                        let st = standing[n];
+                                        let st = sta[n];
                                         st.setHighlight(st == sp);
                                     }
                                     let keys = btnctn.keys_;
@@ -8277,7 +8281,7 @@
                             // graph.lineTo(x + xh, 5);
                         }
                         graph.lineStyle(5, 0x808080, 1);
-                        graph.drawRect(x, 0, w, 240);
+                        graph.drawRect(x, 0, w1, 240);
                     }
                     btnctn.visible = (k == 0);
                     btnctn.keys_ = keys;
@@ -8361,22 +8365,22 @@
          */
         class Piano2 extends PIXI.Container {
             /**
-             * @param {number} width 总宽度
-             * @param {array} standing 手牌
+             * @param {number} w 总宽度
+             * @param {array} st 手牌
              */
-            constructor(width, standing) {
+            constructor(w, st) {
                 super();
 
-                //this.width = width;
+                //this.width = w;
                 //this.height = 340;
 
                 let graph = new PIXI.Graphics();
                 graph.lineStyle(5, 0x808080, 1);
                 graph.beginFill(0x0C1E2C, .85);
-                graph.drawRect(0, 0, width, 340);
+                graph.drawRect(0, 0, w, 340);
                 graph.endFill();
 
-                this.standing_ = standing;
+                this.standing_ = st;
                 this.keys_ = new Array(14);
                 this.o_ = -1;
                 this.hlt_ = -1;
@@ -8384,8 +8388,8 @@
                 const TILE_WIDTH = WIDTH_02 * HAND_SCALE;
                 const BTN_WIDTH = TILE_WIDTH * 2;
                 let cb = (btn)=>{
-                    let standing = this.standing_;
-                    let sp = standing[btn.ri_];
+                    let sta = this.standing_;
+                    let sp = sta[btn.ri_];
                     if (sp && sp.visible) {
                         if (sp.isHighlight()) {
                             sp.click();
@@ -8394,7 +8398,7 @@
                         else {
                             sp.setHighlight(true);
                             for (let n = 0; n < 14; ++n) {
-                                let st = standing[n];
+                                let st = sta[n];
                                 st.setHighlight(st == sp);
                             }
                             let keys = this.keys_;
@@ -8444,8 +8448,8 @@
 
                 {
                     let x = TILE_WIDTH + BTN_WIDTH * 6;
-                    let w = width - BTN_WIDTH;
-                    let btn = new PianoKey(w, 170, cb);
+                    let w1 = w - BTN_WIDTH;
+                    let btn = new PianoKey(w1, 170, cb);
                     btn.x = x;
                     btn.y = 170;
                     this.addChild(btn);
@@ -8458,7 +8462,7 @@
                     graph.endFill();
 
                     graph.lineStyle(5, 0x808080, 1);
-                    graph.drawRect(x, 170, w, 170);
+                    graph.drawRect(x, 170, w1, 170);
                 }
 
                 this.addChild(graph);
@@ -8516,32 +8520,32 @@
             constructor() {
                 super();
 
-                let container = this.container_ = new PIXI.Container();
-                //container.width = LOBBY_WIDTH;
-                //container.height = LOBBY_HEIGHT;
-                this.addChild(container);
+                let ctn = this.container_ = new PIXI.Container();
+                //ctn.width = LOBBY_WIDTH;
+                //ctn.height = LOBBY_HEIGHT;
+                this.addChild(ctn);
 
                 {
                 let graph = new PIXI.Graphics();
                 graph.beginFill(0x89A4C7, .5);
                 graph.drawRect(0, 0, LOBBY_WIDTH, LOBBY_HEIGHT);
                 graph.endFill();
-                container.addChild(graph);
+                ctn.addChild(graph);
                 }
 
                 //let resp = {"m":1,"r":2,"t":{"i":10001,"t":1548852882425,"r":0,"u":false,"p":["游客10002","","",""],"g":{"t":"45679","n":16,"d":false,"i":0,"l":8,"r12":3,"r30":10,"dt":255,"d12":false,"fa":true,"fc":false,"s":true,"o":false,"a":false,"r":true}}};
-                //container.addChild(new TableInfoView(resp['t']));
+                //ctn.addChild(new TableInfoView(resp['t']));
 
-                const btnWidth = 100, btnHeight = 40;
+                const wb0 = 100, wh0 = 40;
                 let btn = this.nameBtn_ = new TextButton('', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ tz.ws.send('{"m":1,"r":10}'); });
-                container.addChild(btn);
-                btn.x = LOBBY_WIDTH - btnWidth;
+                }, wb0, wh0, ()=>{ tz.ws.send('{"m":1,"r":10}'); });
+                ctn.addChild(btn);
+                btn.x = LOBBY_WIDTH - wb0;
 
                 btn = new TextButton('测速', {
                     fontFamily: FF,
@@ -8549,14 +8553,14 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, 70, btnHeight, ()=>{
+                }, 70, wh0, ()=>{
                     tz.ws.send(`{"m":5,"t":${new Date().getTime()}}`);
                     this.sp_.ac_ = setTimeout(()=>{
                         this.sp_.text = '-';
                     }, 60000);
                 });
-                container.addChild(btn);
-                btn.x = LOBBY_WIDTH - btnWidth - 75;
+                ctn.addChild(btn);
+                btn.x = LOBBY_WIDTH - wb0 - 75;
 
                 btn = new TextButton('主页', {
                     fontFamily: FF,
@@ -8564,8 +8568,8 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, 70, btnHeight, ()=>{ window.open('/', '_blank'); });
-                container.addChild(btn);
+                }, 70, wh0, ()=>{ window.open('/', '_blank'); });
+                ctn.addChild(btn);
 
                 btn = new TextButton('EN', {
                     fontFamily: FF,
@@ -8573,20 +8577,20 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, 70, btnHeight, ()=>{ window.open('/1/?lang=en', '_self'); });
-                container.addChild(btn);
+                }, 70, wh0, ()=>{ window.open('/1/?lang=en', '_self'); });
+                ctn.addChild(btn);
                 btn.x = 75;
 
-                let text = this.sp_ = new PIXI.Text('-', {
+                let t = this.sp_ = new PIXI.Text('-', {
                     fontFamily: FF,
                     fontSize: 16,
                     fill: '#ffffff',
                 });
-                container.addChild(text);
-                text.anchor.x = 1;
-                text.anchor.y = .5;
-                text.x = LOBBY_WIDTH - btnWidth - 80;
-                text.y = 20;
+                ctn.addChild(t);
+                t.anchor.x = 1;
+                t.anchor.y = .5;
+                t.x = LOBBY_WIDTH - wb0 - 80;
+                t.y = 20;
 
                 const title = ['空闲：', '等待：', '对局：', '托管：'];
                 let status = [null, null, null, null];
@@ -8596,7 +8600,7 @@
                         fontSize: 16,
                         fill: '#ffffff',
                     });
-                    container.addChild(t0);
+                    ctn.addChild(t0);
                     t0.anchor.y = .5;
                     t0.x = 185 + (i & 1) * 140;
                     t0.y = 12 + (i >> 1) * 20;
@@ -8606,22 +8610,22 @@
                         fontSize: 16,
                         fill: '#cccccc',
                     });
-                    container.addChild(t1);
+                    ctn.addChild(t1);
                     t1.anchor.y = .5;
                     t1.x = t0.x + t0.width;
                     t1.y = t0.y;
                 }
                 this.status_ = status;
 
-                text = new PIXI.Text('文明游戏 禁止赌博', {
+                t = new PIXI.Text('文明游戏 禁止赌博', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
                 });
-                container.addChild(text);
-                text.anchor.set(.5);
-                text.x = LOBBY_WIDTH * .5;
-                text.y = LOBBY_HEIGHT - btnHeight - 75;
+                ctn.addChild(t);
+                t.anchor.set(.5);
+                t.x = LOBBY_WIDTH * .5;
+                t.y = LOBBY_HEIGHT - wh0 - 75;
 
                 btn = new TextButton('创建牌桌', {
                     fontFamily: FF,
@@ -8629,10 +8633,10 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ this._showCreateView(); });
-                container.addChild(btn);
-                btn.x = (LOBBY_WIDTH - btnWidth) * .5;
-                btn.y = LOBBY_HEIGHT - btnHeight - 10;
+                }, wb0, wh0, ()=>{ this._showCreateView(); });
+                ctn.addChild(btn);
+                btn.x = (LOBBY_WIDTH - wb0) * .5;
+                btn.y = LOBBY_HEIGHT - wh0 - 10;
 
                 btn = this.prevBtn_ = new TextButton('上一页', {
                     fontFamily: FF,
@@ -8640,10 +8644,10 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ this._prevPage(); });
-                container.addChild(btn);
-                btn.x = LOBBY_WIDTH * .25 - btnWidth * .5;
-                btn.y = LOBBY_HEIGHT - btnHeight - 60;
+                }, wb0, wh0, ()=>{ this._prevPage(); });
+                ctn.addChild(btn);
+                btn.x = LOBBY_WIDTH * .25 - wb0 * .5;
+                btn.y = LOBBY_HEIGHT - wh0 - 60;
 
                 btn = this.nextBtn_ = new TextButton('下一页', {
                     fontFamily: FF,
@@ -8651,31 +8655,31 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ this._nextPage(); });
-                container.addChild(btn);
-                btn.x = LOBBY_WIDTH * .75 - btnWidth * .5;
-                btn.y = LOBBY_HEIGHT - btnHeight - 60;
+                }, wb0, wh0, ()=>{ this._nextPage(); });
+                ctn.addChild(btn);
+                btn.x = LOBBY_WIDTH * .75 - wb0 * .5;
+                btn.y = LOBBY_HEIGHT - wh0 - 60;
 
                 this.tables_ = [];
                 this.page_ = 0;
 
-                let t = this.pageText_ = new PIXI.Text('1/1', {
+                t = this.pageText_ = new PIXI.Text('1/1', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 });
-                container.addChild(t);
+                ctn.addChild(t);
                 t.anchor.set(.5);
                 t.x = LOBBY_WIDTH * .5;
-                t.y = LOBBY_HEIGHT - btnHeight - 40;
+                t.y = LOBBY_HEIGHT - wh0 - 40;
 
                 this._enable(this.prevBtn_, false);
                 this._enable(this.nextBtn_, false);
 
                 let root = this.root_ = new PIXI.Container();
-                container.addChild(root);
+                ctn.addChild(root);
             }
 
             /**
@@ -9097,9 +9101,9 @@
          */
         class CreateTableView extends PIXI.Container {
             /**
-             * @param {function(object):void} callback 回调
+             * @param {function(object):void} cb 回调
              */
-            constructor(callback) {
+            constructor(cb) {
                 super();
 
                 const gap = 30, offsetY = 80;
@@ -9240,17 +9244,17 @@
                 ctrls[13][dv(defcfg['g'], 1)].setSelected(true);
                 ctrls[14].text = dv(defcfg['p'], '');
 
-                const btnWidth = 100, btnHeight = 40;
+                const wb0 = 100, wh0 = 40;
                 let btn = new TextButton('取消', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(); });
+                }, wb0, wh0, ()=>{ cb(); });
                 this.addChild(btn);
                 btn.x = gap;
-                btn.y = LOBBY_HEIGHT - btnHeight - 20;
+                btn.y = LOBBY_HEIGHT - wh0 - 20;
 
                 btn = new TextButton('确定', {
                     fontFamily: FF,
@@ -9258,10 +9262,10 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(this._cfg()); });
+                }, wb0, wh0, ()=>{ cb(this._cfg()); });
                 this.addChild(btn);
-                btn.x = LOBBY_WIDTH - btnWidth - gap;
-                btn.y = LOBBY_HEIGHT - btnHeight - 20;
+                btn.x = LOBBY_WIDTH - wb0 - gap;
+                btn.y = LOBBY_HEIGHT - wh0 - 20;
             }
 
             /**
@@ -9357,17 +9361,17 @@
          */
         class TableInfoView extends PIXI.Container {
             /**
-             * @param {object} data 桌子信息
-             * @param {function(number,number,boolean):void} callback 座位回调
+             * @param {object} d 桌子信息
+             * @param {function(number,number,boolean):void} cb 座位回调
              */
-            constructor(data, callback) {
+            constructor(d, cb) {
                 super();
 
-                this.tableid_ = data['i'];
-                this.time_ = data['t'];
-                this.pw_ = data['u'];
+                this.tableid_ = d['i'];
+                this.time_ = d['t'];
+                this.pw_ = d['u'];
 
-                const width = LOBBY_WIDTH - 20, height = 120, gap = 10;
+                const w0 = LOBBY_WIDTH - 20, h0 = 120, gap = 10;
 
                 //this.width = width;
                 //this.height = height;
@@ -9377,10 +9381,10 @@
 
                 bg.lineStyle(2, 0x00FFFF, .25);
                 bg.beginFill(0x043c6b, .85);
-                bg.drawRect(0, 0, width, height);
+                bg.drawRect(0, 0, w0, h0);
                 bg.endFill();
 
-                let cfg = data['g'];
+                let cfg = d['g'];
                 this.anonym_ = cfg['a'];
                 let r30 = cfg['r30'];
 
@@ -9412,7 +9416,7 @@
                 t.x = gap + 55;
                 t.y = 25;
                 this.addChild(t);
-                scaleText(t, width - 120 - gap * 3 - 55);
+                scaleText(t, w0 - 120 - gap * 3 - 55);
 
                 this.pro_ = t = new PIXI.Text('', {
                     fontFamily: FF,
@@ -9423,11 +9427,13 @@
                 });
                 t.anchor.x = 1;
                 t.anchor.y = .5;
-                t.x = width - gap;
+                t.x = w0 - gap;
                 t.y = 25;
                 this.addChild(t);
-                if (data['n']) {
-                    t.text = `${data['n']}/${cfg['n']}`;
+
+                let rd = d['n'];
+                if (rd) {
+                    t.text = `${rd}/${cfg['n']}`;
                 }
 
                 let btn = new TextButton('准备', {
@@ -9440,7 +9446,7 @@
                     //console.log(`{"m":1,"r":6,"v":${this.readyBtn_.value_}}`);
                     tz.ws.send(`{"m":1,"r":6,"v":${this.readyBtn_.value_}}`);
                 });
-                btn.x = width - gap - 120;
+                btn.x = w0 - gap - 120;
                 btn.y = 5;
                 this.addChild(btn);
                 btn.value_ = 1;
@@ -9452,20 +9458,20 @@
                 ctn.pivot.y = ctn.height * .5;
                 this.addChild(ctn);
                 let xx = ctn.width;
-                if (xx + gap * 2 > width) {
-                    ctn.scale.set((width - 25 - gap * 2) / xx);
+                if (xx + gap * 2 > w0) {
+                    ctn.scale.set((w0 - 25 - gap * 2) / xx);
                 }
 
                 let name = new Array(4);
                 let tick = new Array(4);
 
-                let gapX = (width - gap * 2) * .25;
-                let p = data['p'];
-                let ready = data['r'];
+                let gapX = (w0 - gap * 2) * .25;
+                let p = d['p'];
+                let ready = d['r'];
                 let rdm = cfg['r'];
                 for (let i = 0; i < 4; ++i) {
                     let xx = gap + gapX * i;
-                    btn = new EmptyButton(gapX, 35, ()=>{ callback(this.tableid_, i, this.pw_); });
+                    btn = new EmptyButton(gapX, 35, ()=>{ cb(this.tableid_, i, this.pw_); });
                     btn.x = xx;
                     btn.y = 82;
                     this.addChild(btn);
@@ -9513,13 +9519,13 @@
             /**
              * 刷新
              * @param {number} id 桌ID
-             * @param {number} seat 座位
+             * @param {number} s 座位
              */
-            refresh(id, seat) {
+            refresh(id, s) {
                 let btn = this.readyBtn_;
                 if (id == this.tableid_) {
-                    if (this.seat_ != seat) {
-                        if (!this.tick_[seat].visible) {
+                    if (this.seat_ != s) {
+                        if (!this.tick_[s].visible) {
                             btn.face_.text = '准备';
                             btn.value_ = 1;
                         }
@@ -9530,12 +9536,12 @@
                     }
 
                     btn.visible = true;
-                    this.seat_ = seat;
+                    this.seat_ = s;
 
                     //console.log('seat', seat);
                     let nm = this.name_;
                     for (let i = 0; i < 4; ++i) {
-                        nm[i].style.fill = (seat != i) ? '#ffffff' : '#5cdbd3';
+                        nm[i].style.fill = (s != i) ? '#ffffff' : '#5cdbd3';
                     }
                 }
                 else {
@@ -9608,12 +9614,12 @@
          */
         class PasswordView extends PIXI.Container {
             /**
-             * @param {function(string):void} callback 关闭回调
+             * @param {function(string):void} cb 关闭回调
              */
-            constructor(callback) {
+            constructor(cb) {
                 super();
 
-                const gap = 30, width = 360, height = 240;
+                const gap = 30, w0 = 360, h0 = 240;
 
                 //this.width = LOBBY_WIDTH;
                 //this.height = LOBBY_HEIGHT;
@@ -9629,11 +9635,11 @@
 
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x0C1E2C, .85);
-                bg.drawRect(0, 0, width, height);
+                bg.drawRect(0, 0, w0, h0);
                 bg.endFill();
 
-                bg.x = (LOBBY_WIDTH - width) * .5;
-                bg.y = (LOBBY_HEIGHT - height) * .5;
+                bg.x = (LOBBY_WIDTH - w0) * .5;
+                bg.y = (LOBBY_HEIGHT - h0) * .5;
 
                 let t = new PIXI.Text('请输入密码', {
                     fontFamily: FF,
@@ -9644,7 +9650,7 @@
                 });
                 bg.addChild(t);
                 t.anchor.set(.5);
-                t.x = width * .5;
+                t.x = w0 * .5;
                 t.y = 40;
 
                 let textInput = new PIXI.TextInput({
@@ -9660,17 +9666,17 @@
                 textInput.destroyBoxCache = ()=>{};
                 bg.addChild(textInput);
 
-                const btnWidth = 100, btnHeight = 40;
+                const wb0 = 100, wh0 = 40;
                 let btn = new TextButton('取消', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(); });
+                }, wb0, wh0, ()=>{ cb(); });
                 bg.addChild(btn);
                 btn.x = gap;
-                btn.y = height - btnHeight - 20;
+                btn.y = h0 - wh0 - 20;
 
                 btn = new TextButton('确定', {
                     fontFamily: FF,
@@ -9678,10 +9684,10 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(textInput.text); });
+                }, wb0, wh0, ()=>{ cb(textInput.text); });
                 bg.addChild(btn);
-                btn.x = width - btnWidth - gap;
-                btn.y = height - btnHeight - 20;
+                btn.x = w0 - wb0 - gap;
+                btn.y = h0 - wh0 - 20;
             }
         }
 
@@ -9692,12 +9698,12 @@
         class UserView extends PIXI.Container {
             /**
              * @param {string} pzl 验证码
-             * @param {function():void} callback 回调
+             * @param {function():void} cb 回调
              */
-            constructor(pzl, callback) {
+            constructor(pzl, cb) {
                 super();
 
-                const gap = 30, width = 450, height = pzl ? 420 : 320;
+                const gap = 30, w0 = 450, h0 = pzl ? 420 : 320;
 
                 //this.width = LOBBY_WIDTH;
                 //this.height = LOBBY_HEIGHT;
@@ -9714,11 +9720,11 @@
 
                 bg.lineStyle(2, 0x26608C, 1);
                 bg.beginFill(0x0C1E2C, .85);
-                bg.drawRect(0, 0, width, height);
+                bg.drawRect(0, 0, w0, h0);
                 bg.endFill();
 
-                bg.x = (LOBBY_WIDTH - width) * .5;
-                bg.y = (LOBBY_HEIGHT - height) * .5;
+                bg.x = (LOBBY_WIDTH - w0) * .5;
+                bg.y = (LOBBY_HEIGHT - h0) * .5;
 
                 let t = new PIXI.Text('登录', {
                     fontFamily: FF,
@@ -9729,11 +9735,11 @@
                 });
                 bg.addChild(t);
                 t.anchor.set(.5);
-                t.x = width * .5;
+                t.x = w0 * .5;
                 t.y = 40;
 
                 const prefix = ['昵称', '密码', '验证'];
-                let textInputs = [null, null, null];
+                let tis = [null, null, null];
                 let plh = [localStorage.getItem('username')];
                 for (let i = 0, c = pzl ? 3 : 2; i < c; ++i) {
                     let yy = 110 + 70 * i;
@@ -9749,22 +9755,22 @@
                     t.x = gap + 10;
                     t.y = yy;
 
-                    let textInput = new PIXI.TextInput({
+                    let ti = new PIXI.TextInput({
                         fontSize: '18px',
                         width: '280px',
                         height: '20px',
                         padding: '6px',
                         paddingLeft: '10px',
                     });
-                    textInput.x = width - 300 - gap - 10;
-                    textInput.y = yy - 15;
-                    bg.addChild(textInput);
-                    textInputs[i] = textInput;
-                    textInput.text = plh[i] || '';
-                    textInput.substituteText = false;
-                    textInput.destroyBoxCache = ()=>{};
+                    ti.x = w0 - 300 - gap - 10;
+                    ti.y = yy - 15;
+                    bg.addChild(ti);
+                    tis[i] = ti;
+                    ti.text = plh[i] || '';
+                    ti.substituteText = false;
+                    ti.destroyBoxCache = ()=>{};
                 }
-                textInputs[1]._dom_input.setAttribute('type', 'password');
+                tis[1]._dom_input.setAttribute('type', 'password');
                 if (pzl) {
                     t = new PIXI.Text(`验证问题：清一色${pzl}，\n听牌为（包括已出现4枚的）`, {
                         fontFamily: FF,
@@ -9776,21 +9782,21 @@
                     });
                     bg.addChild(t);
                     t.anchor.set(.5);
-                    t.x = width * .5;
-                    t.y = height * .5 + 95;
+                    t.x = w0 * .5;
+                    t.y = h0 * .5 + 95;
                 }
 
-                const btnWidth = 100, btnHeight = 40;
+                const wb0 = 100, wh0 = 40;
                 let btn = new TextButton('取消', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(); });
+                }, wb0, wh0, ()=>{ cb(); });
                 bg.addChild(btn);
                 btn.x = gap;
-                btn.y = height - btnHeight - 20;
+                btn.y = h0 - wh0 - 20;
 
                 btn = new TextButton('确定', {
                     fontFamily: FF,
@@ -9798,10 +9804,10 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, btnWidth, btnHeight, ()=>{ callback(textInputs[0].text.trim(), textInputs[1].text, pzl ? textInputs[2].text : ''); });
+                }, wb0, wh0, ()=>{ cb(tis[0].text.trim(), tis[1].text, pzl ? tis[2].text : ''); });
                 bg.addChild(btn);
-                btn.x = width - btnWidth - gap;
-                btn.y = height - btnHeight - 20;
+                btn.x = w0 - wb0 - gap;
+                btn.y = h0 - wh0 - 20;
             }
         }
 
