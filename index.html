@@ -5959,16 +5959,16 @@
             constructor() {
                 super();
 
-                const width = 180, height = 160;
-                //this.width = width;
-                //this.height = height;
-                this.pivot.x = width;
+                const w0 = 180, h0 = 160;
+                //this.width = w0;
+                //this.height = h0;
+                this.pivot.x = w0;
 
                 {
                 let graph = new PIXI.Graphics();
                 //graph.lineStyle(2, 0x0000FF, 1);
                 graph.beginFill(0x000000, .25);
-                graph.drawRect(0, 0, width, height);
+                graph.drawRect(0, 0, w0, h0);
                 graph.endFill();
                 this.addChild(graph);
                 }
@@ -5980,8 +5980,8 @@
                 });
                 text.anchor.set(.5);
                 this.addChild(text);
-                text.x = width * .5;
-                text.y = height * .5;
+                text.x = w0 * .5;
+                text.y = h0 * .5;
                 text.alpha = .2;
                 text.visible = false;
 
@@ -5994,15 +5994,15 @@
                 });
                 text.anchor.set(.5);
                 this.addChild(text);
-                text.x = width * .5;
-                text.y = height * .5;
+                text.x = w0 * .5;
+                text.y = h0 * .5;
 
                 let flw = new PIXI.Sprite(WinHand.flwTex);
                 this.addChild(flw);
                 flw.scale.set(.8);
                 flw.anchor.set(.5);
-                flw.x = width * .5 - 23;
-                flw.y = height - 25;
+                flw.x = w0 * .5 - 23;
+                flw.y = h0 - 25;
 
                 text = this.flowerText_ = new PIXI.Text('\u00D7 0', {
                     fontFamily: FF,
@@ -6011,8 +6011,8 @@
                 });
                 text.anchor.set(.5);
                 this.addChild(text);
-                text.x = width * .5 + 17;
-                text.y = height - 25;
+                text.x = w0 * .5 + 17;
+                text.y = h0 - 25;
 
                 text = this.fwText_ = new PIXI.Text('错和', {
                     fontFamily: FF,
@@ -6021,7 +6021,7 @@
                 });
                 text.anchor.set(.5);
                 this.addChild(text);
-                text.x = width * .5;
+                text.x = w0 * .5;
                 text.y = 30;
                 text.visible = false;
             }
@@ -6098,7 +6098,7 @@
                 tk.x = 5;
                 tk.visible = false;
 
-                let width, height;
+                let w0, h0;
                 if (s) {
                     let text = this.text_ = new PIXI.Text(s, {
                         fontFamily: FF,
@@ -6110,23 +6110,23 @@
                     this.addChild(text);
                     text.x = bg.width + 10;
 
-                    /*this.width =*/ width = bg.width + 10 + text.width + 10;
-                    /*this.height =*/ height = Math.max(bg.height, text.height) + 10;
+                    /*this.width =*/ w0 = bg.width + 10 + text.width + 10;
+                    /*this.height =*/ h0 = Math.max(bg.height, text.height) + 10;
                     text.anchor.y = .5;
-                    text.y = height * .5;
+                    text.y = h0 * .5;
                 }
                 else {
-                    /*this.width =*/ width = bg.width + 10;
-                    /*this.height =*/ height = bg.height + 10;
+                    /*this.width =*/ w0 = bg.width + 10;
+                    /*this.height =*/ h0 = bg.height + 10;
                 }
                 bg.anchor.y = .5;
                 tk.anchor.y = .5;
-                bg.y = height * .5;
-                tk.y = height * .5;
+                bg.y = h0 * .5;
+                tk.y = h0 * .5;
 
                 let fg = this.fg_ = new PIXI.Graphics();
                 fg.beginFill(0xFFFFFF, .25);
-                fg.drawRect(0, 0, width, height);
+                fg.drawRect(0, 0, w0, h0);
                 fg.endFill();
                 this.addChild(fg);
                 fg.visible = false;
@@ -6191,8 +6191,8 @@
             constructor(w, h, cb) {
                 super();
 
-                //this.width = width;
-                //this.height = height;
+                //this.width = w;
+                //this.height = h;
 
                 let clk = cb.bind(this);
                 let hlt = ()=>{ this.fg_.visible = true; };
@@ -6318,9 +6318,9 @@
             constructor(w, h, t, a, cb) {
                 super();
 
-                const w0 = WIDTH_02 * HAND_SCALE, h0 = HEIGHT_02F * HAND_SCALE;
-                const width = w0 * 2 + 50;
-                const height = h0 + 50;
+                const w1 = WIDTH_02 * HAND_SCALE, h1 = HEIGHT_02F * HAND_SCALE;
+                const w0 = w1 * 2 + 50;
+                const h0 = h1 + 50;
 
                 //this.width = width * (a.length + 1) + a.length * 10;
                 //this.height = height;
@@ -6332,16 +6332,16 @@
                 ctn.endFill();
                 ctn.interactive = true;
 
-                let x = (w - ((width + 10) * a.length + width)) * .5;
+                let x = (w - ((w0 + 10) * a.length + w0)) * .5;
 
                 for (let i = 0, c = a.length + 1; i < c; ++i) {
                     let ai = a[i];
-                    let btn = new EmptyButton(width, height, ()=>{
+                    let btn = new EmptyButton(w0, h0, ()=>{
                         //console.log('click action', a[i]);
                         cb(ai);
                     });
                     this.addChild(btn);
-                    btn.x = x + (width + 10) * i;
+                    btn.x = x + (w0 + 10) * i;
                     btn.y = h - 550;
 
                     let tl = '';
@@ -6355,21 +6355,21 @@
                             btn.addChild(t0);
                             t0.scale.set(HAND_SCALE);
                             t0.x = 25;
-                            t0.y = height - h0 - 5;
+                            t0.y = h0 - h1 - 5;
 
                             t0 = new StandingTile(lo_byte(ai));
                             btn.addChild(t0);
                             t0.scale.set(HAND_SCALE);
-                            t0.x = 25 + w0;
-                            t0.y = height - h0 - 5;
+                            t0.x = 25 + w1;
+                            t0.y = h0 - h1 - 5;
                             break;
                         case 5:
                             tl = '杠';
                             t0 = new StandingTile(lo_byte(ai));
                             btn.addChild(t0);
                             t0.scale.set(HAND_SCALE);
-                            t0.x = 25 + w0 * .5;
-                            t0.y = height - h0 - 5;
+                            t0.x = 25 + w1 * .5;
+                            t0.y = h0 - h1 - 5;
                             break;
                         default:
                             break;
@@ -6377,7 +6377,7 @@
                     }
                     else {
                         tl = '取消';
-                        py = height * .5;
+                        py = h0 * .5;
                     }
 
                     let tx = new PIXI.Text(tl, {
@@ -6389,7 +6389,7 @@
                     });
                     btn.addChild(tx);
                     tx.anchor.set(.5);
-                    tx.x = width * .5;
+                    tx.x = w0 * .5;
                     tx.y = py;
                 }
             }
@@ -6408,14 +6408,14 @@
             constructor(ht, wt, flw) {
                 super();
 
-                const height = Math.max(HEIGHT_13 + HEIGHT_13F, HEIGHT_02 + 40);
-                //this.height = height;
+                const h0 = Math.max(HEIGHT_13 + HEIGHT_13F, HEIGHT_02 + 40);
+                //this.height = h0;
 
                 // 加这个布局才正常
                 //let bg = new PIXI.Graphics();
                 //this.addChild(bg);
 
-                let width = 0;
+                let w0 = 0;
                 if (ht != undefined) {
                     // 副露
                     let ps = ht['p'];
@@ -6438,9 +6438,9 @@
                                     this.addChild(s);
                                     s.anchor.y = 1;
                                     s.layout();
-                                    s.x = width;
-                                    s.y = height;
-                                    width += s.width;
+                                    s.x = w0;
+                                    s.y = h0;
+                                    w0 += s.width;
                                 }
                                 break;
                             }
@@ -6452,9 +6452,9 @@
                                     this.addChild(s);
                                     s.anchor.y = 1;
                                     s.layout();
-                                    s.x = width;
-                                    s.y = height;
-                                    width += s.width;
+                                    s.x = w0;
+                                    s.y = h0;
+                                    w0 += s.width;
                                 }
                                 break;
                             }
@@ -6465,9 +6465,9 @@
                                         this.addChild(s);
                                         s.anchor.y = 1;
                                         if (i == 1 || i == 2) s.layout();
-                                        s.x = width;
-                                        s.y = height;
-                                        width += s.width;
+                                        s.x = w0;
+                                        s.y = h0;
+                                        w0 += s.width;
                                     }
                                 }
                                 else {  // 明杠（直杠）
@@ -6483,9 +6483,9 @@
                                         this.addChild(s);
                                         s.anchor.y = 1;
                                         s.layout();
-                                        s.x = width;
-                                        s.y = height;
-                                        width += s.width;
+                                        s.x = w0;
+                                        s.y = h0;
+                                        w0 += s.width;
                                     }
                                 }
                                 break;
@@ -6498,17 +6498,17 @@
                                 this.addChild(s);
                                 s.anchor.y = 1;
                                 s.layout();
-                                s.x = width + WIDTH_02 * (o - 1);
-                                s.y = height - HEIGHT_13;
+                                s.x = w0 + WIDTH_02 * (o - 1);
+                                s.y = h0 - HEIGHT_13;
 
                                 for (let i = 0; i < 3; ++i) {
                                     let s = new (cls[i])(t);
                                     this.addChild(s);
                                     s.anchor.y = 1;
                                     s.layout();
-                                    s.x = width;
-                                    s.y = height;
-                                    width += s.width;
+                                    s.x = w0;
+                                    s.y = h0;
+                                    w0 += s.width;
                                 }
                                 break;
                             }
@@ -6516,7 +6516,7 @@
                                 break;
                             }
 
-                            width += GAP_T;
+                            w0 += GAP_T;
                         }
                     }
 
@@ -6528,11 +6528,11 @@
                             this.addChild(s);
                             s.anchor.y = 1;
                             s.layout();
-                            s.x = width;
-                            s.y = height;
-                            width += s.width;
+                            s.x = w0;
+                            s.y = h0;
+                            w0 += s.width;
                         }
-                        width += GAP_T;
+                        w0 += GAP_T;
                     }
 
                     // 和牌
@@ -6541,9 +6541,9 @@
                         this.addChild(s);
                         s.anchor.y = 1;
                         s.layout();
-                        s.x = width;
-                        s.y = height;
-                        width += s.width;
+                        s.x = w0;
+                        s.y = h0;
+                        w0 += s.width;
                     }
 
                     // 花
@@ -6552,7 +6552,7 @@
                         this.addChild(s);
                         s.scale.set(.6);
                         s.anchor.set(.5);
-                        s.x = width - 55;
+                        s.x = w0 - 55;
                         s.y = 15;
 
                         let t = new PIXI.Text(`\u00D7 ${((flw>>8)&0xFF)+1}`, {
@@ -6562,16 +6562,16 @@
                         });
                         this.addChild(t);
                         t.anchor.set(.5);
-                        t.x = width - 25;
+                        t.x = w0 - 25;
                         t.y = 15;
                     }
                 }
-                //this.width = width;
+                //this.width = w0;
 
                 //{
                 //bg.lineStyle(2, 0x0000FF, 1);
                 //bg.beginFill(0xFF00BB, .25);
-                //bg.drawRect(0, 0, width, height);
+                //bg.drawRect(0, 0, w0, h0);
                 //bg.endFill();
                 //}
             }
@@ -9155,18 +9155,18 @@
                         ctrls[i] = btns;
                     }
                     else {
-                        let textInput = new PIXI.TextInput({
+                        let ti = new PIXI.TextInput({
                             fontSize: '18px',
                             width: (LOBBY_WIDTH - xx - gap * 2) + 'px',
                             height: '18px',
                             padding: '6px',
                         });
-                        textInput.x = xx;
-                        textInput.y = yy - 15;
-                        textInput.substituteText = false;
-                        textInput.destroyBoxCache = ()=>{};
-                        this.addChild(textInput);
-                        ctrls[i] = textInput;
+                        ti.x = xx;
+                        ti.y = yy - 15;
+                        ti.substituteText = false;
+                        ti.destroyBoxCache = ()=>{};
+                        this.addChild(ti);
+                        ctrls[i] = ti;
                     }
                 }
                 this.ctrls_ = ctrls;
@@ -9323,8 +9323,8 @@
 
                 const w0 = LOBBY_WIDTH - 20, h0 = 120, gap = 10;
 
-                //this.width = width;
-                //this.height = height;
+                //this.width = w0;
+                //this.height = h0;
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -9603,18 +9603,18 @@
                 t.x = w0 * .5;
                 t.y = 40;
 
-                let textInput = new PIXI.TextInput({
+                let ti = new PIXI.TextInput({
                     fontSize: '18px',
                     width: '200px',
                     height: '20px',
                     padding: '6px',
                     paddingLeft: '10px',
                 });
-                textInput.x = 75;
-                textInput.y = 90;
-                textInput.substituteText = false;
-                textInput.destroyBoxCache = ()=>{};
-                bg.addChild(textInput);
+                ti.x = 75;
+                ti.y = 90;
+                ti.substituteText = false;
+                ti.destroyBoxCache = ()=>{};
+                bg.addChild(ti);
 
                 const wb0 = 100, wh0 = 40;
                 let btn = new TextButton('取消', {
@@ -9634,7 +9634,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, wb0, wh0, ()=>{ cb(textInput.text); });
+                }, wb0, wh0, ()=>{ cb(ti.text); });
                 bg.addChild(btn);
                 btn.x = w0 - wb0 - gap;
                 btn.y = h0 - wh0 - 20;
