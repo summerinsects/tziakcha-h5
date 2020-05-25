@@ -2381,10 +2381,10 @@
              * @param {array} a 可选择的鸣牌
              */
             addBtns(a) {
-                let selfDrawn = (this.turn_ == this.seat_);
+                let slf = (this.turn_ == this.seat_);
 
                 // 别人打牌，设置了不鸣这张，直接过或者弃
-                if (!selfDrawn && this.flyTile_ != null && this.callFlags_[this.flyTile_.t_>>2]) {
+                if (!slf && this.flyTile_ != null && this.callFlags_[this.flyTile_.t_>>2]) {
                     tz.ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
                     this.rmCD();
                     return;
@@ -2393,7 +2393,7 @@
                 let status = this.option_.status();
 
                 if (!a) {
-                    if (status[6] && selfDrawn) {  // 自动摸打
+                    if (status[6] && slf) {  // 自动摸打
                         setTimeout(()=>{
                             this._discard(this.standing_[0][13]);
                         }, DISCARD_DT + 1000);
@@ -2440,13 +2440,13 @@
                 // 可和
                 if (dict[6]) {
                     let skp = false;
-                    if (status[4] && !selfDrawn) {  // 只和自摸
+                    if (status[4] && !slf) {  // 只和自摸
                         --size;
                         delete dict[6];
                         skp = true;
                     }
 
-                    if (selfDrawn && this.ignoreSD_ && this.callFlags_[this.standing_[0][13].t_>>2]) {
+                    if (slf && this.ignoreSD_ && this.callFlags_[this.standing_[0][13].t_>>2]) {
                         --size;
                         delete dict[6];
                         skp = true;
@@ -2462,7 +2462,7 @@
                 }
 
                 if (status[6]) {  // 自动摸打
-                    if (!dict[6] && !dict[5] &&!dict[1] && selfDrawn) {
+                    if (!dict[6] && !dict[5] &&!dict[1] && slf) {
                         setTimeout(()=>{
                             this._discard(this.standing_[0][13]);
                         }, DISCARD_DT + 1000);
@@ -2472,7 +2472,7 @@
 
                 // 过滤之后没有动作了
                 if (size == 0) {
-                    if (!selfDrawn) {
+                    if (!slf) {
                         tz.ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
                         this.rmCD();
                     }
@@ -2488,10 +2488,11 @@
 
                 const types = [10, 9, 1, 6, 5, 4, 3];
                 let cnt = 0;
+                let btns = this.actionBtns_;
                 for (let i = 0; i < 7; ++i) {
                     let val = dict[types[i]];
                     if (val) {
-                        let ab = this.actionBtns_[cnt];
+                        let ab = btns[cnt];
                         ab.visible = true;
                         ab.setup(6 - i, (ab)=>{
                             //console.log(ab.data_);
@@ -2516,7 +2517,7 @@
                                         tz.ws.send(`{"m":2,"r":${types[i]},"v":${a}}`);
                                     }
                                     else {
-                                        if (!selfDrawn) {
+                                        if (!slf) {
                                             tz.ws.send('{"m":2,"r":10,"v":0}');
                                         }
                                     }
@@ -2536,20 +2537,20 @@
 
                 if (this.isDiscarding_) {
                     // 轮到自己打牌时，隐藏“过”和“弃”
-                    if (selfDrawn) {
-                        this.actionBtns_[0].visible = false;
-                        this.actionBtns_[1].visible = false;
+                    if (slf) {
+                        btns[0].visible = false;
+                        btns[1].visible = false;
                         cnt -= 2;
                     }
                     else if (!this.cfg_['s'] || ((this.turn_ + 1) & 3) == this.seat_) {
                         // 无战术鸣牌或者上家打牌后，隐藏“过”
-                        this.actionBtns_[1].visible = false;
+                        btns[1].visible = false;
                         --cnt;
                     }
                 }
                 else {
                     // 补花时，隐藏“弃”
-                    this.actionBtns_[0].visible = false;
+                    btns[0].visible = false;
                     --cnt;
                 }
 
