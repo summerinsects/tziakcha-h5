@@ -2019,11 +2019,11 @@
                     this.ready_[i].visible = false;
 
                     let sp;
-                    while (sp = this.packs_[i].pop()) {
+                    while ((sp = this.packs_[i].pop())) {
                         sp.dstry();
                     }
 
-                    while (sp = this.openTiles_[i].pop()) {
+                    while ((sp = this.openTiles_[i].pop())) {
                         sp.dstry();
                     }
 
@@ -4619,7 +4619,7 @@
              */
             _rm_ot(n, cnt) {
                 let sp;
-                while (sp = this.openTiles_[n].pop()) {
+                while ((sp = this.openTiles_[n].pop())) {
                     sp.dstry();
                 }
 
@@ -8687,7 +8687,7 @@
                     scaleText(t, 95);
 
                     let tv;
-                    while (tv = this.tables_.pop()) {
+                    while ((tv = this.tables_.pop())) {
                         tv.dstry();
                     }
                     // 无需break，接着走case 3一样的逻辑
@@ -8746,7 +8746,7 @@
                     if (pw) {
                         localStorage.setItem('password', pw);
                     }
-                    if (this.tableid_ = resp['i']) {
+                    if ((this.tableid_ = resp['i'])) {
                         this.seat_ = resp['s'];
                         let i = this._findTable(this.tableid_);
                         if (i != -1) {
