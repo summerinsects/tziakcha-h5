@@ -1496,12 +1496,7 @@
                     this.walls_ = walls;
 
                     if (!showWall) {
-                        for (let i = 0; i < 36; ++i) {
-                            walls[0][i].visible = false;
-                            walls[1][i].visible = false;
-                            walls[2][i].visible = false;
-                            walls[3][i].visible = false;
-                        }
+                        walls.forEach(w=>{w.forEach(t=>t.visible = false);});
                     }
                 }
 
@@ -2002,15 +1997,9 @@
 
             clear() {
                 for (let i = 0; i < 4; ++i) {
-                    for (let k = 0; k < 24; ++k) {
-                        let sp = this.pools_[i][k];
-                        sp.visible = sp.v_ = false;
-                    }
-
+                    this.pools_[i].forEach(sp=>sp.visible = sp.v_ = false);
                     if (showWall) {
-                        for (let k = 0; k < 36; ++k) {
-                            this.walls_[i][k].visible = true;
-                        }
+                        this.walls_[i].forEach(sp=>sp.visible = true);
                     }
 
                     this.flowers_[i] = 0;
@@ -2030,29 +2019,25 @@
                     this.openPos_[i] = this.origin_[i][0];
                 }
 
-                for (let k = 0; k < 14; ++k) {
-                    let sp = this.standing_[0][k];
+                this.standing_[0].forEach((sp, k)=>{
                     sp.visible = false;
                     sp.x = this.origin_[0][k];
-                }
+                });
 
-                for (let k = 0; k < 14; ++k) {
-                    let sp = this.standing_[1][k];
+                this.standing_[1].forEach((sp, k)=>{
                     sp.visible = false;
                     sp.y = this.origin_[1][k];
-                }
+                });
 
-                for (let k = 0; k < 14; ++k) {
-                    let sp = this.standing_[2][k];
+                this.standing_[2].forEach((sp, k)=>{
                     sp.visible = false;
                     sp.x = this.origin_[2][k];
-                }
+                });
 
-                for (let k = 0; k < 14; ++k) {
-                    let sp = this.standing_[3][k];
+                this.standing_[3].forEach((sp, k)=>{
                     sp.visible = false;
                     sp.y = this.origin_[3][k];
-                }
+                });
 
                 if (this.flyTile_) {
                     this.flyTile_.dstry();
@@ -2080,10 +2065,10 @@
                 this.remainText_.text = '牌墙剩余：144';
 
                 let seat = this.seat_;
-                for (let i = 0; i < 4; ++i) {
+                this.windTexts_.forEach((wt, i)=>{
                     let k = (seat + i) & 3;
-                    this.windTexts_[i].text = WIND[k] + ' ' + this.players_[k]['s'];
-                }
+                    wt.text = WIND[k] + ' ' + this.players_[k]['s'];
+                });
                 this.setTurn(0);
 
                 let dir = (d[0] + d[1] - 1 + 4 - seat) & 3;
@@ -2225,52 +2210,48 @@
                     sta = this.standing_[3];
 
                     shuffle_array(sta, 0, 13);
-                    for (let i = 0; i < 14; ++i) {
-                        let sp = sta[i];
+                    sta.forEach((sp, i)=>{
                         sp.zIndex = 260 + i;
                         if (sp.y != ori[i]) {
                             (new TWEEN.Tween(sp)).to({y:ori[i]}, SORT_DT).start();
                         }
-                    }
+                    });
 
                     // 对家
                     ori = this.origin_[2];
                     sta = this.standing_[2];
 
                     shuffle_array(sta, 0, 13);
-                    for (let i = 0; i < 14; ++i) {
-                        let sp = sta[i];
+                    sta.forEach((sp, i)=>{
                         sp.zIndex = 190 + i;
                         if (sp.x != ori[i]) {
                             (new TWEEN.Tween(sp)).to({x:ori[i]}, SORT_DT).start();
                         }
-                    }
+                    });
 
                     // 下家
                     ori = this.origin_[1];
                     sta = this.standing_[1];
 
                     shuffle_array(sta, 0, 13);
-                    for (let i = 0; i < 14; ++i) {
-                        let sp = sta[i];
+                    sta.forEach((sp, i)=>{
                         sp.zIndex = 130 + 13 - i;
                         if (sp.y != ori[i]) {
                             (new TWEEN.Tween(sp)).to({y:ori[i]}, SORT_DT).start();
                         }
-                    }
+                    });
 
                     // 自己
                     ori = this.origin_[0];
                     sta = this.standing_[0];
 
                     sta.sort(function(a, b) { return a.t_ - b.t_; });
-                    for (let i = 0; i < 14; ++i) {
-                        let sp = sta[i];
+                    sta.forEach((sp, i)=>{
                         sp.zIndex = 360 + i;
                         if (sp.x != ori[i]) {
                             (new TWEEN.Tween(sp)).to({x:ori[i]}, SORT_DT).start();
                         }
-                    }
+                    });
 
                     this.sortChildren();
                 }, DICE_TIME + 18 * DRAW_DT);
@@ -2322,9 +2303,9 @@
             setTurn(t) {
                 this.turn_ = t;
                 let n = (t + 4 - this.seat_) & 3;
-                for (let i = 0; i < 4; ++i) {
-                    this.windTexts_[i].style.fill = (i != n) ? '#888888' : '#ff6a6a';
-                }
+                this.windTexts_.forEach((wt, i)=>{
+                    wt.style.fill = (i != n) ? '#888888' : '#ff6a6a';
+                });
             }
 
 
@@ -2402,8 +2383,7 @@
                 }
 
                 let dict = {}, size = 0;
-                for (let i = 0, len = a.length; i < len; ++i) {
-                    let ac = a[i];
+                a.forEach(ac=>{
                     let type = (ac >> 16) & 0xFFFF, data = (ac & 0xFFFF);
                     if (dict[type] == undefined) {
                         dict[type] = [data];
@@ -2411,7 +2391,7 @@
                     } else {
                         dict[type].push(data);
                     }
-                }
+                });
                 if (size == 0) {
                     return;
                 }
@@ -2569,9 +2549,7 @@
                     delete this.selectionView_;
                 }
 
-                for (let i = 0; i < 6; ++i) {
-                    this.actionBtns_[i].visible = false;
-                }
+                this.actionBtns_.forEach(b=>b.visible = false);
             }
 
             rightclick() {
@@ -2673,15 +2651,14 @@
 
                 this._insert(3, o, p);
 
-                for (let i = 0; i < 14; ++i) {
-                    let sp = sta[i];
+                sta.forEach((sp, i)=>{
                     sp.zIndex = zi + i;
                     let dp = op + i * HEIGHT_13;
                     if (i == 13) dp += GAP_T;
                     if (sp.y != dp) {
                         (new TWEEN.Tween(sp)).to({y:dp}, DISCARD_DT).start();
                     }
-                }
+                });
                 this.sortChildren();
             }
 
@@ -2697,15 +2674,14 @@
 
                 this._insert(2, o, p);
 
-                for (let i = 0; i < 14; ++i) {
-                    let sp = sta[i];
+                sta.forEach((sp, i)=>{
                     sp.zIndex = zi + i;
                     let dp = op - i * WIDTH_02;
                     if (i == 13) dp -= GAP_T;
                     if (sp.x != dp) {
                         (new TWEEN.Tween(sp)).to({x:dp}, DISCARD_DT).start();
                     }
-                }
+                });
                 this.sortChildren();
             }
 
@@ -2721,31 +2697,15 @@
 
                 this._insert(1, o, p);
 
-                for (let i = 0; i < 14; ++i) {
-                    let sp = sta[i];
+                sta.forEach((sp, i)=>{
                     sp.zIndex = zi - i;
                     let dp = op - i * HEIGHT_13;
                     if (i == 13) dp -= GAP_T;
                     if (sp.y != dp) {
                         (new TWEEN.Tween(sp)).to({y:dp}, DISCARD_DT).start();
                     }
-                }
+                });
                 this.sortChildren();
-            }
-
-            /**
-             * 找玩家牌池的最后一张牌，当前要打的牌将要去向的目的地
-             * @param {number} n 玩家
-             * @returns {object} 牌
-             */
-            _findPoolDest(n) {
-                for (let k = 0; k < 24; ++k) {
-                    let sp = this.pools_[n][k];
-                    if (!sp.v_) {
-                        return sp;
-                    }
-                }
-                return null;
             }
 
             /**
@@ -2831,8 +2791,8 @@
                     sta[13].visible = true;
                 }
 
-                let dst = this._findPoolDest(n);
-                if (dst == null) {
+                let dst = this.pools_[n].find(sp=>!sp.v_);
+                if (dst == undefined) {
                     console.log('dst is null', n);
                     return;
                 }
@@ -2842,13 +2802,7 @@
                     idx = h ? this._randomIdx(n) : 13;
                 }
                 else {
-                    for (let i = 0; i < 14; ++i) {
-                        let sp = sta[i];
-                        if (sp.visible && sp.t_ == t) {
-                            idx = i;
-                            break;
-                        }
-                    }
+                    idx = sta.findIndex(sp=>sp.visible && sp.t_ == t);
                 }
                 let src = sta[idx];
                 if (src == undefined) {
@@ -2895,16 +2849,14 @@
                             src.t_ = 0xFF;
                             src.visible = false;
                             sta.sort(function(a, b) { return a.t_ - b.t_; });
-
-                            for (let i = 0; i < 14; ++i) {
-                                let sp = sta[i];
+                            sta.forEach((sp, i)=>{
                                 sp.zIndex = 360 + i;
                                 let dp = op + i * dx;
                                 if (i == 13) dp += GAP_W;
                                 if (sp.x != dp) {
                                     (new TWEEN.Tween(sp)).to({x:dp}, DISCARD_DT).start();
                                 }
-                            }
+                            });
                         }
                     }, 400);
                 }
@@ -2936,10 +2888,7 @@
                     sp.setHighlight(false);
                 }
                 else {
-                    for (let i = 0; i < 14; ++i) {
-                        let st = sta[i];
-                        st.setHighlight(st == sp);
-                    }
+                    sta.forEach(st=>st.setHighlight(st == sp));
                 }
 
                 if (this.piano3_.visible) {
@@ -3233,14 +3182,13 @@
                     sta.sort(function(a, b) { return a.t_ - b.t_; });
 
                     let ori = this.origin_[0];
-                    for (let i = 0; i < 14; ++i) {
-                        let sp = sta[i];
+                    sta.forEach((sp, i)=>{
                         sp.zIndex = 360 + i;
                         let dp = ori[i];
                         if (sp.x != dp) {
                             (new TWEEN.Tween(sp)).to({x:dp}, DISCARD_DT).start();
                         }
-                    }
+                    });
 
                     this._draw_b(0, 13);
                     sta[13].update(nt);
@@ -3253,14 +3201,13 @@
                     sta.sort(function(a, b) { return a.t_ - b.t_; });
 
                     let ori = this.origin_[0];
-                    for (let i = 0; i < 14; ++i) {
-                        let sp = sta[i];
+                    sta.forEach((sp, i)=>{
                         sp.zIndex = 360 + i;
                         let dp = ori[i];
                         if (sp.x != dp) {
                             (new TWEEN.Tween(sp)).to({x:dp}, DISCARD_DT).start();
                         }
-                    }
+                    });
                 }
 
                 this.sortChildren();
@@ -3315,8 +3262,7 @@
                 let hdn = this.packData_[0].length * 3;
                 let zi = sta[0].zIndex;
                 let dp = this.origin_[0];
-                for (let i = 0; i < 14; ++i) {
-                    let sp = sta[i];
+                sta.forEach((sp, i)=>{
                     sp.zIndex = zi + i;
                     if (i < hdn) {
                         sp.visible = false;
@@ -3328,7 +3274,7 @@
                             (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
                         }
                     }
-                }
+                });
             }
 
             /**
@@ -3339,8 +3285,7 @@
                 let hdn = this.packData_[1].length * 3;
                 let zi = sta[0].zIndex;
                 let dp0 = this.openPos_[1];
-                for (let i = 0; i < 14; ++i) {
-                    let sp = sta[i];
+                sta.forEach((sp, i)=>{
                     sp.zIndex = zi - i;
                     let dp1 = dp0 - HEIGHT_13 * i;
                     if (i == 13) dp1 -= GAP_W;
@@ -3354,7 +3299,7 @@
                             (new TWEEN.Tween(sp)).to({y:dp1}, DISCARD_DT).start();
                         }
                     }
-                }
+                });
             }
 
             /**
@@ -3365,8 +3310,7 @@
                 let hdn = this.packData_[2].length * 3;
                 let zi = sta[0].zIndex;
                 let dp0 = this.openPos_[2];
-                for (let i = 0; i < 14; ++i) {
-                    let sp = sta[i];
+                sta.forEach((sp, i)=>{
                     sp.zIndex = zi + i;
                     let dp1 = dp0 - WIDTH_02 * i;
                     if (i == 13) dp1 -= GAP_W;
@@ -3380,7 +3324,7 @@
                             (new TWEEN.Tween(sp)).to({x:dp1}, DISCARD_DT).start();
                         }
                     }
-                }
+                });
             }
 
             /**
@@ -3391,8 +3335,7 @@
                 let hdn = this.packData_[3].length * 3;
                 let zi = sta[0].zIndex;
                 let dp0 = this.openPos_[3];
-                for (let i = 0; i < 14; ++i) {
-                    let sp = sta[i];
+                sta.forEach((sp, i)=>{
                     sp.zIndex = zi + i;
                     let dp1 = dp0 + HEIGHT_13 * i;
                     if (i == 13) dp1 += GAP_W;
@@ -3406,7 +3349,7 @@
                             (new TWEEN.Tween(sp)).to({y:dp1}, DISCARD_DT).start();
                         }
                     }
-                }
+                });
             }
 
             /**
@@ -3415,11 +3358,7 @@
              */
             _mv_prev3(dis) {
                 this.openPos_[3] += dis;
-                let prev = this.packs_[3];
-                for (let i = 0, len = prev.length; i < len; ++i) {
-                    let sp = prev[i];
-                    (new TWEEN.Tween(sp)).to({y:(sp.y - dis)}, DISCARD_DT).start();
-                }
+                this.packs_[3].forEach(sp=>(new TWEEN.Tween(sp)).to({y:(sp.y - dis)}, DISCARD_DT).start());
             }
 
             /**
@@ -3475,10 +3414,11 @@
                     break;
                 }
 
-                for (let i = 0, c = t.length; i < c; ++i) {
-                    let ti = t[i];
-                    this.addChild(ti); this.packs_[3].push(ti); ti.zIndex = 240 + i + pplen * 4;
-                }
+                t.forEach((ti, i)=>{
+                    this.addChild(ti);
+                    this.packs_[3].push(ti);
+                    ti.zIndex = 240 + i + pplen * 4;
+                });
 
                 // 动画
                 let hdn = pplen * 3;
@@ -3654,11 +3594,7 @@
              */
             _mv_prev2(dis) {
                 this.openPos_[2] -= dis;
-                let prev = this.packs_[2];
-                for (let i = 0, len = prev.length; i < len; ++i) {
-                    let sp = prev[i];
-                    (new TWEEN.Tween(sp)).to({x:(sp.x + dis)}, DISCARD_DT).start();
-                }
+                this.packs_[2].forEach(sp=>(new TWEEN.Tween(sp)).to({x:(sp.x + dis)}, DISCARD_DT).start());
             }
 
             /**
@@ -3714,10 +3650,11 @@
                     break;
                 }
 
-                for (let i = 0, c = t.length; i < c; ++i) {
-                    let ti = t[i];
-                    this.addChild(ti); this.packs_[2].push(ti); ti.zIndex = 170 + i + pplen * 4;
-                }
+                t.forEach((ti, i)=>{
+                    this.addChild(ti);
+                    this.packs_[2].push(ti);
+                    ti.zIndex = 170 + i + pplen * 4;
+                });
 
                 // 动画
                 let hdn = pplen * 3;
@@ -3892,11 +3829,7 @@
              */
             _mv_prev1(dis) {
                 this.openPos_[1] -= dis;
-                let prev = this.packs_[1];
-                for (let i = 0, len = prev.length; i < len; ++i) {
-                    let sp = prev[i];
-                    (new TWEEN.Tween(sp)).to({y:(sp.y + dis)}, DISCARD_DT).start();
-                }
+                this.packs_[1].forEach(sp=>(new TWEEN.Tween(sp)).to({y:(sp.y + dis)}, DISCARD_DT).start());
             }
 
             /**
@@ -3954,10 +3887,11 @@
                     break;
                 }
 
-                for (let i = 0, c = t.length; i < c; ++i) {
-                    let ti = t[i];
-                    this.addChild(ti); this.packs_[1].push(ti); ti.zIndex = 169 - i - pplen * 4;
-                }
+                t.forEach((ti, i)=>{
+                    this.addChild(ti);
+                    this.packs_[1].push(ti);
+                    ti.zIndex = 169 - i - pplen * 4;
+                });
 
                 // 动画
                 let hdn = pplen * 3;
@@ -4193,10 +4127,11 @@
                     break;
                 }
 
-                for (let i = 0, c = t.length; i < c; ++i) {
-                    let ti = t[i];
-                    this.addChild(ti); this.packs_[0].push(ti); ti.zIndex = 340 + i + pplen * 4;
-                }
+                t.forEach((ti, i)=>{
+                    this.addChild(ti);
+                    this.packs_[0].push(ti);
+                    ti.zIndex = 340 + i + pplen * 4;
+                });
 
                 // 动画
                 let xx = this.openPos_[0];
@@ -4349,22 +4284,20 @@
                     this._srt_shrk0();
                 }
                 else {
-                    for (let i = 0; i < 14; ++i) {
-                        let sp = sta[i];
+                    sta.forEach((sp, i)=>{
                         if (i == idx[0] || i == idx[1] || i == idx[2]) {
                             sp.t_ = -1;
                         }
                         else if (i == idx[3]) {
                             sp.t_ = 0xFF;
                         }
-                    }
+                    });
 
                     sta.sort(function(a, b) { return a.t_ - b.t_; });
 
                     let dp = this.origin_[0];
                     let hdn = pplen * 3;
-                    for (let i = 0; i < 14; ++i) {
-                        let sp = sta[i];
+                    sta.forEach((sp, i)=>{
                         sp.zIndex = 360 + i;
                         if (i < hdn + 3) {
                             sp.visible = false;
@@ -4376,7 +4309,7 @@
                                 (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
                             }
                         }
-                    }
+                    });
                 }
                 sta[13].visible = false;
 
@@ -4426,13 +4359,12 @@
                     src.visible = false;
                     sta.sort(function(a, b) { return a.t_ - b.t_; });
 
-                    for (let i = 0; i < 14; ++i) {
-                        let sp = sta[i];
+                    sta.forEach((sp, i)=>{
                         sp.zIndex = 360 + i;
                         if (sp.x != dp[i]) {
                             (new TWEEN.Tween(sp)).to({x:dp[i]}, DISCARD_DT).start();
                         }
-                    }
+                    });
                 }
 
                 this.stopFlower_ = true;
@@ -4629,10 +4561,7 @@
                     sta[i].visible = true;
                 }
 
-                let packs = this.packs_[n];
-                for (let i = 0, len = packs.length; i < len; ++i) {
-                    packs[i].visible = true;
-                }
+                this.packs_[n].forEach(p=>p.visible = true);
             }
 
             /**
@@ -4771,16 +4700,16 @@
                 let st = ht['s'];
                 let offset = ps.length * 3;
                 let pos = this.openPos_[3];
-                for (let i = 0, len = st.length; i < len; ++i) {
+                st.forEach((t, i)=>{
                     let sp0 = sta[offset + i];
-                    let sp1 = (st[i] != 255) ? new PoolTile3(st[i]) : create_w13();
+                    let sp1 = (t != 255) ? new PoolTile3(t) : create_w13();
                     sp1.x = sp0.x;
                     sp1.y = pos + (offset + i) * HEIGHT_13 + yy;
                     this.addChild(sp1);
                     sp1.zIndex = 260 + i;
                     sp0.visible = false;
                     ot.push(sp1);
-                }
+                });
 
                 if (wt != undefined) {
                     let sp0 = sta[13];
@@ -4794,10 +4723,9 @@
                 }
 
                 let packs = this.packs_[3];
-                for (let i = 0, len = ps.length; i < len; ++i) {
-                    let p = ps[i];
+                ps.forEach(p=>{
                     if ((p & 0xFFC0) == 0x200) {
-                        for (let k = 0, len2 = packs.length, cnt = 0; k < len2 && cnt < 2; ++k) {
+                        for (let k = 0, l = packs.length, cnt = 0; k < l && cnt < 2; ++k) {
                             let sp0 = packs[k];
                             if (sp0.visible && sp0.ck_) {
                                 let sp1 = new PoolTile3(pack_tile(p));
@@ -4811,7 +4739,7 @@
                             }
                         }
                     }
-                }
+                });
                 this.sortChildren();
             }
 
@@ -4829,16 +4757,16 @@
                 let st = ht['s'];
                 let offset = ps.length * 3;
                 let pos = this.openPos_[2];
-                for (let i = 0, len = st.length; i < len; ++i) {
+                st.forEach((t, i)=>{
                     let sp0 = sta[offset + i];
-                    let sp1 = (st[i] != 255) ? new PoolTile2(st[i]) : create_w02();
+                    let sp1 = (t != 255) ? new PoolTile2(t) : create_w02();
                     sp1.x = pos - (offset + i) * WIDTH_02;
                     sp1.y = sp0.y;
                     this.addChild(sp1);
                     sp1.zIndex = 190 + i;
                     sp0.visible = false;
                     ot.push(sp1);
-                }
+                });
 
                 if (wt != undefined) {
                     let sp0 = sta[13];
@@ -4852,10 +4780,9 @@
                 }
 
                 let packs = this.packs_[2];
-                for (let i = 0, len = ps.length; i < len; ++i) {
-                    let p = ps[i];
+                ps.forEach(p=>{
                     if ((p & 0xFFC0) == 0x200) {
-                        for (let k = 0, len2 = packs.length, cnt = 0; k < len2 && cnt < 2; ++k) {
+                        for (let k = 0, l = packs.length, cnt = 0; k < l && cnt < 2; ++k) {
                             let sp0 = packs[k];
                             if (sp0.visible && sp0.ck_) {
                                 let sp1 = new PoolTile2(pack_tile(p));
@@ -4869,7 +4796,7 @@
                             }
                         }
                     }
-                }
+                });
                 this.sortChildren();
             }
 
@@ -4889,16 +4816,16 @@
                 let st = ht['s'];
                 let offset = ps.length * 3;
                 let pos = this.openPos_[1];
-                for (let i = 0, len = st.length; i < len; ++i) {
+                st.forEach((t, i)=>{
                     let sp0 = sta[offset + i];
-                    let sp1 = (st[i] != 255) ? new PoolTile1(st[i]) : create_w13();
+                    let sp1 = (t != 255) ? new PoolTile1(t) : create_w13();
                     sp1.x = sp0.x - xx;
                     sp1.y = pos - (offset + i - 1) * HEIGHT_13 - yy;
                     this.addChild(sp1);
                     sp1.zIndex = 130 + 13 - i;
                     sp0.visible = false;
                     ot.push(sp1);
-                }
+                });
 
                 if (wt != undefined) {
                     let sp0 = sta[13];
@@ -4912,10 +4839,9 @@
                 }
 
                 let packs = this.packs_[1];
-                for (let i = 0, len = ps.length; i < len; ++i) {
-                    let p = ps[i];
+                ps.forEach(p=>{
                     if ((p & 0xFFC0) == 0x200) {
-                        for (let k = 0, len2 = packs.length, cnt = 0; k < len2 && cnt < 2; ++k) {
+                        for (let k = 0, l = packs.length, cnt = 0; k < l && cnt < 2; ++k) {
                             let sp0 = packs[k];
                             if (sp0.visible && sp0.ck_) {
                                 let sp1 = new PoolTile1(pack_tile(p));
@@ -4929,7 +4855,7 @@
                             }
                         }
                     }
-                }
+                });
                 this.sortChildren();
             }
 
@@ -4946,10 +4872,10 @@
                 let ps = ht['p'] || [];
                 let st = ht['s'];
                 let offset = ps.length * 3;
-                for (let i = 0, len = st.length; i < len; ++i) {
-                    if (st[i] == 255) continue;
+                st.forEach((t, i)=>{
+                    if (t == 255) return;
                     let sp0 = sta[offset + i];
-                    let sp1 = new PoolTile0(st[i]);
+                    let sp1 = new PoolTile0(t);
                     sp1.x = sp0.x;
                     sp1.y = sp0.y;
                     sp1.anchor.y = 1;
@@ -4959,7 +4885,7 @@
                     sp1.zIndex = 360 + i;
                     sp0.visible = false;
                     ot.push(sp1);
-                }
+                });
 
                 if (wt != undefined) {
                     let sp0 = sta[13];
@@ -4988,17 +4914,16 @@
                 // 基本信息
                 let seat = this.seat_ = resp['v'];
                 let users = this.players_ = resp['u'];
-                for (let i = 0; i < 4; ++i) {
-                    let user = users[i];
+                users.forEach((u, i)=>{
                     let k = (i + 4 - seat) & 3;
                     let ip = this.infoPanels_[k];
-                    ip.setName(user['n']);
-                    ip.setFlower(user['f']);
-                    ip.setConnection(!user['o']);
-                    ip.setFalseWin(this.falseWin_[k] = user['w']);
+                    ip.setName(u['n']);
+                    ip.setFlower(u['f']);
+                    ip.setConnection(!u['o']);
+                    ip.setFalseWin(this.falseWin_[k] = u['w']);
 
-                    this.windTexts_[k].text = WIND[i] + ' ' + user['s'];
-                }
+                    this.windTexts_[k].text = WIND[i] + ' ' + u['s'];
+                });
 
                 let dtl = resp['i'];
                 if (dtl == undefined) {
@@ -5017,8 +4942,8 @@
                 let at = dtl['at'];
                 if (at != undefined) {
                     let n = (this.turn_ + 4 - seat) & 3;
-                    let dst = this._findPoolDest(n);
-                    if (dst != null) {
+                    let dst = this.pools_[n].find(sp=>!sp.v_);
+                    if (dst) {
                         dst.update(at);
                         dst.v_ = true;
 
@@ -5932,10 +5857,7 @@
              * 重置
              */
             reset() {
-                for (let i = 0; i < 7; ++i) {
-                    let cb = this.btns_[i];
-                    cb.setSelected(i == 0);
-                }
+                this.btns_.forEach((cb, i)=>cb.setSelected(i == 0));
             }
 
             /**
@@ -5943,10 +5865,8 @@
              * @returns {array}
              */
             status() {
-                let s = new Array(7);
-                for (let i = 0; i < 7; ++i) {
-                    s[i] = this.btns_[i].isSelected();
-                }
+                let s = [];
+                this.btns_.forEach(cb=>s.push(cb.isSelected()));
                 return s;
             }
         }
@@ -7343,8 +7263,8 @@
                             rssi[n] = rss[n][i];
                             rspi[n] = rps[n][i];
                         }
-                        let sd = rssi.every((rs)=>rs != nbp);
-                        let tie = rssi.every((rs)=>rs == 0);
+                        let sd = rssi.every(rs=>rs != nbp);
+                        let tie = rssi.every(rs=>rs == 0);
                         for (let k = 0; k < 8; ++k) {
                             let tx = '', cl = '#DCDCDC';
                             let rs = rssi[k >> 1], rp = rspi[k >> 1];
@@ -7367,9 +7287,7 @@
                         }
                     }
                     else {
-                        for (let k = 0; k < 8; ++k) {
-                            rtt[i][k].visible = false;
-                        }
+                        rtt[i].forEach(t=>t.visible = false);
                     }
                 }
 
@@ -7746,10 +7664,8 @@
                     strokeThickness: 2,
                 }, wb0, wh0, ()=>{
                     this.visible = false;
-                    let cf = new Array(34);
-                    for (let i = 0; i < 34; ++i) {
-                        cf[i] = tiles[i].visible;
-                    }
+                    let cf = [];
+                    this.tiles_.forEach(t=>cf.push(t.visible));
                     callback(cf, this.ign_.isSelected(), this.rw_.isSelected());
                 });
                 bg.addChild(btn);
@@ -7767,15 +7683,10 @@
             show(cf, ign, rw) {
                 this.visible = true;
                 let tiles = this.tiles_;
-                let cbs = this.cbs_;
-                for (let i = 0; i < 34; ++i) {
-                    cbs[i].setSelected(tiles[i].visible = cf[i]);
-                }
+                this.cbs_.forEach((cb, i)=>cb.setSelected(tiles[i].visible = cf[i]));
                 let cba = this.cba_;
                 if (this.reset_) {
-                    for (let i = 0; i < 4; ++i) {
-                        cba[i].setSelected(false);
-                    }
+                    cba.forEach(cb=>cb.setSelected(false));
                     this.reset_ = false;
                 }
                 else {
@@ -8201,15 +8112,8 @@
                                 }
                                 else {
                                     sp.setHighlight(true);
-                                    for (let n = 0; n < 14; ++n) {
-                                        let st = sta[n];
-                                        st.setHighlight(st == sp);
-                                    }
-                                    let keys = btnctn.keys_;
-                                    for (let n = 0, cnt = keys.length; n < cnt; ++n) {
-                                        keys[n].fg_.visible = false;
-                                    }
-
+                                    sta.forEach(st=>st.setHighlight(st == sp));
+                                    btnctn.keys_.forEach(key=>key.fg_.visible = false);
                                     btn.fg_.visible = true;
                                 }
                             }
@@ -8246,14 +8150,7 @@
                 let sta = this.standing_;
 
                 // 找到高亮的牌
-                let hlt = -1;
-                for (let i = 0; i < 14; ++i) {
-                    let sp = sta[i];
-                    if (sp && sp.visible && sp.isHighlight()) {
-                        hlt = i;
-                        break;
-                    }
-                }
+                let hlt = sta.findIndex(sp=>(sp && sp.visible && sp.isHighlight()));
 
                 if (hlt != -1) {
                     // 高亮的牌对应的钢琴
@@ -8273,39 +8170,35 @@
                 if (o < -1) o = 1;
                 this.o_ = o;
 
-                for (let k = 0; k < 3; ++k) {
-                    let btnctn = this.btnctns_[k];
+                this.btnctns_.forEach((bc, k)=>{
                     if (k != (o + 1)) {
-                        btnctn.visible = false;
+                        bc.visible = false;
                     }
                     else {
-                        btnctn.visible = true;
-                        let keys = btnctn.keys_;
-                        for (let i = 0, cnt = keys.length; i < cnt; ++i) {
+                        bc.visible = true;
+                        bc.keys_.forEach((key, i)=>{
                             let ri = i * 3 + k - 2;
                             let sp = sta[ri];
-                            keys[i].fg_.visible = (sp && sp.visible && sp.isHighlight());
-                        }
+                            key.fg_.visible = (sp && sp.visible && sp.isHighlight());
+                        });
                     }
-                }
+                });
             }
 
             /**
              * 刷新
              */
             refresh() {
-                for (let k = 0; k < 3; ++k) {
-                    let btnctn = this.btnctns_[k];
-                    if (btnctn.visible) {
-                        let keys = btnctn.keys_;
+                this.btnctns_.forEach((bc, k)=>{
+                    if (bc.visible) {
                         let sta = this.standing_;
-                        for (let i = 0, cnt = keys.length; i < cnt; ++i) {
+                        bc.keys_.forEach((key, i)=>{
                             let ri = i * 3 + k - 2;
                             let sp = sta[ri];
-                            keys[i].fg_.visible = (sp && sp.visible && sp.isHighlight());
-                        }
+                            key.fg_.visible = (sp && sp.visible && sp.isHighlight());
+                        });
                     }
-                }
+                });
             }
         }
 
@@ -8347,15 +8240,8 @@
                         }
                         else {
                             sp.setHighlight(true);
-                            for (let n = 0; n < 14; ++n) {
-                                let st = sta[n];
-                                st.setHighlight(st == sp);
-                            }
-                            let keys = this.keys_;
-                            for (let n = 0; n < 14; ++n) {
-                                keys[n].fg_.visible = false;
-                            }
-
+                            sta.forEach(st=>st.setHighlight(st == sp));
+                            this.keys_.forEach(key=>key.fg_.visible = false);
                             btn.fg_.visible = true;
                         }
                     }
@@ -8422,12 +8308,11 @@
              * 刷新
              */
             refresh() {
-                let keys = this.keys_;
                 let sta = this.standing_;
-                for (let i = 0, cnt = keys.length; i < cnt; ++i) {
+                this.keys_.forEach((key, i)=>{
                     let sp = sta[i];
-                    keys[i].fg_.visible = (sp && sp.visible && sp.isHighlight());
-                }
+                    key.fg_.visible = (sp && sp.visible && sp.isHighlight());
+                });
             }
         }
 
@@ -8693,16 +8578,14 @@
                     // 无需break，接着走case 3一样的逻辑
                 }
                 case 3: {
-                    let ts = resp['t'];
-                    for (let i = 0, len = ts.length; i < len; ++i) {
-                        let t = ts[i];
+                    resp['t'].forEach(t=>{
                         let tv = new TableInfoView(t, (id, s, p)=>{ this._callback(id, s, p); });
                         tv.x = 10;
                         this.root_.addChild(tv);
                         this.tables_.push(tv);
 
                         tv.refresh(this.tableid_, this.seat_);
-                    }
+                    });
                     this._refresh();
                     this._refreshStatus(resp['s']);
                     break;
@@ -8878,13 +8761,7 @@
              * @param {number} i 桌ID
              */
             _findTable(i) {
-                let tbs = this.tables_;
-                for (let k = 0, len = tbs.length; k < len; ++k) {
-                    if (tbs[k].tableid_ == i) {
-                        return k;
-                    }
-                }
-                return -1;
+                return this.tables_.findIndex(tb=>tb.tableid_ == i);
             }
 
             /**
@@ -8992,9 +8869,7 @@
 
                 let s = page * 4, e = s + 4;
                 tbs.sort((a, b)=>{ return b.time_ - a.time_; });
-
-                for (let k = 0, len = tbs.length; k < len; ++k) {
-                    let tv = tbs[k];
+                tbs.forEach((tv, k)=>{
                     if (k < s || k >= e) {
                         tv.visible = false;
                     }
@@ -9002,7 +8877,7 @@
                         tv.visible = true;
                         tv.y = 50 + (tv.height + 10) * (k - s);
                     }
-                }
+                });
 
                 this._enable(this.prevBtn_, page > 0);
                 this._enable(this.nextBtn_, (page + 1) < maxPage);
@@ -9224,12 +9099,8 @@
             _cfg() {
                 let ctrls = this.ctrls_;
                 function rv(rbs, dv) {
-                    for (let i = 0, len = rbs.length; i < len; ++i) {
-                        if (rbs[i].isSelected()) {
-                            return i;
-                        }
-                    }
-                    return dv;
+                    let i = rbs.findIndex(rb=>rb.isSelected());
+                    return (i !== -1 ? i : dv);
                 }
 
                 let cfg = {
@@ -9489,19 +9360,13 @@
                     this.seat_ = s;
 
                     //console.log('seat', seat);
-                    let nm = this.name_;
-                    for (let i = 0; i < 4; ++i) {
-                        nm[i].style.fill = (s != i) ? '#ffffff' : '#5cdbd3';
-                    }
+                    this.name_.forEach((n, i)=>(n.style.fill = (s != i) ? '#ffffff' : '#5cdbd3'));
                 }
                 else {
                     btn.visible = false;
                     delete this.seat_;
 
-                    let nm = this.name_;
-                    for (let i = 0; i < 4; ++i) {
-                        nm[i].style.fill = '#ffffff';
-                    }
+                    this.name_.forEach(n=>n.style.fill = '#ffffff');
                 }
             }
 
