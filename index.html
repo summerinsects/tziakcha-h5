@@ -6910,6 +6910,7 @@
             let oa = Math.abs(o), oh = Math.floor(oa / 60), om = oa - oh * 60;
             return `${y}-${pad2(m)}-${pad2(d)} ${pad2(h)}:${pad2(mm)}:${pad2(s)}  UTC${o<=0?'+':'-'}${pad2(oh)}:${pad2(om)}`;
         }
+
         /**
          * 对局结果界面
          * @typedef {object} ResultView
@@ -8686,6 +8687,7 @@
                         tz.ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}","z":"${pzl}","s":"${sln}"}`);
                         localStorage.setItem('username', un);
                     }
+                    this.container_.removeChild(this.uv_);
                     this.uv_.dstry();
                     delete this.uv_;
                 });
@@ -8727,6 +8729,7 @@
                         tz.ws.send(JSON.stringify({'m':1,'r':3,'g':cfg}));
                     }
 
+                    this.container_.removeChild(this.ctv_);
                     this.ctv_.dstry();
                     delete this.ctv_;
                 });
@@ -8753,6 +8756,7 @@
                             if (p) {
                                 tz.ws.send(`{"m":1,"r":4,"v":${id},"s":${s},"p":"${p}"}`);
                             }
+                            this.container_.addChild(this.pv_);
                             this.pv_.dstry();
                             delete this.pv_;
                         });
@@ -9100,6 +9104,15 @@
                 this.addChild(btn);
                 btn.x = LOBBY_WIDTH - wb0 - gap;
                 btn.y = LOBBY_HEIGHT - wh0 - 20;
+
+                this.on('removed', ()=>document.onkeyup = null);
+                this.on('added', ()=> {
+                    document.onkeyup = (e)=>{
+                        if (e.keyCode === 13) {
+                            cb(this._cfg());
+                        }
+                    };
+                });
             }
 
             /**
@@ -9513,6 +9526,15 @@
                 bg.addChild(btn);
                 btn.x = w0 - wb0 - gap;
                 btn.y = h0 - wh0 - 20;
+
+                this.on('removed', ()=>document.onkeyup = null);
+                this.on('added', ()=> {
+                    document.onkeyup = (e)=>{
+                        if (e.keyCode === 13) {
+                            cb(ti.text);
+                        }
+                    };
+                });
             }
         }
 
@@ -9624,16 +9646,27 @@
                 btn.x = gap;
                 btn.y = h0 - wh0 - 20;
 
+                let cfm = ()=>cb(tis[0].text.trim(), tis[1].text, pzl ? tis[2].text : '');
+
                 btn = new TextButton('确定', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, wb0, wh0, ()=>{ cb(tis[0].text.trim(), tis[1].text, pzl ? tis[2].text : ''); });
+                }, wb0, wh0, cfm);
                 bg.addChild(btn);
                 btn.x = w0 - wb0 - gap;
                 btn.y = h0 - wh0 - 20;
+
+                this.on('removed', ()=>document.onkeyup = null);
+                this.on('added', ()=> {
+                    document.onkeyup = (e)=>{
+                        if (e.keyCode === 13) {
+                            cfm();
+                        }
+                    };
+                });
             }
         }
 
