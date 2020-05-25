@@ -2689,7 +2689,7 @@
              * @param {number} o 出牌位置
              * @param {number} p 新抓到的牌要插入的位置
              */
-             _srt_ist2(o, p) {
+            _srt_ist2(o, p) {
                 let sta = this.standing_[2];
                 let op = this.openPos_[2];
                 let zi = sta[0].zIndex;
@@ -2713,7 +2713,7 @@
              * @param {number} o 出牌位置
              * @param {number} p 新抓到的牌要插入的位置
              */
-             _srt_ist1(o, p) {
+            _srt_ist1(o, p) {
                 let sta = this.standing_[1];
                 let op = this.openPos_[1];
                 let zi = sta[0].zIndex;
@@ -5917,7 +5917,6 @@
          * 创建立牌（上家）
          */
         function create_st3() {
-            let tex = StandingTile.tex3;
             return new PIXI.Sprite(StandingTile.tex3);
         }
 
