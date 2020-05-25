@@ -4376,10 +4376,8 @@
                     this._srt_shrk0();
                 }
                 else {
-                    let dp = new Array(14);
                     for (let i = 0; i < 14; ++i) {
                         let sp = sta[i];
-                        dp[i] = sp.x;
                         if (i == idx[0] || i == idx[1] || i == idx[2]) {
                             sp.t_ = -1;
                         }
@@ -4390,6 +4388,7 @@
 
                     sta.sort(function(a, b) { return a.t_ - b.t_; });
 
+                    let dp = this.origin_[0];
                     let hdn = pplen * 3;
                     for (let i = 0; i < 14; ++i) {
                         let sp = sta[i];
@@ -4458,10 +4457,7 @@
                 // 插入手牌动画
                 if (idx != 13) {
                     let sta = this.standing_[0];
-                    let dp = new Array(14);
-                    for (let i = 0; i < 14; ++i) {
-                        dp[i] = sta[i].x;
-                    }
+                    let dp = this.origin_[0];
 
                     src.t_ = 0xFF;
                     src.visible = false;
