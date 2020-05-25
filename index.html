@@ -2121,17 +2121,17 @@
                 for (let i = 0; i < 12; ++i) {
                     for (let k = 0; k < 2; ++k) {
                         let sp1 = this.walls_[dir][off * 2];
-                        setTimeout(()=>{
+                        setTimeout(function(i, k, sp1) {
                             this.setTurn(i & 3);
                             --this.remainCnt_;
-                            this._drawEffect((i + 4 - seat) & 3, sp1, (i & 0xFC) + k * 2);
-                        }, DICE_TIME + i * DRAW_DT);
+                            this._drawEffect((i + 4 - this.seat_) & 3, sp1, (i & 0xFC) + k * 2);
+                        }.bind(this, i, k, sp1), DICE_TIME + i * DRAW_DT);
 
                         let sp2 = this.walls_[dir][off * 2 + 1];
-                        setTimeout(()=>{
+                        setTimeout(function(i, k, sp2) {
                             --this.remainCnt_;
-                            this._drawEffect((i + 4 - seat) & 3, sp2, (i & 0xFC) + k * 2 + 1);
-                        }, DICE_TIME + i * DRAW_DT);
+                            this._drawEffect((i + 4 - this.seat_) & 3, sp2, (i & 0xFC) + k * 2 + 1);
+                        }.bind(this, i, k, sp2), DICE_TIME + i * DRAW_DT);
 
                         ++off;
                         if (off >= 18) {
@@ -2474,43 +2474,7 @@
                     if (val) {
                         let ab = btns[cnt];
                         ab.visible = true;
-                        ab.setup(6 - i, (ab)=>{
-                            //console.log(ab.data_);
-                            switch (ab.data_.length) {
-                            case 0:
-                                this.rmBtns();
-                                tz.ws.send(`{"m":2,"r":${types[i]},"v":0}`);
-                                this.rmCD();
-                                break;
-                            case 1:
-                                this.rmBtns();
-                                tz.ws.send(`{"m":2,"r":${types[i]},"v":${ab.data_[0]}}`);
-                                this.rmCD();
-                                break;
-                            default: {
-                                let view = this.selectionView_;
-                                if (view) {
-                                    view.dstry();
-                                }
-                                view = new SelectionView(this.width_, this.height_, types[i], ab.data_, (a)=>{
-                                    if (a != undefined) {
-                                        tz.ws.send(`{"m":2,"r":${types[i]},"v":${a}}`);
-                                    }
-                                    else {
-                                        if (!slf) {
-                                            tz.ws.send('{"m":2,"r":10,"v":0}');
-                                        }
-                                    }
-                                    this.rmBtns();
-                                    this.rmCD();
-                                });
-                                this.addChild(view);
-                                this.selectionView_ = view;
-                                break;
-                            }
-                            }
-                        });
-                        ab.data_ = val;
+                        ab.setup(6 - i, this._apply_call.bind(this, types[i], val));
                         ++cnt;
                     }
                 }
@@ -2536,6 +2500,48 @@
 
                 if (!tz.mutecall && cnt > 0) {
                     play_snd('snd/08-inquire.wav');
+                }
+            }
+
+            /**
+             * 提交鸣牌请求
+             * @param {number} t 类型
+             * @param {array} v 数据
+             */
+            _apply_call(t, v) {
+                //console.log(v);
+                switch (v.length) {
+                case 0:
+                    this.rmBtns();
+                    tz.ws.send(`{"m":2,"r":${t},"v":0}`);
+                    this.rmCD();
+                    break;
+                case 1:
+                    this.rmBtns();
+                    tz.ws.send(`{"m":2,"r":${t},"v":${v[0]}}`);
+                    this.rmCD();
+                    break;
+                default: {
+                    let view = this.selectionView_;
+                    if (view) {
+                        view.dstry();
+                    }
+                    view = new SelectionView(this.width_, this.height_, t, v, (a)=>{
+                        if (a != undefined) {
+                            tz.ws.send(`{"m":2,"r":${t},"v":${a}}`);
+                        }
+                        else {
+                            if (this.turn_ != this.seat_) {
+                                tz.ws.send('{"m":2,"r":10,"v":0}');
+                            }
+                        }
+                        this.rmBtns();
+                        this.rmCD();
+                    });
+                    this.addChild(view);
+                    this.selectionView_ = view;
+                    break;
+                }
                 }
             }
 
@@ -6256,10 +6262,10 @@
 
                 for (let i = 0, c = a.length + 1; i < c; ++i) {
                     let ai = a[i];
-                    let btn = new EmptyButton(w0, h0, ()=>{
+                    let btn = new EmptyButton(w0, h0, function(cb, ai) {
                         //console.log('click action', a[i]);
                         cb(ai);
-                    });
+                    }.bind(this, cb, ai));
                     this.addChild(btn);
                     btn.x = x + (w0 + 10) * i;
                     btn.y = h - 550;
@@ -7263,7 +7269,7 @@
                             rssi[n] = rss[n][i];
                             rspi[n] = rps[n][i];
                         }
-                        let sd = rssi.every(rs=>rs != nbp);
+                        let sd = rssi.every(function(nbp, rs) { return rs != nbp; }.bind(this, nbp));
                         let tie = rssi.every(rs=>rs == 0);
                         for (let k = 0; k < 8; ++k) {
                             let tx = '', cl = '#DCDCDC';
@@ -7586,20 +7592,21 @@
                     t1.visible = false;
                     tiles[i] = t1;
 
-                    let cb = new CheckBox('', (cb)=>{
-                        if (!(t1.visible = cb.isSelected())) {
+                    let cb = new CheckBox('', function(i, cb){
+                        if (!(this.tiles_[i].visible = cb.isSelected())) {
                             this.cba_[Math.floor(i / 9)].setSelected(false);
                         }
-                    });
+                    }.bind(this, i));
                     bg.addChild(cb);
                     cb.x = x;
                     cb.y = y;
                     cbs[i] = cb;
 
                     t0.interactive = true;
-                    t0.callback_ = ()=>{
-                        cb.setSelected(t1.visible = !cb.isSelected());
-                    };
+                    t0.callback_ = function(i) {
+                        let cb = this.cbs_[i];
+                        cb.setSelected(this.tiles_[i].visible = !cb.isSelected());
+                    }.bind(this, i);
                 }
                 this.tiles_ = tiles;
                 this.cbs_ = cbs;
@@ -7607,14 +7614,14 @@
                 const ti = ['所有万子', '所有条子', '所有饼子', '所有字牌'];
                 let cba = [null, null, null, null];
                 for (let i = 0; i < 4; ++i) {
-                    let cb = cba[i] = new CheckBox(ti[i], (cb)=>{
+                    let cb = cba[i] = new CheckBox(ti[i], function(i, cb) {
                         let s = cb.isSelected();
                         let tiles = this.tiles_;
                         let cbs = this.cbs_;
                         for (let n = i * 9; n < 34 && n < (i + 1) * 9; ++n) {
                             cbs[n].setSelected(tiles[n].visible = s);
                         }
-                    });
+                    }.bind(this, i));
                     bg.addChild(cb);
                     cb.x = w0 * .5 + 240 * (i & 1);
                     cb.y = h0 - 310 + 70 * (i >> 1);
@@ -7927,11 +7934,11 @@
                 let ti = ['三格', '两格'];
                 let piacbs = [];
                 for (let i = 0; i < 2; ++i) {
-                    let cbx = new CheckBox(ti[i], ()=>{
+                    let cbx = new CheckBox(ti[i], function(i) {
                         for (let n = 0; n < 2; ++n) {
-                            piacbs[n].setSelected(n == i);
+                            this.piacbs_[n].setSelected(n == i);
                         }
-                    });
+                    }.bind(this, i));
                     bg.addChild(cbx);
                     cbx.scale.set(.75);
                     cbx.x = t.x + t.width + 10 + 105 * i;
@@ -7940,6 +7947,7 @@
                 }
                 piacbs[0].setSelected(!tz.piat);
                 piacbs[1].setSelected(tz.piat);
+                this.piacbs_ = piacbs;
 
                 const wb0 = 120, wh0 = 50;
                 let btn = new TextButton('取消', {
@@ -8076,11 +8084,11 @@
                 let maxx = w - BTN_WIDTH;
 
                 for (let k = 0; k < 3; ++k) {
-                    let btnctn = this.btnctns_[k] = new PIXI.Container();
-                    this.addChild(btnctn);
+                    let bc = this.btnctns_[k] = new PIXI.Container();
+                    this.addChild(bc);
 
                     let graph = new PIXI.Graphics();
-                    btnctn.addChild(graph);
+                    bc.addChild(graph);
 
                     let keys = [];
                     for (let i = 0; i < 7; ++i) {
@@ -8102,7 +8110,8 @@
                             break;
                         }
 
-                        let btn = new PianoKey(w, 240, (btn)=>{
+                        let btn = new PianoKey(w, 240, function(k, btn){
+                            let bc = this.btnctns_[k];
                             let sta = this.standing_;
                             let sp = sta[btn.ri_];
                             if (sp && sp.visible) {
@@ -8113,13 +8122,13 @@
                                 else {
                                     sp.setHighlight(true);
                                     sta.forEach(st=>st.setHighlight(st == sp));
-                                    btnctn.keys_.forEach(key=>key.fg_.visible = false);
+                                    bc.keys_.forEach(key=>key.fg_.visible = false);
                                     btn.fg_.visible = true;
                                 }
                             }
-                        });
+                        }.bind(this, k));
                         btn.x = x;
-                        btnctn.addChild(btn);
+                        bc.addChild(btn);
                         keys.push(btn);
                         btn.ri_ = i * 3 + k - 2;
 
@@ -8137,8 +8146,8 @@
                         graph.lineStyle(5, 0x808080, 1);
                         graph.drawRect(x, 0, w1, 240);
                     }
-                    btnctn.visible = (k == 0);
-                    btnctn.keys_ = keys;
+                    bc.visible = (k == 0);
+                    bc.keys_ = keys;
                 }
             }
 
@@ -8154,8 +8163,8 @@
 
                 if (hlt != -1) {
                     // 高亮的牌对应的钢琴
-                    let btnctn = this.btnctns_[(hlt + 2) % 3];
-                    if (btnctn.visible) {
+                    let bc = this.btnctns_[(hlt + 2) % 3];
+                    if (bc.visible) {
                         sta[hlt].setHighlight(false);
 
                         let sp = sta[hlt + o];
@@ -9016,11 +9025,12 @@
                     if (opt != undefined) {
                         let btns = [];
                         for (let k = 0, len = opt.length; k < len; ++k) {
-                            let cb = new CheckBox(opt[k], ()=>{
-                                for (let n = 0; n < len; ++n) {
+                            let cb = new CheckBox(opt[k], function(i, k) {
+                                let btns = this.ctrls_[i];
+                                for (let n = 0, len = option[i].length; n < len; ++n) {
                                     btns[n].setSelected(n == k);
                                 }
-                            });
+                            }.bind(this, i, k));
                             this.addChild(cb);
                             cb.scale.set(.66);
                             cb.x = xx + (i != 8 ? 95 : 125) * k;
@@ -9292,7 +9302,7 @@
                 let rdm = cfg['r'];
                 for (let i = 0; i < 4; ++i) {
                     let xx = gap + gapX * i;
-                    btn = new EmptyButton(gapX, 35, ()=>{ cb(this.tableid_, i, this.pw_); });
+                    btn = new EmptyButton(gapX, 35, function(cb, i) { cb(this.tableid_, i, this.pw_); }.bind(this, cb, i));
                     btn.x = xx;
                     btn.y = 82;
                     this.addChild(btn);
