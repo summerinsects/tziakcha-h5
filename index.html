@@ -5084,13 +5084,13 @@
                     let type = pack_type(pack);
                     let tile = pack_tile(pack);
                     let pplen = this.packData_[0].length;
-                    let ext = (3 * WIDTH_02 * HAND_SCALE) - (WIDTH_02 * 2 + WIDTH_13 + GAP_T);
-                    if (type == 2) {
-                        ext -= WIDTH_02;
-                        if (pack_offer(pack) == 0) {
-                            ext += (WIDTH_13 - WIDTH_02);
-                        }
-                    }
+                    // let ext = (3 * WIDTH_02 * HAND_SCALE) - (WIDTH_02 * 2 + WIDTH_13 + GAP_T);
+                    // if (type == 2) {
+                    //     ext -= WIDTH_02;
+                    //     if (pack_offer(pack) == 0) {
+                    //         ext += (WIDTH_13 - WIDTH_02);
+                    //     }
+                    // }
 
                     // 生成一组副露
                     let t0, t1, t2, t3;
