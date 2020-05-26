@@ -5734,6 +5734,14 @@
             click() {
                 this.cb_(this);
             }
+
+            /**
+             * 设置点击回调
+             * @param {function(StandingTile):void} cb 点击回调
+             */
+            setCallback(cb) {
+                this.cb_ = cb;
+            }
         }
 
         /**
@@ -7631,10 +7639,10 @@
                     cbs[i] = cbx;
 
                     t0.interactive = true;
-                    t0.callback_ = function(i) {
+                    t0.setCallback(function(i) {
                         let cb = this.cbs_[i];
                         cb.setSelected(this.tiles_[i].visible = !cb.isSelected());
-                    }.bind(this, i);
+                    }.bind(this, i));
                 }
                 this.tiles_ = tiles;
                 this.cbs_ = cbs;
