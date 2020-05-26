@@ -8072,31 +8072,18 @@
                 //this.width = w;
                 //this.height = 400;
 
-                let graph = new PIXI.Graphics();
-                this.addChild(graph);
-                graph.lineStyle(5, 0x808080, 1);
-                graph.beginFill(0x0C1E2C, .85);
-                graph.drawRect(0, 0, w, 240);
-                graph.drawRect(0, 240, w, 160);
-                graph.endFill();
-                graph.moveTo(w * .5, 240);
-                graph.lineTo(w * .5, 400);
+                let bg = new PIXI.Sprite(PIXI.Texture.WHITE);
+                bg.width = w;
+                bg.height = 400;
+                bg.tint = 0x0c1e2c;
+                bg.alpha = .85;
+                this.addChild(bg);
 
-                let btn = new TextButton('<', {
-                    fontFamily: FF,
-                    fontSize: 64,
-                    fill: '#ffffff',
-                    strokeThickness: 2,
-                }, w * .5, 160, ()=>{ this.offset(-1); });
+                let btn = new EmptyButton(w * .5, 160, ()=>{ this.offset(-1); });
                 btn.y = 240;
                 this.addChild(btn);
 
-                btn = new TextButton('>', {
-                    fontFamily: FF,
-                    fontSize: 64,
-                    fill: '#ffffff',
-                    strokeThickness: 2,
-                }, w * .5, 160, ()=>{ this.offset(1); });
+                btn = new EmptyButton(w * .5, 160, ()=>{ this.offset(1); });
                 btn.x = w * .5;
                 btn.y = 240;
                 this.addChild(btn);
@@ -8115,8 +8102,11 @@
                     let bc = this.btnctns_[k] = new PIXI.Container();
                     this.addChild(bc);
 
-                    let graph = new PIXI.Graphics();
-                    bc.addChild(graph);
+                    let cvs = document.createElement('canvas');
+                    cvs.width = w;
+                    cvs.height = 240;
+                    let ctx = cvs.getContext('2d');
+                    ctx.lineWidth = 5;
 
                     let keys = [];
                     for (let i = 0; i < 7; ++i) {
@@ -8138,7 +8128,7 @@
                             break;
                         }
 
-                        let btn = new PianoKey(w, 240, function(k, btn){
+                        let btn = new PianoKey(w1, 240, function(k, btn){
                             let bc = this.btnctns_[k];
                             let sta = this.standing_;
                             let sp = sta[btn.ri_];
@@ -8161,22 +8151,60 @@
                         btn.ri_ = i * 3 + k - 2;
 
                         if (xh > 0) {
-                            graph.lineStyle(5, 0xffffff, 1);
-                            graph.moveTo(x + xh, 0);
-                            graph.lineTo(x + xh, 120);
+                            ctx.beginPath();
+                            ctx.moveTo(x + xh, 0);
+                            ctx.lineTo(x + xh, 120);
 
                             // 以下代码：箭头状
-                            // graph.moveTo(x + xh + 15, 25);
-                            // graph.lineTo(x + xh, 5);
-                            // graph.moveTo(x + xh - 15, 25);
-                            // graph.lineTo(x + xh, 5);
+                            // ctx.moveTo(x + xh + 15, 25);
+                            // ctx.lineTo(x + xh, 5);
+                            // ctx.moveTo(x + xh - 15, 25);
+                            // ctx.lineTo(x + xh, 5);
+
+                            ctx.strokeStyle = '#ffffff';
+                            ctx.stroke();
                         }
-                        graph.lineStyle(5, 0x808080, 1);
-                        graph.drawRect(x, 0, w1, 240);
+                        ctx.beginPath();
+                        ctx.rect(x, 0, w1, 240);
+                        ctx.strokeStyle = '#808080';
+                        ctx.stroke();
+
+                        bc.addChild(new PIXI.Sprite(PIXI.Texture.from(cvs)));
                     }
                     bc.visible = (k == 0);
                     bc.keys_ = keys;
                 }
+
+                let cvs = document.createElement('canvas');
+                cvs.width = w;
+                cvs.height = 400;
+                let ctx = cvs.getContext('2d');
+                ctx.lineWidth = 5;
+
+                ctx.beginPath();
+                ctx.moveTo(0, 400);
+                ctx.lineTo(w, 400);
+
+                // 左右移动中间的竖线
+                ctx.moveTo(w * .5, 240);
+                ctx.lineTo(w * .5, 400);
+                ctx.strokeStyle = '#808080';
+                ctx.stroke();
+
+                // 左边的箭头
+                ctx.beginPath();
+                ctx.moveTo(w * .25 + 10, 310);
+                ctx.lineTo(w * .25 - 10, 320);
+                ctx.lineTo(w * .25 + 10, 330);
+
+                // 右边的箭头
+                ctx.moveTo(w * .75 - 10, 310);
+                ctx.lineTo(w * .75 + 10, 320);
+                ctx.lineTo(w * .75 - 10, 330);
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+
+                this.addChild(new PIXI.Sprite(PIXI.Texture.from(cvs)));
             }
 
             /**
@@ -8254,11 +8282,12 @@
                 //this.width = w;
                 //this.height = 340;
 
-                let graph = new PIXI.Graphics();
-                graph.lineStyle(5, 0x808080, 1);
-                graph.beginFill(0x0C1E2C, .85);
-                graph.drawRect(0, 0, w, 340);
-                graph.endFill();
+                let bg = new PIXI.Sprite(PIXI.Texture.WHITE);
+                bg.width = w;
+                bg.height = 340;
+                bg.tint = 0x0c1e2c;
+                bg.alpha = .85;
+                this.addChild(bg);
 
                 this.standing_ = st;
                 this.keys_ = new Array(14);
@@ -8284,6 +8313,13 @@
                     }
                 };
 
+                let cvs = document.createElement('canvas');
+                cvs.width = w;
+                cvs.height = 400;
+                let ctx = cvs.getContext('2d');
+                ctx.lineWidth = 5;
+                ctx.fillStyle = '#ffffff';
+
                 for (let i = 0; i < 7; ++i) {
                     let x = BTN_WIDTH * i;
                     let btn = new PianoKey(BTN_WIDTH, 170, cb);
@@ -8292,13 +8328,9 @@
                     btn.ri_ = i * 2;
                     this.keys_[i * 2] = btn;
 
-                    graph.lineStyle(5, 0xffffff, 1);
-                    graph.beginFill(0xffffff, 1);
-                    graph.drawRect(x, 0, TILE_WIDTH, 20);
-                    graph.endFill();
-
-                    graph.lineStyle(5, 0x808080, 1);
-                    graph.drawRect(x, 0, BTN_WIDTH, 170);
+                    ctx.fillRect(x, 0, TILE_WIDTH, 20);
+                    ctx.moveTo(x + BTN_WIDTH, 0);
+                    ctx.lineTo(x + BTN_WIDTH, 170);
                 }
 
                 for (let i = 0; i < 6; ++i) {
@@ -8310,13 +8342,9 @@
                     btn.ri_ = i * 2 + 1;
                     this.keys_[i * 2 + 1] = btn;
 
-                    graph.lineStyle(5, 0xffffff, 1);
-                    graph.beginFill(0xffffff, 1);
-                    graph.drawRect(x, 170, TILE_WIDTH, 20);
-                    graph.endFill();
-
-                    graph.lineStyle(5, 0x808080, 1);
-                    graph.drawRect(x, 170, BTN_WIDTH, 170);
+                    ctx.fillRect(x, 170, TILE_WIDTH, 20);
+                    ctx.moveTo(x, 170);
+                    ctx.lineTo(x, 340);
                 }
 
                 {
@@ -8329,16 +8357,19 @@
                     btn.ri_ = 13;
                     this.keys_[13] = btn;
 
-                    graph.lineStyle(5, 0xffffff, 1);
-                    graph.beginFill(0xffffff, 1);
-                    graph.drawRect(x, 170, TILE_WIDTH, 20);
-                    graph.endFill();
-
-                    graph.lineStyle(5, 0x808080, 1);
-                    graph.drawRect(x, 170, w1, 170);
+                    ctx.fillRect(x, 170, TILE_WIDTH, 20);
+                    ctx.moveTo(x, 170);
+                    ctx.lineTo(x, 340);
                 }
 
-                this.addChild(graph);
+                ctx.rect(0, 0, w, 340);
+                ctx.moveTo(0, 170);
+                ctx.lineTo(w, 170);
+
+                ctx.strokeStyle = '#808080';
+                ctx.stroke();
+
+                this.addChild(new PIXI.Sprite(PIXI.Texture.from(cvs)));
             }
 
             /**
