@@ -6968,23 +6968,35 @@
                 bg.drawRect(0, 0, w0, h0);
                 bg.endFill();
 
-                bg.lineStyle(2, 0x808080, 1);
-                bg.moveTo(gap, oy);
-                bg.lineTo(gap, oy + gy * 5);
-                bg.lineTo(w0 - gap, oy + gy * 5);
-                bg.lineTo(w0 - gap, oy);
-                bg.lineTo(gap, oy);
+                let cvs = document.createElement('canvas');
+                cvs.width = w0;
+                cvs.height = h0;
+                let ctx = cvs.getContext('2d');
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#ffffff';
+                //bg.lineStyle(2, 0x808080, 1);
+                ctx.moveTo(gap, oy);
+                ctx.lineTo(gap, oy + gy * 5);
+                ctx.lineTo(w0 - gap, oy + gy * 5);
+                ctx.lineTo(w0 - gap, oy);
+                ctx.lineTo(gap, oy);
 
                 for (let i = 1; i < 5; ++i) {
-                    bg.moveTo(gap, oy + gy * i);
-                    bg.lineTo(w0 - gap, oy + gy * i);
+                    ctx.moveTo(gap, oy + gy * i);
+                    ctx.lineTo(w0 - gap, oy + gy * i);
                 }
 
-                bg.moveTo(gap + 80, oy);
-                bg.lineTo(gap + 80, oy + gy * 5);
+                ctx.moveTo(gap + 80, oy);
+                ctx.lineTo(gap + 80, oy + gy * 5);
 
-                bg.moveTo(w0 - gap - 120, oy);
-                bg.lineTo(w0 - gap - 120, oy + gy * 5);
+                ctx.moveTo(w0 - gap - 120, oy);
+                ctx.lineTo(w0 - gap - 120, oy + gy * 5);
+
+                ctx.stroke();
+
+                let sp = new PIXI.Sprite(PIXI.Texture.from(cvs));
+                bg.addChild(sp);
+                sp.tint = 0x808080;
 
                 let t = new PIXI.Text(ti + '\n对战结果', {
                     fontFamily: FF,
@@ -7111,12 +7123,18 @@
                 t.x = w0 * .5;
                 t.y = 35;
 
-                bg.lineStyle(2, 0x808080, 1);
-                bg.moveTo(40, 70);
-                bg.lineTo(40, 830);
-                bg.lineTo(w0 - 40, 830);
-                bg.lineTo(w0 - 40, 70);
-                bg.lineTo(40, 70);
+                let cvs = document.createElement('canvas');
+                cvs.width = w0;
+                cvs.height = h0;
+                let ctx = cvs.getContext('2d');
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#ffffff';
+                //bg.lineStyle(2, 0x808080, 1);
+                ctx.moveTo(40, 70);
+                ctx.lineTo(40, 830);
+                ctx.lineTo(w0 - 40, 830);
+                ctx.lineTo(w0 - 40, 70);
+                ctx.lineTo(40, 70);
 
                 t = new PIXI.Text('昵称', {
                     fontFamily: FF,
@@ -7180,8 +7198,8 @@
                     t.y = 130;
                 }
 
-                bg.moveTo(40, 110);
-                bg.lineTo(w0 - 40, 110);
+                ctx.moveTo(40, 110);
+                ctx.lineTo(w0 - 40, 110);
 
                 let rtt = new Array(16);
                 for (let i = 0; i < 16; ++i) {
@@ -7210,8 +7228,8 @@
                         t.y = yy;
                     }
 
-                    bg.moveTo(40, yy - 20);
-                    bg.lineTo(w0 - 40, yy - 20);
+                    ctx.moveTo(40, yy - 20);
+                    ctx.lineTo(w0 - 40, yy - 20);
                 }
                 this.rtt_ = rtt;
 
@@ -7226,17 +7244,22 @@
                 t.x = 75;
                 t.y = 810;
 
-                bg.moveTo(40, 790);
-                bg.lineTo(w0 - 40, 790);
+                ctx.moveTo(40, 790);
+                ctx.lineTo(w0 - 40, 790);
 
                 for (let i = 0; i < 4; ++i) {
                     let xx = 110 + 140 * i;
-                    bg.moveTo(xx, 70);
-                    bg.lineTo(xx, 830);
+                    ctx.moveTo(xx, 70);
+                    ctx.lineTo(xx, 830);
                     xx += 70;
-                    bg.moveTo(xx, 110);
-                    bg.lineTo(xx, 790);
+                    ctx.moveTo(xx, 110);
+                    ctx.lineTo(xx, 790);
                 }
+                ctx.stroke();
+
+                let sp = new PIXI.Sprite(PIXI.Texture.from(cvs));
+                bg.addChild(sp);
+                sp.tint = 0x808080;
 
                 const wb0 = 120, wh0 = 50;
                 let btn = new TextButton('OK', {
@@ -7363,35 +7386,46 @@
                 t.x = w0 * .5;
                 t.y = 35;
 
-                bg.lineStyle(2, 0x808080, 1);
-                bg.moveTo(40, 70);
-                bg.lineTo(40, 470);
-                bg.lineTo(w0 - 40, 470);
-                bg.lineTo(w0 - 40, 70);
-                bg.lineTo(40, 70);
+                let cvs = document.createElement('canvas');
+                cvs.width = w0;
+                cvs.height = h0;
+                let ctx = cvs.getContext('2d');
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#ffffff';
+                //bg.lineStyle(2, 0x808080, 1);
+                ctx.moveTo(40, 70);
+                ctx.lineTo(40, 470);
+                ctx.lineTo(w0 - 40, 470);
+                ctx.lineTo(w0 - 40, 70);
+                ctx.lineTo(40, 70);
 
                 const xps1 = Uint16Array.of(40, 40, 40, 40, 160, 40, 40, 160, 160);
                 for (let i = 0; i < 9; ++i) {
                     let yy = 110 + 40 * i;
-                    bg.moveTo(xps1[i], yy);
-                    bg.lineTo(w0 - 40, yy);
+                    ctx.moveTo(xps1[i], yy);
+                    ctx.lineTo(w0 - 40, yy);
                 }
 
                 const xps = Uint16Array.of(160, 280, 360, 440, 520);
                 for (let i = 0; i < 5; ++i) {
                     let xx = xps[i];
-                    bg.moveTo(xx, 70);
-                    bg.lineTo(xx, 110);
+                    ctx.moveTo(xx, 70);
+                    ctx.lineTo(xx, 110);
 
-                    bg.moveTo(xx, 150);
-                    bg.lineTo(xx, 190);
+                    ctx.moveTo(xx, 150);
+                    ctx.lineTo(xx, 190);
 
-                    bg.moveTo(xx, 230);
-                    bg.lineTo(xx, 310);
+                    ctx.moveTo(xx, 230);
+                    ctx.lineTo(xx, 310);
 
-                    bg.moveTo(xx, 350);
-                    bg.lineTo(xx, 470);
+                    ctx.moveTo(xx, 350);
+                    ctx.lineTo(xx, 470);
                 }
+                ctx.stroke();
+
+                let sp = new PIXI.Sprite(PIXI.Texture.from(cvs));
+                bg.addChild(sp);
+                sp.tint = 0x808080;
 
                 const cls = ['#FFD700', '#FFD700', '#DCDCDC', '#FF6A6A', '#00BFFF', '#00CD66'];
                 const tix = ['追者', '被追', '分差', '自摸', '对点', '旁点'];
