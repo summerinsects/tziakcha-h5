@@ -6974,12 +6974,7 @@
                 let ctx = cvs.getContext('2d');
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = '#ffffff';
-                //bg.lineStyle(2, 0x808080, 1);
-                ctx.moveTo(gap, oy);
-                ctx.lineTo(gap, oy + gy * 5);
-                ctx.lineTo(w0 - gap, oy + gy * 5);
-                ctx.lineTo(w0 - gap, oy);
-                ctx.lineTo(gap, oy);
+                ctx.rect(gap, oy, w0 - gap * 2, gy * 5);
 
                 for (let i = 1; i < 5; ++i) {
                     ctx.moveTo(gap, oy + gy * i);
@@ -7129,12 +7124,7 @@
                 let ctx = cvs.getContext('2d');
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = '#ffffff';
-                //bg.lineStyle(2, 0x808080, 1);
-                ctx.moveTo(40, 70);
-                ctx.lineTo(40, 830);
-                ctx.lineTo(w0 - 40, 830);
-                ctx.lineTo(w0 - 40, 70);
-                ctx.lineTo(40, 70);
+                ctx.rect(40, 70, w0 - 80, 760);
 
                 t = new PIXI.Text('昵称', {
                     fontFamily: FF,
@@ -7393,12 +7383,7 @@
                 let ctx = cvs.getContext('2d');
                 ctx.lineWidth = 2;
                 ctx.strokeStyle = '#ffffff';
-                //bg.lineStyle(2, 0x808080, 1);
-                ctx.moveTo(40, 70);
-                ctx.lineTo(40, 470);
-                ctx.lineTo(w0 - 40, 470);
-                ctx.lineTo(w0 - 40, 70);
-                ctx.lineTo(40, 70);
+                ctx.rect(40, 70, w0 - 80, 400);
 
                 const xps1 = Uint16Array.of(40, 40, 40, 40, 160, 40, 40, 160, 160);
                 for (let i = 0; i < 9; ++i) {
