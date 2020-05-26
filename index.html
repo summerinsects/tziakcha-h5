@@ -834,8 +834,8 @@
                     let cp = lo_byte(v);
                     let n = (wp + 4 - pool.seat_) & 3;
 
-                    let detail = resp['d'];
-                    if (detail == undefined) {
+                    let dt = resp['d'];
+                    if (dt == undefined) {
                         play_snd(!pool.players_[wp]['g'] ? 'snd/20-win-m.wav' : 'snd/21-win-f.wav');
                         pool.showCall(n, '和');
                         let a = resp['a'];
@@ -846,22 +846,22 @@
                         break;
                     }
 
-                    let succeed = detail['w'];
+                    let s = dt['w'];
 
-                    let tiles = resp['t'];
-                    pool.op_ht(tiles, succeed, wp, cp, resp['w']);
-                    if (!succeed) {
+                    let ts = resp['t'];
+                    pool.op_ht(ts, s, wp, cp, resp['w']);
+                    if (!s) {
                         pool.falseWin_[n] = true;
                         pool.infoPanels_[n].setFalseWin(true);
                         console.log('错和');
                         if (wp == pool.seat_) {
-                            pool.showFalseWin(detail['f'], resp['p']);
+                            pool.showFalseWin(dt['f'], resp['p']);
                         }
                         break;
                     }
                     pool.rmCD();
                     pool.rmBtns();
-                    pool.showSettleView(tiles[wp], resp['w'], resp['p'], detail);
+                    pool.showSettleView(ts[wp], resp['w'], resp['p'], dt);
                     break;
                 }
                 case 13: {  // 流局
