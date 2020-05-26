@@ -3418,10 +3418,11 @@
                     break;
                 }
 
+                let zi = 240 + pplen * 4;
                 t.forEach((ti, i)=>{
                     this.addChild(ti);
                     this.packs_[3].push(ti);
-                    ti.zIndex = 240 + i + pplen * 4;
+                    ti.zIndex = zi + i;
                 });
 
                 // 动画
@@ -3527,11 +3528,12 @@
                 let hdn = pplen * 3;
                 let yy = sta[hdn + 3].y + ext - GAP_T;
 
+                let zi = 240 + pplen * 4;
                 for (let i = 0; i < 4; ++i) {
                     let t = create_w13();
                     if (i == 1 || i == 2) t.ck_ = true;
                     this.addChild(t);
-                    t.zIndex = 240 + pplen * 4 + i;
+                    t.zIndex = zi + i;
                     this.packs_[3].push(t);
 
                     t.y = sta[idx[i]].y;
@@ -3654,10 +3656,11 @@
                     break;
                 }
 
+                let zi = 170 + pplen * 4;
                 t.forEach((ti, i)=>{
                     this.addChild(ti);
                     this.packs_[2].push(ti);
-                    ti.zIndex = 170 + i + pplen * 4;
+                    ti.zIndex = zi + i;
                 });
 
                 // 动画
@@ -3762,11 +3765,12 @@
                 let hdn = pplen * 3;
                 let xx = sta[hdn + 3].x - ext + GAP_T + WIDTH_02;
 
+                let zi = 170 + pplen * 4;
                 for (let i = 0; i < 4; ++i) {
                     let t = create_w02();
                     if (i == 1 || i == 2) t.ck_ = true;
                     this.addChild(t);
-                    t.zIndex = 170 + pplen * 4 + i;
+                    t.zIndex = zi + i;
                     this.packs_[2].push(t);
 
                     t.x = sta[idx[i]].x;
@@ -3891,10 +3895,11 @@
                     break;
                 }
 
+                let zi = 169 - pplen * 4;
                 t.forEach((ti, i)=>{
                     this.addChild(ti);
                     this.packs_[1].push(ti);
-                    ti.zIndex = 169 - i - pplen * 4;
+                    ti.zIndex = zi - i;
                 });
 
                 // 动画
@@ -4001,11 +4006,12 @@
                 let hdn = pplen * 3;
                 let yy = sta[hdn + 3].y - ext + GAP_T;
 
+                let zi = 169 - pplen * 4;
                 for (let i = 0; i < 4; ++i) {
                     let t = create_w13();
                     if (i == 1 || i == 2) t.ck_ = true;
                     this.addChild(t);
-                    t.zIndex = 169 - pplen * 4 - i;
+                    t.zIndex = zi - i;
                     this.packs_[1].push(t);
 
                     t.x = xx - (WIDTH_13 - WIDTH_13S); t.y = sta[idx[i]].y;
@@ -4131,10 +4137,11 @@
                     break;
                 }
 
+                let zi = 340 + pplen * 4;
                 t.forEach((ti, i)=>{
                     this.addChild(ti);
                     this.packs_[0].push(ti);
-                    ti.zIndex = 340 + i + pplen * 4;
+                    ti.zIndex = zi + i;
                 });
 
                 // 动画
@@ -4264,10 +4271,11 @@
                 let xx = this.openPos_[0];
                 let yy = sta[0].y;
 
+                let zi = 340 + pplen * 4;
                 for (let i = 0; i < 4; ++i) {
                     let t = (i == 0 || i == 3) ? create_w02() : new PoolTile0(tile);
                     this.addChild(t);
-                    t.zIndex = 340 + pplen * 4 + i;
+                    t.zIndex = zi + i;
                     this.packs_[0].push(t);
 
                     t.x = sta[idx[3 - i]].x;
