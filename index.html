@@ -2400,12 +2400,12 @@
 
                 let dict = {}, size = 0;
                 a.forEach(ac=>{
-                    let type = (ac >> 16) & 0xFFFF, data = (ac & 0xFFFF);
-                    if (dict[type] == undefined) {
-                        dict[type] = [data];
+                    let tp = (ac >> 16) & 0xFFFF, data = (ac & 0xFFFF);
+                    if (dict[tp] == undefined) {
+                        dict[tp] = [data];
                         ++size;
                     } else {
-                        dict[type].push(data);
+                        dict[tp].push(data);
                     }
                 });
                 if (size == 0) {
@@ -3240,14 +3240,14 @@
              * @param {number} n 玩家
              */
             _chck_call(n) {
-                let pplen = this.packData_[n].length;
-                let hdn = pplen * 3;
+                let pl = this.packData_[n].length;
+                let hdn = pl * 3;
                 if (hdn >= 12) {
                     console.log('ui error');
                     reenter();
                     return -1;
                 }
-                return pplen;
+                return pl;
             }
 
             /**
@@ -3385,20 +3385,20 @@
 
             /**
              * 上家吃/碰/大明杠
-             * @param {number} pack 副露
+             * @param {number} p 副露
              */
-            cpk3(pack) {
-                let type = pack_type(pack);
-                let tile = pack_tile(pack);
+            cpk3(p) {
+                let tp = pack_type(p);
+                let tl = pack_tile(p);
 
                 this.rmBtns();
                 this.rmCD();
 
-                let pplen = this._chck_call(3);
-                if (pplen < 0) return;
+                let pl = this._chck_call(3);
+                if (pl < 0) return;
 
                 let sta = this.standing_[3];
-                let ext = (type != 2) ? EXT_CP_13 : EXT_DK_13;
+                let ext = (tp != 2) ? EXT_CP_13 : EXT_DK_13;
 
                 this._mv_prev3(ext);
 
@@ -3409,34 +3409,34 @@
                 // 生成一组副露
                 let t = [];
                 let hz = 0;
-                switch (type) {
+                switch (tp) {
                 case 0:
                     idx[2] = 13;
-                    switch (pack_offer(pack)) {
-                    default: t.push(new PoolTile0(tile - 4)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile + 4)); break;
-                    case 2: t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile - 4)); t.push(new PoolTile3(tile + 4)); break;
-                    case 3: t.push(new PoolTile0(tile + 4)); t.push(new PoolTile3(tile - 4)); t.push(new PoolTile3(tile)); break;
+                    switch (pack_offer(p)) {
+                    default: t.push(new PoolTile0(tl - 4)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl + 4)); break;
+                    case 2: t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl - 4)); t.push(new PoolTile3(tl + 4)); break;
+                    case 3: t.push(new PoolTile0(tl + 4)); t.push(new PoolTile3(tl - 4)); t.push(new PoolTile3(tl)); break;
                     }
                     break;
                 case 1:
                     idx[2] = 13;
-                    switch (pack_offer(pack)) {
-                    default: hz = 0; t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t[0].pr_ = true; break;
-                    case 2: hz = 1; t.push(new PoolTile3(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t[1].pr_ = true; break;
-                    case 3: hz = 2; t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t[2].pr_ = true; break;
+                    switch (pack_offer(p)) {
+                    default: hz = 0; t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t[0].pr_ = true; break;
+                    case 2: hz = 1; t.push(new PoolTile3(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t[1].pr_ = true; break;
+                    case 3: hz = 2; t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t[2].pr_ = true; break;
                     }
                     break;
                 case 2:
                     do { idx[2] = this._randomIdx(3); } while (idx[0] == idx[2] || idx[1] == idx[2]);
-                    switch (pack_offer(pack)) {
-                    default: hz = 0; t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); break;
-                    case 2: hz = 1;  t.push(new PoolTile3(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); break;
-                    case 3: hz = 2;  t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); break;
+                    switch (pack_offer(p)) {
+                    default: hz = 0; t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); break;
+                    case 2: hz = 1;  t.push(new PoolTile3(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); break;
+                    case 3: hz = 2;  t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); break;
                     }
                     break;
                 }
 
-                let zi = 240 + pplen * 4;
+                let zi = 240 + pl * 4;
                 t.forEach((ti, i)=>{
                     this.addChild(ti);
                     this.packs_[3].push(ti);
@@ -3444,7 +3444,7 @@
                 });
 
                 // 动画
-                let hdn = pplen * 3;
+                let hdn = pl * 3;
                 let yy = sta[hdn + 3].y + ext - GAP_T;
 
                 // 来源牌
@@ -3458,7 +3458,7 @@
                     if (req) t[0].x = req.x, t[0].y = req.y;
                     t[1].y = sta[idx[0]].y;
                     t[2].y = sta[idx[1]].y;
-                    if (type != 2) {
+                    if (tp != 2) {
                         (new TWEEN.Tween(t[0])).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02),x:0}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[1])).to({y:(yy - HEIGHT_13 * 2)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[2])).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
@@ -3475,7 +3475,7 @@
                     t[0].y = sta[idx[0]].y;
                     if (req) t[1].x = req.x, t[1].y = req.y;
                     t[2].y = sta[idx[1]].y;
-                    if (type != 2) {
+                    if (tp != 2) {
                         (new TWEEN.Tween(t[0])).to({y:(yy - HEIGHT_13 * 2 - HEIGHT_02)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[1])).to({y:(yy - HEIGHT_13 - HEIGHT_02),x:0}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[2])).to({y:(yy - HEIGHT_13)}, DISCARD_DT).start();
@@ -3491,7 +3491,7 @@
                 case 2:
                     t[0].y = sta[idx[0]].y;
                     t[1].y = sta[idx[1]].y;
-                    if (type != 2) {
+                    if (tp != 2) {
                         if (req) t[2].x = req.x, t[2].y = req.y;
                         (new TWEEN.Tween(t[0])).to({y:(yy - HEIGHT_02 - HEIGHT_13 * 2)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[1])).to({y:(yy - HEIGHT_02 - HEIGHT_13)}, DISCARD_DT).start();
@@ -3513,10 +3513,10 @@
                     else req.visible = false;
                 }
 
-                this.packData_[3].push(pack);
+                this.packData_[3].push(p);
                 this._shrink(3, idx);
                 this._srt_shrk3();
-                if (type == 2) sta[13].visible = false;
+                if (tp == 2) sta[13].visible = false;
                 else this.setTurn((this.seat_ + 3) & 3);
 
                 setTimeout(()=>{ this.sortChildren(); }, DISCARD_DT);
@@ -3528,8 +3528,8 @@
              * @param {number} h 手牌四张true，抓来暗杠false
              */
             ck3(h) {
-                let pplen = this._chck_call(3);
-                if (pplen < 0) return;
+                let pl = this._chck_call(3);
+                if (pl < 0) return;
 
                 let sta = this.standing_[3];
                 let ext = EXT_CK_13;
@@ -3543,10 +3543,10 @@
                 if (h) do { idx[3] = this._randomIdx(3); } while (idx[3] == idx[0] || idx[3] == idx[1] || idx[3] == idx[2]);
 
                 // 生成一组副露
-                let hdn = pplen * 3;
+                let hdn = pl * 3;
                 let yy = sta[hdn + 3].y + ext - GAP_T;
 
-                let zi = 240 + pplen * 4;
+                let zi = 240 + pl * 4;
                 for (let i = 0; i < 4; ++i) {
                     let t = create_w13();
                     if (i == 1 || i == 2) t.ck_ = true;
@@ -3623,20 +3623,20 @@
 
             /**
              * 对家吃/碰/大明杠
-             * @param {number} pack 副露
+             * @param {number} p 副露
              */
-            cpk2(pack) {
-                let type = pack_type(pack);
-                let tile = pack_tile(pack);
+            cpk2(p) {
+                let tp = pack_type(p);
+                let tl = pack_tile(p);
 
                 this.rmBtns();
                 this.rmCD();
 
-                let pplen = this._chck_call(2);
-                if (pplen < 0) return;
+                let pl = this._chck_call(2);
+                if (pl < 0) return;
 
                 let sta = this.standing_[2];
-                let ext = (type != 2) ? EXT_CP_02 : EXT_DK_02;
+                let ext = (tp != 2) ? EXT_CP_02 : EXT_DK_02;
 
                 this._mv_prev2(ext);
 
@@ -3647,34 +3647,34 @@
                 // 生成一组副露
                 let t = [];
                 let hz = 0;
-                switch (type) {
+                switch (tp) {
                 case 0:
                     idx[2] = 13;
-                    switch (pack_offer(pack)) {
-                    default: t.push(new PoolTile3(tile - 4)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile + 4)); break;
-                    case 2: t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile - 4)); t.push(new PoolTile2(tile + 4)); break;
-                    case 3: t.push(new PoolTile3(tile + 4)); t.push(new PoolTile2(tile - 4)); t.push(new PoolTile2(tile)); break;
+                    switch (pack_offer(p)) {
+                    default: t.push(new PoolTile3(tl - 4)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl + 4)); break;
+                    case 2: t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl - 4)); t.push(new PoolTile2(tl + 4)); break;
+                    case 3: t.push(new PoolTile3(tl + 4)); t.push(new PoolTile2(tl - 4)); t.push(new PoolTile2(tl)); break;
                     }
                     break;
                 case 1:
                     idx[2] = 13;
-                    switch (pack_offer(pack)) {
-                    default: hz = 0; t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t[0].pr_ = true; break;
-                    case 2: hz = 1; t.push(new PoolTile2(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t[1].pr_ = true; break;
-                    case 3: hz = 2; t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t[2].pr_ = true; break;
+                    switch (pack_offer(p)) {
+                    default: hz = 0; t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t[0].pr_ = true; break;
+                    case 2: hz = 1; t.push(new PoolTile2(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t[1].pr_ = true; break;
+                    case 3: hz = 2; t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t[2].pr_ = true; break;
                     }
                     break;
                 case 2:
                     do { idx[2] = this._randomIdx(2); } while (idx[0] == idx[2] || idx[0] == idx[2]);
-                    switch (pack_offer(pack)) {
-                    default: hz = 0; t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); break;
-                    case 2: hz = 1; t.push(new PoolTile2(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); break;
-                    case 3: hz = 2; t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); break;
+                    switch (pack_offer(p)) {
+                    default: hz = 0; t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); break;
+                    case 2: hz = 1; t.push(new PoolTile2(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); break;
+                    case 3: hz = 2; t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); break;
                     }
                     break;
                 }
 
-                let zi = 170 + pplen * 4;
+                let zi = 170 + pl * 4;
                 t.forEach((ti, i)=>{
                     this.addChild(ti);
                     this.packs_[2].push(ti);
@@ -3682,7 +3682,7 @@
                 });
 
                 // 动画
-                let hdn = pplen * 3;
+                let hdn = pl * 3;
                 let xx = sta[hdn + 3].x - ext + GAP_T + WIDTH_02;
 
                 // 来源牌
@@ -3696,7 +3696,7 @@
                     if (req) t[0].x = req.x, t[0].y = req.y;
                     t[1].x = sta[idx[0]].x;
                     t[2].x = sta[idx[1]].x;
-                    if (type != 2) {
+                    if (tp != 2) {
                         (new TWEEN.Tween(t[0])).to({x:(xx + WIDTH_02 * 2),y:0}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_02)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[2])).to({x:(xx)}, DISCARD_DT).start();
@@ -3713,7 +3713,7 @@
                     t[0].x = sta[idx[0]].x;
                     if (req) t[1].x = req.x, t[1].y = req.y;
                     t[2].x = sta[idx[1]].x;
-                    if (type != 2) {
+                    if (tp != 2) {
                         (new TWEEN.Tween(t[0])).to({x:(xx + WIDTH_02 + WIDTH_13)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_02),y:0}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[2])).to({x:(xx)}, DISCARD_DT).start();
@@ -3729,7 +3729,7 @@
                 case 2:
                     t[0].x = sta[idx[0]].x;
                     t[1].x = sta[idx[1]].x;
-                    if (type != 2) {
+                    if (tp != 2) {
                         if (req) t[2].x = req.x, t[2].y = req.y;
                         (new TWEEN.Tween(t[0])).to({x:(xx + WIDTH_13 + WIDTH_02)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_13)}, DISCARD_DT).start();
@@ -3751,10 +3751,10 @@
                     else req.visible = false;
                 }
 
-                this.packData_[2].push(pack);
+                this.packData_[2].push(p);
                 this._shrink(2, idx);
                 this._srt_shrk2();
-                if (type == 2) sta[13].visible = false;
+                if (tp == 2) sta[13].visible = false;
                 else this.setTurn((this.seat_ + 2) & 3);
 
                 setTimeout(()=>{ this.sortChildren(); }, DISCARD_DT);
@@ -3766,8 +3766,8 @@
              * @param {number} h 手牌四张true，抓来暗杠false
              */
             ck2(h) {
-                let pplen = this._chck_call(2);
-                if (pplen < 0) return;
+                let pl = this._chck_call(2);
+                if (pl < 0) return;
 
                 let sta = this.standing_[2];
                 let ext = EXT_CK_02;
@@ -3780,10 +3780,10 @@
                 if (h) do { idx[3] = this._randomIdx(2); } while (idx[3] == idx[0] || idx[3] == idx[1] || idx[3] == idx[2]);
 
                 // 生成一组副露
-                let hdn = pplen * 3;
+                let hdn = pl * 3;
                 let xx = sta[hdn + 3].x - ext + GAP_T + WIDTH_02;
 
-                let zi = 170 + pplen * 4;
+                let zi = 170 + pl * 4;
                 for (let i = 0; i < 4; ++i) {
                     let t = create_w02();
                     if (i == 1 || i == 2) t.ck_ = true;
@@ -3860,20 +3860,20 @@
 
             /**
              * 下家吃/碰/大明杠
-             * @param {number} pack 副露
+             * @param {number} p 副露
              */
-            cpk1(pack) {
-                let type = pack_type(pack);
-                let tile = pack_tile(pack);
+            cpk1(p) {
+                let tp = pack_type(p);
+                let tl = pack_tile(p);
 
                 this.rmBtns();
                 this.rmCD();
 
-                let pplen = this._chck_call(1);
-                if (pplen < 0) return;
+                let pl = this._chck_call(1);
+                if (pl < 0) return;
 
                 let sta = this.standing_[1];
-                let ext = (type != 2) ? EXT_CP_13 : EXT_DK_13;
+                let ext = (tp != 2) ? EXT_CP_13 : EXT_DK_13;
 
                 this._mv_prev1(ext);
 
@@ -3886,34 +3886,34 @@
                 // 生成一组副露
                 let t =[];
                 let hz = 0;
-                switch (type) {
+                switch (tp) {
                 case 0:
                     idx[2] = 13;
-                    switch (pack_offer(pack)) {
-                    default: t.push(new PoolTile2(tile - 4)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile + 4)); break;
-                    case 2: t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile - 4)); t.push(new PoolTile1(tile + 4)); break;
-                    case 3: t.push(new PoolTile2(tile + 4)); t.push(new PoolTile1(tile - 4)); t.push(new PoolTile1(tile)); break;
+                    switch (pack_offer(p)) {
+                    default: t.push(new PoolTile2(tl - 4)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl + 4)); break;
+                    case 2: t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl - 4)); t.push(new PoolTile1(tl + 4)); break;
+                    case 3: t.push(new PoolTile2(tl + 4)); t.push(new PoolTile1(tl - 4)); t.push(new PoolTile1(tl)); break;
                     }
                     break;
                 case 1:
                     idx[2] = 13;
-                    switch (pack_offer(pack)) {
-                    default: hz = 0; t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t[0].pr_ = true; break;
-                    case 2: hz = 1; t.push(new PoolTile1(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t[1].pr_ = true; break;
-                    case 3: hz = 2; t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t[2].pr_ = true; break;
+                    switch (pack_offer(p)) {
+                    default: hz = 0; t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t[0].pr_ = true; break;
+                    case 2: hz = 1; t.push(new PoolTile1(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t[1].pr_ = true; break;
+                    case 3: hz = 2; t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t[2].pr_ = true; break;
                     }
                     break;
                 case 2:
                     do { idx[2] = this._randomIdx(1); } while (idx[0] == idx[2] || idx[1] == idx[2]);
-                    switch (pack_offer(pack)) {
-                    default: hz = 0; t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); break;
-                    case 2: hz = 1; t.push(new PoolTile1(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); break;
-                    case 3: hz = 2; t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); break;
+                    switch (pack_offer(p)) {
+                    default: hz = 0; t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); break;
+                    case 2: hz = 1; t.push(new PoolTile1(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); break;
+                    case 3: hz = 2; t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); break;
                     }
                     break;
                 }
 
-                let zi = 169 - pplen * 4;
+                let zi = 169 - pl * 4;
                 t.forEach((ti, i)=>{
                     this.addChild(ti);
                     this.packs_[1].push(ti);
@@ -3921,7 +3921,7 @@
                 });
 
                 // 动画
-                let hdn = pplen * 3;
+                let hdn = pl * 3;
                 let yy = sta[hdn + 3].y - ext + GAP_T + HEIGHT_13 * 2;
 
                 // 来源牌
@@ -3935,7 +3935,7 @@
                     if (req) t[0].x = req.x, t[0].y = req.y;
                     t[1].x = xx - (WIDTH_13 - WIDTH_13S); t[1].y = sta[idx[0]].y;
                     t[2].x = t[1].x; t[2].y = sta[idx[1]].y;
-                    if (type != 2) {
+                    if (tp != 2) {
                         (new TWEEN.Tween(t[0])).to({y:(yy + HEIGHT_13 * 2),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[1])).to({y:(yy + HEIGHT_13)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[2])).to({y:(yy)}, DISCARD_DT).start();
@@ -3952,7 +3952,7 @@
                     t[0].x = xx - (WIDTH_13 - WIDTH_13S); t[0].y = sta[idx[0]].y;
                     if (req) t[1].x = req.x, t[1].y = req.y;
                     t[2].x = t[0].x; t[2].y = sta[idx[1]].y;
-                    if (type != 2) {
+                    if (tp != 2) {
                         (new TWEEN.Tween(t[0])).to({y:(yy + HEIGHT_13 + HEIGHT_02)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[1])).to({y:(yy + HEIGHT_13),x:(xx - (WIDTH_02 - WIDTH_13S))}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[2])).to({y:(yy)}, DISCARD_DT).start();
@@ -3968,7 +3968,7 @@
                 case 2:
                     t[0].x = xx - (WIDTH_13 - WIDTH_13S); t[0].y = sta[idx[0]].y;
                     t[1].x = t[0].x; t[1].y = sta[idx[1]].y;
-                    if (type != 2) {
+                    if (tp != 2) {
                         if (req) t[2].x = req.x, t[2].y = req.y;
                         (new TWEEN.Tween(t[0])).to({y:(yy + HEIGHT_02 + HEIGHT_13)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[1])).to({y:(yy + HEIGHT_02)}, DISCARD_DT).start();
@@ -3990,10 +3990,10 @@
                     else req.visible = false;
                 }
 
-                this.packData_[1].push(pack);
+                this.packData_[1].push(p);
                 this._shrink(1, idx);
                 this._srt_shrk1();
-                if (type == 2) sta[13].visible = false;
+                if (tp == 2) sta[13].visible = false;
                 else this.setTurn((this.seat_ + 1) & 3);
 
                 setTimeout(()=>{ this.sortChildren(); }, DISCARD_DT);
@@ -4005,8 +4005,8 @@
              * @param {number} h 手牌四张true，抓来暗杠false
              */
             ck1(h) {
-                let pplen = this._chck_call(1);
-                if (pplen < 0) return;
+                let pl = this._chck_call(1);
+                if (pl < 0) return;
 
                 let sta = this.standing_[1];
                 let ext = EXT_CK_13;
@@ -4021,10 +4021,10 @@
                 if (h) do { idx[3] = this._randomIdx(1); } while (idx[3] == idx[0] || idx[3] == idx[1] || idx[3] == idx[2]);
 
                 // 生成一组副露
-                let hdn = pplen * 3;
+                let hdn = pl * 3;
                 let yy = sta[hdn + 3].y - ext + GAP_T;
 
-                let zi = 169 - pplen * 4;
+                let zi = 169 - pl * 4;
                 for (let i = 0; i < 4; ++i) {
                     let t = create_w13();
                     if (i == 1 || i == 2) t.ck_ = true;
@@ -4091,16 +4091,16 @@
 
             /**
              * 自己吃/碰/大明杠
-             * @param {number} pack 副露
+             * @param {number} p 副露
              */
-            cpk0(pack) {
-                let type = pack_type(pack);
-                let tile = pack_tile(pack);
+            cpk0(p) {
+                let tp = pack_type(p);
+                let tl = pack_tile(p);
 
                 this.rmCD();
 
-                let pplen = this._chck_call(0);
-                if (pplen < 0) return;
+                let pl = this._chck_call(0);
+                if (pl < 0) return;
 
                 let sta = this.standing_[0];
                 let idx = new Uint8Array(3);
@@ -4108,13 +4108,13 @@
                 // 生成一组副露
                 let t = [];
                 let hz = 0;
-                switch (type) {
+                switch (tp) {
                 case 0: {
-                    let tt0 = tile - 4 + ((pack >> 10) & 3);
-                    let tt1 = tile + ((pack >> 12) & 3);
-                    let tt2 = tile + 4 + ((pack >> 14) & 3);
+                    let tt0 = tl - 4 + ((p >> 10) & 3);
+                    let tt1 = tl + ((p >> 12) & 3);
+                    let tt2 = tl + 4 + ((p >> 14) & 3);
                     idx[2] = 13;
-                    switch (pack_offer(pack)) {
+                    switch (pack_offer(p)) {
                     default:
                         idx[0] = this._findIdx(0, tt1); idx[1] = this._findIdx(0, tt2);
                         t.push(new PoolTile1(tt0)); t.push(new PoolTile0(tt1)); t.push(new PoolTile0(tt2));
@@ -4131,31 +4131,31 @@
                     break;
                 }
                 case 1: {
-                    let tm = tile + ((pack >> 10) & 3);
+                    let tm = tl + ((p >> 10) & 3);
                     idx[0] = this._findIdxN(0, tm);
                     idx[1] = this._findIdxN(idx[0] + 1, tm);
                     idx[2] = 13;
-                    switch (pack_offer(pack)) {
-                    default: hz = 0; t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t[0].pr_ = true; break;
-                    case 2: hz = 1; t.push(new PoolTile0(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t[1].pr_ = true; break;
-                    case 3: hz = 2; t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t[2].pr_ = true; break;
+                    switch (pack_offer(p)) {
+                    default: hz = 0; t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t[0].pr_ = true; break;
+                    case 2: hz = 1; t.push(new PoolTile0(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t[1].pr_ = true; break;
+                    case 3: hz = 2; t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t[2].pr_ = true; break;
                     }
                     break;
                 }
                 case 2:
                     this.stopFlower_ = true;
-                    idx[0] = this._findIdxA(0, tile);
-                    idx[1] = this._findIdxA(idx[0] + 1, tile);
-                    idx[2] = this._findIdxA(idx[1] + 1, tile);
-                    switch (pack_offer(pack)) {
-                    default: hz = 0; t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); break;
-                    case 2: hz = 1; t.push(new PoolTile0(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); break;
-                    case 3: hz = 2; t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); break;
+                    idx[0] = this._findIdxA(0, tl);
+                    idx[1] = this._findIdxA(idx[0] + 1, tl);
+                    idx[2] = this._findIdxA(idx[1] + 1, tl);
+                    switch (pack_offer(p)) {
+                    default: hz = 0; t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); break;
+                    case 2: hz = 1; t.push(new PoolTile0(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); break;
+                    case 3: hz = 2; t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); break;
                     }
                     break;
                 }
 
-                let zi = 340 + pplen * 4;
+                let zi = 340 + pl * 4;
                 t.forEach((ti, i)=>{
                     this.addChild(ti);
                     this.packs_[0].push(ti);
@@ -4175,7 +4175,7 @@
                     if (req) t[0].x = req.x, t[0].y = req.y;
                     t[1].x = sta[idx[0]].x; t[1].y = yy - HEIGHT_02F * HAND_SCALE; t[1].scale.set(HAND_SCALE);
                     t[2].x = sta[idx[1]].x; t[2].y = yy - HEIGHT_02F * HAND_SCALE; t[2].scale.set(HAND_SCALE);
-                    if (type != 2) {
+                    if (tp != 2) {
                         (new TWEEN.Tween(t[0])).to({x:(xx),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[2])).to({x:(xx + WIDTH_13 + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
@@ -4199,7 +4199,7 @@
                     t[0].x = sta[idx[0]].x; t[0].y = yy - HEIGHT_02F * HAND_SCALE; t[0].scale.set(HAND_SCALE);
                     if (req) t[1].x = req.x, t[1].y = req.y;
                     t[2].x = sta[idx[1]].x; t[2].y = yy - HEIGHT_02F * HAND_SCALE; t[2].scale.set(HAND_SCALE);
-                    if (type != 2) {
+                    if (tp != 2) {
                         (new TWEEN.Tween(t[0])).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_13F)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[2])).to({x:(xx + WIDTH_02 + WIDTH_13),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
@@ -4222,7 +4222,7 @@
                 case 2:
                     t[0].x = sta[idx[0]].x; t[0].y = yy - HEIGHT_02F * HAND_SCALE; t[0].scale.set(HAND_SCALE);
                     t[1].x = sta[idx[1]].x; t[1].y = yy - HEIGHT_02F * HAND_SCALE; t[1].scale.set(HAND_SCALE);
-                    if (type != 2) {
+                    if (tp != 2) {
                         if (req) t[2].x = req.x, t[2].y = req.y;
                         (new TWEEN.Tween(t[0])).to({x:(xx),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
                         (new TWEEN.Tween(t[1])).to({x:(xx + WIDTH_02),y:(yy - HEIGHT_02F)}, DISCARD_DT).start();
@@ -4251,10 +4251,10 @@
                     else req.visible = false;
                 }
 
-                this.packData_[0].push(pack);
+                this.packData_[0].push(p);
                 this._shrink(0, idx);
                 this._srt_shrk0();
-                if (type != 2) {
+                if (tp != 2) {
                     this.openPos_[0] = xx + WIDTH_13 + WIDTH_02 * 2 + GAP_T;
                     this.setTurn(this.seat_);
                     this.addCD(this.cfg_['r30']);
@@ -4270,28 +4270,28 @@
 
             /**
              * 自己暗杠
-             * @param {number} pack 副露
+             * @param {number} p 副露
              */
-            ck0(pack) {
-                let pplen = this._chck_call(0);
-                if (pplen < 0) return;
+            ck0(p) {
+                let pl = this._chck_call(0);
+                if (pl < 0) return;
 
                 let sta = this.standing_[0];
-                let tile = pack_tile(pack);
+                let tl = pack_tile(p);
 
                 let idx = new Uint8Array(4);
-                idx[0] = this._findIdxA(0, tile);
-                idx[1] = this._findIdxA(idx[0] + 1, tile);
-                idx[2] = this._findIdxA(idx[1] + 1, tile);
-                idx[3] = this._findIdxA(idx[2] + 1, tile);
+                idx[0] = this._findIdxA(0, tl);
+                idx[1] = this._findIdxA(idx[0] + 1, tl);
+                idx[2] = this._findIdxA(idx[1] + 1, tl);
+                idx[3] = this._findIdxA(idx[2] + 1, tl);
 
                 // 生成一组副露
                 let xx = this.openPos_[0];
                 let yy = sta[0].y;
 
-                let zi = 340 + pplen * 4;
+                let zi = 340 + pl * 4;
                 for (let i = 0; i < 4; ++i) {
-                    let t = (i == 0 || i == 3) ? create_w02() : new PoolTile0(tile);
+                    let t = (i == 0 || i == 3) ? create_w02() : new PoolTile0(tl);
                     this.addChild(t);
                     t.zIndex = zi + i;
                     this.packs_[0].push(t);
@@ -4306,7 +4306,7 @@
 
                 this.stopFlower_ = true;
 
-                this.packData_[0].push(pack);
+                this.packData_[0].push(p);
 
                 // 插入手牌动画
                 if (idx[3] == 13) {
@@ -4326,7 +4326,7 @@
                     sta.sort(function(a, b) { return a.t_ - b.t_; });
 
                     let dp = this.origin_[0];
-                    let hdn = pplen * 3;
+                    let hdn = pl * 3;
                     sta.forEach((sp, i)=>{
                         sp.zIndex = 360 + i;
                         if (i < hdn + 3) {
@@ -5034,47 +5034,47 @@
                     sp.update(s[13 - o]);
                 }
 
-                p.forEach(pack=>{
-                    let type = pack_type(pack);
-                    let tile = pack_tile(pack);
-                    let pplen = this.packData_[0].length;
+                p.forEach(p=>{
+                    let tp = pack_type(p);
+                    let tl = pack_tile(p);
+                    let pl = this.packData_[0].length;
 
                     // 生成一组副露
                     let t = [];
                     let hz = 0;
-                    switch (type) {
+                    switch (tp) {
                     case 0:
-                        switch (pack_offer(pack)) {
-                        default: t.push(new PoolTile1(tile - 4)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile + 4)); break;
-                        case 2: t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile - 4)); t.push(new PoolTile0(tile + 4)); break;
-                        case 3: t.push(new PoolTile1(tile + 4)); t.push(new PoolTile0(tile - 4)); t.push(new PoolTile0(tile)); break;
+                        switch (pack_offer(p)) {
+                        default: t.push(new PoolTile1(tl - 4)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl + 4)); break;
+                        case 2: t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl - 4)); t.push(new PoolTile0(tl + 4)); break;
+                        case 3: t.push(new PoolTile1(tl + 4)); t.push(new PoolTile0(tl - 4)); t.push(new PoolTile0(tl)); break;
                         }
                         break;
                     case 1:
-                        switch (pack_offer(pack)) {
-                        default: hz = 0; t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t[0].pr_ = true; break;
-                        case 2: hz = 1; t.push(new PoolTile0(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t[1].pr_ = true; break;
-                        case 3: hz = 2; t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t[2].pr_ = true; break;
+                        switch (pack_offer(p)) {
+                        default: hz = 0; t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t[0].pr_ = true; break;
+                        case 2: hz = 1; t.push(new PoolTile0(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t[1].pr_ = true; break;
+                        case 3: hz = 2; t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t[2].pr_ = true; break;
                         }
                         break;
                     case 2:
-                        switch (pack_offer(pack)) {
-                        default: hz = 0; t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); break;
-                        case 2: hz = 1; t.push(new PoolTile0(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); break;
-                        case 3: hz = 2; t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); break;
-                        case 0: hz = 3; t.push(create_w02()); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(create_w02()); break;
+                        switch (pack_offer(p)) {
+                        default: hz = 0; t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); break;
+                        case 2: hz = 1; t.push(new PoolTile0(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); break;
+                        case 3: hz = 2; t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); break;
+                        case 0: hz = 3; t.push(create_w02()); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(create_w02()); break;
                         }
                         break;
                     case 3:
-                        switch (pack_offer(pack)) {
-                        default: hz = 4; t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); break;
-                        case 2: hz = 5; t.push(new PoolTile0(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); break;
-                        case 3: hz = 6; t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); break;
+                        switch (pack_offer(p)) {
+                        default: hz = 4; t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); break;
+                        case 2: hz = 5; t.push(new PoolTile0(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); break;
+                        case 3: hz = 6; t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); break;
                         }
                         break;
                     }
 
-                    let zi = 340 + pplen * 4;
+                    let zi = 340 + pl * 4;
                     t.forEach((ti, i)=>{
                         this.addChild(ti);
                         this.packs_[0].push(ti);
@@ -5087,7 +5087,7 @@
 
                     switch (hz) {
                     case 0:
-                        if (type <= 2) {
+                        if (tp <= 2) {
                             t[0].position.set(xx, yy - HEIGHT_13F);
                             t[1].position.set(xx + WIDTH_13, yy - HEIGHT_02F);
                             t[2].position.set(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F);
@@ -5100,7 +5100,7 @@
                         }
                         break;
                     case 1:
-                        if (type <= 2) {
+                        if (tp <= 2) {
                             t[0].position.set(xx, yy - HEIGHT_02F);
                             t[1].position.set(xx + WIDTH_02, yy - HEIGHT_13F);
                             t[2].position.set(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F);
@@ -5113,7 +5113,7 @@
                         }
                         break;
                     case 2:
-                        if (type <= 2) {
+                        if (tp <= 2) {
                             t[0].position.set(xx, yy - HEIGHT_02F);
                             t[1].position.set(xx + WIDTH_02, yy - HEIGHT_02F);
                             t[2].position.set(xx + WIDTH_02 * 2, yy - HEIGHT_13F);
@@ -5151,10 +5151,10 @@
                         break;
                     }
 
-                    this.packData_[0].push(pack);
+                    this.packData_[0].push(p);
 
                     if (hz < 3) {
-                        this.openPos_[0] = xx + WIDTH_13 + WIDTH_02 * (type <= 2 ? 2 : 3) + GAP_T;
+                        this.openPos_[0] = xx + WIDTH_13 + WIDTH_02 * (tp <= 2 ? 2 : 3) + GAP_T;
                     }
                     else if (hz == 3) {
                         this.openPos_[0] = xx + WIDTH_02 * 4 + GAP_T;
@@ -5181,15 +5181,15 @@
                     sp.visible = true;
                 }
 
-                p.forEach(pack=>{
-                    let type = pack_type(pack);
-                    let tile = pack_tile(pack);
-                    let pplen = this.packData_[1].length;
-                    let hdn = pplen * 3;
+                p.forEach(p=>{
+                    let tp = pack_type(p);
+                    let tl = pack_tile(p);
+                    let pl = this.packData_[1].length;
+                    let hdn = pl * 3;
                     let ext = (HEIGHT_02 - HEIGHT_13 + GAP_T) * .5;
-                    if (type == 2) {
+                    if (tp == 2) {
                         ext += HEIGHT_13 * .5;
-                        if (pack_offer(pack) == 0) {
+                        if (pack_offer(p) == 0) {
                             ext -= (HEIGHT_02 - HEIGHT_13) * .5;
                         }
                     }
@@ -5205,39 +5205,39 @@
                     // 生成一组副露
                     let t = [];
                     let hz = 0;
-                    switch (type) {
+                    switch (tp) {
                     case 0:
-                        switch (pack_offer(pack)) {
-                        default: t.push(new PoolTile2(tile - 4)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile + 4)); break;
-                        case 2: t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile - 4)); t.push(new PoolTile1(tile + 4)); break;
-                        case 3: t.push(new PoolTile2(tile + 4)); t.push(new PoolTile1(tile - 4)); t.push(new PoolTile1(tile)); break;
+                        switch (pack_offer(p)) {
+                        default: t.push(new PoolTile2(tl - 4)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl + 4)); break;
+                        case 2: t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl - 4)); t.push(new PoolTile1(tl + 4)); break;
+                        case 3: t.push(new PoolTile2(tl + 4)); t.push(new PoolTile1(tl - 4)); t.push(new PoolTile1(tl)); break;
                         }
                         break;
                     case 1:
-                        switch (pack_offer(pack)) {
-                        default: hz = 0; t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t[0].pr_ = true; break;
-                        case 2: hz = 1; t.push(new PoolTile1(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t[1].pr_ = true; break;
-                        case 3: hz = 2; t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t[2].pr_ = true; break;
+                        switch (pack_offer(p)) {
+                        default: hz = 0; t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t[0].pr_ = true; break;
+                        case 2: hz = 1; t.push(new PoolTile1(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t[1].pr_ = true; break;
+                        case 3: hz = 2; t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t[2].pr_ = true; break;
                         }
                         break;
                     case 2:
-                        switch (pack_offer(pack)) {
-                        default: hz = 0; t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); break;
-                        case 2: hz = 1; t.push(new PoolTile1(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); break;
-                        case 3: hz = 2; t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); break;
+                        switch (pack_offer(p)) {
+                        default: hz = 0; t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); break;
+                        case 2: hz = 1; t.push(new PoolTile1(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); break;
+                        case 3: hz = 2; t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); break;
                         case 0: hz = 3; for (let i = 0; i < 4; ++i) t.push(create_w13()); t[1].ck_ = true; t[2].ck_ = true; break;
                         }
                         break;
                     case 3:
-                        switch (pack_offer(pack)) {
-                        default: hz = 4; t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); break;
-                        case 2: hz = 5; t.push(new PoolTile1(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); break;
-                        case 3: hz = 6; t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); break;
+                        switch (pack_offer(p)) {
+                        default: hz = 4; t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); break;
+                        case 2: hz = 5; t.push(new PoolTile1(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); break;
+                        case 3: hz = 6; t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); break;
                         }
                         break;
                     }
 
-                    let zi = 169 - pplen * 4;
+                    let zi = 169 - pl * 4;
                     t.forEach((ti, i)=>{
                         this.addChild(ti);
                         this.packs_[1].push(ti);
@@ -5251,7 +5251,7 @@
 
                     switch (hz) {
                     case 0:
-                        if (type <= 2) {
+                        if (tp <= 2) {
                             t[0].position.set(xx - (WIDTH_02 - WIDTH_13S), yy + HEIGHT_13 * 2);
                             t[1].position.set(x0, yy + HEIGHT_13);
                             t[2].position.set(x0, yy);
@@ -5264,7 +5264,7 @@
                         }
                         break;
                     case 1:
-                        if (type <= 2) {
+                        if (tp <= 2) {
                             t[0].position.set(x0, yy + HEIGHT_13 + HEIGHT_02);
                             t[1].position.set(xx - (WIDTH_02 - WIDTH_13S), yy + HEIGHT_13);
                             t[2].position.set(x0, yy);
@@ -5277,7 +5277,7 @@
                         }
                         break;
                     case 2:
-                        if (type <= 2) {
+                        if (tp <= 2) {
                             t[0].position.set(x0, yy + HEIGHT_02 + HEIGHT_13);
                             t[1].position.set(x0, yy + HEIGHT_02);
                             t[2].position.set(xx - (WIDTH_02 - WIDTH_13S), yy);
@@ -5315,7 +5315,7 @@
                         break;
                     }
 
-                    this.packData_[1].push(pack);
+                    this.packData_[1].push(p);
 
                     // 移动余下立牌
                     sta.forEach(sp=>sp.y -= ext);
@@ -5338,15 +5338,15 @@
                     sp.visible = true;
                 }
 
-                p.forEach(pack=>{
-                    let type = pack_type(pack);
-                    let tile = pack_tile(pack);
-                    let pplen = this.packData_[2].length;
-                    let hdn = pplen * 3;
+                p.forEach(p=>{
+                    let tp = pack_type(p);
+                    let tl = pack_tile(p);
+                    let pl = this.packData_[2].length;
+                    let hdn = pl * 3;
                     let ext = (WIDTH_13 - WIDTH_02 + GAP_T) * .5;
-                    if (type == 2) {
+                    if (tp == 2) {
                         ext += WIDTH_02 * .5;
-                        if (pack_offer(pack) == 0) {
+                        if (pack_offer(p) == 0) {
                             ext -= (WIDTH_13 - WIDTH_02) * .5;
                         }
                     }
@@ -5362,39 +5362,39 @@
                     // 生成一组副露
                     let t = [];
                     let hz = 0;
-                    switch (type) {
+                    switch (tp) {
                     case 0:
-                        switch (pack_offer(pack)) {
-                        default: t.push(new PoolTile3(tile - 4)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile + 4)); break;
-                        case 2: t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile - 4)); t.push(new PoolTile2(tile + 4)); break;
-                        case 3: t.push(new PoolTile3(tile + 4)); t.push(new PoolTile2(tile - 4)); t.push(new PoolTile2(tile)); break;
+                        switch (pack_offer(p)) {
+                        default: t.push(new PoolTile3(tl - 4)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl + 4)); break;
+                        case 2: t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl - 4)); t.push(new PoolTile2(tl + 4)); break;
+                        case 3: t.push(new PoolTile3(tl + 4)); t.push(new PoolTile2(tl - 4)); t.push(new PoolTile2(tl)); break;
                         }
                         break;
                     case 1:
-                        switch (pack_offer(pack)) {
-                        default: hz = 0; t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t[0].pr_ = true; break;
-                        case 2: hz = 1; t.push(new PoolTile2(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t[1].pr_ = true; break;
-                        case 3: hz = 2; t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t[2].pr_ = true; break;
+                        switch (pack_offer(p)) {
+                        default: hz = 0; t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t[0].pr_ = true; break;
+                        case 2: hz = 1; t.push(new PoolTile2(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t[1].pr_ = true; break;
+                        case 3: hz = 2; t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t[2].pr_ = true; break;
                         }
                         break;
                     case 2:
-                        switch (pack_offer(pack)) {
-                        default: hz = 0; t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); break;
-                        case 2: hz = 1; t.push(new PoolTile2(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); break;
-                        case 3: hz = 2; t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); break;
+                        switch (pack_offer(p)) {
+                        default: hz = 0; t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); break;
+                        case 2: hz = 1; t.push(new PoolTile2(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); break;
+                        case 3: hz = 2; t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); break;
                         case 0: hz = 3; for (let i = 0; i < 4; ++i) t.push(create_w02()); t[1].ck_ = true; t[2].ck_ = true; break;
                         }
                         break;
                     case 3:
-                        switch (pack_offer(pack)) {
-                        default: hz = 4; t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); break;
-                        case 2: hz = 5; t.push(new PoolTile2(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); break;
-                        case 3: hz = 6; t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile1(tile)); t.push(new PoolTile1(tile)); break;
+                        switch (pack_offer(p)) {
+                        default: hz = 4; t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); break;
+                        case 2: hz = 5; t.push(new PoolTile2(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); break;
+                        case 3: hz = 6; t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); break;
                         }
                         break;
                     }
 
-                    let zi = 170 + pplen * 4;
+                    let zi = 170 + pl * 4;
                     t.forEach((ti, i)=>{
                         this.addChild(ti);
                         this.packs_[2].push(ti);
@@ -5406,7 +5406,7 @@
 
                     switch (hz) {
                     case 0:
-                        if (type <= 2) {
+                        if (tp <= 2) {
                             t[0].x = xx + WIDTH_02 * 2;
                             t[1].x = xx + WIDTH_02;
                             t[2].x = xx;
@@ -5419,7 +5419,7 @@
                         }
                         break;
                     case 1:
-                        if (type <= 2) {
+                        if (tp <= 2) {
                             t[0].x = xx + WIDTH_02 + WIDTH_13;
                             t[1].x = xx + WIDTH_02;
                             t[2].x = xx;
@@ -5432,7 +5432,7 @@
                         }
                         break;
                     case 2:
-                        if (type <= 2) {
+                        if (tp <= 2) {
                             t[0].x = xx + WIDTH_13 + WIDTH_02;
                             t[1].x = xx + WIDTH_13;
                             t[2].x = xx;
@@ -5470,7 +5470,7 @@
                         break;
                     }
 
-                    this.packData_[2].push(pack);
+                    this.packData_[2].push(p);
 
                     // 移动余下立牌
                     sta.forEach(sp=>sp.x -= ext);
@@ -5493,15 +5493,15 @@
                     sp.visible = true;
                 }
 
-                p.forEach(pack=>{
-                    let type = pack_type(pack);
-                    let tile = pack_tile(pack);
-                    let pplen = this.packData_[3].length;
-                    let hdn = pplen * 3;
+                p.forEach(p=>{
+                    let tp = pack_type(p);
+                    let tl = pack_tile(p);
+                    let pl = this.packData_[3].length;
+                    let hdn = pl * 3;
                     let ext = (HEIGHT_02 - HEIGHT_13 + GAP_T) * .5;
-                    if (type == 2) {
+                    if (tp == 2) {
                         ext += HEIGHT_13 * .5;
-                        if (pack_offer(pack) == 0) {
+                        if (pack_offer(p) == 0) {
                             ext -= (HEIGHT_02 - HEIGHT_13) * .5;
                         }
                     }
@@ -5517,39 +5517,39 @@
                     // 生成一组副露
                     let t = [];
                     let hz = 0;
-                    switch (type) {
+                    switch (tp) {
                     case 0:
-                        switch (pack_offer(pack)) {
-                        default: t.push(new PoolTile0(tile - 4)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile + 4)); break;
-                        case 2: t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile - 4)); t.push(new PoolTile3(tile + 4)); break;
-                        case 3: t.push(new PoolTile0(tile + 4)); t.push(new PoolTile3(tile - 4)); t.push(new PoolTile3(tile)); break;
+                        switch (pack_offer(p)) {
+                        default: t.push(new PoolTile0(tl - 4)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl + 4)); break;
+                        case 2: t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl - 4)); t.push(new PoolTile3(tl + 4)); break;
+                        case 3: t.push(new PoolTile0(tl + 4)); t.push(new PoolTile3(tl - 4)); t.push(new PoolTile3(tl)); break;
                         }
                         break;
                     case 1:
-                        switch (pack_offer(pack)) {
-                        default: hz = 0; t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t[0].pr_ = true; break;
-                        case 2: hz = 1; t.push(new PoolTile3(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t[1].pr_ = true; break;
-                        case 3: hz = 2; t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t[2].pr_ = true; break;
+                        switch (pack_offer(p)) {
+                        default: hz = 0; t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t[0].pr_ = true; break;
+                        case 2: hz = 1; t.push(new PoolTile3(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t[1].pr_ = true; break;
+                        case 3: hz = 2; t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t[2].pr_ = true; break;
                         }
                         break;
                     case 2:
-                        switch (pack_offer(pack)) {
-                        default: hz = 0; t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); break;
-                        case 2: hz = 1; t.push(new PoolTile3(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); break;
-                        case 3: hz = 2; t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); break;
+                        switch (pack_offer(p)) {
+                        default: hz = 0; t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); break;
+                        case 2: hz = 1; t.push(new PoolTile3(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); break;
+                        case 3: hz = 2; t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); break;
                         case 0: hz = 3; for (let i = 0; i < 4; ++i) t.push(create_w13()); t[1].ck_ = true; t[2].ck_ = true; break;
                         }
                         break;
                     case 3:
-                        switch (pack_offer(pack)) {
-                        default: hz = 4; t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); break;
-                        case 2: hz = 5; t.push(new PoolTile3(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile0(tile)); t.push(new PoolTile3(tile)); break;
-                        case 3: hz = 6; t.push(new PoolTile3(tile)); t.push(new PoolTile3(tile)); t.push(new PoolTile2(tile)); t.push(new PoolTile2(tile)); break;
+                        switch (pack_offer(p)) {
+                        default: hz = 4; t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); break;
+                        case 2: hz = 5; t.push(new PoolTile3(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); break;
+                        case 3: hz = 6; t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); break;
                         }
                         break;
                     }
 
-                    let zi = 240 + pplen * 4;
+                    let zi = 240 + pl * 4;
                     t.forEach((ti, i)=>{
                         this.addChild(ti);
                         this.packs_[3].push(ti);
@@ -5561,7 +5561,7 @@
 
                     switch (hz) {
                     case 0:
-                        if (type <= 2) {
+                        if (tp <= 2) {
                             t[0].y = yy - HEIGHT_13 * 2 - HEIGHT_02;
                             t[1].y = yy - HEIGHT_13 * 2;
                             t[2].y = yy - HEIGHT_13;
@@ -5574,7 +5574,7 @@
                         }
                         break;
                     case 1:
-                        if (type <= 2) {
+                        if (tp <= 2) {
                             t[0].y = yy - HEIGHT_13 * 2 - HEIGHT_02;
                             t[1].y = yy - HEIGHT_13 - HEIGHT_02;
                             t[2].y = yy - HEIGHT_13;
@@ -5587,7 +5587,7 @@
                         }
                         break;
                     case 2:
-                        if (type <= 2) {
+                        if (tp <= 2) {
                             t[0].y = yy - HEIGHT_02 - HEIGHT_13 * 2;
                             t[1].y = yy - HEIGHT_02 - HEIGHT_13;
                             t[2].y = yy - HEIGHT_02;
@@ -5625,7 +5625,7 @@
                         break;
                     }
 
-                    this.packData_[3].push(pack);
+                    this.packData_[3].push(p);
 
                     // 移动余下立牌
                     sta.forEach(sp=>sp.y += ext);
@@ -7291,13 +7291,14 @@
                 let tl = new Int16Array(4).fill(is);
                 let rssi = new Int16Array(4);
                 let rspi = new Int16Array(4);
+                let is_sd = rs=>rs!=nbp;
                 for (let i = 0; i < 16; ++i) {
                     if (i < rd) {
                         for (let n = 0; n < 4; ++n) {
                             rssi[n] = rss[n][i];
                             rspi[n] = rps[n][i];
                         }
-                        let sd = rssi.every(function(nbp, rs) { return rs != nbp; }.bind(this, nbp));
+                        let sd = rssi.every(is_sd);
                         let tie = rssi.every(rs=>rs == 0);
                         for (let k = 0; k < 8; ++k) {
                             let tx = '', cl = '#DCDCDC';
@@ -7556,9 +7557,9 @@
             /**
              * @param {number} w 遮罩宽
              * @param {number} h 遮罩高
-             * @param {function(array,boolean,boolean):void} callback 确定的回调
+             * @param {function(array,boolean,boolean):void} cb 确定的回调
              */
-            constructor(w, h, callback) {
+            constructor(w, h, cb) {
                 super();
 
                 const w0 = (WIDTH_02 + 50) * 9 + 50, h0 = 860;
@@ -7610,6 +7611,7 @@
                 t.x = 20;
                 t.y = 70;
 
+                let cbx;
                 let tiles = new Array(34), cbs = new Array(34);
                 for (let i = 0; i < 34; ++i) {
                     let x = 20 + (i % 9) * (WIDTH_02 + 50), y = 120 + Math.floor(i / 9) * (HEIGHT_02F + 30);
@@ -7633,15 +7635,15 @@
                     t1.visible = false;
                     tiles[i] = t1;
 
-                    let cb = new CheckBox('', function(i, cb){
+                    cbx = new CheckBox('', function(i, cb){
                         if (!(this.tiles_[i].visible = cb.isSelected())) {
                             this.cba_[Math.floor(i / 9)].setSelected(false);
                         }
                     }.bind(this, i));
-                    bg.addChild(cb);
-                    cb.x = x;
-                    cb.y = y;
-                    cbs[i] = cb;
+                    bg.addChild(cbx);
+                    cbx.x = x;
+                    cbx.y = y;
+                    cbs[i] = cbx;
 
                     t0.interactive = true;
                     t0.callback_ = function(i) {
@@ -7655,7 +7657,7 @@
                 const ti = ['所有万子', '所有条子', '所有饼子', '所有字牌'];
                 let cba = [null, null, null, null];
                 for (let i = 0; i < 4; ++i) {
-                    let cb = cba[i] = new CheckBox(ti[i], function(i, cb) {
+                    cbx = cba[i] = new CheckBox(ti[i], function(i, cb) {
                         let s = cb.isSelected();
                         let tiles = this.tiles_;
                         let cbs = this.cbs_;
@@ -7663,21 +7665,21 @@
                             cbs[n].setSelected(tiles[n].visible = s);
                         }
                     }.bind(this, i));
-                    bg.addChild(cb);
-                    cb.x = w0 * .5 + 240 * (i & 1);
-                    cb.y = h0 - 310 + 70 * (i >> 1);
+                    bg.addChild(cbx);
+                    cbx.x = w0 * .5 + 240 * (i & 1);
+                    cbx.y = h0 - 310 + 70 * (i >> 1);
                 }
                 this.cba_ = cba;
 
-                let cb = this.ign_ = new CheckBox('自摸也不询问');
-                bg.addChild(cb);
-                cb.x = 20;
-                cb.y = h0 - 310;
+                cbx = this.ign_ = new CheckBox('自摸也不询问');
+                bg.addChild(cbx);
+                cbx.x = 20;
+                cbx.y = h0 - 310;
 
-                cb = this.rw_ = new CheckBox('鼠标右键=弃');
-                bg.addChild(cb);
-                cb.x = 20;
-                cb.y = h0 - 230;
+                cbx = this.rw_ = new CheckBox('鼠标右键=弃');
+                bg.addChild(cbx);
+                cbx.x = 20;
+                cbx.y = h0 - 230;
 
                 t = new PIXI.Text('注意：此处的设置优先。每盘开始前会重置。', {
                     fontFamily: FF,
@@ -7714,7 +7716,7 @@
                     this.visible = false;
                     let cf = [];
                     this.tiles_.forEach(t=>cf.push(t.visible));
-                    callback(cf, this.ign_.isSelected(), this.rw_.isSelected());
+                    cb(cf, this.ign_.isSelected(), this.rw_.isSelected());
                 });
                 bg.addChild(btn);
                 btn.x = w0 * .75;
@@ -9068,17 +9070,17 @@
                     if (opt != undefined) {
                         let btns = [];
                         for (let k = 0, len = opt.length; k < len; ++k) {
-                            let cb = new CheckBox(opt[k], function(i, k) {
+                            let cbx = new CheckBox(opt[k], function(i, k) {
                                 let btns = this.ctrls_[i];
                                 for (let n = 0, len = option[i].length; n < len; ++n) {
                                     btns[n].setSelected(n == k);
                                 }
                             }.bind(this, i, k));
-                            this.addChild(cb);
-                            cb.scale.set(.66);
-                            cb.x = xx + (i != 8 ? 95 : 125) * k;
-                            cb.y = yy - cb.height * .5;
-                            btns.push(cb);
+                            this.addChild(cbx);
+                            cbx.scale.set(.66);
+                            cbx.x = xx + (i != 8 ? 95 : 125) * k;
+                            cbx.y = yy - cbx.height * .5;
+                            btns.push(cbx);
                         }
                         ctrls[i] = btns;
                     }
