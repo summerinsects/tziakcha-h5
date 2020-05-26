@@ -9031,44 +9031,28 @@
                 t.x = LOBBY_WIDTH * .5;
                 t.y = 35;
 
-                const title = [
-                    '对局名称',
-                    '类型',
-                    '起和番',
-                    '底分',
-                    '首要时限',
-                    '次要时限',
-                    '战术鸣牌',
-                    '一盘结束后显示手牌',
-                    '错和处罚策略',
-                    '错和后允许鸣牌',
-                    '对局初始分',
-                    '随机分配初始座位',
-                    '对外隐藏玩家昵称',
-                    '允许游客加入',
-                    '密码（可选）'];
-                const option = [
-                    undefined,
-                    ['全庄', '半庄', '东风'],
-                    ['1番', '8番', '16番', '24番', '32番'],
-                    ['0', '8'],
-                    ['5秒', '8秒', '10秒', '15秒'],
-                    ['3秒', '5秒', '8秒', '10秒'],
-                    ['有', '无'],
-                    ['是', '否'],
-                    ['-30/+10', '-40/+0'],
-                    ['是', '否'],
-                    ['0', '500'],
-                    ['是', '否'],
-                    ['是', '否'],
-                    ['是', '否'],
-                    undefined
+                const items = [
+                    {t:'对局名称'},
+                    {t:'类型', o:['全庄', '半庄', '东风'], s:95},
+                    {t:'起和番', o:['1番', '8番', '16番', '24番', '32番'], s:95},
+                    {t:'底分', o:['0', '8'], s:95},
+                    {t:'首要时限', o:['5秒', '8秒', '10秒', '15秒'], s:95},
+                    {t:'次要时限', o:['3秒', '5秒', '8秒', '10秒'], s:95},
+                    {t:'战术鸣牌', o:['有', '无'], s:95},
+                    {t:'一盘结束后显示手牌', o:['是', '否'], s:95},
+                    {t:'错和处罚策略', o:['-30/+10', '-40/+0'], s:125},
+                    {t:'错和后允许鸣牌', o:['是', '否'], s:95},
+                    {t:'对局初始分', o:['0', '500'], s:95},
+                    {t:'随机分配初始座位', o:['是', '否'], s:95},
+                    {t:'对外隐藏玩家昵称', o:['是', '否'], s:95},
+                    {t:'允许游客加入', o:['是', '否'], s:95},
+                    {t:'密码（可选）'}
                 ];
 
-                let ctrls = new Array(15);
-                for (let i = 0; i < 15; ++i) {
+                let ctrls = new Array(items.length);
+                items.forEach((e, i)=>{
                     let yy = offsetY + 35 * i;
-                    t = new PIXI.Text(title[i], {
+                    t = new PIXI.Text(e['t'], {
                         fontFamily: FF,
                         fontSize: 18,
                         fill: '#ffffff',
@@ -9082,19 +9066,19 @@
 
                     let xx = Math.max(gap * 2 + t.width, 150);
 
-                    let opt = option[i];
+                    let opt = e['o'];
                     if (opt != undefined) {
                         let btns = [];
                         for (let k = 0, len = opt.length; k < len; ++k) {
                             let cbx = new CheckBox(opt[k], function(i, k) {
                                 let btns = this.ctrls_[i];
-                                for (let n = 0, len = option[i].length; n < len; ++n) {
+                                for (let n = 0, len = items[i]['o'].length; n < len; ++n) {
                                     btns[n].setSelected(n == k);
                                 }
                             }.bind(this, i, k));
                             this.addChild(cbx);
                             cbx.scale.set(.66);
-                            cbx.x = xx + (i != 8 ? 95 : 125) * k;
+                            cbx.x = xx + e['s'] * k;
                             cbx.y = yy - cbx.height * .5;
                             btns.push(cbx);
                         }
@@ -9114,7 +9098,7 @@
                         this.addChild(ti);
                         ctrls[i] = ti;
                     }
-                }
+                });
                 this.ctrls_ = ctrls;
 
                 let defcfg = JSON.parse(localStorage.getItem('default_config')) || {};
