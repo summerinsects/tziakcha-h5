@@ -7101,6 +7101,7 @@
                 this.addChild(ctn);
                 ctn.interactive = true;
                 ctn.on('click', ()=>this.visible = false);
+                ctn.on('tap', ()=>this.visible = false);
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -7360,6 +7361,7 @@
                 this.addChild(ctn);
                 ctn.interactive = true;
                 ctn.on('click', ()=>this.visible = false);
+                ctn.on('tap', ()=>this.visible = false);
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -7567,6 +7569,7 @@
                 this.addChild(ctn);
                 ctn.interactive = true;
                 ctn.on('click', ()=>this.visible = false);
+                ctn.on('tap', ()=>this.visible = false);
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -7835,7 +7838,8 @@
                 ctn.height = h;
                 this.addChild(ctn);
                 ctn.interactive = true;
-                ctn.on('click', ()=>this.visible = false);
+                ctn.on('click', ()=>cb());
+                ctn.on('tap', ()=>cb());
 
                 let bg = new PIXI.Graphics();
                 this.addChild(bg);
@@ -7990,7 +7994,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, wb0, wh0, ()=>{ cb(); });
+                }, wb0, wh0, ()=>cb());
                 bg.addChild(btn);
                 btn.x = 20;
                 btn.y = h0 - wh0 - 20;
