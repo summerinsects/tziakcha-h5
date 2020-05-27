@@ -6268,7 +6268,14 @@
                 this.addChild(ctn);
                 ctn.interactive = true;
 
-                let x = (w - ((w0 + 10) * a.length + w0)) * .5;
+                let bg = new PIXI.Container();
+                this.addChild(bg);
+                bg.x = (w - ((w0 + 10) * a.length + w0)) * .5;
+                bg.y = h - 550;
+
+                ctn.on('pointerdown', ()=>bg.visible = false);
+                ctn.on('pointerup', ()=>bg.visible = true);
+                ctn.on('pointerupoutside', ()=>bg.visible = true);
 
                 for (let i = 0, c = a.length + 1; i < c; ++i) {
                     let ai = a[i];
@@ -6276,9 +6283,8 @@
                         //console.log('click action', a[i]);
                         cb(ai);
                     }.bind(this, cb, ai));
-                    this.addChild(btn);
-                    btn.x = x + (w0 + 10) * i;
-                    btn.y = h - 550;
+                    bg.addChild(btn);
+                    btn.x = (w0 + 10) * i;
 
                     let tl = '';
                     let t0, py = 25;
