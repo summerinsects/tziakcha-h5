@@ -1785,6 +1785,7 @@
                 this.packData_ = [[], [], [], []];
                 this.flowers_ = new Uint8Array(4);
                 this.falseWin_ = [false, false, false, false];
+                this.winBriefs_ = new Array(16);
                 this.seat_ = 0;
                 this.turn_ = 0;
                 this.flyTile_ = null;
@@ -1928,7 +1929,7 @@
                 }
                 this.actionBtns_ = actionBtns;
 
-                let view = this.historyView_ = new HistoryView(MAX_WIDTH, MAX_HEIGHT);
+                let view = this.historyView_ = new HistoryView(MAX_WIDTH, MAX_HEIGHT, i=>this.winBriefs_[i]);
                 this.addChild(view);
                 view.zIndex = 500;
                 view.visible = false;
@@ -4444,6 +4445,18 @@
                     }
                     this.rdfsh_ = true;
                 }
+
+                //this.winBriefs_[0] = {f:12,h:{p:[51283,2450],s:[84,88,97,98,99,116,118,93]},t:{'49':6,'64':2,'71':1,'73':1,'81':257}};
+                let f = dt['f'];
+                let ht2 = {p:[],s:[]};
+                if (f) {
+                    let p = ht['p'];
+                    if (p) p.forEach(p=>ht2['p'].push(p));
+                    let s = ht['s'];
+                    if (s) s.forEach(s=>ht2['s'].push(s));
+                    ht2['s'].push(wt);
+                }
+                this.winBriefs_[dt['r'] || 0] = {f:(f||0), h:ht2, t:ft};
             }
 
             /**
@@ -4939,6 +4952,8 @@
             reconnect(resp) {
                 this.clear();
                 this.option_.reset();
+
+                this.winBriefs_ = resp['b'];
 
                 // 基本信息
                 let seat = this.seat_ = resp['v'];
@@ -6917,6 +6932,104 @@
         }
 
         /**
+         * 和牌简介
+         * @typedef {object} WinBrief
+         */
+        class WinBrief extends PIXI.Container {
+            /**
+             * @param {number} rd 盘序
+             * @param {object} wb 和牌详情
+             */
+            constructor(rd, wb) {
+                super();
+
+                const w0 = 700, gap = 20;
+
+                let bg = new PIXI.Graphics();
+                this.addChild(bg);
+                bg.interactive = true;
+
+                let t = new PIXI.Text(WIND[rd >> 2] + '风' + WIND[rd & 3], {
+                    fontFamily: FF,
+                    fontSize: 32,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                    align: 'center'
+                });
+                bg.addChild(t);
+                t.anchor.set(.5);
+                t.x = 350;
+                t.y = 40;
+
+                let f = wb['f'];
+                let ht = {s:[],p:[]};
+                for (let p of wb['h']['p']) {
+                    ht['p'].push(p);
+                }
+                for (let s of wb['h']['s']) {
+                    ht['s'].push(s);
+                }
+                let wt = ht['s'].pop();
+                let ft = wb['t'];
+                let wh = new WinHand(ht, wt, ft != undefined ? ft['81'] : 0);
+                bg.addChild(wh);
+                wh.y = 65;
+                if (wh.width > w0 - gap * 2) {
+                    wh.scale.set((w0 - gap * 2) / wh.width);
+                    wh.x = gap;
+                }
+                else {
+                    wh.x = (w0 - wh.width) * .5;
+                }
+
+                let h0 = 190;
+                let i = 0;
+                const frp = (w0 - gap * 2) / 3;
+                for (let f in ft) {
+                    let x0 = gap + 5 + (i % 3) * frp;
+                    let y0 = 190 + 35 * Math.floor(i / 3);
+
+                    let v = ft[f];
+                    t = new PIXI.Text(fan_item(f, v), {
+                        fontFamily: FF,
+                        fontSize: 22,
+                        fill: '#99ffff'
+                    });
+                    bg.addChild(t);
+                    t.anchor.y = .5;
+                    t.x = x0;
+                    //t.x = frp + gap; t.anchor.x = 1;
+                    t.y = y0;
+                    h0 = y0;
+
+                    ++i;
+                }
+
+                h0 += 40;
+
+                t = new PIXI.Text(`共${f}番`, {
+                    fontFamily: FF,
+                    fontSize: 26,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                bg.addChild(t);
+                t.anchor.x = .5;
+                t.x = w0 * .5;
+                t.y = h0;
+
+                h0 += 50;
+
+                bg.lineStyle(2, 0x26608C, 1);
+                bg.beginFill(0x060F16, .85);
+                bg.drawRect(0, 0, w0, h0);
+                bg.endFill();
+            }
+        }
+
+        /**
          * 格式化时间
          * @param {Date} ud 时间
          * @returns {string}
@@ -7082,6 +7195,50 @@
         }
 
         /**
+         * 监听鼠标或移动端点击移入移出的按钮
+         * @typedef {object} HoverButton
+         */
+        class HoverButton extends PIXI.Container {
+            /**
+             * @param {number} w 宽
+             * @param {number} h 高
+             * @param {function(boolean):void} cb 回调
+             */
+             constructor(w, h, cb) {
+                super();
+
+                //this.width = w;
+                //this.height = h;
+
+                this.cb_ = cb;
+
+                let hlt = ()=>{ this.fg_.visible = true; this.cb_(this, true); };
+                let nml = ()=>{ this.fg_.visible = false; this.cb_(this, false); };
+
+                let bg = new PIXI.Sprite(PIXI.Texture.WHITE);
+                bg.tint = 0;
+                bg.alpha = .25;
+                bg.width = w;
+                bg.height = h;
+                this.addChild(bg);
+
+                let fg = this.fg_ = new PIXI.Sprite(PIXI.Texture.WHITE);
+                fg.alpha = .25;
+                fg.width = w;
+                fg.height = h;
+                this.addChild(fg);
+                fg.visible = false;
+
+                this.interactive = true;
+                this.on('mouseover', hlt);
+                this.on('mouseout', nml);
+                this.on('touchstart', hlt);
+                this.on('touchendoutside', nml);
+                this.on('touchend', nml);
+            }
+        }
+
+        /**
          * 计分表界面
          * @typedef {object} HistoryView
          */
@@ -7089,8 +7246,9 @@
             /**
              * @param {number} w 遮罩宽
              * @param {number} h 遮罩高
+             * @param {function(number):object} cb 获取数据的回调
              */
-            constructor(w, h) {
+            constructor(w, h, cb) {
                 super();
 
                 const w0 = 710, h0 = 920;
@@ -7098,6 +7256,8 @@
 
                 //this.width = w;
                 //this.height = h;
+
+                this.cb_ = cb;
 
                 let ctn = new PIXI.Sprite(PIXI.Texture.WHITE);
                 ctn.tint = 0;
@@ -7119,6 +7279,8 @@
                 bg.x = (w - w0) * .5;
                 bg.y = (h - h0) * .5;
                 bg.interactive = true;
+                bg.on('click', this._closeBrief.bind(this));
+                bg.on('tap', this._closeBrief.bind(this));
 
                 let t = new PIXI.Text('计分表', {
                     fontFamily: FF,
@@ -7206,8 +7368,15 @@
                 ctx.lineTo(w0 - 40, 110);
 
                 let rtt = new Array(16);
+                let btns = new Array(16);
+                let btn;
                 for (let i = 0; i < 16; ++i) {
                     let yy = 170 + i * 40;
+                    btn = btns[i] = new HoverButton(630, 40, this._hoverChanged.bind(this, i));
+                    bg.addChild(btn);
+                    btn.x = 40;
+                    btn.y = yy - 20;
+
                     t = new PIXI.Text(WIND[i >> 2] + '风' + WIND[i & 3], {
                         fontFamily: FF,
                         fontSize: 20,
@@ -7235,6 +7404,7 @@
                     ctx.moveTo(40, yy - 20);
                     ctx.lineTo(w0 - 40, yy - 20);
                 }
+                this.btns_ = btns;
                 this.rtt_ = rtt;
 
                 t = new PIXI.Text('合计', {
@@ -7266,13 +7436,13 @@
                 sp.tint = 0x808080;
 
                 const wb0 = 120, wh0 = 50;
-                let btn = new TextButton('OK', {
+                btn = new TextButton('OK', {
                     fontFamily: FF,
                     fontSize: 36,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, wb0, wh0, ()=>{ this.visible = false; });
+                }, wb0, wh0, ()=>this.visible = false);
                 bg.addChild(btn);
                 btn.x = (w0 - wb0) * .5;
                 btn.y = h0 - wh0 - 20;
@@ -7290,7 +7460,7 @@
             show(ns, rss, rps, rd, is, nbp) {
                 this.visible = true;
 
-                let ntt = this.ntt_, ttt = this.ttt_, rtt = this.rtt_;
+                let ntt = this.ntt_, ttt = this.ttt_, rtt = this.rtt_, btns = this.btns_;
 
                 let tl = new Int16Array(4).fill(is);
                 let rssi = new Int16Array(4);
@@ -7304,6 +7474,7 @@
                         }
                         let sd = rssi.every(is_sd);
                         let tie = rssi.every(rs=>rs == 0);
+                        btns[i].visible = true;
                         for (let k = 0; k < 8; ++k) {
                             let tx = '', cl = '#DCDCDC';
                             let rs = rssi[k >> 1], rp = rspi[k >> 1];
@@ -7326,6 +7497,7 @@
                         }
                     }
                     else {
+                        btns[i].visible = false;
                         rtt[i].forEach(t=>t.visible = false);
                     }
                 }
@@ -7337,6 +7509,61 @@
 
                     t = ttt[i];
                     t.text = tl[i];
+                }
+            }
+
+            /**
+             * 关闭和牌简介
+             */
+            _closeBrief() {
+                let wb = this.wb_;
+                if (wb) {
+                    wb.dstry();
+                    this.wb_ = null;
+                }
+            }
+
+            /**
+             * 回调
+             * @param {number} i 下标
+             * @param {HoverButton} h 当前的按钮
+             * @param {number} s 状态
+             */
+            _hoverChanged(i, h, s) {
+                //console.log('_hoverChanged', i, h, s);
+                let wb = this.wb_;
+                if (s) {
+                    // 移出的时候，删除旧的，生成新的
+                    if (wb) {
+                        wb.dstry();
+                        this.wb_ = null;
+                    }
+
+                    let d = this.cb_(i);
+                    if (d && d['f'] > 0) {
+                        wb = this.wb_ = new WinBrief(i, d);
+                        this.addChild(wb);
+                        wb.rd_ = i;
+
+                        let bg = h.parent;
+                        let p = this.toLocal(h.position, bg);
+
+                        wb.x = p.x + 70;
+                        let y1 = p.y + h.height;
+                        if (y1 + wb.height < bg.y + bg.height) {
+                            wb.y = y1;
+                        }
+                        else {
+                            wb.y = p.y - wb.height;
+                        }
+                    }
+                }
+                else {
+                    // 移出的时候，删除旧的
+                    if (wb && wb.rd_ === i) {
+                        wb.dstry();
+                        this.wb_ = null;
+                    }
                 }
             }
         }
