@@ -305,6 +305,9 @@
             PoolTile.tex2 = res['img/tiles/pool2.png'].texture;
             PoolTile.tex3 = res['img/tiles/pool3.png'].texture;
 
+            let rdd = localStorage.getItem('rdd');
+            tz.rdd = rdd = (rdd != undefined) ? parseInt(rdd) : 0;
+
             let nht = localStorage.getItem('nht');
             tz.nht = nht = (nht != undefined) ? parseInt(nht) : 0;
 
@@ -2580,6 +2583,14 @@
                     this.rmBtns();
                     tz.ws.send(this.rightWaive_ ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
                     this.rmCD();
+                }
+
+                if (tz.rdd && this.turn_ == this.seat_) {
+                    let sp = this.standing_[0][13];
+                    if (sp.visible) {
+                        this._discard(sp);
+                        sp.setHighlight(false);
+                    }
                 }
             }
 
@@ -8059,7 +8070,7 @@
             constructor(w, h, cb) {
                 super();
 
-                const w0 = 540, h0 = 500;
+                const w0 = 600, h0 = 520;
 
                 //this.width = w;
                 //this.height = h;
@@ -8171,7 +8182,7 @@
                 cb2.y = t.y - 18;
                 cb2.setSelected(!tz.mutecall);
 
-                t = new PIXI.Text('牌面上角标（刷新后生效）', {
+                t = new PIXI.Text('鼠标右键摸打', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
@@ -8188,7 +8199,26 @@
                 cb3.scale.set(.75);
                 cb3.x = t.x + t.width + 40;
                 cb3.y = t.y - 18;
-                cb3.setSelected(tz.nht);
+                cb3.setSelected(tz.rdd);
+
+                t = new PIXI.Text('牌面上角标（刷新后生效）', {
+                    fontFamily: FF,
+                    fontSize: 24,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                });
+                bg.addChild(t);
+                t.anchor.y = .5;
+                t.x = 30;
+                t.y = 310;
+
+                let cb4 = new CheckBox();
+                bg.addChild(cb4);
+                cb4.scale.set(.75);
+                cb4.x = t.x + t.width + 40;
+                cb4.y = t.y - 18;
+                cb4.setSelected(tz.nht);
 
                 t = new PIXI.Text('钢琴键尺寸（刷新后生效）', {
                     fontFamily: FF,
@@ -8200,7 +8230,7 @@
                 bg.addChild(t);
                 t.anchor.y = .5;
                 t.x = 30;
-                t.y = 310;
+                t.y = 360;
 
                 let ti = ['三格', '两格'];
                 let piacbs = [];
@@ -8242,10 +8272,12 @@
                     let volume = rb.getValue();
                     tz.mutecd = cb1.isSelected() ? 0 : 1;
                     tz.mutecall = cb2.isSelected() ? 0 : 1;
+                    tz.rdd = cb3.isSelected() ? 1 : 0;
                     localStorage.setItem('volume', volume);
                     localStorage.setItem('mutecd', tz.mutecd);
                     localStorage.setItem('mutecall', tz.mutecall);
-                    localStorage.setItem('nht', cb3.isSelected() ? 1 : 0);
+                    localStorage.setItem('rdd', tz.rdd);
+                    localStorage.setItem('nht', cb4.isSelected() ? 1 : 0);
                     localStorage.setItem('piano', piacbs[0].isSelected() ? 0 : 1);
                     PIXI.sound.volumeAll = volume / 100;
                     cb();
