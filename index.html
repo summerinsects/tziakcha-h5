@@ -2904,13 +2904,12 @@
              * @param {object} sp 牌张（精灵）
              */
             _click(sp) {
-                let sta = this.standing_[0];
                 if (sp.isHighlight()) {
                     this._discard(sp);
                     sp.setHighlight(false);
                 }
                 else {
-                    sta.forEach(st=>st.setHighlight(st == sp));
+                    this.standing_[0].forEach(st=>st.setHighlight(st == sp));
                 }
 
                 if (this.piano3_.visible) {
@@ -6586,15 +6585,15 @@
                 ctn.on('pointerup', ()=>bg.visible = true);
                 ctn.on('pointerupoutside', ()=>bg.visible = true);
 
-                let t = new WinHand(ht, wt, ft != undefined ? ft['81'] : 0);
-                bg.addChild(t);
-                t.y = gap;
-                if (t.width > w0 - gap * 2) {
-                    t.scale.set((w0 - gap * 2) / t.width);
-                    t.x = gap;
+                let wh = new WinHand(ht, wt, ft != undefined ? ft['81'] : 0);
+                bg.addChild(wh);
+                wh.y = gap;
+                if (wh.width > w0 - gap * 2) {
+                    wh.scale.set((w0 - gap * 2) / wh.width);
+                    wh.x = gap;
                 }
                 else {
-                    t.x = (w0 - t.width) * .5;
+                    wh.x = (w0 - wh.width) * .5;
                 }
 
                 let p = dt['p'], cl = -1, wn = -1;
@@ -6775,7 +6774,7 @@
                 btn.x = w0 - wb0 - gap;
                 btn.y = h0 - wh0 - gap;
 
-                t = new PIXI.Text(cd, {
+                let t = new PIXI.Text(cd, {
                     fontFamily: FF,
                     fontSize: 18,
                     fill: '#ffffff',
@@ -7274,9 +7273,9 @@
 
             /**
              * 显示
-             * @param {Array} ns 名字
-             * @param {Array} rss 得分
-             * @param {Array} rps 罚分
+             * @param {array} ns 名字
+             * @param {array} rss 得分
+             * @param {array} rps 罚分
              * @param {number} rd 盘序
              * @param {number} is 初始分
              * @param {number} nbp 负底分（底分的相反数）
