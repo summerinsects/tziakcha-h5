@@ -6573,6 +6573,39 @@
         }
 
         /**
+         * 创建番表每行3个
+         * @param {number} w 宽度
+         * @param {object} ft 番表
+         */
+        function createFanTable3(w, ft) {
+            let ctn = new PIXI.Container();
+
+            let i = 0;
+            const w0 = w / 3;
+            for (let f in ft) {
+                let x0 = 5 + (i % 3) * w0;
+                let y0 = 10 + 35 * Math.floor(i / 3);
+
+                let v = ft[f];
+                let t = new PIXI.Text(fan_item(f, v), {
+                    fontFamily: FF,
+                    fontSize: 22,
+                    fill: '#99ffff'
+                });
+                ctn.addChild(t);
+                t.anchor.y = .5;
+                t.x = x0;
+                //t.x = w0 + gap; t.anchor.x = 1;
+                t.y = y0;
+                //scaleText(t, w0 - 10);
+
+                ++i;
+            }
+
+            return ctn;
+        }
+
+        /**
          * 结算界面
          * @typedef {object} SettleView
          */
@@ -6663,26 +6696,10 @@
                     y += t.height + gap;
                 }
 
-                let i = 0;
-                const frp = (w0 - gap * 2) / 3;
-                for (let f in ft) {
-                    let x0 = gap + 5 + (i % 3) * frp;
-                    let y0 = y + 5 + 35 * Math.floor(i / 3);
-
-                    let v = ft[f];
-                    let t = new PIXI.Text(fan_item(f, v), {
-                        fontFamily: FF,
-                        fontSize: 22,
-                        fill: '#99ffff'
-                    });
-                    bg.addChild(t);
-                    t.anchor.y = .5;
-                    t.x = x0;
-                    //t.x = frp + gap; t.anchor.x = 1;
-                    t.y = y0;
-
-                    ++i;
-                }
+                let ftb = createFanTable3(w0 - gap * 2, ft);
+                bg.addChild(ftb);
+                ftb.x = gap;
+                ftb.y = y;
 
                 const x1 = 200, /*y1 = 400,*/ w1 = 200, h1 = 100;
                 let cx = Float32Array.of(w0 * .5, w0 - gap - x1 * .5, w0 * .5, gap + x1 * .5);
@@ -6994,30 +7011,12 @@
                     wh.x = (w0 - wh.width) * .5;
                 }
 
-                let h0 = 190;
-                let i = 0;
-                const frp = (w0 - gap * 2) / 3;
-                for (let f in ft) {
-                    let x0 = gap + 5 + (i % 3) * frp;
-                    let y0 = 190 + 35 * Math.floor(i / 3);
+                let ftb = createFanTable3(w0 - gap * 2, ft);
+                bg.addChild(ftb);
+                ftb.x = gap;
+                ftb.y = 190;
 
-                    let v = ft[f];
-                    t = new PIXI.Text(fan_item(f, v), {
-                        fontFamily: FF,
-                        fontSize: 22,
-                        fill: '#99ffff'
-                    });
-                    bg.addChild(t);
-                    t.anchor.y = .5;
-                    t.x = x0;
-                    //t.x = frp + gap; t.anchor.x = 1;
-                    t.y = y0;
-                    h0 = y0;
-
-                    ++i;
-                }
-
-                h0 += 40;
+                let h0 = 210 + ftb.height;
 
                 t = new PIXI.Text(`共${f}番`, {
                     fontFamily: FF,
