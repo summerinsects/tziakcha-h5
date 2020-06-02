@@ -5068,21 +5068,21 @@
                     let t = [];
                     let hz = 0;
                     switch (tp) {
-                    case 0:
+                    case 0:  // 吃
                         switch (pack_offer(p)) {
                         default: t.push(new PoolTile1(tl - 4)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl + 4)); break;
                         case 2: t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl - 4)); t.push(new PoolTile0(tl + 4)); break;
                         case 3: t.push(new PoolTile1(tl + 4)); t.push(new PoolTile0(tl - 4)); t.push(new PoolTile0(tl)); break;
                         }
                         break;
-                    case 1:
+                    case 1:  // 碰
                         switch (pack_offer(p)) {
                         default: hz = 0; t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t[0].pr_ = true; break;
                         case 2: hz = 1; t.push(new PoolTile0(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t[1].pr_ = true; break;
                         case 3: hz = 2; t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t[2].pr_ = true; break;
                         }
                         break;
-                    case 2:
+                    case 2:  // 0暗杠 123直杠
                         switch (pack_offer(p)) {
                         default: hz = 0; t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); break;
                         case 2: hz = 1; t.push(new PoolTile0(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); break;
@@ -5090,7 +5090,7 @@
                         case 0: hz = 3; t.push(create_w02()); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(create_w02()); break;
                         }
                         break;
-                    case 3:
+                    case 3:  // 加杠
                         switch (pack_offer(p)) {
                         default: hz = 4; t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); break;
                         case 2: hz = 5; t.push(new PoolTile0(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); break;
@@ -5112,7 +5112,7 @@
 
                     switch (hz) {
                     case 0:
-                        if (tp <= 2) {
+                        if (!t[3]) {
                             t[0].position.set(xx, yy - HEIGHT_13F);
                             t[1].position.set(xx + WIDTH_13, yy - HEIGHT_02F);
                             t[2].position.set(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F);
@@ -5125,7 +5125,7 @@
                         }
                         break;
                     case 1:
-                        if (tp <= 2) {
+                        if (!t[3]) {
                             t[0].position.set(xx, yy - HEIGHT_02F);
                             t[1].position.set(xx + WIDTH_02, yy - HEIGHT_13F);
                             t[2].position.set(xx + WIDTH_13 + WIDTH_02, yy - HEIGHT_02F);
@@ -5138,7 +5138,7 @@
                         }
                         break;
                     case 2:
-                        if (tp <= 2) {
+                        if (!t[3]) {
                             t[0].position.set(xx, yy - HEIGHT_02F);
                             t[1].position.set(xx + WIDTH_02, yy - HEIGHT_02F);
                             t[2].position.set(xx + WIDTH_02 * 2, yy - HEIGHT_13F);
@@ -5231,21 +5231,21 @@
                     let t = [];
                     let hz = 0;
                     switch (tp) {
-                    case 0:
+                    case 0:  // 吃
                         switch (pack_offer(p)) {
                         default: t.push(new PoolTile2(tl - 4)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl + 4)); break;
                         case 2: t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl - 4)); t.push(new PoolTile1(tl + 4)); break;
                         case 3: t.push(new PoolTile2(tl + 4)); t.push(new PoolTile1(tl - 4)); t.push(new PoolTile1(tl)); break;
                         }
                         break;
-                    case 1:
+                    case 1:  // 碰
                         switch (pack_offer(p)) {
                         default: hz = 0; t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t[0].pr_ = true; break;
                         case 2: hz = 1; t.push(new PoolTile1(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t[1].pr_ = true; break;
                         case 3: hz = 2; t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile0(tl)); t[2].pr_ = true; break;
                         }
                         break;
-                    case 2:
+                    case 2:  // 0暗杠 123直杠
                         switch (pack_offer(p)) {
                         default: hz = 0; t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); break;
                         case 2: hz = 1; t.push(new PoolTile1(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); break;
@@ -5253,7 +5253,7 @@
                         case 0: hz = 3; for (let i = 0; i < 4; ++i) t.push(create_w13()); t[1].ck_ = true; t[2].ck_ = true; break;
                         }
                         break;
-                    case 3:
+                    case 3:  // 加杠
                         switch (pack_offer(p)) {
                         default: hz = 4; t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t.push(new PoolTile1(tl)); break;
                         case 2: hz = 5; t.push(new PoolTile1(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); break;
@@ -5276,7 +5276,7 @@
 
                     switch (hz) {
                     case 0:
-                        if (tp <= 2) {
+                        if (!t[3]) {
                             t[0].position.set(xx - (WIDTH_02 - WIDTH_13S), yy + HEIGHT_13 * 2);
                             t[1].position.set(x0, yy + HEIGHT_13);
                             t[2].position.set(x0, yy);
@@ -5289,7 +5289,7 @@
                         }
                         break;
                     case 1:
-                        if (tp <= 2) {
+                        if (!t[3]) {
                             t[0].position.set(x0, yy + HEIGHT_13 + HEIGHT_02);
                             t[1].position.set(xx - (WIDTH_02 - WIDTH_13S), yy + HEIGHT_13);
                             t[2].position.set(x0, yy);
@@ -5302,7 +5302,7 @@
                         }
                         break;
                     case 2:
-                        if (tp <= 2) {
+                        if (!t[3]) {
                             t[0].position.set(x0, yy + HEIGHT_02 + HEIGHT_13);
                             t[1].position.set(x0, yy + HEIGHT_02);
                             t[2].position.set(xx - (WIDTH_02 - WIDTH_13S), yy);
@@ -5388,21 +5388,21 @@
                     let t = [];
                     let hz = 0;
                     switch (tp) {
-                    case 0:
+                    case 0:  // 吃
                         switch (pack_offer(p)) {
                         default: t.push(new PoolTile3(tl - 4)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl + 4)); break;
                         case 2: t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl - 4)); t.push(new PoolTile2(tl + 4)); break;
                         case 3: t.push(new PoolTile3(tl + 4)); t.push(new PoolTile2(tl - 4)); t.push(new PoolTile2(tl)); break;
                         }
                         break;
-                    case 1:
+                    case 1:  // 碰
                         switch (pack_offer(p)) {
                         default: hz = 0; t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t[0].pr_ = true; break;
                         case 2: hz = 1; t.push(new PoolTile2(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t[1].pr_ = true; break;
                         case 3: hz = 2; t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile1(tl)); t[2].pr_ = true; break;
                         }
                         break;
-                    case 2:
+                    case 2:  // 0暗杠 123直杠
                         switch (pack_offer(p)) {
                         default: hz = 0; t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); break;
                         case 2: hz = 1; t.push(new PoolTile2(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); break;
@@ -5410,7 +5410,7 @@
                         case 0: hz = 3; for (let i = 0; i < 4; ++i) t.push(create_w02()); t[1].ck_ = true; t[2].ck_ = true; break;
                         }
                         break;
-                    case 3:
+                    case 3:  // 加杠
                         switch (pack_offer(p)) {
                         default: hz = 4; t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t.push(new PoolTile2(tl)); break;
                         case 2: hz = 5; t.push(new PoolTile2(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); break;
@@ -5431,7 +5431,7 @@
 
                     switch (hz) {
                     case 0:
-                        if (tp <= 2) {
+                        if (!t[3]) {
                             t[0].x = xx + WIDTH_02 * 2;
                             t[1].x = xx + WIDTH_02;
                             t[2].x = xx;
@@ -5444,7 +5444,7 @@
                         }
                         break;
                     case 1:
-                        if (tp <= 2) {
+                        if (!t[3]) {
                             t[0].x = xx + WIDTH_02 + WIDTH_13;
                             t[1].x = xx + WIDTH_02;
                             t[2].x = xx;
@@ -5457,7 +5457,7 @@
                         }
                         break;
                     case 2:
-                        if (tp <= 2) {
+                        if (!t[3]) {
                             t[0].x = xx + WIDTH_13 + WIDTH_02;
                             t[1].x = xx + WIDTH_13;
                             t[2].x = xx;
@@ -5543,21 +5543,21 @@
                     let t = [];
                     let hz = 0;
                     switch (tp) {
-                    case 0:
+                    case 0:  // 吃
                         switch (pack_offer(p)) {
                         default: t.push(new PoolTile0(tl - 4)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl + 4)); break;
                         case 2: t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl - 4)); t.push(new PoolTile3(tl + 4)); break;
                         case 3: t.push(new PoolTile0(tl + 4)); t.push(new PoolTile3(tl - 4)); t.push(new PoolTile3(tl)); break;
                         }
                         break;
-                    case 1:
+                    case 1:  // 碰
                         switch (pack_offer(p)) {
                         default: hz = 0; t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t[0].pr_ = true; break;
                         case 2: hz = 1; t.push(new PoolTile3(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t[1].pr_ = true; break;
                         case 3: hz = 2; t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile2(tl)); t[2].pr_ = true; break;
                         }
                         break;
-                    case 2:
+                    case 2:  // 0暗杠 123直杠
                         switch (pack_offer(p)) {
                         default: hz = 0; t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); break;
                         case 2: hz = 1; t.push(new PoolTile3(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); break;
@@ -5565,7 +5565,7 @@
                         case 0: hz = 3; for (let i = 0; i < 4; ++i) t.push(create_w13()); t[1].ck_ = true; t[2].ck_ = true; break;
                         }
                         break;
-                    case 3:
+                    case 3:  // 加杠
                         switch (pack_offer(p)) {
                         default: hz = 4; t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); t.push(new PoolTile3(tl)); break;
                         case 2: hz = 5; t.push(new PoolTile3(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile0(tl)); t.push(new PoolTile3(tl)); break;
@@ -5586,7 +5586,7 @@
 
                     switch (hz) {
                     case 0:
-                        if (tp <= 2) {
+                        if (!t[3]) {
                             t[0].y = yy - HEIGHT_13 * 2 - HEIGHT_02;
                             t[1].y = yy - HEIGHT_13 * 2;
                             t[2].y = yy - HEIGHT_13;
@@ -5599,7 +5599,7 @@
                         }
                         break;
                     case 1:
-                        if (tp <= 2) {
+                        if (!t[3]) {
                             t[0].y = yy - HEIGHT_13 * 2 - HEIGHT_02;
                             t[1].y = yy - HEIGHT_13 - HEIGHT_02;
                             t[2].y = yy - HEIGHT_13;
@@ -5612,7 +5612,7 @@
                         }
                         break;
                     case 2:
-                        if (tp <= 2) {
+                        if (!t[3]) {
                             t[0].y = yy - HEIGHT_02 - HEIGHT_13 * 2;
                             t[1].y = yy - HEIGHT_02 - HEIGHT_13;
                             t[2].y = yy - HEIGHT_02;
