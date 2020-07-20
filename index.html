@@ -240,7 +240,8 @@
             tz.mutecd = parseInt(localStorage.getItem('mutecd'));
             tz.mutecall = parseInt(localStorage.getItem('mutecall'));
 
-            PIXI.loader.add([
+            let loader = PIXI.loader;
+            loader.add([
                 'img/tiles/standing1.png',
                 'img/tiles/standing3.png',
                 'img/tiles/pool0.png',
@@ -283,12 +284,13 @@
                 'snd/21-win-f.wav',
                 'snd/25-xchg.wav'
             ])
-            .on('progress', (e)=>{
-                console.log('loading progress:', e.progress);
-                lt.text = e.progress.toFixed(2) + '%';
-            }).load(()=>{
+            .load(()=>{
                 lt.dstry();
                 start_game();
+            })
+            .onProgress.add((e)=>{
+                console.log('loading progress:', e.progress);
+                lt.text = e.progress.toFixed(2) + '%';
             });
         }
 
