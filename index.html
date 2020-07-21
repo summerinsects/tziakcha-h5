@@ -126,6 +126,16 @@
             return PIXI.Texture.from(img);
         }
 
+        /**
+         * 创建BitmapText
+         * @param {string} t 文本
+         * @param {object} s 5.x版本的BitmapText.style
+         * @return {object}
+         */
+        function createBitmapText(t, s) {
+            return new PIXI.extras.BitmapText(t, { font: `${s['fontSize']}px ${s['fontName']}`});
+        }
+
         const FF = [
             '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif',
             'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
@@ -998,7 +1008,7 @@
                 super(tex, t);
 
                 if (tz.nht) {
-                    let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
+                    let ht = this.ht_ = createBitmapText(hint_text[t >> 2], { fontName: 'shsb', fontSize: 24 });
                     this.addChild(ht);
                     ht.x = 4;
                     ht.y = -2;
@@ -1044,7 +1054,7 @@
                 super(tex, t);
 
                 if (tz.nht) {
-                    let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
+                    let ht = this.ht_ = createBitmapText(hint_text[t >> 2], { fontName: 'shsb', fontSize: 24 });
                     this.addChild(ht);
                     ht.rotation = -Math.PI * .5;
                     ht.x = 0;
@@ -1091,7 +1101,7 @@
                 super(tex, t);
 
                 if (tz.nht) {
-                    let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
+                    let ht = this.ht_ = createBitmapText(hint_text[t >> 2], { fontName: 'shsb', fontSize: 24 });
                     this.addChild(ht);
                     ht.rotation = -Math.PI;
                     ht.x = WIDTH_02 - 5;
@@ -1138,7 +1148,7 @@
                 super(tex, t);
 
                 if (tz.nht) {
-                    let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
+                    let ht = this.ht_ = createBitmapText(hint_text[t >> 2], { fontName: 'shsb', fontSize: 24 });
                     this.addChild(ht);
                     ht.rotation = Math.PI * .5;
                     ht.x = WIDTH_13;
@@ -1240,7 +1250,7 @@
                 center.y = MAX_HEIGHT * .5;
 
                 // 当前打：X风X
-                let text = this.roundText_ = new PIXI.extras.BitmapText('', { font: '80px SourceHanSansBold' });
+                let text = this.roundText_ = createBitmapText('', { fontName: 'SourceHanSansBold', fontSize: 80 });
                 text.anchor.set(.5);
                 text.x = CENTER_WIDTH * .5;
                 text.y = CENTER_HEIGHT * .5 - 25;
@@ -3108,7 +3118,7 @@
              */
             showCall(n, s) {
                 let pos = this.callTextPos_[n];
-                let text = new PIXI.extras.BitmapText(s, { font:'128px STXingkai' });
+                let text = createBitmapText(s, { fontName: 'STXingkai', fontSize: 128 });
                 text.anchor.x = pos['ax'];
                 text.anchor.y = pos['ay'];
                 text.x = pos['x'];
@@ -4703,7 +4713,7 @@
                         }
 
                         let pos = this.callTextPos_[n1];
-                        let text = new PIXI.extras.BitmapText('点炮', { font:'128px STXingkai' });
+                        let text = createBitmapText('点炮', { fontName: 'STXingkai', fontSize: 128 });
                         text.anchor.x = pos['ax'];
                         text.anchor.y = pos['ay'];
                         text.x = pos['x'];
@@ -4716,7 +4726,7 @@
                     if (wp != undefined) {
                         let n0 = (wp + 4 - this.seat_) & 3;
                         let pos = this.callTextPos_[n0];
-                        let text = new PIXI.extras.BitmapText('和', { font:'128px STXingkai' });
+                        let text = createBitmapText('和', { fontName: 'STXingkai', fontSize: 128 });
                         text.anchor.x = pos['ax'];
                         text.anchor.y = pos['ay'];
                         text.x = pos['x'];
@@ -5686,7 +5696,7 @@
                 this.t_ = t;
 
                 if (tz.nht) {
-                    let ht = this.ht_ = new PIXI.extras.BitmapText(hint_text[t >> 2], { font: '24px shsb'});
+                    let ht = this.ht_ = createBitmapText(hint_text[t >> 2], { fontName: 'shsb', fontSize: 24 });
                     this.addChild(ht);
                     ht.x = 4;
                     ht.y = 18;
@@ -6244,7 +6254,7 @@
                 this.addChild(fg);
                 fg.visible = false;
 
-                let f = this.face_ = new PIXI.extras.BitmapText('', { font:'100px STXingkai' });
+                let f = this.face_ = createBitmapText('', { fontName: 'STXingkai', fontSize: 100 });
                 f.anchor.set(.5);
                 f.x = f.y = 75;
                 this.addChild(f);
@@ -6712,7 +6722,7 @@
 
                 {
                     let rd = dt['r'];
-                    let t = new PIXI.extras.BitmapText(WIND[rd >> 2] + '风' + WIND[rd & 3], { font: '48px SourceHanSansBold' });
+                    let t = createBitmapText(WIND[rd >> 2] + '风' + WIND[rd & 3], { fontName: 'SourceHanSansBold', fontSize: 48 });
                     bg.addChild(t);
                     t.anchor.set(.5);
                     t.x = w0 * .5;
@@ -6734,7 +6744,7 @@
                     g.x = cx[i] - w1 * .5;
                     g.y = cy[i] - h1 * .5;
 
-                    let t = new PIXI.extras.BitmapText(WIND[ri], { font: '64px SourceHanSansBold'});
+                    let t = createBitmapText(WIND[ri], { fontName: 'SourceHanSansBold', fontSize: 64 });
                     bg.addChild(t);
                     t.anchor.y = .5;
                     t.x = cx[i] - w1 * .5 + 10;
