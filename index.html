@@ -214,6 +214,20 @@
             }
         }
 
+        /**
+         * 加载配置
+         */
+        function load_cfg() {
+            tz.cfg = JSON.parse(localStorage.getItem('game_data')) || {};
+        }
+
+        /**
+         * 保存配置
+         */
+        function save_cfg() {
+            localStorage.setItem('game_data', JSON.stringify(tz.cfg));
+        }
+
         PIXI.DisplayObject.prototype.dstry = function() {
             try {
                 this.destroy({children:true});
@@ -247,8 +261,13 @@
                 adapt();
             };
 
-            tz.mutecd = parseInt(localStorage.getItem('mutecd'));
-            tz.mutecall = parseInt(localStorage.getItem('mutecall'));
+            load_cfg();
+
+            let nht = tz.cfg['superscript'];
+            tz.nht = nht = (nht != undefined) ? parseInt(nht) : 0;
+
+            let piat = tz.cfg['piano'];
+            tz.piat = piat = (piat != undefined) ? parseInt(piat) : 0;
 
             let loader = PIXI.loader;
             loader.add([
@@ -317,15 +336,6 @@
             PoolTile.tex2 = res['img/tiles/pool2.png'].texture;
             PoolTile.tex3 = res['img/tiles/pool3.png'].texture;
 
-            let rdd = localStorage.getItem('rdd');
-            tz.rdd = rdd = (rdd != undefined) ? parseInt(rdd) : 0;
-
-            let nht = localStorage.getItem('nht');
-            tz.nht = nht = (nht != undefined) ? parseInt(nht) : 0;
-
-            let piat = localStorage.getItem('piano');
-            tz.piat = piat = (piat != undefined) ? parseInt(piat) : 0;
-
             let lobby = tz.lobby = new LobbyView();
             app.stage.addChild(lobby);
 
@@ -349,7 +359,7 @@
                 topmost.adapt();
             };
 
-            let volume = localStorage.getItem('volume');
+            let volume = tz.cfg['volume'];
             volume = (volume != undefined) ? Math.max(0, Math.min(100, parseFloat(volume))) : 100;
             PIXI.sound.volumeAll = volume / 100;
 
@@ -385,7 +395,7 @@
                 }
                 lobby.tlr_ = f;
                 if (!f) {
-                    let un = localStorage.getItem('username'), pw = localStorage.getItem('password');
+                    let un = tz.cfg['username'], pw = tz.cfg['token'];
                     if (un && pw) {
                         ws.send(`{"m":1,"r":12,"u":"${un}","p":"${pw}"}`);
                     }
@@ -2365,7 +2375,7 @@
                         let tt = parseInt(t.text);
                         if (tt != s) {
                             t.text = s;
-                            if (!tz.mutecd && s <= 3) {
+                            if (!tz.cfg['mutecd'] && s <= 3) {
                                 play_snd('snd/03-cd.wav');
                             }
                         }
@@ -2533,7 +2543,7 @@
                     --cnt;
                 }
 
-                if (!tz.mutecall && cnt > 0) {
+                if (!tz.cfg['mutecall'] && cnt > 0) {
                     play_snd('snd/08-inquire.wav');
                 }
             }
@@ -2600,7 +2610,7 @@
                     this.rmCD();
                 }
 
-                if (tz.rdd && this.turn_ == this.seat_) {
+                if (tz.cfg['rightdiscard'] && this.turn_ == this.seat_) {
                     let sp = this.standing_[0][13];
                     if (sp.visible) {
                         this._discard(sp);
@@ -8153,7 +8163,7 @@
                 bg.addChild(rb);
                 rb.x = t.x + t.width + 10;
                 rb.y = 95;
-                let volume = localStorage.getItem('volume');
+                let volume = tz.cfg['volume'];
                 volume = (volume != undefined) ? Math.max(0, Math.min(100, parseFloat(volume))) : 100;
                 t0.text = Math.round(volume) + '%';
                 rb.setValue(volume);
@@ -8175,7 +8185,7 @@
                 cb1.scale.set(.75);
                 cb1.x = t.x + t.width + 40;
                 cb1.y = t.y - 18;
-                cb1.setSelected(!tz.mutecd);
+                cb1.setSelected(!tz.cfg['mutecd']);
 
                 t = new PIXI.Text('鸣牌提示音效', {
                     fontFamily: FF,
@@ -8194,7 +8204,7 @@
                 cb2.scale.set(.75);
                 cb2.x = t.x + t.width + 40;
                 cb2.y = t.y - 18;
-                cb2.setSelected(!tz.mutecall);
+                cb2.setSelected(!tz.cfg['mutecall']);
 
                 t = new PIXI.Text('鼠标右键摸打', {
                     fontFamily: FF,
@@ -8213,7 +8223,7 @@
                 cb3.scale.set(.75);
                 cb3.x = t.x + t.width + 40;
                 cb3.y = t.y - 18;
-                cb3.setSelected(tz.rdd);
+                cb3.setSelected(tz.cfg['rightdiscard']);
 
                 t = new PIXI.Text('牌面上角标（刷新后生效）', {
                     fontFamily: FF,
@@ -8283,16 +8293,15 @@
                     stroke: '#0066ff',
                     strokeThickness: 2,
                 }, wb0, wh0, ()=>{
+                    let cfg = tz.cfg;
                     let volume = rb.getValue();
-                    tz.mutecd = cb1.isSelected() ? 0 : 1;
-                    tz.mutecall = cb2.isSelected() ? 0 : 1;
-                    tz.rdd = cb3.isSelected() ? 1 : 0;
-                    localStorage.setItem('volume', volume);
-                    localStorage.setItem('mutecd', tz.mutecd);
-                    localStorage.setItem('mutecall', tz.mutecall);
-                    localStorage.setItem('rdd', tz.rdd);
-                    localStorage.setItem('nht', cb4.isSelected() ? 1 : 0);
-                    localStorage.setItem('piano', piacbs[0].isSelected() ? 0 : 1);
+                    cfg['volume'] = volume;
+                    cfg['mutecd'] = cb1.isSelected() ? 0 : 1;
+                    cfg['mutecall'] = cb2.isSelected() ? 0 : 1;
+                    cfg['rightdiscard'] = cb3.isSelected() ? 1 : 0;
+                    cfg['superscript'] = cb4.isSelected() ? 1 : 0;
+                    cfg['piano'] = piacbs[0].isSelected() ? 0 : 1;
+                    save_cfg();
                     PIXI.sound.volumeAll = volume / 100;
                     cb();
                 });
@@ -8912,7 +8921,7 @@
                     case 16: {
                         document.cookie = '__p=;Path=/;Max-Age=0';
                         let un, pw;
-                        if (this.tlr_ && (un = localStorage.getItem('username')) && (pw = localStorage.getItem('password'))) {
+                        if (this.tlr_ && (un = tz.cfg['username']) && (pw = tz.cfg['token'])) {
                             this.tlr_ = false;
                             tz.ws.send(`{"m":1,"r":12,"u":"${un}","p":"${pw}"}`);
                         }
@@ -8984,7 +8993,8 @@
                     }
                     let pw = resp['p'];
                     if (pw) {
-                        localStorage.setItem('password', pw);
+                        tz.cfg['token'] = pw;
+                        save_cfg();
                     }
                     if ((this.tableid_ = resp['i'])) {
                         this.seat_ = resp['s'];
@@ -9033,7 +9043,8 @@
                     console.log('un pw', un, pw);
                     if (un && pw) {
                         tz.ws.send(`{"m":1,"r":9,"u":"${un}","p":"${pw}","z":"${pzl}","s":"${sln}"}`);
-                        localStorage.setItem('username', un);
+                        tz.cfg['username'] = un;
+                        save_cfg();
                     }
                     this.container_.removeChild(this.uv_);
                     this.uv_.dstry();
@@ -9392,7 +9403,7 @@
                 ctrls[14]._dom_input.setAttribute('type', 'password');
                 this.ctrls_ = ctrls;
 
-                let defcfg = JSON.parse(localStorage.getItem('default_config')) || {};
+                let defcfg = tz.cfg['default'] || {};
 
                 function dv(v, d) {
                     if (v != undefined) return v;
@@ -9475,7 +9486,8 @@
                     'g':rv(ctrls[13], 1),
                     'p':ctrls[14].text
                 };
-                localStorage.setItem('default_config', JSON.stringify(cfg));
+                tz.cfg['default'] = cfg;
+                save_cfg();
                 return cfg;
             }
         }
@@ -9920,7 +9932,7 @@
 
                 const prefix = ['昵称', '密码'];
                 let tis = [null, null, null];
-                let plh = [localStorage.getItem('username')];
+                let plh = [tz.cfg['username']];
                 for (let i = 0; i < 2; ++i) {
                     let yy = 90 + 80 * i;
                     t = new PIXI.Text(prefix[i], {
