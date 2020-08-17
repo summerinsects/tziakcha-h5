@@ -9918,14 +9918,14 @@
                 t.x = w0 * .5;
                 t.y = 40;
 
-                const prefix = ['昵称', '密码', '验证'];
+                const prefix = ['昵称', '密码'];
                 let tis = [null, null, null];
                 let plh = [localStorage.getItem('username')];
-                for (let i = 0, c = pzl ? 3 : 2; i < c; ++i) {
-                    let yy = 110 + 70 * i;
+                for (let i = 0; i < 2; ++i) {
+                    let yy = 90 + 80 * i;
                     t = new PIXI.Text(prefix[i], {
                         fontFamily: FF,
-                        fontSize: 22,
+                        fontSize: 18,
                         fill: '#ffffff',
                         stroke: '#0066ff',
                         strokeThickness: 2,
@@ -9937,13 +9937,13 @@
 
                     let ti = new PIXI.TextInput({
                         fontSize: '18px',
-                        width: '280px',
+                        width: '355px',
                         height: '20px',
                         padding: '6px',
                         paddingLeft: '10px',
                     });
-                    ti.x = w0 - 300 - gap - 10;
-                    ti.y = yy - 15;
+                    ti.x = gap + 10;
+                    ti.y = yy + 20;
                     bg.addChild(ti);
                     tis[i] = ti;
                     ti.text = plh[i] || '';
@@ -9961,9 +9961,23 @@
                         align: 'center'
                     });
                     bg.addChild(t);
-                    t.anchor.set(.5);
+                    t.anchor.x = .5;
                     t.x = w0 * .5;
-                    t.y = h0 * .5 + 95;
+                    t.y = 230;
+
+                    let ti = new PIXI.TextInput({
+                        fontSize: '18px',
+                        width: '355px',
+                        height: '20px',
+                        padding: '6px',
+                        paddingLeft: '10px',
+                    });
+                    ti.x = gap + 10;
+                    ti.y = 235 + t.height;
+                    bg.addChild(ti);
+                    tis[2] = ti;
+                    ti.substituteText = false;
+                    ti.destroyBoxCache = ()=>{};
                 }
 
                 const wb0 = 100, wh0 = 40;
