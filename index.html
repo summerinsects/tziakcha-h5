@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>雀渣——国标麻将 (旧版)</title>
+    <title>雀渣——国标麻将</title>
     <style>*{padding:0;margin:0}</style>
     <meta name="viewport" content="user-scalable=no,initial-scale=.4,maximum-scale=.4,minimum-scale=.4,width=device-width,height=device-height">
 </head>
@@ -133,7 +133,7 @@
          * @return {object}
          */
         function createBitmapText(t, s) {
-            return new PIXI.extras.BitmapText(t, { font: `${s['fontSize']}px ${s['fontName']}`});
+            return new PIXI.BitmapText(t, s);
         }
 
         const FF = [
@@ -207,7 +207,7 @@
          */
         function play_snd(s) {
             try {
-                PIXI.loader.resources[s].sound.play();
+                PIXI.Loader.shared.resources[s].sound.play();
             }
             catch (e) {
                 console.log(e);
@@ -269,7 +269,7 @@
             let piat = tz.cfg['piano'];
             tz.piat = piat = (piat != undefined) ? parseInt(piat) : 0;
 
-            let loader = PIXI.loader;
+            let loader = PIXI.Loader.shared;
             loader.add([
                 'img/tiles/standing1.png',
                 'img/tiles/standing3.png',
@@ -327,7 +327,7 @@
          * 开始游戏
          */
         function start_game() {
-            let res = PIXI.loader.resources;
+            let res = PIXI.Loader.shared.resources;
             StandingTile.tex0 = res['img/tiles/standing0.png'].texture;
             StandingTile.tex1 = res['img/tiles/standing1.png'].texture;
             StandingTile.tex3 = res['img/tiles/standing3.png'].texture;
@@ -5891,13 +5891,13 @@
          * 创建骰子
          */
         function createDice(n) {
-            let tex = PIXI.loader.resources[`img/dice/${n}.png`].texture;
+            let tex = PIXI.Loader.shared.resources[`img/dice/${n}.png`].texture;
             let frames = [];
             for (let i = 0; i < 9; ++i) {
                 let f = new PIXI.Texture(tex, rcs[i]);
                 frames.push(f);
             }
-            let asp = new PIXI.extras.AnimatedSprite(frames);
+            let asp = new PIXI.AnimatedSprite(frames);
             asp.x = 100;
             asp.y = 100;
             asp.animationSpeed = .4;
@@ -8778,7 +8778,7 @@
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
-                }, 70, wh0, ()=>{ window.open('/1/?lang=en', '_self'); });
+                }, 70, wh0, ()=>{ window.open('/0/?lang=en', '_self'); });
                 ctn.addChild(btn);
                 btn.x = 75;
 
