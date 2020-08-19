@@ -1877,22 +1877,7 @@
                     strokeThickness: 2,
                     lineJoin: 'round',
                     padding: 10
-                }, 120, 60, ()=>{
-                    if (this.sv_) {
-                        return;
-                    }
-
-                    let sv = this.sv_ = new SettingView(MAX_WIDTH, MAX_HEIGHT, ()=>{
-                        this.sv_.dstry();
-                        delete this.sv_;
-                    });
-                    this.addChild(sv);
-                    sv.zIndex = 500;
-                    sv.scale.set(1.25);
-                    sv.x = (MAX_WIDTH - sv.width) * .5;
-                    sv.y = (MAX_HEIGHT - sv.height) * .5;
-
-                });
+                }, 120, 60, ()=>tz.topmost.toggleSetting());
                 this.addChild(btn);
                 btn.zIndex = 500;
 
@@ -8240,18 +8225,32 @@
                 thmb.x = thmb.y = h0 * .5;
 
                 this.dragging_ = false;
+                let valuechanged = (g)=>{
+                    let pt = this.toLocal(g);
+                    let v0 = this.min_, v1 = this.max_;
+                    let vx = Math.max(v0, Math.min(v1, pt.x));
+                    this.thmb_.x = vx;
+                    this.value_ = (vx - v0) * 100 / (v1 - v0);
+                    cb(this.value_);
+                };
+
                 thmb.interactive = true;
                 thmb.on('pointerdown', ()=>{ this.dragging_ = true; });
                 thmb.on('pointerup', ()=>{ this.dragging_ = false; });
                 thmb.on('pointerupoutside', ()=>{ this.dragging_ = false; });
                 thmb.on('pointermove', (e)=>{
                     if (!this.dragging_) return;
-                    let pt = this.toLocal(e.data.global);
-                    let v0 = this.min_, v1 = this.max_;
-                    let vx = Math.max(v0, Math.min(v1, pt.x));
-                    this.thmb_.x = vx;
-                    this.value_ = (vx - v0) * 100 / (v1 - v0);
-                    cb(this.value_);
+                    valuechanged(e.data.global);
+                });
+
+                bg.interactive = true;
+                bg.on('click', (e)=>{
+                    if (this.dragging_) return;
+                    valuechanged(e.data.global);
+                });
+                bg.on('tap', (e)=>{
+                    if (this.dragging_) return;
+                    valuechanged(e.data.global);
                 });
             }
 
@@ -8286,11 +8285,12 @@
             constructor(w, h, cb) {
                 super();
 
-                const w0 = 600, h0 = 520;
+                const w0 = 450, h0 = 390;
 
                 //this.width = w;
                 //this.height = h;
 
+                // TODO: 尺寸略有点合不上游戏界面
                 let ctn = new PIXI.Sprite(PIXI.Texture.WHITE);
                 ctn.tint = 0;
                 ctn.alpha = .1;
@@ -8314,7 +8314,7 @@
 
                 let t = new PIXI.Text('设置', {
                     fontFamily: FF,
-                    fontSize: 32,
+                    fontSize: 24,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -8324,11 +8324,11 @@
                 bg.addChild(t);
                 t.anchor.set(.5);
                 t.x = w0 * .5;
-                t.y = 40;
+                t.y = 30;
 
                 t = new PIXI.Text('音量', {
                     fontFamily: FF,
-                    fontSize: 24,
+                    fontSize: 18,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -8337,12 +8337,12 @@
                 });
                 bg.addChild(t);
                 t.anchor.y = .5;
-                t.x = 30;
-                t.y = 110;
+                t.x = 20;
+                t.y = 80;
 
                 let t0 = new PIXI.Text('100%', {
                     fontFamily: FF,
-                    fontSize: 24,
+                    fontSize: 18,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -8352,23 +8352,56 @@
                 bg.addChild(t0);
                 t0.anchor.x = 1;
                 t0.anchor.y = .5;
-                t0.x = w0 - 30;
-                t0.y = 110;
+                t0.x = w0 - 110;
+                t0.y = 80;
 
-                let rb = new RangeBar(t0.x - t0.width - t.x - t.width - 15, 30, 15, (v)=>{
+                let rb = new RangeBar(t0.x - t0.width - t.x - t.width - 10, 20, 10, (v)=>{
                     t0.text = Math.round(v) + '%';
                 });
                 bg.addChild(rb);
-                rb.x = t.x + t.width + 10;
-                rb.y = 95;
+                rb.x = t.x + t.width + 5;
+                rb.y = 70;
                 let volume = tz.cfg['volume'];
                 volume = (volume != undefined) ? Math.max(0, Math.min(100, parseFloat(volume))) : 100;
                 t0.text = Math.round(volume) + '%';
                 rb.setValue(volume);
 
+                this.overwritten_ = false;
+                this.playing_ = false;
+                let btn = new TextButton('试听', {
+                    fontFamily: FF,
+                    fontSize: 18,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                    lineJoin: 'round',
+                    padding: 10
+                }, 90, 35, ()=>{
+                    if (this.playing_) return;
+                    let v0 = PIXI.sound.volumeAll;
+                    PIXI.sound.volumeAll = rb.getValue() / 100;
+                    try {
+                        this.playing_ = true;
+                        PIXI.loader.resources['snd/01-start.wav'].sound.play(()=>{
+                            if (!this.overwritten_) {
+                                PIXI.sound.volumeAll = v0;
+                            }
+                            this.playing_ = false;
+                        });
+                    }
+                    catch (e) {
+                        this.playing_ = false;
+                        console.log(e);
+                        PIXI.sound.volumeAll = v0;
+                    }
+                });
+                bg.addChild(btn);
+                btn.x = w0 - 105;
+                btn.y = 80 - 17.5;
+
                 t = new PIXI.Text('倒计时音效', {
                     fontFamily: FF,
-                    fontSize: 24,
+                    fontSize: 18,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -8377,19 +8410,19 @@
                 });
                 bg.addChild(t);
                 t.anchor.y = .5;
-                t.x = 30;
-                t.y = 160;
+                t.x = 20;
+                t.y = 120;
 
                 let cb1 = new CheckBox();
                 bg.addChild(cb1);
-                cb1.scale.set(.75);
-                cb1.x = t.x + t.width + 40;
-                cb1.y = t.y - 18;
+                cb1.scale.set(.6);
+                cb1.x = t.x + t.width + 20;
+                cb1.y = t.y - 13.5;
                 cb1.setSelected(!tz.cfg['mutecd']);
 
                 t = new PIXI.Text('鸣牌提示音效', {
                     fontFamily: FF,
-                    fontSize: 24,
+                    fontSize: 18,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -8398,19 +8431,19 @@
                 });
                 bg.addChild(t);
                 t.anchor.y = .5;
-                t.x = 30;
-                t.y = 210;
+                t.x = 20;
+                t.y = 160;
 
                 let cb2 = new CheckBox();
                 bg.addChild(cb2);
-                cb2.scale.set(.75);
-                cb2.x = t.x + t.width + 40;
-                cb2.y = t.y - 18;
+                cb2.scale.set(.6);
+                cb2.x = t.x + t.width + 20;
+                cb2.y = t.y - 13.5;
                 cb2.setSelected(!tz.cfg['mutecall']);
 
                 t = new PIXI.Text('鼠标右键摸打', {
                     fontFamily: FF,
-                    fontSize: 24,
+                    fontSize: 18,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -8419,19 +8452,19 @@
                 });
                 bg.addChild(t);
                 t.anchor.y = .5;
-                t.x = 30;
-                t.y = 260;
+                t.x = 20;
+                t.y = 200;
 
                 let cb3 = new CheckBox();
                 bg.addChild(cb3);
-                cb3.scale.set(.75);
-                cb3.x = t.x + t.width + 40;
-                cb3.y = t.y - 18;
+                cb3.scale.set(.6);
+                cb3.x = t.x + t.width + 20;
+                cb3.y = t.y - 13.5;
                 cb3.setSelected(tz.cfg['rightdiscard']);
 
                 t = new PIXI.Text('牌面上角标（刷新后生效）', {
                     fontFamily: FF,
-                    fontSize: 24,
+                    fontSize: 18,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -8440,19 +8473,19 @@
                 });
                 bg.addChild(t);
                 t.anchor.y = .5;
-                t.x = 30;
-                t.y = 310;
+                t.x = 20;
+                t.y = 240;
 
                 let cb4 = new CheckBox();
                 bg.addChild(cb4);
-                cb4.scale.set(.75);
-                cb4.x = t.x + t.width + 40;
-                cb4.y = t.y - 18;
+                cb4.scale.set(.6);
+                cb4.x = t.x + t.width + 20;
+                cb4.y = t.y - 13.5;
                 cb4.setSelected(tz.nht);
 
                 t = new PIXI.Text('钢琴键尺寸（刷新后生效）', {
                     fontFamily: FF,
-                    fontSize: 24,
+                    fontSize: 18,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -8461,8 +8494,8 @@
                 });
                 bg.addChild(t);
                 t.anchor.y = .5;
-                t.x = 30;
-                t.y = 360;
+                t.x = 20;
+                t.y = 280;
 
                 let ti = ['三格', '两格'];
                 let piacbs = [];
@@ -8473,19 +8506,19 @@
                         }
                     }.bind(this, i));
                     bg.addChild(cbx);
-                    cbx.scale.set(.75);
-                    cbx.x = t.x + t.width + 10 + 105 * i;
-                    cbx.y = t.y - 18;
+                    cbx.scale.set(.6);
+                    cbx.x = t.x + t.width + 10 + 80 * i;
+                    cbx.y = t.y - 13.5;
                     piacbs.push(cbx);
                 }
                 piacbs[0].setSelected(!tz.piat);
                 piacbs[1].setSelected(tz.piat);
                 this.piacbs_ = piacbs;
 
-                const wb0 = 120, wh0 = 50;
-                let btn = new TextButton('取消', {
+                const wb0 = 90, wh0 = 35;
+                btn = new TextButton('取消', {
                     fontFamily: FF,
-                    fontSize: 24,
+                    fontSize: 18,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -8493,12 +8526,12 @@
                     padding: 10
                 }, wb0, wh0, ()=>cb());
                 bg.addChild(btn);
-                btn.x = 20;
-                btn.y = h0 - wh0 - 20;
+                btn.x = 15;
+                btn.y = h0 - wh0 - 15;
 
                 btn = new TextButton('确定', {
                     fontFamily: FF,
-                    fontSize: 24,
+                    fontSize: 18,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -8515,11 +8548,12 @@
                     cfg['piano'] = piacbs[0].isSelected() ? 0 : 1;
                     save_cfg();
                     PIXI.sound.volumeAll = volume / 100;
+                    this.overwritten_ = true;
                     cb();
                 });
                 bg.addChild(btn);
-                btn.x = w0 - wb0 - 20;
-                btn.y = h0 - wh0 - 20;
+                btn.x = w0 - wb0 - 15;
+                btn.y = h0 - wh0 - 15;
             }
         }
 
@@ -10362,6 +10396,24 @@
                         (new TWEEN.Tween(ctn)).to({alpha:0}, 100).delay(1300).onComplete(()=>{ ctn.dstry(); }).start();
                     }).start();
                 }
+            }
+
+            /**
+             * 显示设置界面
+             */
+            toggleSetting() {
+                if (this.sv_) {
+                    return;
+                }
+
+                let sv = this.sv_ = new SettingView(LOBBY_WIDTH, LOBBY_HEIGHT, ()=>{
+                    this.sv_.dstry();
+                    delete this.sv_;
+                });
+                this.addChild(sv);
+                sv.zIndex = 500;
+                sv.x = (LOBBY_WIDTH - sv.width) * .5;
+                sv.y = (LOBBY_HEIGHT - sv.height) * .5;
             }
         }
 
