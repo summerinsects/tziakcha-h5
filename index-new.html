@@ -586,12 +586,8 @@
      * 互斥的一组
      * @typedef {object} RadioGrp
      */
-    class RadioGrp extends PIXI.Container {
-      /**
-       * @param {function(RadioGrp):void} cb 切换的回调
-       */
+    class RadioGrp {
       constructor() {
-        super();
         this.cb_ = [];
       }
 
@@ -2239,7 +2235,7 @@
     }
 
     // 一行布局
-    HndTl1.H = FH1 + (GP + H1) * 2;
+    HndTl1.H = FH1 + GP * 2 + H1 + H1SF - OL;
     HndTl1.W = W0 * 2 + GP;
 
     // 两行布局
@@ -2284,8 +2280,8 @@
         this.y_ = FH1 - (H1F - H1) + GF;  // 哨兵位置
       }
     }
-    HndTl2.W = FW0 + H0 * 2 + GP * 2;
-    HndTl2.H = FH0;
+    HndTl2.W = FW0 + W0 * 2 + GP * 2;
+    HndTl2.H = FH0 + GP;
 
     /**
      * 上家手牌的容器
@@ -2354,7 +2350,7 @@
         }
         this.s_ = s;  // 立牌精灵
 
-        c.y = (H0 + GF) * 4 + GP - (H1SF - H1F);
+        c.y = (H0 + GF) * 4 + GP - (H1SF - H1F) + OL;
 
         this.p_ = [];  // 副露数据
         this.y_ = 0;  // 哨兵位置
@@ -2572,7 +2568,7 @@
     }
 
     // 一行布局
-    HndTl3.H = FH1 + (GP + H1) * 2;
+    HndTl3.H = FH1 + GP * 2 + H1 + H1SF - OL;
     HndTl3.W = W0 * 2 + GP;
 
     // 两行布局
@@ -3164,11 +3160,27 @@
           // 更多按钮
           //['测速', '追分策略', '鸣牌设置', '设置', '计分表']
           o = this.mf_ = new MoreFld([
-            ()=>{ console.log('测速'); this.mf_.tgl(false); },
-            ()=>{ console.log('追分策略'); this.mf_.tgl(false); },
-            ()=>{ console.log('鸣牌设置'); this.mf_.tgl(false); },
-            ()=>{ console.log('设置'); this.mf_.tgl(false); },
-            ()=>{ console.log('计分表'); this.mf_.tgl(false); },
+            ()=>{
+              console.log('测速');
+              this.mf_.tgl(false);
+            },
+            ()=>{
+              console.log('追分策略');
+              this.mf_.tgl(false);
+            },
+            ()=>{
+              console.log('鸣牌设置');
+              this.mf_.tgl(false);
+            },
+            ()=>{
+              console.log('设置');
+              this.mf_.tgl(false);
+              this.addChild(new Setting(500, 500));
+            },
+            ()=>{
+              console.log('计分表');
+              this.mf_.tgl(false);
+            }
           ]);
           this.addChild(o);
 
@@ -3284,7 +3296,7 @@
         }.bind(this))();
 
         //this.addChild(new GmSt(500, 500));
-        this.addChild(new Setting(500, 500));
+        //this.addChild(new Setting(500, 500));
       }
 
       /**
@@ -3312,6 +3324,8 @@
 
         let ti = this.ti_, ht = this.ht_, ic = this.ic_, op = this.op_;
         let ht0 = ht[0];
+
+        let ht1_yf = 0;  // 手机横屏时下家调整
 
         // PC、平板适配
         if (!tz.phone) {
@@ -3438,9 +3452,12 @@
             ic.x = cx;
             ic.scale.set(s);
 
-            // 手牌，再宽容20像素？是否必要
-            ht0.y = h2 - 0;
-            ht0.layout(s, w, h3 + 0);
+            // 手牌，再宽容15像素
+            ht0.y = h2 - 15;
+            ht0.layout(s, w, h3 + 15);
+
+            // 下家手牌校正高度
+            ht1_yf = (1 - s) * (h3 + 15 - H0F);
 
             // 弹出式菜单
             let s1 = Math.max(s, OptFld.H / (h0 - OptFld.H));  // 不至于缩得太小
@@ -3477,7 +3494,7 @@
 
         // 手牌位置
         ht[1].x = w0 - HndTl1.W;
-        ht[1].y = Math.max(h0 - HndTl1.H, 0);
+        ht[1].y = Math.max(h0 - HndTl1.H - ht1_yf, 0);
 
         ht[2].x = Math.max(w0 - HndTl1.W - HndTl2.W, HndTl3.W);
       }
@@ -3776,6 +3793,8 @@
        */
       constructor(w, h, cb) {
         super();
+
+        if (!cb) cb = ()=>this.parent.removeChild(this);
 
         Setting.W = 450;
         Setting.H = 390;
