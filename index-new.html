@@ -3120,10 +3120,12 @@
         p.update(80);
         this.addChild(p);
 
+        Game.HTI = 40;
+
         // 标题
         let ti = this.ti_ = new PIXI.Text('这是标题', {
           fontFamily: FF,
-          fontSize: 20,
+          fontSize: 32,
           fill: '#ffffff',
           stroke: '#0066ff',
           strokeThickness: 2,
@@ -3131,6 +3133,8 @@
           padding: 10
         });
         this.addChild(ti);
+        ti.anchor.y = .5;
+        ti.y = Game.HTI * .5;
 
         // 所有桌内除自己手牌之外的元素
         let ic = this.ic_ = new PIXI.Container();
@@ -3329,6 +3333,7 @@
 
         // PC、平板适配
         if (!tz.phone) {
+          // 标题放最上方
           // 按桌面与手牌的最大宽度适配
           // 布局结构为：
           // ┌─┬─────┐
@@ -3336,7 +3341,7 @@
           // └─┘   │ │
           //       └─┘
           w0 = Math.max(w0, HndTl3.W + HndTl2.W);
-          h0 = Math.max(h0, HndTl2.H + HndTl1.H);
+          h0 = Math.max(h0, HndTl2.H + HndTl1.H) + Game.HTI;
 
           let hh = (w0 / (HndTl0.W)) * HndTl0.H;  // 立牌铺满宽度时，整个的高度
           let sx = w / w0, sy = h / (h0 + hh + OptGrp.H);
@@ -3345,7 +3350,13 @@
 
             // 桌面
             ic.x = 0;
+            ic.y = Game.HTI * sx;
             ic.scale.set(sx);
+
+            // 标题
+            ti.x = 0;
+            ti.y = Game.HTI * sx * .5;
+            ti.scale.set(sx);
 
             let h2 = h0 * sx, h3 = hh * sx;
 
@@ -3366,8 +3377,13 @@
             let h2 = h0 * sy, h3 = hh * sy;  // 桌度高度，手牌范围高度
 
             // 都与桌面共用x位置
-            ht0.x = op.x = ic.x = cx;
+            ht0.x = op.x = ic.x = ti.x = cx;
+            ic.y = Game.HTI * sy;
             ic.scale.set(sy);
+
+            // 标题
+            ti.y = Game.HTI * sy * .5;
+            ti.scale.set(sy);
 
             // 手牌
             ht0.y = h2;
@@ -3385,7 +3401,7 @@
             // 按桌面与手牌的最大宽度适配
             // 布局结构同PC
             w0 = Math.max(w0, HndTl3.W + HndTl2.W);
-            h0 = Math.max(h0, HndTl2.H + HndTl1.H);
+            h0 = Math.max(h0, HndTl2.H + HndTl1.H) + Game.HTI;
 
             let hh = (w0 / (HndTl0.W)) * HndTl0.H;  // 立牌铺满宽度时，整个的高度
             let s = Math.min(w / w0, h / (h0 + hh));
@@ -3396,7 +3412,14 @@
 
             // 桌面
             ic.x = cx;
+            ic.y = Game.HTI * s;
             ic.scale.set(s);
+
+            // 标题
+            ti.x = cx;
+            ti.y = Game.HTI * s * .5;
+            ti.rotation = 0;
+            ti.scale.set(s);
 
             // 手牌
             ht0.x = 0;
@@ -3450,7 +3473,14 @@
 
             // 桌面
             ic.x = cx;
+            ic.y = 0;
             ic.scale.set(s);
+
+            // 标题
+            ti.rotation = Math.PI * .5;
+            ti.x = Game.HTI * s * .5;
+            ti.y = 0;
+            ti.scale.set(s);
 
             // 手牌，再宽容15像素
             ht0.y = h2 - 15;
