@@ -369,8 +369,8 @@
         app.stage.addChild(tp);
 
         tp.visible = false;
-        //lb.visible = false;
-        gm.visible = false;
+        lb.visible = false;
+        //gm.visible = false;
 
         let w = window.innerWidth, h = window.innerHeight;
         lb.layout(w, h);
@@ -1963,40 +1963,40 @@
         let f = this.f_ = new PIXI.Container();
         this.addChild(f);
 
-        // // 测试代码，最大高度
-        // // 2张牌（手牌与和牌，摊开状态）
-        // let t = new PlTl1(0x45);
-        // t.y = H1SF - H1F;
-        // c.addChild(t);
+        // 测试代码，最大高度
+        // 2张牌（手牌与和牌，摊开状态）
+        let t = new PlTl1(0x45);
+        t.y = H1SF - H1F;
+        c.addChild(t);
 
-        // t = new PlTl1(0x45);
-        // t.y = H1SF - H1F + H1 + GP;
-        // c.addChild(t);
+        t = new PlTl1(0x45);
+        t.y = H1SF - H1F + H1 + GP;
+        c.addChild(t);
 
-        // // 2张牌（手牌与和牌，立起状态）
-        // t = st_tl1();
-        // t.x = W1 - W1S;
-        // c.addChild(t);
+        // 2张牌（手牌与和牌，立起状态）
+        t = st_tl1();
+        t.x = W1 - W1S;
+        c.addChild(t);
 
-        // t = st_tl1();
-        // t.x = W1 - W1S;
-        // t.y = H1 + GP;
-        // c.addChild(t);
+        t = st_tl1();
+        t.x = W1 - W1S;
+        t.y = H1 + GP;
+        c.addChild(t);
 
-        // // 4组大明杠
-        // for (let i = 0; i < 4; ++i) {
-        //   for (let k = 0; k < 3; ++k) {
-        //     let t = new PlTl1(0x41 + i*4);
-        //     t.x = W0 * 2 - W1;
-        //     t.y = H1 * k + (H1 * 3 + H0 + GP) * i;
-        //     f.addChild(t);
-        //   }
+        // 4组大明杠
+        for (let i = 0; i < 4; ++i) {
+          for (let k = 0; k < 3; ++k) {
+            let t = new PlTl1(0x41 + i*4);
+            t.x = HndTl1.W - W1;
+            t.y = H1 * k + (H1 * 3 + H0 + GF) * i;
+            f.addChild(t);
+          }
 
-        //   let t = new PlTl0(0x41 + i*4);
-        //   t.x = W0;
-        //   t.y = H1 * 3 + (H1 * 3 + H0 + GP) * i;
-        //   f.addChild(t);
-        // }
+          let t = new PlTl0(0x41 + i*4);
+          t.x = HndTl1.W - W0;
+          t.y = H1 * 3 + (H1 * 3 + H0 + GF) * i;
+          f.addChild(t);
+        }
 
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
@@ -2004,6 +2004,13 @@
         g.drawRect(0, 0, HndTl1.W, HndTl1.H);
         g.endFill();
         this.addChild(g);
+
+        /*let*/ g = new PIXI.Graphics();
+        g.lineStyle(2, 0x0000FF, 1);
+        g.beginFill(0xFF00BB, .25);
+        g.drawRect(0, 0, HndTl1.W, FH1);
+        g.endFill();
+        f.addChild(g);
 
         // 逆序设置
         let s = new Array(14);
@@ -2258,6 +2265,19 @@
         let f = this.f_ = new PIXI.Container();
         this.addChild(f);
 
+        // 4组大明杠
+        for (let i = 0; i < 4; ++i) {
+          for (let k = 0; k < 3; ++k) {
+            let t = new PlTl2(0x41 + i*4);
+            t.x = HndTl2.W - (W0 * 3 + W1 + GF) * i - W0 * (k + 1);
+            f.addChild(t);
+          }
+
+          let t = new PlTl1(0x41 + i*4);
+          t.x = HndTl2.W - (W0 * 3 + W1 + GF) * i - W0 * 3 - W1;
+          f.addChild(t);
+        }
+
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
@@ -2299,38 +2319,38 @@
         let c = this.c_ = new PIXI.Container();
         this.addChild(c);
 
-        // // 测试代码，最大高度
-        // // 4组大明杠
-        // for (let i = 0; i < 4; ++i) {
-        //   for (let k = 0; k < 3; ++k) {
-        //     let t = new PlTl3(0x41 + i*4);
-        //     t.x = 0;
-        //     t.y = H1 * k + (H1 * 3 + H0 + GF) * i;
-        //     f.addChild(t);
-        //   }
+        // 测试代码，最大高度
+        // 4组大明杠
+        for (let i = 0; i < 4; ++i) {
+          for (let k = 0; k < 3; ++k) {
+            let t = new PlTl3(0x41 + i*4);
+            t.x = 0;
+            t.y = H1 * k + (H1 * 3 + H0 + GF) * i;
+            f.addChild(t);
+          }
 
-        //   let t = new PlTl2(0x41 + i*4);
-        //   t.y = H1 * 3 + (H1 * 3 + H0 + GF) * i;
-        //   f.addChild(t);
-        // }
+          let t = new PlTl2(0x41 + i*4);
+          t.y = H1 * 3 + (H1 * 3 + H0 + GF) * i;
+          f.addChild(t);
+        }
 
-        // // 2张牌（手牌与和牌，摊开状态）
-        // let t = new PlTl3(0x45);
-        // t.y = H1 * 12 + (H1SF - H1F);
-        // c.addChild(t);
+        // 2张牌（手牌与和牌，摊开状态）
+        let t = new PlTl3(0x45);
+        t.y = H1 * 12 + (H1SF - H1F);
+        c.addChild(t);
 
-        // t = new PlTl3(0x45);
-        // t.y = H1 * 13 + GP + (H1SF - H1F);
-        // c.addChild(t);
+        t = new PlTl3(0x45);
+        t.y = H1 * 13 + GP + (H1SF - H1F);
+        c.addChild(t);
 
-        // // 2张牌（手牌与和牌，立起状态）
-        // t = st_tl3();
-        // t.y = H1 * 12;
-        // c.addChild(t);
+        // 2张牌（手牌与和牌，立起状态）
+        t = st_tl3();
+        t.y = H1 * 12;
+        c.addChild(t);
 
-        // t = st_tl3();
-        // t.y = H1 * 13 + GP;
-        // c.addChild(t);
+        t = st_tl3();
+        t.y = H1 * 13 + GP;
+        c.addChild(t);
 
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
