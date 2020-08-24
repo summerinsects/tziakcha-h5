@@ -1878,9 +1878,9 @@
 
     /**
      * 自己手牌的容器
-     * @typedef {object} HdAr0
+     * @typedef {object} HdCtn0
      */
-    class HdAr0 extends PIXI.Container {
+    class HdCtn0 extends PIXI.Container {
       constructor() {
         super();
 
@@ -1898,27 +1898,27 @@
           for (let k = 0; k < 3; ++k) {
             let t = new PlTl0(0x41 + i*4);
             t.x = (W0 * 3 + W1 + GF) * i + W0 * k;
-            t.y = HdAr0.H - H0F;
+            t.y = HdCtn0.H - H0F;
             f.addChild(t);
           }
 
           let t = new PlTl1(0x41 + i*4);
           t.x = (W0 * 3 + W1 + GF) * i + W0 * 3;
-          t.y = HdAr0.H - H1F;
+          t.y = HdCtn0.H - H1F;
           f.addChild(t);
         }
 
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
-        g.drawRect(0, 0, HdAr0.WF, HdAr0.H);
+        g.drawRect(0, 0, HdCtn0.WF, HdCtn0.H);
         g.endFill();
         f.addChild(g);
 
         g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
-        g.drawRect(0, 0, HdAr0.W, HdAr0.H);
+        g.drawRect(0, 0, HdCtn0.W, HdCtn0.H);
         g.endFill();
         c.addChild(g);
 
@@ -1926,11 +1926,21 @@
         for (let i = 0; i < 14; ++i) {
           let p = s[i] = new StTl(i, (p)=>{ this._c(p); });
           c.addChild(p);
-          p.y = HdAr0.H - H0F;
+          p.y = HdCtn0.H - H0F;
           p.x = W0 * i;
           if (i === 13) p.x += GP;
         }
         this.s_ = s;
+      }
+
+      /**
+       * 初始化
+       */
+      init() {
+        this.p_ = [];
+        this.x_ = 0;
+        this.f_.removeChildren();
+        this.s_.forEach(e=>e.visible = false);
       }
 
       /**
@@ -1966,35 +1976,69 @@
         f.scale.set(s);
 
         // 当立牌缩放后超过允许高度时，不再放大，居中显示
-        let s1 = w / HdAr0.W, h1 = H0F * s1;
+        let s1 = w / HdCtn0.W, h1 = H0F * s1;
         if (h1 > h) {
           s1 = h / H0F;
-          f.x = c.x = (w - HdAr0.W * s1) * .5;
+          f.x = c.x = (w - HdCtn0.W * s1) * .5;
         }
         else {
           f.x = c.x = 0;
         }
         c.scale.set(s1);
-        f.y = h - HdAr0.H * s;
-        c.y = h - HdAr0.H * s1;
+        f.y = h - HdCtn0.H * s;
+        c.y = h - HdCtn0.H * s1;
         //return s1;
       }
+
+      /**
+       * 设置数据
+       * @param {array} s 立牌
+       * @param {array} p 副露
+       */
+      set(s, p) {
+        let o = p.length * 3;
+        this.s_.forEach((e, i)=>{
+          if (i >= o) {
+            e.visible = true;
+            e.updt(s[i - o]);
+          }
+          else {
+            e.visible = false;
+            e.i_ = -1;
+          }
+        });
+        (function(){
+          let v = s[13 - o], e = this.s_[13];
+          if (typeof v !== 'undefined') {
+            e.visible = true;
+            e.updt(v);
+          }
+          else {
+            e.visible = false;
+            e.i_ = 255;
+          }
+        })(this);
+
+        p.forEach(p=>{
+          
+        })
+      }
     }
-    HdAr0.W = W0 * 14 + GP;
-    HdAr0.H = H1 + H1F + GP;
+    HdCtn0.W = W0 * 14 + GP;
+    HdCtn0.H = H1 + H1F + GP;
 
     // 最小缩放比：使四组大明杠占12张立牌的宽度
     // 立牌至少要缩放这么多才能使副露不堆叠在立牌上
-    HdAr0.WF = (W0 * 3 + W1) * 4 + GF * 3;
-    HdAr0.S = (W0 * 12) / HdAr0.WF;
-    HdAr0.W0 = HdAr0.W / HdAr0.S;
-    HdAr0.H0 = HdAr0.H / HdAr0.S;
+    HdCtn0.WF = (W0 * 3 + W1) * 4 + GF * 3;
+    HdCtn0.S = (W0 * 12) / HdCtn0.WF;
+    HdCtn0.W0 = HdCtn0.W / HdCtn0.S;
+    HdCtn0.H0 = HdCtn0.H / HdCtn0.S;
 
     /**
      * 下家手牌的容器
-     * @typedef {object} HdAr1
+     * @typedef {object} HdCtn1
      */
-    class HdAr1 extends PIXI.Container {
+    class HdCtn1 extends PIXI.Container {
       constructor() {
         super();
 
@@ -2030,13 +2074,13 @@
         for (let i = 0; i < 4; ++i) {
           for (let k = 0; k < 3; ++k) {
             let t = new PlTl1(0x41 + i*4);
-            t.x = HdAr1.W - W1;
+            t.x = HdCtn1.W - W1;
             t.y = H1 * k + (H1 * 3 + H0 + GF) * i;
             f.addChild(t);
           }
 
           let t = new PlTl0(0x41 + i*4);
-          t.x = HdAr1.W - W0;
+          t.x = HdCtn1.W - W0;
           t.y = H1 * 3 + (H1 * 3 + H0 + GF) * i;
           f.addChild(t);
         }
@@ -2044,14 +2088,14 @@
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
-        g.drawRect(0, 0, HdAr1.W, HdAr1.H);
+        g.drawRect(0, 0, HdCtn1.W, HdCtn1.H);
         g.endFill();
         this.addChild(g);
 
         /*let*/ g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
-        g.drawRect(0, 0, HdAr1.W, FH1);
+        g.drawRect(0, 0, HdCtn1.W, FH1);
         g.endFill();
         f.addChild(g);
 
@@ -2059,7 +2103,7 @@
         let s = new Array(14);
         for (let i = 0; i < 14; ++i) {
           let p = s[13 - i] = st_tl1();
-          p.x = HdAr1.W - W1S;
+          p.x = HdCtn1.W - W1S;
           p.y = H1 * i;
           if (i !== 0) p.y += GP;
           c.addChild(p);
@@ -2070,6 +2114,16 @@
 
         this.p_ = [];  // 副露数据
         this.y_ = FH1 - (H1F - H1) + GF;  // 哨兵位置
+      }
+
+      /**
+       * 初始化
+       */
+      init() {
+        this.p_ = [];
+        this.y_ = FH1 - (H1F - H1) + GF;
+        this.f_.removeChildren();
+        this.s_.forEach(e=>e.visible = false);
       }
 
       /**
@@ -2284,18 +2338,18 @@
     }
 
     // 一行布局
-    HdAr1.H = FH1 + GP * 2 + H1 + H1SF - OL;
-    HdAr1.W = W0 * 2 + GP;
+    HdCtn1.H = FH1 + GP * 2 + H1 + H1SF - OL;
+    HdCtn1.W = W0 * 2 + GP;
 
     // 两行布局
-    //HdAr1.H = FH1;
-    //HdAr1.W = H0 * 2 + GP * 2 + H1;
+    //HdCtn1.H = FH1;
+    //HdCtn1.W = H0 * 2 + GP * 2 + H1;
 
     /**
      * 对家手牌的容器
-     * @typedef {object} HdAr2
+     * @typedef {object} HdCtn2
      */
-    class HdAr2 extends PIXI.Container {
+    class HdCtn2 extends PIXI.Container {
       constructor() {
         super();
 
@@ -2311,19 +2365,19 @@
         for (let i = 0; i < 4; ++i) {
           for (let k = 0; k < 3; ++k) {
             let t = new PlTl2(0x41 + i*4);
-            t.x = HdAr2.W - (W0 * 3 + W1 + GF) * i - W0 * (k + 1);
+            t.x = HdCtn2.W - (W0 * 3 + W1 + GF) * i - W0 * (k + 1);
             f.addChild(t);
           }
 
           let t = new PlTl1(0x41 + i*4);
-          t.x = HdAr2.W - (W0 * 3 + W1 + GF) * i - W0 * 3 - W1;
+          t.x = HdCtn2.W - (W0 * 3 + W1 + GF) * i - W0 * 3 - W1;
           f.addChild(t);
         }
 
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
-        g.drawRect(0, 0, HdAr2.W, HdAr2.H);
+        g.drawRect(0, 0, HdCtn2.W, HdCtn2.H);
         g.endFill();
         this.addChild(g);
 
@@ -2338,17 +2392,27 @@
         this.s_ = s;  // 立牌精灵
 
         this.p_ = [];  // 副露数据
-        this.y_ = FH1 - (H1F - H1) + GF;  // 哨兵位置
+        this.x_ = HdCtn2.W;  // 哨兵位置
+      }
+
+      /**
+       * 初始化
+       */
+      init() {
+        this.p_ = [];
+        this.x_ = HdCtn2.W;
+        this.f_.removeChildren();
+        this.s_.forEach(e=>e.visible = false);
       }
     }
-    HdAr2.W = FW0 + W0 * 2 + GP * 2;
-    HdAr2.H = FH0 + GP;
+    HdCtn2.W = FW0 + W0 * 2 + GP * 2;
+    HdCtn2.H = FH0 + GP;
 
     /**
      * 上家手牌的容器
-     * @typedef {object} HdAr3
+     * @typedef {object} HdCtn3
      */
-    class HdAr3 extends PIXI.Container {
+    class HdCtn3 extends PIXI.Container {
       constructor() {
         super();
 
@@ -2396,7 +2460,7 @@
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
-        g.drawRect(0, 0, HdAr3.W, HdAr3.H);
+        g.drawRect(0, 0, HdCtn3.W, HdCtn3.H);
         g.endFill();
         this.addChild(g);
 
@@ -2414,6 +2478,16 @@
 
         this.p_ = [];  // 副露数据
         this.y_ = 0;  // 哨兵位置
+      }
+
+      /**
+       * 初始化
+       */
+      init() {
+        this.p_ = [];
+        this.y_ = 0;
+        this.f_.removeChildren();
+        this.s_.forEach(e=>e.visible = false);
       }
 
       /**
@@ -2628,12 +2702,12 @@
     }
 
     // 一行布局
-    HdAr3.H = FH1 + GP * 2 + H1 + H1SF - OL;
-    HdAr3.W = W0 * 2 + GP;
+    HdCtn3.H = FH1 + GP * 2 + H1 + H1SF - OL;
+    HdCtn3.W = W0 * 2 + GP;
 
     // 两行布局
-    //HdAr3.H = FH1;
-    //HdAr3.W = H0 * 2 + GP * 2 + H1;
+    //HdCtn3.H = FH1;
+    //HdCtn3.W = H0 * 2 + GP * 2 + H1;
 
     /**
      * 自己牌池的容器
@@ -3202,7 +3276,7 @@
         wa.forEach(e=>ic.addChildAt(e, 0));
 
         // 四家手牌
-        let ht = this.ht_ = [new HdAr0(), new HdAr1(), new HdAr2(), new HdAr3()];
+        let ht = this.ht_ = [new HdCtn0(), new HdCtn1(), new HdCtn2(), new HdCtn3()];
         this.addChild(ht[0]);
         ic.addChild(ht[1]);
         ic.addChild(ht[2]);
@@ -3245,11 +3319,11 @@
           this.addChild(o);
 
           // 手机钢琴键
-          let p = this.p3_ = new Piano3(HdAr0.W, ht[0].s_);
+          let p = this.p3_ = new Piano3(HdCtn0.W, ht[0].s_);
           this.addChild(p);
           p.visible = false;
 
-          p = this.p2_ = new Piano2(HdAr0.W, ht[0].s_);
+          p = this.p2_ = new Piano2(HdCtn0.W, ht[0].s_);
           this.addChild(p);
           p.visible = false;
         }
@@ -3361,8 +3435,8 @@
        */
       layt(w, h) {
         console.log('width, height', w, h);
-        let w0 = HdAr3.W + Pool3.W + CtrPnl.W + Pool1.W + HdAr1.W,
-          h0 = HdAr2.H + Pool2.H + CtrPnl.H + Pool0.H,
+        let w0 = HdCtn3.W + Pool3.W + CtrPnl.W + Pool1.W + HdCtn1.W,
+          h0 = HdCtn2.H + Pool2.H + CtrPnl.H + Pool0.H,
           w1 = 0, h1 = 0;
         let wa = this.wa_;
 
@@ -3391,10 +3465,10 @@
           // │ ├───┬─┤
           // └─┘   │ │
           //       └─┘
-          w0 = Math.max(w0, HdAr3.W + HdAr2.W);
-          h0 = Math.max(h0, HdAr2.H + HdAr1.H) + Game.HTI;
+          w0 = Math.max(w0, HdCtn3.W + HdCtn2.W);
+          h0 = Math.max(h0, HdCtn2.H + HdCtn1.H) + Game.HTI;
 
-          let hh = (w0 / (HdAr0.W)) * HdAr0.H;  // 立牌铺满宽度时，整个的高度
+          let hh = (w0 / (HdCtn0.W)) * HdCtn0.H;  // 立牌铺满宽度时，整个的高度
           let sx = w / w0, sy = h / (h0 + hh + OptGrp.H);
           if (sx <= sy) {
             console.log('case sx <= sy');
@@ -3461,10 +3535,10 @@
           if (w < h) {
             // 按桌面与手牌的最大宽度适配
             // 布局结构同PC
-            w0 = Math.max(w0, HdAr3.W + HdAr2.W);
-            h0 = Math.max(h0, HdAr2.H + HdAr1.H) + Game.HTI;
+            w0 = Math.max(w0, HdCtn3.W + HdCtn2.W);
+            h0 = Math.max(h0, HdCtn2.H + HdCtn1.H) + Game.HTI;
 
-            let hh = (w0 / (HdAr0.W)) * HdAr0.H;  // 立牌铺满宽度时，整个的高度
+            let hh = (w0 / (HdCtn0.W)) * HdCtn0.H;  // 立牌铺满宽度时，整个的高度
             let s = Math.min(w / w0, h / (h0 + hh));
 
             let w2 = w0 * s;  // 桌面宽度
@@ -3497,7 +3571,7 @@
             hl.scale.set(s);
 
             // 钢琴键
-            let y = h2 + h3, s1 = w / HdAr0.W, p3 = this.p3_, p2 = this.p2_;
+            let y = h2 + h3, s1 = w / HdCtn0.W, p3 = this.p3_, p2 = this.p2_;
             if (tz.piano === 0 && y + Piano3.H * s1 <= h) {  // 三格且够放
               p2.visible = false;
               p3.visible = true;
@@ -3522,10 +3596,10 @@
             // ┌─┬─────┬─┐
             // │ ├─────┤ │
             // └─┘     └─┘
-            w0 = Math.max(w0, HdAr3.W + HdAr2.W + HdAr1.W);
-            h0 = Math.max(h0, HdAr1.H);
+            w0 = Math.max(w0, HdCtn3.W + HdCtn2.W + HdCtn1.W);
+            h0 = Math.max(h0, HdCtn1.H);
 
-            let hh = (w0 / (HdAr0.W)) * HdAr0.H;  // 立牌铺满宽度时，整个的高度
+            let hh = (w0 / (HdCtn0.W)) * HdCtn0.H;  // 立牌铺满宽度时，整个的高度
             let s = Math.min(w / w0, h / (h0 + hh));
 
             let w2 = w0 * s;  // 桌面宽度
@@ -3566,28 +3640,28 @@
         }
 
         // 牌墙位置
-        wa[0].x = w0 - HdAr1.W - WALL1.W - WALL0.W;
+        wa[0].x = w0 - HdCtn1.W - WALL1.W - WALL0.W;
         wa[0].y = h0 - WALL0.H;
 
-        wa[1].x = w0 - HdAr1.W - WALL1.W;
-        wa[1].y = HdAr3.W + H0;
+        wa[1].x = w0 - HdCtn1.W - WALL1.W;
+        wa[1].y = HdCtn3.W + H0;
 
-        wa[2].x = HdAr3.W + WALL1.W;
-        wa[2].y = HdAr2.H;
+        wa[2].x = HdCtn3.W + WALL1.W;
+        wa[2].y = HdCtn2.H;
 
-        wa[3].x = HdAr3.W;
+        wa[3].x = HdCtn3.W;
         wa[3].y = h0 - WALL0.H - WALL1.H + OL * 2;
 
         // 牌池居中
         let ro = this.ro_;
         ro.x = (w0 - Game.WP) * .5;
-        ro.y = (h0 + HdAr2.H - Game.HP) * .5;
+        ro.y = (h0 + HdCtn2.H - Game.HP) * .5;
 
         // 手牌位置
-        ht[1].x = w0 - HdAr1.W;
-        ht[1].y = Math.max(h0 - HdAr1.H - ht1_yf, 0);
+        ht[1].x = w0 - HdCtn1.W;
+        ht[1].y = Math.max(h0 - HdCtn1.H - ht1_yf, 0);
 
-        ht[2].x = Math.max(w0 - HdAr1.W - HdAr2.W, HdAr3.W);
+        ht[2].x = Math.max(w0 - HdCtn1.W - HdCtn2.W, HdCtn3.W);
       }
 
       echo(r) {
