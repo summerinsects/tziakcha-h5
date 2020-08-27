@@ -1351,16 +1351,14 @@
 
       /*
        * 适配
-       * @param {number} s 外面使用的缩放比
-       * @param {number} x 初始位置
        * @param {number} w 允许宽度
        * @param {number} h 允许高度
        */
-      layt(s, x, w, h) {
+      layt(w, h) {
         // 左右各120
-        this.x = x + 120 * s;
-        this.y = h - (CalCtn.H * .75) * s;
-        this.scale.set((w - 240 * s) / CalCtn.W);
+        this.x = 120;
+        this.y = h - (CalCtn.H * .75);
+        this.scale.set((w - 240) / CalCtn.W);
       }
     }
     CalCtn.W = 190 * 5 + CalBtn.W;
@@ -1587,16 +1585,14 @@
 
       /*
        * 适配（用于PC、平板）
-       * @param {number} s 外面使用的缩放比
-       * @param {number} x 初始位置
        * @param {number} w 允许宽度
        * @param {number} h 允许高度
        */
-      layt(s, x, w, h) {
+      layt(w, h) {
         // 左右各120
-        this.x = x + 120 * s;
-        this.y = h - 300 * s;
-        this.scale.set((w - 240 * s) / CalSel.W);
+        this.x = 120;
+        this.y = h - 300;
+        this.scale.set((w - 240) / CalSel.W);
       }
     }
     CalSel.W = 1000;
@@ -1864,10 +1860,12 @@
        */
       layt(w, h) {
         let a = this.btn_;
+        a[0].x = w - 120;
         a[0].y = 70;
         a[1].y = h - 90;
         a[2].y = h - 90;
         a[2].x = w - 120;
+        a[3].x = w - 120;
         a[4].y = h - 160;
       }
     }
@@ -6488,21 +6486,21 @@
           this.addChild(v);
 
           v = this.hlp_ = new HlpCtn(cbs);
-          this.addChild(v);
+          ic.addChild(v);
 
           v = this.ca1_ = new CalCtn();
-          this.addChild(v);
+          ic.addChild(v);
         }
         else {
           // 弹出选项
           v = this.opt1_ = new OptPop();
-          this.addChild(v);
+          ic.addChild(v);
 
           v = this.hlp_ = new HlpPop(cbs);
-          this.addChild(v);
+          ic.addChild(v);
 
           v = this.ca1_ = new CalPop();
-          this.addChild(v);
+          ic.addChild(v);
 
           // 手机钢琴键
           v = this.p3_ = new Piano3(HdCtn0.W, ht[0].s_);
@@ -6515,7 +6513,7 @@
         }
 
         v = this.ca2_ = new CalSel();
-        this.addChild(v);
+        ic.addChild(v);
 
         // 测试按钮
         let b = new EptBtn(50, 50, ()=>{
@@ -6656,9 +6654,6 @@
             ic.scale.set(sx);
 
             // 桌面式操作按钮
-            hl.x = 0;
-            hl.y = cy;
-            hl.scale.set(sx);
             hl.layt(w0, h0);
 
             // 标题
@@ -6677,8 +6672,8 @@
             ht0.layt(sx, w, h3);
 
             // 鸣牌按钮
-            ca1.layt(sx, 0, w, h2);
-            ca2.layt(sx, 0, w, h2);
+            ca1.layt(w0, h0);
+            ca2.layt(w0, h0);
 
             // 下方菜单
             op.x = 0;
@@ -6693,12 +6688,11 @@
             let h2 = h0 * sy, h3 = hh * sy;  // 桌度高度，手牌范围高度
 
             // 都与桌面共用x位置
-            hl.x = ht0.x = op.x = ic.x = ti.x = cx;
-            hl.y = ic.y = cy;
+            ht0.x = op.x = ic.x = ti.x = cx;
+            ic.y = cy;
             ic.scale.set(sy);
 
             // 桌面式操作按钮
-            hl.scale.set(sy);
             hl.layt(w0, h0);
 
             // 覆盖桌面宽度
@@ -6713,8 +6707,8 @@
             ht0.layt(sy, w2, h3);
 
             // 鸣牌按钮
-            ca1.layt(sy, cx, w2, h2);
-            ca2.layt(sy, cx, w2, h2);
+            ca1.layt(w0, h0);
+            ca2.layt(w0, h0);
 
             // 下方菜单
             op.y = h2 + h3 + 5;
@@ -6743,6 +6737,20 @@
             ic.y = cy;
             ic.scale.set(s);
 
+            // 鸣牌按钮
+            ca1.x = w0 - CalPop.W;
+            ca1.y = h0 - 40 - CalPop.H;
+
+            ca2.x = w0 - CalSel.W;
+            ca2.y = h0 - 40 - (CalPop.H + CalSel.H);
+
+            // 弹出式菜单
+            op.x = w0 - OptPop.W;
+            op.y = h0 - 40 - OptPop.H;
+
+            // 弹出式操作按钮
+            hl.x = w0 - HlpPop.W;
+
             // 覆盖桌面宽度
             this.lyt_ = {x:cx, y:cy, w:w2, h:(h2 + h3 - cy)};
 
@@ -6759,24 +6767,6 @@
             ht0.x = 0;
             ht0.y = h2;
             ht0.layt(s, w, h3);
-
-            // 鸣牌按钮
-            ca1.x = w - CalPop.W * s;
-            ca1.y = h2 - CalPop.H * s;
-            ca1.scale.set(s);
-
-            ca2.x = w - CalSel.W * s;
-            ca2.y = h2 - (CalPop.H + CalSel.H) * s;
-            ca2.scale.set(s);
-
-            // 弹出式菜单
-            op.x = w - OptPop.W * s;
-            op.y = h2 - OptPop.H * s;
-            op.scale.set(s);
-
-            // 弹出式操作按钮
-            hl.x = w - HlpPop.W * s;
-            hl.scale.set(s);
 
             // 钢琴键
             let y = h2 + h3, s1 = w / HdCtn0.W, p3 = this.p3_, p2 = this.p2_;
@@ -6845,6 +6835,21 @@
             ic.y = 0;
             ic.scale.set(s);
 
+            // 鸣牌按钮
+            let dx = cx * .5;  // 使之稍微能超出桌面范围一点
+            ca1.x = w0 - CalPop.W + dx;
+            ca1.y = h0 - 40 - CalPop.H;
+
+            ca2.x = w0 - CalSel.W + dx;
+            ca2.y = h0 - 40 - (CalPop.H + CalSel.H);
+
+            // 弹出式菜单
+            op.x = w0 - OptPop.W + dx;
+            op.y = h0 - 40 - OptPop.H;
+
+            // 弹出式操作按钮
+            hl.x = w0 - HlpPop.W + dx;
+
             // 覆盖桌面宽度
             this.lyt_ = {x:cx, y:0, w:w2, h:(h2 + h3)};
 
@@ -6860,31 +6865,6 @@
 
             // 下家手牌校正高度
             ht1_yf = (1 - s) * (h3 + 15 - H0F);
-
-
-            // 首先使其不至于缩得太小
-            // 不至于超出游戏界面太多靠右，限制最多超过桌面150
-            // 上方至少要预留一个按钮的空间，上移40以避免遮挡立牌
-            let s1 = Math.max(s, OptPop.H / (h0 - OptPop.H));
-            let r = Math.min(w, (cx + w2) + 150 * s1);
-
-            // 鸣牌按钮
-            ca1.x = r - CalPop.W * s;
-            ca1.y = Math.max(h2 - (CalPop.H + 40) * s1, CalPop.H * .5 * s1);
-            ca1.scale.set(s1);
-
-            ca2.x = r - CalSel.W * s;
-            ca2.y = Math.max(h2 - (CalSel.H + CalPop.H + 40) * s1, (CalSel.H + CalPop.H) * .5 * s1);
-            ca2.scale.set(s);
-
-            // 弹出式菜单
-            op.x = r - OptPop.W * s1;
-            op.y = ca1.y;
-            op.scale.set(s1);
-
-            // 弹出式操作按钮
-            hl.x = r - HlpPop.W * s1;
-            hl.scale.set(s1);
 
             this.p3_.visible = false;
             this.p2_.visible = false;
