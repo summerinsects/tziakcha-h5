@@ -323,7 +323,7 @@
         // 显示牌墙：0自动 1有 2无
         // 自动：手机不显示，PC、平板显示
         let sw = this.cfg['wall'];
-        this.wall = (typeof sw !== 'number' || sw === 0) ? !tz.phn : (sw === 1);
+        //this.wall = (typeof sw !== 'number' || sw === 0) ? !tz.phn : (sw === 1);
 
         // 手机钢琴键
         if (tz.phn) {
@@ -1357,7 +1357,8 @@
       layt(w, h) {
         // 左右各120
         this.x = 120;
-        this.y = h - (CalCtn.H * .75);
+        let s = (w - 240) / CalCtn.W;
+        this.y = h - 20 - (CalCtn.H * s);
         this.scale.set((w - 240) / CalCtn.W);
       }
     }
@@ -1392,7 +1393,7 @@
 
         // 排列方式：
         // 5 3 0
-        // 4 2 1
+        // 4 2 1 >
         [
           {x:400,y:0},
           {x:400,y:160},
@@ -1420,6 +1421,7 @@
         this.cg_ = cg;
         this.sh_ = false;
 
+        // 折叠/展开按钮
         let b = new TxtBtn('\u25bc', bs, 200, 160, ()=>this.tgl(!this.sh_));
         this.addChild(b);
         this.b_ = b;
@@ -1480,15 +1482,30 @@
       constructor() {
         super();
 
-        // 最多也就四种杠法+一个取消，共5个键
+        let r = this.cr_ = new PIXI.Container();
+        this.addChild(r);
+
+        // 最多也就四种杠法+一个取消+折叠，共6个键
         // 每个跟另外三个界面一样，每个尺寸200*160
+        // 排列方式：
+        //   1
+        // 2 3 4 x >
+        // 设置的时候倒序
         let cg = new Array(5);
-        for (let i = 0; i < 5; ++i) {
+        [
+          {x:0,y:160},
+          {x:0,y:160},
+          {x:200,y:160},
+          {x:400,y:160},
+          {x:600,y:160}
+        ].forEach((e, i)=>{
           let c = cg[i] = new EdgBtn(200, 160);
-          this.addChild(c);
-          c.x = 200 * i;
-        }
+          r.addChild(c);
+          c.position = e;
+          //c.visible = false;
+        });
         this.cg_ = cg;
+        //this.cr_.visible = false;
 
         // 最后一个是取消
         let c = cg[4];
@@ -1505,6 +1522,36 @@
         f.anchor.set(.5);
         f.x = 100;
         f.y = 80;
+
+        // 折叠/展开按钮
+        let b = new TxtBtn('\u25b2', {
+          fontFamily: 'sans-serif',
+          fontSize: 30,
+          fill: '#ffffff',
+          stroke: '#000000',
+          strokeThickness: 3,
+          lineJoin: 'round',
+          padding: 10
+        }, 200, 160, ()=>this.tgl(!this.cr_.visible));
+        this.addChild(b);
+        this.b_ = b;
+        b.x = 800;
+        b.y = 160;
+
+        let t1 = new TWEEN.Tween(b.fa_).to({alpha:.6}, 1000),
+          t2 = new TWEEN.Tween(b.fa_).to({alpha:1}, 500);
+        t1.chain(t2);
+        t2.chain(t1);
+        t1.start();
+      }
+
+      /**
+       * 切换
+       * @param {boolean} 状态
+       */
+      tgl(s) {
+        this.cr_.visible = s;
+        this.b_.fa_.text = s ? '\u25bc' : '\u25b2';
       }
 
       /**
@@ -1590,13 +1637,12 @@
        */
       layt(w, h) {
         // 左右各120
-        this.x = 120;
-        this.y = h - 300;
-        this.scale.set((w - 240) / CalSel.W);
+        this.x = w - CalSel.W;
+        this.y = h - 180 - CalSel.H;
       }
     }
     CalSel.W = 1000;
-    CalSel.H = 160;
+    CalSel.H = 320;
 
     /**
      * 下方的菜单
@@ -1657,6 +1703,9 @@
       constructor() {
         super();
 
+        // 排列方式：
+        //          自摸 和牌 摸打
+        // 补花 不吃 不碰 不杠  >
         let cg = new Array(7);
         [
           {f:'AutoFlower', p:{x:0,y:160}},
@@ -1675,6 +1724,7 @@
         this.cg_ = cg;
         this.sh_ = false;
 
+        // 折叠/展开按钮
         let b = new TxtBtn('\u25b2', {
           fontFamily: 'sans-serif',
           fontSize: 30,
@@ -1749,6 +1799,9 @@
       constructor(cb) {
         super();
 
+        // 排列方式：
+        // 设置 计分  >
+        // 测速 策略 鸣牌
         let cg = new Array(5);
         const bs = {
           fontFamily: FF,
@@ -1759,7 +1812,6 @@
           lineJoin: 'round',
           padding: 10
         };
-        //['测速', '追分策略', '鸣牌设置', '设置', '计分表']
         [
           {f:tz.ls('Speed'), p:{x:0,y:160}},
           {f:tz.ls('Chase'), p:{x:200,y:160}},
@@ -1787,6 +1839,7 @@
         this.cg_ = cg;
         this.sh_ = false;
 
+        // 折叠/展开按钮
         let b = new TxtBtn('\u25bc', bs, 200, 160, ()=>this.tgl(!this.sh_));
         this.addChild(b);
         this.b_ = b;
