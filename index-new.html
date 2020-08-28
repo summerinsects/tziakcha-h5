@@ -1835,10 +1835,10 @@
           r.addChild(c);
           c.position = e['p'];
 
-          let t = st[i] = new PIXI.Text('['+ f +']', bs);
+          let t = st[i] = new PIXI.Text('['+ f.replace(/\n/g, ' ') +']', bs);
           s.addChild(t);
           t.x = x;
-          x += t.width + 20;
+          x += t.width + 10;
         });
         this.cg_ = cg;
         this.st_ = st;
