@@ -445,9 +445,9 @@
         let tp = this.tpvw = new TpMst();
         app.stage.addChild(tp);
 
-        tp.visible = false;
-        lb.visible = false;
-        //gm.visible = false;
+        //tp.visible = false;
+        //lb.visible = false;
+        gm.visible = false;
 
         let w = window.innerWidth, h = window.innerHeight;
         lb.layt(w, h);
@@ -528,7 +528,7 @@
               break;
             case 3:
               this.lobby.visible = false;
-              this.game.stand(r['s']);
+              this.game.startup(r['s']);
               break;
             case 4:
               this.lobby.visible = false;
@@ -1415,6 +1415,13 @@
       }
 
       /**
+       * 初始化
+       */
+      init() {
+        this.cb_.forEach(e=>e.visible = false);
+      }
+
+      /**
        * 设置
        * @param {number} i 第几个按钮
        * @param {number} k 第几种动作
@@ -1527,6 +1534,13 @@
         this.sh_ = s;
         this.r_.visible = s;
         this.b_.fa_.text = s ? '\u25c0 \u25c4' : '\u25b6';
+      }
+
+      /**
+       * 初始化
+       */
+      init() {
+        this.cg_.forEach(e=>e.visible = false);
       }
 
       /**
@@ -2380,7 +2394,7 @@
     //const DOY = [10, -10, -10, 10];
 
     // 骰子时间、抓牌时间、理牌时间、出牌时间
-    const DCDT = 2000, DRDT = 100, STDT = 200, DSDT = 10000;
+    const DCDT = 2000, DRDT = 100, STDT = 200, DSDT = 100;
 
     /**
      * 牌池中的牌
@@ -3241,16 +3255,239 @@
     }
 
     /**
+     * 手牌的容器（基类）
+     * @typedef {object} HdCtn
+     */
+    class HdCtn extends PIXI.Container {
+      constructor() {
+        super();
+
+        /** @member {object} 立牌容器 */
+        this.c_ = new PIXI.Container();
+        /** @member {object} 副露容器 */
+        this.f_ = new PIXI.Container();
+        /** @member {object} 立牌精灵 */
+        this.s_ = [];
+        /** @member {object} 副露数据 */
+        this.p_ = []; 
+      }
+
+      /**
+       * 初始化
+       */
+       init() {
+        this.p_ = [];
+        this.f_.children.forEach(e=>e.dsty());
+        this.f_.removeChildren();
+        this.s_.forEach(e=>e.visible = false);
+      }
+
+      /**
+       * 添加一张副露 如要addChildAt(0)，则重写此函数
+       * @param {object} p 牌张精灵
+       */
+      addpt(p) {
+        this.f_.addChild(p);
+      }
+
+      /**
+       * 抓牌效果
+       * @param {number} i 抓牌到手上第几张
+       * @param {object} o 牌墙上牌张的坐标
+       * @param {object} p 牌张精灵
+       * @param {number} x 偏移x
+       * @param {number} y 偏移y
+       */
+      _draw(i, o, p, x, y) {
+        p.position = this.c_.toLocal(o);
+        let d = this.s_[i];
+        new TWEEN.Tween(p).to({x:(d.x - x),y:(d.y + y)}, DRDT).onComplete(()=>{
+          d.visible = true;
+          p.dsty();
+        }).start();
+
+        addblur(p);
+      }
+
+      /**
+       * 补花效果
+       * @param {object} o 牌墙上牌张的坐标
+       */
+      rpflw(o) {
+        let s = this.s_;
+        if (s[13].visible) {
+          s[13].visible = false;
+          this.draw(13, o);
+        } else {
+          s[12].visible = false;
+          this.draw(12, o);
+
+          //let a = this.p_.length * 3;
+          //let i = rnd_idx(13 - a, 1)[0] + a;
+          //this.draw(12, o);
+          //if (i !== 12) {
+          //}
+        }
+      }
+
+      /**
+       * 打牌效果
+       * @param {number} i 打出牌在手牌中的下标
+       * @param {object} p 打出牌精灵
+       * @param {object} d 目标牌池精灵
+       * @param {number} x 转换世界坐标的基准点
+       * @param {number} y 转换世界坐标的基准点
+       * @param {number} dx 飞到牌池后的偏移
+       * @param {number} dy 飞到牌池后的偏移
+       */
+      _dscd(i, p, d, x, y, dx, dy) {
+        let o = this.s_[i], r = d.parent;
+        o.visible = false;
+        p.position = r.toLocal(o.toGlobal({x:x, y:y}));
+        addblur(p);
+        new TWEEN.Tween(p.position).to({x:(d.x + dx), y:(d.y + dy)}, DSDT).onComplete(()=>{
+          p.filters = [];
+        }).start();
+      }
+
+      /**
+       * 设置数据
+       * @param {array} s 立牌
+       * @param {array} p 副露
+       * @param {number} n 当前是哪个玩家
+       */
+      _setup(s, p, n) {
+        // 立牌
+        let o = p ? p.length * 3 : 0;
+        this.s_.forEach((e, i)=>{
+          if (i >= o) {
+            e.visible = true;
+          }
+          else {
+            e.visible = false;
+          }
+        });
+        // 摸到的牌，再看有没有必要吧
+        // (function(){
+        //   let v = s[13 - o], e = this.s_[13];
+        //   if (typeof v !== 'undefined') {
+        //     e.visible = true;
+        //     e.updt(v);
+        //   }
+        //   else {
+        //     e.visible = false;
+        //     e.i_ = 255;
+        //   }
+        // }.bind(this))();
+
+        // 副露
+        p.forEach(e=>{
+          // 副露类型、关键牌
+          let c = pk_tp(e), t = pk_tl(e), o = pk_ofr(e);
+
+          let s = [], z = 0;
+          // z横放的张。012 上、对、下家，3自己暗杠 456上、对、下家碰牌的加杠
+          z = new_pk(n, c, t, o, s);
+
+          // 自己的暗杠要显示出来
+          if (n === 0 && c === 2 && o === 0) {
+            s[1] = new PlTl0(t);
+            s[2] = new PlTl0(t);
+          }
+
+          // 添加新结点
+          s.forEach(this.addpt.bind(this));
+
+          // 设置位置
+          this.dstpos(c, z).forEach((p, i)=>s[i].position = p);
+
+          this.p_.push(e);
+        });
+      }
+
+      /**
+       * 吃、碰、大明杠
+       * @param {number} p 牌组数据
+       * @param {object} o 供牌的起点坐标
+       * @param {number} n 当前是哪个玩家
+       * @param {array} r 来源下标
+       */
+      _ca(p, o, n, r) {
+        let c = pk_tp(p);  // 副露类型
+        let t = pk_tl(p);  // 关键牌
+
+        // 执行动画的精灵数组
+        let s = [];
+        let z = new_pk(n, c, t, pk_ofr(p), s);
+
+        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
+
+        // 添加新结点
+        s.forEach(this.addpt.bind(this));
+
+        // 根据横放的牌张，计算应去的位置
+        let d = this.dstpos(c, z);
+        switch (z) {
+        case 1:
+          // 把供牌张交换到下标0位置
+          swp(s, 0, 1);
+          swp(d, 0, 1);
+          break;
+        case 2:
+          // 把供牌张移动到下标0位置
+          shft_ahd(s, s.length - 1);
+          shft_ahd(d, d.length - 1);
+          break;
+        }
+
+        // 执行动画
+
+        // 设置初始位置
+        s[0].position = (this.f_.toLocal(o));  // 外源
+
+        // 手牌来源
+        let m;
+        if (n === 0) {
+          m = this.c_.scale.x / this.f_.scale.x;
+        } else {
+          r = rnd_idx(13 - a, c !== 2 ? 2 : 3);
+        }
+        r.forEach((v, i)=>{
+          let p = this.s_[a + v];
+          // 手牌来源
+          let q = s[i + 1];
+          q.position = this.f_.toLocal(p.toGlobal({x:0, y:0}));
+
+          if (n === 0) {
+            q.scale.set(m);
+            new TWEEN.Tween(q.scale).to({x:1,y:1}, DSDT).start();
+          }
+
+          // 隐藏手牌
+          p.visible = false;
+          p.i_ = -1;
+        });
+
+        // 执行动画
+        s.forEach((e, i)=>{
+          new TWEEN.Tween(e).to(d[i], DSDT).start();
+        });
+
+        if (c !== 2) {
+          this.s_[13].i_ = -1;
+        }
+
+        // 移动手牌各自实现
+
+        this.p_.push(p);
+      }
+    }
+
+    /**
      * 自己手牌的容器
      * @typedef {object} HdCtn0
      */
-    class HdCtn0 extends PIXI.Container {
-      // c_ = null;  // 立牌容器
-      // f_ = null;  // 副露容器
-      // s_ = null;  // 立牌精灵
-      // p_ = null;  // 副露数据
-      // x_ = 0;  // 哨兵位置
-
+    class HdCtn0 extends HdCtn {
       /**
        * @param {function(object)} 点击牌张回调
        */
@@ -3260,11 +3497,11 @@
         this.disc_ = cb;
 
         // 立牌容器
-        let c = this.c_ = new PIXI.Container();
+        let c = this.c_;
         this.addChild(c);
 
         // 副露容器
-        let f = this.f_ = new PIXI.Container();
+        let f = this.f_;
         this.addChild(f);
 
         // // 测试代码，最大高度
@@ -3297,7 +3534,8 @@
         g.endFill();
         c.addChild(g);
 
-        let s = new Array(14);
+        // 正序设置
+        let s = this.s_;
         for (let i = 0; i < 14; ++i) {
           let p = s[i] = new StTl(i, (p)=>{ this._c(p); });
           c.addChild(p);
@@ -3305,9 +3543,7 @@
           p.x = W0 * i;
           if (i === 13) p.x += GP;
         }
-        this.s_ = s;
 
-        this.p_ = [];
         this.x_ = 0;
       }
 
@@ -3315,11 +3551,8 @@
        * 初始化
        */
       init() {
-        this.p_ = [];
+        super.init();
         this.x_ = 0;
-        this.f_.children.forEach(e=>e.dsty());
-        this.f_.removeChildren();
-        this.s_.forEach(e=>e.visible = false);
       }
 
       /**
@@ -3345,18 +3578,10 @@
        * @param {object} o 牌墙上牌张的坐标
        */
       draw(i, o) {
-        let c = this.c_, f = this.f_, p = wall0();
-        p.position = c.toLocal(o);
-        c.addChild(p);
-        let d = this.s_[i];
-        new TWEEN.Tween(p).to({x:d.x,y:d.y}, DRDT).onComplete(()=>{
-          d.visible = true;
-          p.dsty();
-        }).start();
-
-        addblur(p);
-
-        p.scale.set(f.scale.x / c.scale.x);
+        let p = wall0();
+        this._draw(i, o, p, 0, 0);
+        this.c_.addChild(p);
+        p.scale.set(this.f_.scale.x / this.c_.scale.x);
         new TWEEN.Tween(p.scale).to({x:1,y:1}, DRDT).start();
       }
 
@@ -3395,10 +3620,10 @@
        * @param {number} n 抓回来的新牌
        * @param {object} o 牌墙上牌张的坐标
        */
-      rpflw(u, n, o) {
+      rpflw(u, n, o) {console.log('rpflw', u, n, o);
         let s = this.s_;
         let i = s.findIndex(e=>e.visible && e.i_ === u);
-        if (i !== -1) {
+        if (i === -1) {
           tz.reenter();
           return;
         }
@@ -3430,12 +3655,12 @@
 
       /**
        * 打牌效果
-       * @param {number} 牌张索引
-       * @param {number} 手摸切
-       * @param {object} 目标牌池精灵
+       * @param {number} t 牌张索引
+       * @param {boolean} h 手摸切
+       * @param {object} d 目标牌池精灵
        * @return {object} 飞牌
        */
-      disc(t, h, d) {
+      dscd(t, h, d) {
         let s = this.s_;
         let i = st_find(s, 0, t);
         if (i === -1) {
@@ -3444,18 +3669,16 @@
           return;
         }
 
-        s[i].visible = false;
-        let p = new PlTl0(t), r = d.parent;
-        r.addChild(p);
-        p.position = r.toLocal(s[i].toGlobal({x:0,y:0}));
-
-        addblur(p);
-        new TWEEN.Tween(p.position).to({x:(d.x + 10), y:(d.y + 10)}, DSDT).onComplete(()=>{
-          p.filters = [];
-        }).start();
+        let p = new PlTl0(t);
+        d.parent.addChild(p);
+        this._dscd(i, p, d, 0, 0, 10, 10);
 
         p.scale.set(this.c_.scale.x / this.f_.scale.x);
         new TWEEN.Tween(p.scale).to({x:1,y:1}, DSDT).start();
+
+        // 移动手牌动画
+        s[i].i_ = 0xff;
+        this.sort();
 
         return p;
       }
@@ -3525,42 +3748,8 @@
             e.i_ = -1;
           }
         });
-        // 摸到的牌，再看有没有必要吧
-        // (function(){
-        //   let v = s[13 - o], e = this.s_[13];
-        //   if (typeof v !== 'undefined') {
-        //     e.visible = true;
-        //     e.updt(v);
-        //   }
-        //   else {
-        //     e.visible = false;
-        //     e.i_ = 255;
-        //   }
-        // }.bind(this))();
 
-        // 副露
-        p.forEach(e=>{
-          // 副露类型、关键牌
-          let c = pk_tp(e), t = pk_tl(e), o = pk_ofr(e);
-
-          let s = [], z = 0;
-          // z横放的张。012 上、对、下家，3自己暗杠 456上、对、下家碰牌的加杠
-          z = new_pk(0, c, t, o, s);
-
-          // 自己的暗杠要显示出来
-          if (c === 2 && o === 0) {
-            s[1] = new PlTl0(t);
-            s[2] = new PlTl0(t);
-          }
-
-          // 添加新结点
-          s.forEach(p=>this.f_.addChild(p));
-
-          // 设置位置
-          this.dstpos(c, z).forEach((p, i)=>s[i].position = p);
-
-          this.p_.push(e);
-        });
+        this._setup(s, p, 0);
       }
 
       /**
@@ -3622,15 +3811,11 @@
         let c = pk_tp(p);  // 副露类型
         let t = pk_tl(p);  // 关键牌
 
-        // 执行动画的精灵数组
-        let s = [];
-        let z = new_pk(0, c, t, pk_ofr(p), s);
-
         let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
 
         // 测试：随机选择手里的牌张
-        let r = rnd_idx(13 - a, c !== 2 ? 2 : 3);
-/*
+        //let r = rnd_idx(13 - a, c !== 2 ? 2 : 3);
+
         // 精准查找手里的牌张
         let r = (()=>{
           let r = new Int8Array(c !== 2 ? 2 : 3);
@@ -3649,7 +3834,7 @@
                 break;
               case 3:
                 r[0] = st_find(b, a, t0);
-                r[0] = st_find(b, a, t1);
+                r[1] = st_find(b, a, t1);
                 break;
               }
               break;
@@ -3670,50 +3855,10 @@
           }
           return r;
         })();
-*/
-        // 添加新结点
-        s.forEach(p=>this.f_.addChild(p));
+        console.log('ca0', r);
+        this._ca(p, o, 0, r);
 
-        // 根据横放的牌张，计算应去的位置
-        let d = this.dstpos(c, z);
-        switch (z) {
-        case 1:
-          // 把供牌张交换到下标0位置
-          swp(s, 0, 1);
-          swp(d, 0, 1);
-          break;
-        case 2:
-          // 把供牌张移动到下标0位置
-          shft_ahd(s, s.length - 1);
-          shft_ahd(d, d.length - 1);
-          break;
-        }
-
-        // 执行动画
-
-        // 设置初始位置
-        s[0].position = (this.f_.toLocal(o));  // 外源
-
-        // 手牌来源
-        let m = this.c_.scale.x / this.f_.scale.x;
-        r.forEach((v, i)=>{
-          let p = this.s_[v + a];
-          // 手牌来源
-          let q = s[i + 1];
-          q.position = this.f_.toLocal(p.toGlobal({x:0, y:0}));
-
-          q.scale.set(m);
-          new TWEEN.Tween(q.scale).to({x:1,y:1}, DSDT).start();
-
-          // 隐藏手牌
-          p.visible = false;
-          p.i_ = -1;
-        });
-
-        // 执行动画
-        s.forEach((e, i)=>{
-          new TWEEN.Tween(e).to(d[i], DSDT).start();
-        });
+//this.s_.forEach(e=>console.log('ca0 test', e.i_));
 
         // 移动手牌
         this.s_.sort(function(a, b) { return a.i_ - b.i_; });
@@ -3729,8 +3874,6 @@
             }
           }
         });
-
-        this.p_.push(p);
       }
     }
     HdCtn0.W = W0 * 14 + GP;
@@ -3747,22 +3890,16 @@
      * 下家手牌的容器
      * @typedef {object} HdCtn1
      */
-    class HdCtn1 extends PIXI.Container {
-      // c_ = null;  // 立牌容器
-      // f_ = null;  // 副露容器
-      // s_ = null;  // 立牌精灵
-      // p_ = null;  // 副露数据
-      // y_ = 0;  // 哨兵位置
-
+    class HdCtn1 extends HdCtn {
       constructor() {
         super();
 
         // 立牌容器
-        let c = this.c_ = new PIXI.Container();
+        let c = this.c_;
         this.addChild(c);
 
         // 副露容器
-        let f = this.f_ = new PIXI.Container();
+        let f = this.f_;
         this.addChild(f);
 
         // // 测试代码，最大高度
@@ -3815,7 +3952,7 @@
         f.addChild(g);
 
         // 逆序设置
-        let s = new Array(14);
+        let s = this.s_;
         for (let i = 0; i < 14; ++i) {
           let p = s[13 - i] = st_tl1();
           p.x = HdCtn1.W - W1S;
@@ -3823,11 +3960,9 @@
           if (i !== 0) p.y += GP;
           c.addChild(p);
         }
-        this.s_ = s;  // 立牌精灵
 
         f.y = H1SF - H1F + (H1 + GP) * 2;
 
-        this.p_ = [];  // 副露数据
         this.y_ = FH1 - (H1F - H1);  // 哨兵位置
       }
 
@@ -3835,11 +3970,16 @@
        * 初始化
        */
       init() {
-        this.p_ = [];
+        super.init();
         this.y_ = FH1 - (H1F - H1);
-        this.f_.children.forEach(e=>e.dsty());
-        this.f_.removeChildren();
-        this.s_.forEach(e=>e.visible = false);
+      }
+
+      /**
+       * 添加一张副露 如要addChildAt(0)，则重写此函数
+       * @param {object} p 牌张精灵
+       */
+      addpt(p) {
+        this.f_.addChildAt(p, 0);
       }
 
       /**
@@ -3848,16 +3988,9 @@
        * @param {object} o 牌墙上牌张的坐标
        */
       draw(i, o) {
-        let c = this.c_, p = wall1();
-        p.position = c.toLocal(o);
-        c.addChildAt(p, 0);
-        let d = this.s_[i];
-        new TWEEN.Tween(p).to({x:(d.x - W1 + W1S),y:(d.y + H1SF - H1F)}, DRDT).onComplete(()=>{
-          d.visible = true;
-          p.dsty();
-        }).start();
-
-        addblur(p);
+        let p = wall1();
+        this._draw(i, o, p, W1S - W1, H1SF - H1F);
+        this.c_.addChildAt(p, 0);
       }
 
       /**
@@ -3867,47 +4000,18 @@
       }
 
       /**
-       * 补花效果
-       * @param {object} o 牌墙上牌张的坐标
-       */
-      rpflw(o) {
-        let s = this.s_;
-        if (s[13].visible) {
-          s[13].visible = false;
-          this.draw(13, o);
-        } else {
-          s[12].visible = false;
-          this.draw(12, o);
-
-          //let a = this.p_.length * 3;
-          //let i = rnd_idx(13 - a, 1)[0] + a;
-          //this.draw(12, o);
-          //if (i !== 12) {
-          //}
-        }
-      }
-
-      /**
        * 打牌效果
-       * @param {number} 牌张索引
-       * @param {number} 手摸切
-       * @param {object} 目标牌池精灵
+       * @param {number} t 牌张索引
+       * @param {boolean} h 手摸切
+       * @param {object} d 目标牌池精灵
        * @return {object} 飞牌
        */
-      disc(t, h, d) {
-        let s = this.s_, a = this.p_.length * 3;
+      dscd(t, h, d) {
+        let a = this.p_.length * 3;
         let i = h ? (Math.random() * (13 - a) + a) : 13;
-
-        s[i].visible = false;
-        let p = new PlTl1(t), r = d.parent;
-        r.addChild(p);
-        p.position = r.toLocal(s[i].toGlobal({x:(W1S - W1),y:(H1SF - H1F)}));
-
-        addblur(p);
-        new TWEEN.Tween(p.position).to({x:(d.x + 10), y:(d.y - 10)}, DSDT).onComplete(()=>{
-          p.filters = [];
-        }).start();
-
+        let p = new PlTl1(t);
+        d.parent.addChildAt(p, 0);
+        this._dscd(i, p, d, W1S - W1, H1SF - H1F, 10, -10);
         return p;
       }
 
@@ -3917,34 +4021,7 @@
        * @param {array} p 副露
        */
       setup(s, p) {
-        // 立牌
-        let o = p ? p.length * 3 : 0;
-        this.s_.forEach((e, i)=>{
-          if (i >= o) {
-            e.visible = true;
-          }
-          else {
-            e.visible = false;
-          }
-        });
-
-        // 副露
-        p.forEach(e=>{
-          // 副露类型、关键牌
-          let c = pk_tp(e), t = pk_tl(e);
-
-          let s = [];
-          // z横放的张。012 上、对、下家，3自己暗杠 456上、对、下家碰牌的加杠
-          let z = new_pk(1, c, t, pk_ofr(e), s);
-
-          // 添加新结点
-          s.forEach(p=>this.f_.addChildAt(p, 0));
-
-          // 设置位置
-          this.dstpos(c, z).forEach((p, i)=>s[i].position = p);
-
-          this.p_.push(e);
-        });
+        this._setup(s, p, 1);
       }
 
       /**
@@ -4003,52 +4080,7 @@
        * @param {object} o 供牌的起点坐标
        */
       ca(p, o) {
-        let c = pk_tp(p);  // 副露类型
-        let t = pk_tl(p);  // 关键牌
-
-        // 执行动画的精灵数组
-        let s = [];
-        let z = new_pk(1, c, t, pk_ofr(p), s);
-
-        // 添加新结点
-        s.forEach(p=>this.f_.addChildAt(p, 0));
-
-        // 根据横放的牌张，计算应去的位置
-        let d = this.dstpos(c, z);
-        switch (z) {
-        case 1:
-          // 把供牌张交换到下标0位置
-          swp(s, 0, 1);
-          swp(d, 0, 1);
-          break;
-        case 2:
-          // 把供牌张移动到下标0位置
-          shft_ahd(s, s.length - 1);
-          shft_ahd(d, d.length - 1);
-          break;
-        }
-
-        // 执行动画
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
-
-        // 设置初始位置
-        s[0].position = (this.f_.toLocal(o));  // 外源
-
-        // 随机选择手牌来源
-        rnd_idx(13 - a, c !== 2 ? 2 : 3)
-        .forEach((v, i)=>{
-          let p = this.s_[v + a];
-          // 手牌来源
-          s[i + 1].position = this.f_.toLocal(p.toGlobal({x:(W1S - W1), y:(H1SF - H1F)}));
-          // 隐藏手牌
-          p.visible = false;
-          p.i_ = -1;
-        });
-
-        // 执行动画
-        s.forEach((e, i)=>{
-          new TWEEN.Tween(e).to(d[i], DSDT).start();
-        });
+        this._ca(p, o, 1);
 
         // 移动手牌
         this.s_.sort(function(a, b) { return (a.i_ || 0) - (b.i_ || 0); });
@@ -4064,8 +4096,6 @@
             }
           }
         });
-
-        this.p_.push(p);
       }
 
       /**
@@ -4148,22 +4178,16 @@
      * 对家手牌的容器
      * @typedef {object} HdCtn2
      */
-    class HdCtn2 extends PIXI.Container {
-      // c_ = null;  // 立牌容器
-      // f_ = null;  // 副露容器
-      // s_ = null;  // 立牌精灵
-      // p_ = null;  // 副露数据
-      // x_ = 0;  // 哨兵位置
-
+    class HdCtn2 extends HdCtn {
       constructor() {
         super();
 
         // 立牌容器
-        let c = this.c_ = new PIXI.Container();
+        let c = this.c_;
         this.addChild(c);
 
         // 副露容器
-        let f = this.f_ = new PIXI.Container();
+        let f = this.f_;
         this.addChild(f);
 
         // // 4组大明杠
@@ -4187,18 +4211,16 @@
         this.addChild(g);
 
         // 逆序设置
-        let s = new Array(14);
+        let s = this.s_;
         for (let i = 0; i < 14; ++i) {
           let p = s[13 - i] = st_tl2();
           p.x = W0 * i;
           if (i !== 0) p.x += GP;
           c.addChild(p);
         }
-        this.s_ = s;  // 立牌精灵
 
         f.x = HdCtn2.W - FW0;
 
-        this.p_ = [];  // 副露数据
         this.x_ = FW0;  // 哨兵位置
       }
 
@@ -4206,11 +4228,8 @@
        * 初始化
        */
       init() {
-        this.p_ = [];
+        super.init();
         this.x_ = FW0;
-        this.f_.children.forEach(e=>e.dsty());
-        this.f_.removeChildren();
-        this.s_.forEach(e=>e.visible = false);
       }
 
       /**
@@ -4219,16 +4238,9 @@
        * @param {object} o 牌墙上牌张的坐标
        */
       draw(i, o) {
-        let c = this.c_, p = wall0();
-        p.position = c.toLocal(o);
-        c.addChild(p);
-        let d = this.s_[i];
-        new TWEEN.Tween(p).to({x:d.x,y:d.y}, DRDT).onComplete(()=>{
-          d.visible = true;
-          p.dsty();
-        }).start();
-
-        addblur(p);
+        let p = wall0();
+        this._draw(i, o, p, 0, 0);
+        this.c_.addChild(p);
       }
 
       /**
@@ -4238,47 +4250,18 @@
       }
 
       /**
-       * 补花效果
-       * @param {object} o 牌墙上牌张的坐标
-       */
-      rpflw(o) {
-        let s = this.s_;
-        if (s[13].visible) {
-          s[13].visible = false;
-          this.draw(13, o);
-        } else {
-          s[12].visible = false;
-          this.draw(12, o);
-
-          //let a = this.p_.length * 3;
-          //let i = rnd_idx(13 - a, 1)[0] + a;
-          //this.draw(12, o);
-          //if (i !== 12) {
-          //}
-        }
-      }
-
-      /**
        * 打牌效果
-       * @param {number} 牌张索引
-       * @param {number} 手摸切
-       * @param {object} 目标牌池精灵
+       * @param {number} t 牌张索引
+       * @param {boolean} h 手摸切
+       * @param {object} d 目标牌池精灵
        * @return {object} 飞牌
        */
-      disc(t, h, d) {
-        let s = this.s_, a = this.p_.length * 3;
+      dscd(t, h, d) {
+        let a = this.p_.length * 3;
         let i = h ? (Math.random() * (13 - a) + a) : 13;
-
-        s[i].visible = false;
-        let p = new PlTl2(t), r = d.parent;
-        r.addChild(p);
-        p.position = r.toLocal(s[i].toGlobal({x:0,y:0}));
-
-        addblur(p);
-        new TWEEN.Tween(p.position).to({x:(d.x - 10), y:(d.y - 10)}, DSDT).onComplete(()=>{
-          p.filters = [];
-        }).start();
-
+        let p = new PlTl2(t);
+        d.parent.addChildAt(p, 0);
+        this._dscd(i, p, d, 0, 0, -10, -10);
         return p;
       }
 
@@ -4288,44 +4271,7 @@
        * @param {array} p 副露
        */
       setup(s, p) {
-        // 立牌
-        let o = p ? p.length * 3 : 0;
-        this.s_.forEach((e, i)=>{
-          if (i >= o) {
-            e.visible = true;
-          }
-          else {
-            e.visible = false;
-          }
-        });
-        // 摸到的牌，再看有没有必要吧
-        // (function(){
-        //   let v = s[13 - o], e = this.s_[13];
-        //   if (typeof v !== 'undefined') {
-        //     e.visible = true;
-        //   }
-        //   else {
-        //     e.visible = false;
-        //   }
-        // }.bind(this))();
-
-        // 副露
-        p.forEach(e=>{
-          // 副露类型、关键牌
-          let c = pk_tp(e), t = pk_tl(e);
-
-          let s = [];
-          // z横放的张。012 上、对、下家，3自己暗杠 456上、对、下家碰牌的加杠
-          let z = new_pk(2, c, t, pk_ofr(e), s);
-
-          // 添加新结点
-          s.forEach(p=>this.f_.addChild(p));
-
-          // 设置位置
-          this.dstpos(c, z).forEach((p, i)=>s[i].position = p);
-
-          this.p_.push(e);
-        });
+        this._setup(s, p, 2);
       }
 
       /**
@@ -4383,52 +4329,7 @@
        * @param {object} o 供牌的起点坐标
        */
       ca(p, o) {
-        let c = pk_tp(p);  // 副露类型
-        let t = pk_tl(p);  // 关键牌
-
-        // 执行动画的精灵数组
-        let s = [];
-        let z = new_pk(2, c, t, pk_ofr(p), s);
-
-        // 添加新结点
-        s.forEach(p=>this.f_.addChild(p));
-
-        // 根据横放的牌张，计算应去的位置
-        let d = this.dstpos(c, z);
-        switch (z) {
-        case 1:
-          // 把供牌张交换到下标0位置
-          swp(s, 0, 1);
-          swp(d, 0, 1);
-          break;
-        case 2:
-          // 把供牌张移动到下标0位置
-          shft_ahd(s, s.length - 1);
-          shft_ahd(d, d.length - 1);
-          break;
-        }
-
-        // 执行动画
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
-
-        // 设置初始位置
-        s[0].position = (this.f_.toLocal(o));  // 外源
-
-        // 随机选择手牌来源
-        rnd_idx(13 - a, c !== 2 ? 2 : 3)
-        .forEach((v, i)=>{
-          let p = this.s_[v + a];
-          // 手牌来源
-          s[i + 1].position = this.f_.toLocal(p.toGlobal({x:0, y:0}));
-          // 隐藏手牌
-          p.visible = false;
-          p.i_ = -1;
-        });
-
-        // 执行动画
-        s.forEach((e, i)=>{
-          new TWEEN.Tween(e).to(d[i], DSDT).start();
-        });
+        this._ca(p, o, 2);
 
         // 移动手牌
         this.s_.sort(function(a, b) { return (a.i_ || 0) - (b.i_ || 0); });
@@ -4444,8 +4345,6 @@
             }
           }
         });
-
-        this.p_.push(p);
       }
     }
     HdCtn2.W = FW0 + W0 * 2 + GP * 2;
@@ -4455,7 +4354,7 @@
      * 上家手牌的容器
      * @typedef {object} HdCtn3
      */
-    class HdCtn3 extends PIXI.Container {
+    class HdCtn3 extends HdCtn {
       // c_ = null;  // 立牌容器
       // f_ = null;  // 副露容器
       // s_ = null;  // 立牌精灵
@@ -4466,11 +4365,11 @@
         super();
 
         // 副露容器
-        let f = this.f_ = new PIXI.Container();
+        let f = this.f_;
         this.addChild(f);
 
         // 立牌容器
-        let c = this.c_ = new PIXI.Container();
+        let c = this.c_;
         this.addChild(c);
 
         // 测试代码，最大高度
@@ -4514,19 +4413,17 @@
         this.addChild(g);
 
         // 正序设置
-        let s = new Array(14);
+        let s = this.s_;
         for (let i = 0; i < 14; ++i) {
           let p = s[i] = st_tl3();
           p.y = H1 * i;
           if (i === 13) p.y += GP;
           c.addChild(p);
         }
-        this.s_ = s;  // 立牌精灵
 
         // 4组大明杠比立牌放倒多出来的空间，就是手牌的起始位置
         c.y = H0 * 4 + GF * 3 - H1SF + H1F + OL;
 
-        this.p_ = [];  // 副露数据
         this.y_ = 0;  // 哨兵位置
       }
 
@@ -4534,11 +4431,8 @@
        * 初始化
        */
       init() {
-        this.p_ = [];
+        super.init();
         this.y_ = 0;
-        this.f_.children.forEach(e=>e.dsty());
-        this.f_.removeChildren();
-        this.s_.forEach(e=>e.visible = false);
       }
 
       /**
@@ -4547,16 +4441,9 @@
        * @param {object} o 牌墙上牌张的坐标
        */
       draw(i, o) {
-        let c = this.c_, p = wall1();
-        p.position = c.toLocal(o);
-        c.addChild(p);
-        let d = this.s_[i];
-        new TWEEN.Tween(p).to({x:d.x,y:(d.y + H1SF - H1F)}, DRDT).onComplete(()=>{
-          d.visible = true;
-          p.dsty();
-        }).start();
-
-        addblur(p);
+        let p = wall1();
+        this._draw(i, o, p, 0, H1SF - H1F);
+        this.c_.addChild(p);
       }
 
       /**
@@ -4566,47 +4453,18 @@
       }
 
       /**
-       * 补花效果
-       * @param {object} o 牌墙上牌张的坐标
-       */
-      rpflw(o) {
-        let s = this.s_;
-        if (s[13].visible) {
-          s[13].visible = false;
-          this.draw(13, o);
-        } else {
-          s[12].visible = false;
-          this.draw(12, o);
-
-          //let a = this.p_.length * 3;
-          //let i = rnd_idx(13 - a, 1)[0] + a;
-          //this.draw(12, o);
-          //if (i !== 12) {
-          //}
-        }
-      }
-
-      /**
        * 打牌效果
-       * @param {number} 牌张索引
-       * @param {number} 手摸切
-       * @param {object} 目标牌池精灵
+       * @param {number} t 牌张索引
+       * @param {boolean} h 手摸切
+       * @param {object} d 目标牌池精灵
        * @return {object} 飞牌
        */
-      disc(t, h, d) {
-        let s = this.s_, a = this.p_.length * 3;
+      dscd(t, h, d) {
+        let a = this.p_.length * 3;
         let i = h ? (Math.random() * (13 - a) + a) : 13;
-
-        s[i].visible = false;
-        let p = new PlTl3(t), r = d.parent;
-        r.addChild(p);
-        p.position = r.toLocal(s[i].toGlobal({x:0,y:(H1SF - H1F)}));
-
-        addblur(p);
-        new TWEEN.Tween(p.position).to({x:(d.x - 10), y:(d.y + 10)}, DSDT).onComplete(()=>{
-          p.filters = [];
-        }).start();
-
+        let p = new PlTl3(t);
+        d.parent.addChild(p);
+        this._dscd(i, p, d, 0, H1SF - H1F, -10, 10);
         return p;
       }
 
@@ -4616,34 +4474,7 @@
        * @param {array} p 副露
        */
       setup(s, p) {
-        // 立牌
-        let o = p ? p.length * 3 : 0;
-        this.s_.forEach((e, i)=>{
-          if (i >= o) {
-            e.visible = true;
-          }
-          else {
-            e.visible = false;
-          }
-        });
-
-        // 副露
-        p.forEach(e=>{
-          // 副露类型、关键牌
-          let c = pk_tp(e), t = pk_tl(e);
-
-          let s = [];
-          // z横放的张。012 上、对、下家，3自己暗杠 456上、对、下家碰牌的加杠
-          let z = new_pk(3, c, t, pk_ofr(e), s);
-
-          // 添加新结点
-          s.forEach(p=>this.f_.addChild(p));
-
-          // 设置位置
-          this.dstpos(c, z).forEach((p, i)=>s[i].position = p);
-
-          this.p_.push(e);
-        });
+        this._setup(s, p, 3);
       }
 
       /**
@@ -4700,53 +4531,7 @@
        * @param {object} o 供牌的起点坐标
        */
       ca(p, o) {
-        let c = pk_tp(p);  // 副露类型
-        let t = pk_tl(p);  // 关键牌
-
-        // 执行动画的精灵数组
-        let s = [];
-        let z = new_pk(3, c, t, pk_ofr(p), s);
-
-        // 添加新结点
-        s.forEach(p=>this.f_.addChild(p));
-
-        // 根据横放的牌张，计算应去的位置
-        let d = this.dstpos(c, z);
-
-        switch (z) {
-        case 1:
-          // 把供牌张交换到下标0位置
-          swp(s, 0, 1);
-          swp(d, 0, 1);
-          break;
-        case 2:
-          // 把供牌张移动到下标0位置
-          shft_ahd(s, s.length - 1);
-          shft_ahd(d, d.length - 1);
-          break;
-        }
-
-        // 执行动画
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
-
-        // 设置初始位置
-        s[0].position = (this.f_.toLocal(o));  // 外源
-
-        // 随机选择手牌来源
-        rnd_idx(13 - a, c !== 2 ? 2 : 3)
-        .forEach((v, i)=>{
-          let p = this.s_[v + a];
-          // 手牌来源
-          s[i + 1].position = this.f_.toLocal(p.toGlobal({x:0, y:0}));
-          // 隐藏手牌
-          p.visible = false;
-          p.i_ = -1;
-        });
-
-        // 执行动画
-        s.forEach((e, i)=>{
-          new TWEEN.Tween(e).to(d[i], DSDT).start();
-        });
+        this._ca(p, o, 3);
 
         // 移动手牌
         this.s_.sort(function(a, b) { return (a.i_ || 0) - (b.i_ || 0); });
@@ -4762,8 +4547,6 @@
             }
           }
         });
-
-        this.p_.push(p);
       }
 
       /**
@@ -6992,7 +6775,13 @@
         */
         // 四家手牌
         let ht = this.ht_ = [new HdCtn0(p=>{
-          this.disc(0, p.i_);  // 测试，直接打
+          //this.dscd(0, p.i_);  // 测试，直接打
+          let i = p.i_;
+          console.log('discard', i);
+          if (i !== 0xff /*&& this.standing_[0][13].visible*/) {
+            tz.ws.send(`{"m":2,"r":2,"v":${i}}`);
+            this.cd_.rm();
+          }
         }), new HdCtn1(), new HdCtn2(), new HdCtn3()];
         this.addChild(ht[0]);
         ic.addChild(ht[1]);
@@ -7076,8 +6865,8 @@
           //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(0,30,1),mk_pk(0,30,2),mk_pk(0,30,3)]);
           //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(1,38,1),mk_pk(1,42,2),mk_pk(1,46,3)]);
           //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(2,50,1),mk_pk(2,54,2),mk_pk(2,58,3),mk_pk(2,62,0)]);
-          //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(2,80,1),mk_pk(2,84,2),mk_pk(2,88,3),mk_pk(2,92,3)]);
-          ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(3,70,1),mk_pk(3,74,2),mk_pk(3,78,3)]);
+          ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(2,80,1),mk_pk(2,84,2),mk_pk(2,88,3),mk_pk(2,92,3)]);
+          //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(3,70,1),mk_pk(3,74,2),mk_pk(3,78,3)]);
         }
 
         //['测速', '追分策略', '鸣牌设置', '设置', '计分表']
@@ -7156,20 +6945,15 @@
 
         // 测试按钮
         let b = new EptBtn(50, 50, ()=>{
-          // 鸣牌测试
-          //let h = this.ht_[0];  // 对家
-          //h.ca(0x45, {x:0, y:0});  // 吃
-          //h.ca(0x1be, {x:0, y:0});  // 碰对家
-          //h.ca(0x1fe, {x:0, y:0});  // 碰下家
-          //h.ca(0x2be, {x:0, y:0});  // 杠对家
-          //h.ca(0x2fe, {x:0, y:0});  // 杠下家
-          //h.ck(false, true);  // 暗杠
-
           // 牌墙测试
           //let t = this.wa_.back();
           //console.log('wall', t.position, this.wa_.rem_);
           //this.cr_.remain = this.wa_.rem_;
 
+          //this.onwin({d:{f:11,n:[0,0,0,0],p:0,r:0,s:[57,-19,-19,-19],t:[57,-19,-19,-19],w:1},f:2,i:100,m:2,p:{56:4,66:2,70:1,75:1,76:1,81:257},r:12,t:[{s:[12,13,26,28,35,82,83,92,93,94,99,102,104]},{s:[5,21,38,56,58,66,67,79,80,96,119,129,132],{s:[11,22,27,34,45,53,88,90,109,117,121,135,141]},{s:[14,33,42,44,47,60,62,68,87,98,103,114,125]}],v:0,w:81});
+          this.cfg_ = {'r30':99};
+          this.onwin({"d":{"f":11,"n":[0,0,0,0],"p":0,"r":0,"s":[57,-19,-19,-19],"t":[57,-19,-19,-19],"w":1},"f":2,"i":100,"m":2,"p":{"56":4,"66":2,"70":1,"75":1,"76":1,"81":257},"r":12,"t":[{"s":[12,13,26,28,35,82,83,92,93,94,99,102,104]},{"s":[5,21,38,56,58,66,67,79,80,96,119,129,132]},{"s":[11,22,27,34,45,53,88,90,109,117,121,135,141]},{"s":[14,33,42,44,47,60,62,68,87,98,103,114,125]}],"v":0,"w":81});
+          return;
           // 发牌测试
           this.xchg(1, [{'n':'东','s':0},{'n':'南','s':0},{'n':'西','s':0},{'n':'北','s':0}]);
 
@@ -7184,9 +6968,20 @@
         this.addChild(b);
 
         b = new EptBtn(50, 50, ()=>{
-//          this.flw123(2);
-           this.disc(3, 96, false);
-            // this.draw(1, false);
+          // 鸣牌测试
+          let h = this.ht_[3];
+          //h.ca(0x45, {x:0, y:0});  // 吃
+          //h.ca(0x17e, {x:0, y:0});  // 碰上家
+          //h.ca(0x1be, {x:0, y:0});  // 碰对家
+          //h.ca(0x1fe, {x:0, y:0});  // 碰下家
+          //h.ca(0x27e, {x:0, y:0});  // 杠上家
+          //h.ca(0x2be, {x:0, y:0});  // 杠对家
+          //h.ca(0x2fe, {x:0, y:0});  // 杠下家
+          //h.ck(false, true);  // 暗杠
+
+           this.flw123(2);
+          // this.dscd(3, 96, false);
+          // this.draw(1, false);
         });
         this.addChild(b);
         b.y = 100;
@@ -7573,14 +7368,24 @@
 
         ht[2].x = Math.max(w0 - HdCtn1.W - HdCtn2.W, HdCtn3.W);
 
-        this.addcal([0x10000]);
+        //this.addcal([0x10000]);
+        //262277,262177,219228,219232,202780,327756
+        this.addcal([[262194, 207924, 209976]]);//[5144, 6176]
+      }
+
+      /**
+       * 开始当前局计时
+       * @param {number} t 当前时间戳（服务器传过来）
+       */
+      startup(t) {
+        this.visible = true;
       }
 
       /**
        * 开始
        * @param {object} 配置
        */
-      startup(g) {
+      setup(g) {
         this.cfg_ = g;
       }
 
@@ -7593,28 +7398,6 @@
         this.pl_.forEach(e=>e.init());
         this.ht_.forEach(e=>e.init());
         this.opt1_.init();
-      }
-
-      /**
-       * 换位
-       * @param {number} v 自己座位（门风）
-       * @param {number} p 玩家信息
-       */
-      xchg(v, p) {
-        let s = [0, 0, 0, 0];
-        p.forEach((e, i)=>{
-          let u = this.ub_[(i + 4 - v) & 3];
-          u.flswn = false;
-          u.flower = 0;
-          u.name = e['n'];
-          u.conn = !e['o'];
-          s[i] = e['s'];
-        });
-        this.cr_.setup(v, s);
-        this.pls_ = p;
-
-        // 结构
-        // [{"n":"%s","l":%hhu,"s":%hd,"g":%hhu,"o":%d,"v":%d,"rs":[%hd*16],"rp":[%hd*16]}*4]"
       }
 
       /**
@@ -7635,17 +7418,13 @@
           this._send1(d, h);
         }
         else {
-          let b = (()=>{
-            let b = new XchgRd(o >> 2);
-            this.sc_.addChild(b);
+          let b = new XchgRd(o >> 2);
+          this.sc_.addChild(b);
 
-            let l = this.lyt_;
-            let x = l['x'], y = l['y'], w = l['w'], h = l['h'];
-            b.layt(x, y, w, h);
+          let l = this.lyt_;
+          b.layt(l['x'], l['y'], l['w'], l['h']);
 
-            new TWEEN.Tween(b).to({alpha:0}, 200).delay(1300).start();
-            return b;
-          })();
+          new TWEEN.Tween(b).to({alpha:0}, 200).delay(1300).start();
 
           setTimeout(()=>{ b.dsty(); this._send1(d, h); }, 1500);
           tz.play(o ? 'snd/25-xchg.wav' : 'snd/01-start.wav');
@@ -7783,7 +7562,7 @@
        * @param {number} t 牌
        * @param {boolean} h 手切true，摸切false
        */
-      disc(n, t, h) {
+      dscd(n, t, h) {
         tz.play('snd/06-discard.wav');
         this.cd_.rm();
         this.ca1_.visible = false;
@@ -7800,7 +7579,7 @@
         d.updt(t);
 
         // 从手牌中打出
-        let s = this.fly_ = this.ht_[n].disc(t, h, d);
+        let s = this.fly_ = this.ht_[n].dscd(t, h, d);
         s.dst_ = d;
 
         // 测试归位
@@ -7957,12 +7736,13 @@
         ++n;
 
         let c = this.ca1_;
+        c.init();
         n = 0;  // 按钮个数
         // 命令顺序：10弃、9过、1花、6和、5杠、4碰、3吃
-        Uint8Array.of(10, 9, 1, 6, 5, 4, 3).forEach(e=>{
+        Uint8Array.of(10, 9, 1, 6, 5, 4, 3).forEach((e, i)=>{
           let v = d[e];
           if (v) {
-            c.setup(n, 6 - n, this.aplcal.bind(this, e, v));
+            c.setup(n, 6 - i, this.aplcal.bind(this, e, v));
             ++n;
           }
         });
@@ -7989,6 +7769,9 @@
 
         if (n > 0) {
           c.visible = true;
+          if (tz.phn) {
+            c.tgl(true);
+          }
           if (!tz.cfg['mutecall']) {
             tz.play('snd/08-inquire.wav');
           }
@@ -8025,6 +7808,19 @@
           });
           break;
         }
+      }
+
+      /**
+       * 吃碰牌
+       * @param {number} n 玩家
+       * @param {number} p 副露
+       */
+      ca(n, p) {
+        let f = this.fly_;
+        this.ht_[n].ca(p, f.toGlobal({x:0,y:0}));
+
+        f.dsty();
+        this.fly_ = null;
       }
 
       _tapbg() {
@@ -8069,96 +7865,259 @@
 
       }
 
-      onmsg(r) {
-        switch (r['r']) {
-        case 1:  // 初始化桌子
-          this.startup(r['g']);
-          break;
-        case 2:  // 起手
-          this.init();
-          this.send(r['h'], r['p'], r['d'], r['v']);
-          this.disc_ = false;
-          break;
-        case 3: {  // 询问补花
-          let c = this.cr_;
-          c.turn = r['v'];
-          if (!c.self() || !r['f']) {
-            this.cd_.rm();
-            this.rmcal();
-          } else {
-            this.addcal([0x10000]);
-            this.cd_.setup(this.cfg_['r12']);
-          }
-          break;
-        }
-        case 4: {  // 补花
-          let c = this.cr_, v = r['v'], h = r['h'], s = c.seat;
-          c.turn = v;
-          tz.play(!this.pls_[v]['g'] ? 'snd/12-flower-m.wav' : 'snd/13-flower-f.wav');
+      /**
+       * 开始
+       */
+      onstart(r) {
+        this.setup(r['g']);
+      }
 
-          let n = (v + 4 - s) & 3;
-          this.caltxt(n, tz.ls('Flower'));
-          ++this.ub_[n].flower;
-          c.remain = h;
+      /**
+       * 发牌
+       */
+      onsend(r) {
+        this.init();
+        this.send(r['h'], r['p'], r['d'], r['v']);
+        this.disc_ = false;
+      }
 
-          if (v !== s) {
-            this.flw123(n);
-            this.cd_.rm();
-          } else {
-            let t = r['t'];
-            this.flw0(lobyte(t), hibyte(t));
-            this.addcal(r['a']);
-            this.cd_.setup(this.cfg_[this.disc_ ? 'r30' : 'r12']);
-          }
-          break;
+      /**
+       * 询问补花
+       */
+      onask(r) {
+        let c = this.cr_;
+        c.turn = r['v'];
+        if (!c.self() || !r['f']) {
+          this.cd_.rm();
+          this.ca1_.visible = false;
+        } else {
+          this.addcal([0x10000]);
+          this.cd_.setup(this.cfg_['r12']);
         }
-        case 5:  // 开始出牌
-          this.disc_ = true;
-          this.cr_.turn = 0;
-          if (this.cr_.seat !== 0) {
-            this.cd_.rm();
-            this.ca1_.visible = false;
-          } else {
-            this.cd_.setup(this.cfg_['r30']);
-            this.addcal(r['a']);
-          }
-          break;
-        case 6: {  // 抓牌
-          let v = r['v'], t = r['t'], c = this.cr_, s = c.seat;
-          c.turn = v;
-          c.remain = r['h'];
-          this.draw((v + 4 - s) & 3, hibyte(t), lobyte(t));
-          if (s === v) {
-            this.cd_.setup(this.cfg_['r30']);
-            this.addcal(r['a']);
-          } else {
-            this.ca1_.visible = false;
-          }
-          break;
+      }
+
+      /**
+       * 补花
+       */
+      onrpflw(r) {
+        let c = this.cr_, v = r['v'], h = r['h'], s = c.seat;
+        c.turn = v;
+        tz.play(!this.pls_[v]['g'] ? 'snd/12-flower-m.wav' : 'snd/13-flower-f.wav');
+
+        let n = (v + 4 - s) & 3;
+        this.caltxt(n, tz.ls('Flower'));
+        ++this.ub_[n].flower;
+        c.remain = h;
+
+        if (v !== s) {
+          this.flw123(n);
+          this.cd_.rm();
+        } else {
+          let t = r['t'];
+          this.flw0(lobyte(t), hibyte(t));
+          this.addcal(r['a']);
+          this.cd_.setup(this.cfg_[this.disc_ ? 'r30' : 'r12']);
         }
-        case 7: {  // 出牌
-          let v = r['v'], a = r['a'], c = this.cr_, s = c.seat;
-          this.disc((v + 4 - s) & 3, r['t'], r['h']);
+      }
+
+      /**
+       * 开始出牌
+       */
+      onstgchg(r) {
+        this.disc_ = true;
+        this.cr_.turn = 0;
+        if (this.cr_.seat !== 0) {
+          this.cd_.rm();
+          this.ca1_.visible = false;
+        } else {
+          this.cd_.setup(this.cfg_['r30']);
+          this.addcal(r['a']);
+        }
+      }
+
+      /**
+       * 抓牌
+       */
+      ondraw(r) {
+        let v = r['v'], t = r['t'], c = this.cr_, s = c.seat;
+        c.turn = v;
+        c.remain = r['h'];
+        this.draw((v + 4 - s) & 3, hibyte(t), lobyte(t));
+        if (s === v) {
+          this.cd_.setup(this.cfg_['r30']);
+          this.addcal(r['a']);
+        } else {
+          this.ca1_.visible = false;
+        }
+      }
+
+      /**
+       * 出牌
+       */
+      ondscd(r) {
+        let v = r['v'], a = r['a'], c = this.cr_, s = c.seat;
+        this.dscd((v + 4 - s) & 3, r['t'], r['h']);
+        if (a && a.length > 0) {
+          this.cd_.setup(this.cfg_[(c.turn + 1 & 3 === s) ? 'r30' : 'r12']);
+          this.addcal(a);
+        }
+      }
+
+      /**
+       * 吃牌
+       */
+      onchow(r) {
+        let v = r['v'], p = r['p'], s = this.cr_.seat, n = (v + 4 - s) & 3;
+        if (p) {
+          this.ca(n, p);
+        } else {
+          tz.play(!this.pls_[v]['g'] ? 'snd/14-chow-m.wav' : 'snd/15-chow-f.wav');
+          this.caltxt(n, tz.ls('Chow'));
+          let a = r['a'];
           if (a && a.length > 0) {
-            this.cd_.setup(this.cfg_[(c.turn + 1 & 3 === s) ? 'r30' : 'r12']);
+            this.cd_.setup(this.cfg_['r12']);
             this.addcal(a);
           }
-          break;
         }
+      }
+
+      /**
+       * 碰牌
+       */
+      onpung(r) {
+        let v = r['v'], p = r['p'], s = this.cr_.seat, n = (v + 4 - s) & 3;
+        if (p) {
+          this.ca(n, p);
+        } else {
+          tz.play(!this.pls_[v]['g'] ? 'snd/16-pung-m.wav' : 'snd/17-pung-f.wav');
+          this.caltxt(n, tz.ls('Pung'));
+          let a = r['a'];
+          if (a && a.length > 0) {
+            this.cd_.setup(this.cfg_['r12']);
+            this.addcal(a);
+          }
+        }
+      }
+
+      /**
+       * 和牌
+       */
+      onwin(r) {
+        //r = {d:{f:11,n:[0,0,0,0],p:0,r:0,s:[57,-19,-19,-19],t:[57,-19,-19,-19],w:1},f:2,i:100,m:2,p:{56:4,66:2,70:1,75:1,76:1,81:257},r:12,t:[{s:[12,13,26,28,35,82,83,92,93,94,99,102,104]},{s:[5,21,38,56,58,66,67,79,80,96,119,129,132],{s:[11,22,27,34,45,53,88,90,109,117,121,135,141]},{s:[14,33,42,44,47,60,62,68,87,98,103,114,125]}],v:0,w:81};
+        let v = r['v'], s = this.cr_.seat, wp = hibyte(v), cp = lobyte(v), n = (wp + 4 - s) & 3;
+        let d = r['d'];
+        if (!d) {
+          tz.play(!this.pls_[wp]['g'] ? 'snd/20-win-m.wav' : 'snd/21-win-f.wav');
+          this.caltxt(n, tz.ls('Hu'));
+          let a = r['a'];
+          if (a && a.length > 0) {
+            this.cd_.setup(this.cfg_['r12']);
+            this.addcal(a);
+          }
+          return;
+        }
+
+        let w = d['w'];
+        let t = r['t'];
+        //pool.op_ht(ts, s, wp, cp, resp['w']);
+        if (!w) {
+          //pool.falseWin_[n] = true;
+          //pool.infoPanels_[n].setFalseWin(true);
+          console.log('错和');
+          if (wp === s) {
+            //pool.showFalseWin(d['f'], r['p']);
+          }
+          return;
+        }
+        this.cd_.rm();
+        this.ca1_.visible = false;
+        //this.showSettleView(t[wp], r['w'], r['p'], d);
+
+        /**
+         * @param {object} ht 手牌
+         * @param {number} wt 和牌张
+         * @param {object} ft 番表
+         * @param {object} dt 详情
+         */
+        ((h, w, f, d)=>{
+          let n = ['', '', '', ''];
+          let v = new Settle(h, w, f, d, n, this.cr_.seat, this.cfg_['r30'], (v)=>{
+            // if (!this.rp_) {
+            //   tz.ws.send('{"m":2,"r":8,"v":0}');
+            // }
+            // else {
+            //   this.showResult();
+            // }
+            // this.closeSettleView();
+            v.dsty();
+          });
+          this.sc_.addChild(v);
+          let l = this.lyt_;
+          v.layt(l['x'], l['y'], l['w'], l['h']);
+        })(t[wp], r['w'], r['p'], d);
+      }
+
+      /**
+       * 换位
+       */
+      onxchg(r) {
+        let v = r['v'], p = r['p'];  // 自己座位（门风），玩家信息
+        let s = [0, 0, 0, 0];
+        p.forEach((e, i)=>{
+          let u = this.ub_[(i + 4 - v) & 3];
+          u.flswn = false;
+          u.flower = 0;
+          u.name = e['n'];
+          u.conn = !e['o'];
+          s[i] = e['s'];
+        });
+        this.cr_.setup(v, s);
+        this.pls_ = p;
+
+        // 结构
+        // [{"n":"%s","l":%hhu,"s":%hd,"g":%hhu,"o":%d,"v":%d,"rs":[%hd*16],"rp":[%hd*16]}*4]"
+      }
+
+      onmsg(r) {
+        let m = r['r'];
+        switch (m) {
+        case 1:  // 初始化桌子
+          break;
+        case 2:  // 起手
+          this.onsend(r);
+          break;
+        case 3:  // 询问补花
+          this.onask(r);
+          break;
+        case 4:  // 补花
+          this.onrpflw(r);
+          break;
+        case 5:  // 开始出牌
+          this.onstgchg(r);
+          break;
+        case 6:  // 抓牌
+          this.ondraw(r);  
+          break;
+        case 7:  // 出牌
+          this.ondscd(r);
+          break;
         case 8:  // 吃
+          this.onchow(r);
           break;
         case 9:  // 碰
+          this.onpung(r);
           break;
         case 10:  // 明杠
           break;
         case 11:  // 暗杠
           break;
         case 12:  // 和
+          this.onwin(r);
           break;
         case 13:  // 荒庄
           break;
         case 14:  // 换位
-          this.xchg(r['v'], r['p']);
+          this.onxchg();
           break;
         case 15:  // 延时
           break;
@@ -9157,7 +9116,8 @@
               tp.err(tz.ls('ErrorPasswordLength'));
               return;
             }
-            tz.ws.send(JSON.stringify({'m':1,'r':3,'g':g}));
+            //tz.ws.send(JSON.stringify({'m':1,'r':3,'g':g}));
+            tz.ws.send(JSON.stringify({'m':1,'r':14,'g':g}));  // 试玩
           }
 
           this.nt_.dsty();
