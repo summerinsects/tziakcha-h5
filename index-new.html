@@ -2554,13 +2554,18 @@
      * 随机下标
      * @param {number} s 总大小
      * @param {number} n 随机几个
+     * @param {number} o 统计增加的值
      */
-    function rnd_idx(s, n) {
+    function rnd_idx(s, n, o) {
       // 算法为：先生成一个0,1,2,3,...(s-1)的数组，随机打乱，取最开头的n个
       let a = new Uint8Array(s);
       a.forEach((e, i, a)=>a[i] = i);
       shfl(a, 0, s);
-      return a.slice(0, n).sort();
+      let r = a.slice(0, n).sort();
+      if (o) {
+        r.forEach((e, i, a)=>a[i] += o);
+      }
+      return r;
     }
 
     /**
@@ -3541,7 +3546,6 @@
         let s = [];
         new_c(n, t, pk_ofr(p), s);
 
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
         this.p_.push(p);
 
         // 添加新结点
@@ -3561,7 +3565,7 @@
           m = this.c_.scale.x / this.f_.scale.x;
         }
         r.forEach((v, i)=>{
-          let p = this.s_[a + v];
+          let p = this.s_[v];
           // 手牌来源
           let q = s[i + 1];
           q.position = this.f_.toLocal(p.toGlobal({x:x, y:y}));
@@ -3582,8 +3586,8 @@
 
         let g = this.s_;
         g[13].visible = false;
-        shft_ahd(g, r[0] + a);
-        shft_ahd(g, r[1] + a);
+        shft_ahd(g, r[0]);
+        shft_ahd(g, r[1]);
         shft_ahd(g, 13);
       }
 
@@ -3605,7 +3609,6 @@
         let s = [];
         let z = new_p(n, t, pk_ofr(p), s);
 
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
         this.p_.push(p);
 
         // 添加新结点
@@ -3638,7 +3641,7 @@
           m = this.c_.scale.x / this.f_.scale.x;
         }
         r.forEach((v, i)=>{
-          let p = this.s_[a + v];
+          let p = this.s_[v];
           // 手牌来源
           let q = s[i + 1];
           q.position = this.f_.toLocal(p.toGlobal({x:x, y:y}));
@@ -3659,8 +3662,8 @@
 
         let g = this.s_;
         g[13].visible = false;
-        shft_ahd(g, r[0] + a);
-        shft_ahd(g, r[1] + a);
+        shft_ahd(g, r[0]);
+        shft_ahd(g, r[1]);
         shft_ahd(g, 13);
       }
 
@@ -3682,7 +3685,6 @@
         let s = [];
         let z = new_dk(n, t, pk_ofr(p), s);
 
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
         this.p_.push(p);
 
         // 添加新结点
@@ -3715,7 +3717,7 @@
           m = this.c_.scale.x / this.f_.scale.x;
         }
         r.forEach((v, i)=>{
-          let p = this.s_[a + v];
+          let p = this.s_[v];
           // 手牌来源
           let q = s[i + 1];
           q.position = this.f_.toLocal(p.toGlobal({x:x, y:y}));
@@ -3735,9 +3737,9 @@
         });
 
         let g = this.s_;
-        shft_ahd(g, r[0] + a);
-        shft_ahd(g, r[1] + a);
-        shft_ahd(g, r[2] + a);
+        shft_ahd(g, r[0]);
+        shft_ahd(g, r[1]);
+        shft_ahd(g, r[2]);
       }
 
       /**
@@ -3755,7 +3757,6 @@
         let s = [];
         new_ck(n, 0, pk_ofr(p), s);
 
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
         if (n === 0) {
           let t = pk_tl(p);
           s[1] = new PlTl0(t);
@@ -3782,7 +3783,7 @@
           m = this.c_.scale.x / this.f_.scale.x;
         }
         r.forEach((v, i)=>{
-          let p = this.s_[a + v];
+          let p = this.s_[v];
           // 手牌来源
           let q = s[i];
           q.position = this.f_.toLocal(p.toGlobal({x:x, y:y}));
@@ -3802,10 +3803,10 @@
         });
 
         let g = this.s_;
-        shft_ahd(g, r[0] + a);
-        shft_ahd(g, r[1] + a);
-        shft_ahd(g, r[2] + a);
-        shft_bhd(g, r[3] + a);
+        shft_ahd(g, r[0]);
+        shft_ahd(g, r[1]);
+        shft_ahd(g, r[2]);
+        shft_bhd(g, r[3]);
       }
 
       /**
@@ -3836,8 +3837,7 @@
         ad(o, s);
 
         // 手牌来源
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
-        let q = this.s_[a + r];
+        let q = this.s_[r];
 
         s.position = this.f_.toLocal(q.toGlobal({x:x, y:y}));
 
@@ -3856,7 +3856,7 @@
         // 测试归位
         setTimeout(()=>new TWEEN.Tween(s).to({x:d['dx'], y:d['dy']}, DSDT).start(), 3000);
 
-        shft_bhd(this.s_, r + a);
+        shft_bhd(this.s_, r);
 
         s.dx_ = d['dx'];
         s.dy_ = d['dy'];
@@ -3981,8 +3981,9 @@
        * 理牌
        */
       sort() {
-        this.s_.sort(function(a, b) { return a.i_ - b.i_; });
-        this.s_.forEach((p, i)=>{
+        let s = this.s_;
+        s.sort(function(a, b) { return a.i_ - b.i_; });
+        s.forEach((p, i)=>{
           let x = W0 * i;
           if (i === 13) x += GP;
           if (p.x !== x) {
@@ -4196,6 +4197,7 @@
               new TWEEN.Tween(p).to({x:x}, DSDT).start();
             }
             else {
+              p.i_ = -1;
               p.x = x;
             }
           }
@@ -4208,34 +4210,32 @@
        * @param {object} o 供牌的起点坐标
        */
       c(p, o) {
-        let t = pk_tl(p);  // 关键牌
-
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
+        let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
 
         // 测试：随机选择手里的牌张
-        //let r = rnd_idx(13 - a, 2);
+        //let r = rnd_idx(13 - a, 2, a);
 
         // 精准查找手里的牌张
-        let r = (()=>{
-          let r = new Int8Array(2);
-          let b = this.s_;
-          let t0 = t - 4 + ((p >> 10) & 3), t1 = t + ((p >> 12) & 3), t2 = t + 4 + ((p >> 14) & 3);
-          switch (pk_ofr(p)) {
-          default:
-            r[0] = st_find(b, a, t1);
-            r[1] = st_find(b, a, t2);
-            break;
-          case 2:
-            r[0] = st_find(b, a, t0);
-            r[1] = st_find(b, a, t2);
-            break;
-          case 3:
-            r[0] = st_find(b, a, t0);
-            r[1] = st_find(b, a, t1);
-            break;
-          }
-          return r;
-        })();
+        let r = new Int8Array(2);
+        let t0 = t - 4 + ((p >> 10) & 3), t1 = t + ((p >> 12) & 3), t2 = t + 4 + ((p >> 14) & 3);
+        switch (pk_ofr(p)) {
+        default:
+          r[0] = st_find(s, a, t1);
+          r[1] = st_find(s, a, t2);
+          break;
+        case 2:
+          r[0] = st_find(s, a, t0);
+          r[1] = st_find(s, a, t2);
+          break;
+        case 3:
+          r[0] = st_find(s, a, t0);
+          r[1] = st_find(s, a, t1);
+          break;
+        }
+
+        s[r[0]].i_ = -1;
+        s[r[1]].i_ = -1;
+        s[13].i_ = -1;
         super._c(p, o, 0, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
         this.move();
       }
@@ -4246,22 +4246,20 @@
        * @param {object} o 供牌的起点坐标
        */
       p(p, o) {
-        let t = pk_tl(p);  // 关键牌
-
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
+        let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
 
         // 测试：随机选择手里的牌张
-        //let r = rnd_idx(13 - a, 2);
+        //let r = rnd_idx(13 - a, 2, a);
 
         // 精准查找手里的牌张
-        let r = (()=>{
-          let r = new Int8Array(2);
-          let b = this.s_;
-          let tm = t + ((p >> 10) & 3);
-          r[0] = st_find_n(b, a, tm);
-          r[1] = st_find_n(b, r[0] + 1, tm);
-          return r;
-        })();
+        let r = new Int8Array(2);
+        let tm = t + ((p >> 10) & 3);
+        r[0] = st_find_n(s, a, tm);
+        r[1] = st_find_n(s, r[0] + 1, tm);
+
+        s[r[0]].i_ = -1;
+        s[r[1]].i_ = -1;
+        s[13].i_ = -1;
         super._p(p, o, 0, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
         this.move();
       }
@@ -4272,22 +4270,20 @@
        * @param {object} o 供牌的起点坐标
        */
       dk(p, o) {
-        let t = pk_tl(p);  // 关键牌
-
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
+        let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
 
         // 测试：随机选择手里的牌张
-        //let r = rnd_idx(13 - a, 3);
+        //let r = rnd_idx(13 - a, 3, a);
 
         // 精准查找手里的牌张
-        let r = (()=>{
-          let r = new Int8Array(3);
-          let b = this.s_;
-          r[0] = st_find_f(b, a, t);
-          r[1] = st_find_f(b, r[0] + 1, t);
-          r[2] = st_find_f(b, r[1] + 1, t);
-          return r;
-        })();
+        let r = new Int8Array(3);
+        r[0] = st_find_f(s, a, t);
+        r[1] = st_find_f(s, r[0] + 1, t);
+        r[2] = st_find_f(s, r[1] + 1, t);
+
+        s[r[0]].i_ = -1;
+        s[r[1]].i_ = -1;
+        s[r[2]].i_ = -1;
         super._dk(p, o, 0, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
         this.move();
       }
@@ -4297,23 +4293,22 @@
        * @param {number} p 牌组数据
        */
       ck(p) {
-        let t = pk_tl(p);  // 关键牌
-
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
+        let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
 
         // 测试：随机选择手里的牌张
-        //let r = rnd_idx(14 - a, 4);
+        //let r = rnd_idx(14 - a, 4, a);
 
         // 精准查找手里的牌张
-        let r = (()=>{
-          let r = new Int8Array(4);
-          let b = this.s_;
-          r[0] = st_find_f(b, a, t);
-          r[1] = st_find_f(b, r[0] + 1, t);
-          r[2] = st_find_f(b, r[1] + 1, t);
-          r[3] = st_find_f(b, r[2] + 1, t);
-          return r;
-        })();
+        let r = new Int8Array(4);
+        r[0] = st_find_f(s, a, t);
+        r[1] = st_find_f(s, r[0] + 1, t);
+        r[2] = st_find_f(s, r[1] + 1, t);
+        r[3] = st_find_f(s, r[2] + 1, t);
+
+        s[r[0]].i_ = -1;
+        s[r[1]].i_ = -1;
+        s[r[2]].i_ = -1;
+        s[r[3]].i_ = -1;
         super._ck(p, 0, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
         this.move();
       }
@@ -4323,16 +4318,15 @@
        * @param {number} p 牌组数据
        */
       pk(p) {
-        let t = pk_tl(p);  // 关键牌
-
-        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
+        let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
 
         // 测试：随机选择手里的牌张
         //let r = Math.trunc(Math.random() * (14 - a));
 
         // 精准查找手里的牌张
-        let r = st_find_f(this.s_, a, t);
-        let s = super._pk(p, 0, r, 0, 0,
+        let r = st_find_f(s, a, t);
+        s[r].i_ = -1;
+        let q = super._pk(p, 0, r, 0, 0,
           (o, p)=>{
             let i = this.f_.getChildIndex(o);
             this.f_.addChildAt(p, i);
@@ -4340,7 +4334,7 @@
           p=>({x:p.x, y:(p.y - H1 - GP), dx:p.x, dy:(p.y - H1)})
         );
         this.move();
-        return s;
+        return q;
       }
     }
     HdCtn0.W = W0 * 14 + GP;
@@ -4564,7 +4558,7 @@
        */
       c(p, o) {
         let a = this.p_.length * 3;
-        super._c(p, o, 1, rnd_idx(13 - a, 2), W1S - W1, H1F - H1SF, p=>this.f_.addChildAt(p, 0), this.dstpos.bind(this));
+        super._c(p, o, 1, rnd_idx(13 - a, 2, a), W1S - W1, H1F - H1SF, p=>this.f_.addChildAt(p, 0), this.dstpos.bind(this));
         this.move();
       }
 
@@ -4575,7 +4569,7 @@
        */
       p(p, o) {
         let a = this.p_.length * 3;
-        super._p(p, o, 1, rnd_idx(13 - a, 2), W1S - W1, H1F - H1SF, p=>this.f_.addChildAt(p, 0), this.dstpos.bind(this));
+        super._p(p, o, 1, rnd_idx(13 - a, 2, a), W1S - W1, H1F - H1SF, p=>this.f_.addChildAt(p, 0), this.dstpos.bind(this));
         this.move();
       }
 
@@ -4586,7 +4580,7 @@
        */
       dk(p, o) {
         let a = this.p_.length * 3;
-        super._dk(p, o, 1, rnd_idx(13 - a, 3), W1S - W1, H1F - H1SF, p=>this.f_.addChildAt(p, 0), this.dstpos.bind(this));
+        super._dk(p, o, 1, rnd_idx(13 - a, 3, a), W1S - W1, H1F - H1SF, p=>this.f_.addChildAt(p, 0), this.dstpos.bind(this));
         this.move();
       }
 
@@ -4595,9 +4589,9 @@
        * @param {boolean} h 手牌四张true，抓来暗杠false
        */
       ck(h) {
-        let a = this.p_.length * 3, r = rnd_idx(13 - a, 4);
+        let a = this.p_.length * 3, r = rnd_idx(13 - a, 4, a);
         if (!h) {
-          r[3] = 13 - a;
+          r[3] = 13;
         }
         super._ck(h, 1, r, W1S - W1, H1F - H1SF, p=>this.f_.addChildAt(p, 0), this.dstpos.bind(this));
         this.move();
@@ -4610,7 +4604,7 @@
        */
       pk(p, h) {
         let a = this.p_.length * 3;
-        let s = super._pk(p, 1, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13 - a, W1S - W1, H1F - H1SF,
+        let s = super._pk(p, 1, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13, W1S - W1, H1F - H1SF,
           (o, p)=>{
             let i = this.f_.getChildIndex(o);
             this.f_.addChildAt(p, i);
@@ -4808,7 +4802,7 @@
        */
       c(p, o) {
         let a = this.p_.length * 3;
-        super._c(p, o, 2, rnd_idx(13 - a, 2), 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        super._c(p, o, 2, rnd_idx(13 - a, 2, a), 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
         this.move();
       }
 
@@ -4819,7 +4813,7 @@
        */
       p(p, o) {
         let a = this.p_.length * 3;
-        super._p(p, o, 2, rnd_idx(13 - a, 2), 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        super._p(p, o, 2, rnd_idx(13 - a, 2, a), 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
         this.move();
       }
 
@@ -4830,7 +4824,7 @@
        */
       dk(p, o) {
         let a = this.p_.length * 3;
-        super._dk(p, o, 2, rnd_idx(13 - a, 3), 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        super._dk(p, o, 2, rnd_idx(13 - a, 3, a), 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
         this.move();
       }
 
@@ -4839,9 +4833,9 @@
        * @param {boolean} h 手牌四张true，抓来暗杠false
        */
       ck(h) {
-        let a = this.p_.length * 3, r = rnd_idx(13 - a, 4);
+        let a = this.p_.length * 3, r = rnd_idx(13 - a, 4, a);
         if (!h) {
-          r[3] = 13 - a;
+          r[3] = 13;
         }
         super._ck(h, 2, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
         this.move();
@@ -4854,7 +4848,7 @@
        */
       pk(p, h) {
         let a = this.p_.length * 3;
-        let s = super._pk(p, 2, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13 - a, 0, 0,
+        let s = super._pk(p, 2, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13, 0, 0,
           (o, p)=>{
             let i = this.f_.getChildIndex(o);
             this.f_.addChildAt(p, i + 1);
@@ -5074,7 +5068,7 @@
        */
       c(p, o) {
         let a = this.p_.length * 3;
-        super._c(p, o, 3, rnd_idx(13 - a, 2), 0, H1SF - H1F, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        super._c(p, o, 3, rnd_idx(13 - a, 2, a), 0, H1SF - H1F, p=>this.f_.addChild(p), this.dstpos.bind(this));
         this.move();
       }
 
@@ -5085,7 +5079,7 @@
        */
       p(p, o) {
         let a = this.p_.length * 3;
-        super._p(p, o, 3, rnd_idx(13 - a, 2), 0, H1SF - H1F, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        super._p(p, o, 3, rnd_idx(13 - a, 2, a), 0, H1SF - H1F, p=>this.f_.addChild(p), this.dstpos.bind(this));
         this.move();
       }
 
@@ -5096,7 +5090,7 @@
        */
       dk(p, o) {
         let a = this.p_.length * 3;
-        super._dk(p, o, 3, rnd_idx(13 - a, 3), 0, H1SF - H1F, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        super._dk(p, o, 3, rnd_idx(13 - a, 3, a), 0, H1SF - H1F, p=>this.f_.addChild(p), this.dstpos.bind(this));
         this.move();
       }
 
@@ -5105,9 +5099,9 @@
        * @param {boolean} h 手牌四张true，抓来暗杠false
        */
       ck(h) {
-        let a = this.p_.length * 3, r = rnd_idx(13 - a, 4);
+        let a = this.p_.length * 3, r = rnd_idx(13 - a, 4, a);
         if (!h) {
-          r[3] = 13 - a;
+          r[3] = 13;
         }
         super._ck(h, 3, r, 0, H1SF - H1F, p=>this.f_.addChild(p), this.dstpos.bind(this));
         this.move();
@@ -5120,7 +5114,7 @@
        */
       pk(p, h) {
         let a = this.p_.length * 3;
-        let s = super._pk(p, 3, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13 - a, 0, H1SF - H1F,
+        let s = super._pk(p, 3, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13, 0, H1SF - H1F,
           (o, p)=>{
             let i = this.f_.getChildIndex(o);
             this.f_.addChildAt(p, i);
@@ -8581,7 +8575,7 @@ _tapbg() {
         let p = this.calpos_[n];
         let t = new PIXI.Text(s, {
           fontFamily: 'sans-serif',
-          fontSize: 64,
+          fontSize: 72,
           fontWeight: 'bold',
           fill: '#ffffff',
           stroke: '#000000',
