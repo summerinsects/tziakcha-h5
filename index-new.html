@@ -3385,7 +3385,7 @@
         /** @member {object} 立牌精灵 */
         this.s_ = [];
         /** @member {object} 副露数据 */
-        this.p_ = []; 
+        this.p_ = [];
       }
 
       /**
@@ -3396,14 +3396,6 @@
         this.f_.children.forEach(e=>e.dsty());
         this.f_.removeChildren();
         this.s_.forEach(e=>e.visible = false);
-      }
-
-      /**
-       * 添加一张副露 如要addChildAt(0)，则重写此函数
-       * @param {object} p 牌张精灵
-       */
-      addpt(p) {
-        this.f_.addChild(p);
       }
 
       /**
@@ -3471,8 +3463,10 @@
        * @param {array} s 立牌
        * @param {array} p 副露
        * @param {number} n 当前是哪个玩家
+       * @param {function(object):void} ad 添加副露牌张结点的回调函数
+       * @param {function(number,number):array} dp 获取最终应该去到位置的回调函数
        */
-      _setup(s, p, n) {
+      _setup(s, p, n, ad, dp) {
         // 立牌
         let o = p ? p.length * 3 : 0;
         this.s_.forEach((e, i)=>{
@@ -3512,10 +3506,10 @@
           }
 
           // 添加新结点
-          s.forEach(this.addpt.bind(this));
+          s.forEach(ad);
 
           // 设置位置
-          this.dstpos(c, z).forEach((p, i)=>s[i].position = p);
+          dp(c, z).forEach((p, i)=>s[i].position = p);
 
           this.p_.push(e);
         });
@@ -3529,8 +3523,10 @@
        * @param {array} r 来源下标
        * @param {number} x 偏移x
        * @param {number} y 偏移y
+       * @param {function(object):void} ad 添加副露牌张结点的回调函数
+       * @param {function(number,number):array} dp 获取最终应该去到位置的回调函数
        */
-      _c(p, o, n, r, x, y) {
+      _c(p, o, n, r, x, y, ad, dp) {
         let t = pk_tl(p);  // 关键牌
 
         // 执行动画的精灵数组
@@ -3541,11 +3537,11 @@
         this.p_.push(p);
 
         // 添加新结点
-        s.forEach(this.addpt.bind(this));
+        s.forEach(ad);
 
         // 根据横放的牌张，计算应去的位置
-        let d = this.dstpos(0, 0);
-        
+        let d = dp(0, 0);
+
         // 执行动画
 
         // 设置初始位置
@@ -3581,9 +3577,6 @@
         shft_ahd(g, r[0] + a);
         shft_ahd(g, r[1] + a);
         shft_ahd(g, 13);
-
-        // 移动手牌各自实现
-        this.move();
       }
 
       /**
@@ -3594,8 +3587,10 @@
        * @param {array} r 来源下标
        * @param {number} x 偏移x
        * @param {number} y 偏移y
+       * @param {function(object):void} ad 添加副露牌张结点的回调函数
+       * @param {function(number,number):array} dp 获取最终应该去到位置的回调函数
        */
-       _p(p, o, n, r, x, y) {
+       _p(p, o, n, r, x, y, ad, dp) {
         let t = pk_tl(p);  // 关键牌
 
         // 执行动画的精灵数组
@@ -3606,11 +3601,11 @@
         this.p_.push(p);
 
         // 添加新结点
-        s.forEach(this.addpt.bind(this));
+        s.forEach(ad);
 
         // 根据横放的牌张，计算应去的位置
-        let d = this.dstpos(1, z);
-        
+        let d = dp(1, z);
+
         switch (z) {
         case 1:
           // 把供牌张交换到下标0位置
@@ -3659,9 +3654,6 @@
         shft_ahd(g, r[0] + a);
         shft_ahd(g, r[1] + a);
         shft_ahd(g, 13);
-
-        // 移动手牌各自实现
-        this.move();
       }
 
       /**
@@ -3672,8 +3664,10 @@
        * @param {array} r 来源下标
        * @param {number} x 偏移x
        * @param {number} y 偏移y
+       * @param {function(object):void} ad 添加副露牌张结点的回调函数
+       * @param {function(number,number):array} dp 获取最终应该去到位置的回调函数
        */
-      _dk(p, o, n, r, x, y) {
+      _dk(p, o, n, r, x, y, ad, dp) {
         let t = pk_tl(p);  // 关键牌
 
         // 执行动画的精灵数组
@@ -3684,11 +3678,11 @@
         this.p_.push(p);
 
         // 添加新结点
-        s.forEach(this.addpt.bind(this));
+        s.forEach(ad);
 
         // 根据横放的牌张，计算应去的位置
-        let d = this.dstpos(2, z);
-        
+        let d = dp(2, z);
+
         switch (z) {
         case 1:
           // 把供牌张交换到下标0位置
@@ -3736,9 +3730,6 @@
         shft_ahd(g, r[0] + a);
         shft_ahd(g, r[1] + a);
         shft_ahd(g, r[2] + a);
-
-        // 移动手牌各自实现
-        this.move();
       }
 
       /**
@@ -3748,8 +3739,10 @@
        * @param {array} r 来源下标
        * @param {number} x 偏移x
        * @param {number} y 偏移y
+       * @param {function(object):void} ad 添加副露牌张结点的回调函数
+       * @param {function(number,number):array} dp 获取最终应该去到位置的回调函数
        */
-      _ck(p, n, r, x, y) {
+      _ck(p, n, r, x, y, ad, dp) {
         // 执行动画的精灵数组
         let s = [];
         new_ck(n, 0, pk_ofr(p), s);
@@ -3766,10 +3759,10 @@
         }
 
         // 添加新结点
-        s.forEach(this.addpt.bind(this));
+        s.forEach(ad);
 
         // 根据横放的牌张，计算应去的位置
-        let d = this.dstpos(3, 3);
+        let d = dp(3, 3);
 
         // 执行动画
 
@@ -3805,9 +3798,6 @@
         shft_ahd(g, r[1] + a);
         shft_ahd(g, r[2] + a);
         shft_bhd(g, r[3] + a);
-
-        // 移动手牌各自实现
-        this.move();
       }
 
       /**
@@ -3817,12 +3807,14 @@
        * @param {number} r 来源下标
        * @param {number} x 偏移x
        * @param {number} y 偏移y
+       * @param {funtion(object,object):void} ad 添加结点的回调函数
+       * @param {function(object):object} ps 获取位置的回调函数
        */
-      _pk(p, n, r, x, y) {
+      _pk(p, n, r, x, y, ad, ps) {
         // 查找应该加在哪组明刻上
         let t = pk_tl(p);
-        let o = this.f_.children.find(e=>e.pr_ && e.pr_ === t)
-        if (typeof s === 'undefined') {
+        let o = this.f_.children.find(e=>e.pr_ && e.pr_ === t);  // 测试时去掉牌张检测
+        if (typeof o === 'undefined') {
           tz.reenter();
           return;
         }
@@ -3830,10 +3822,10 @@
         //this.p_[] = p;  // 修改
 
         delete o.pr_;
-        let s = o.clone();
+        let s = new PIXI.Sprite(new PIXI.Texture(o.texture, o.texture.frame));
 
         // 添加新结点
-        this.addpt(s);
+        ad(o, s);
 
         // 手牌来源
         let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
@@ -3850,15 +3842,16 @@
         q.visible = false;
 
         // 执行动画
-        new TWEEN.Tween(s).to(d, DSDT).start();
+        let d = ps(o);
+        new TWEEN.Tween(s).to({x:d['x'], y:d['y']}, DSDT).start();
 
-        shft_ahd(this.s_, r + a);
+        // 测试归位
+        setTimeout(()=>new TWEEN.Tween(s).to({x:d['dx'], y:d['dy']}, DSDT).start(), 3000);
 
-        // 移动手牌各自实现
-        this.move();
+        shft_bhd(this.s_, r + a);
 
-        s.dx_ = 0;
-        s.dy_ = 0;
+        s.dx_ = d['dx'];
+        s.dy_ = d['dy'];
 
         return s;
       }
@@ -4129,7 +4122,7 @@
           }
         });
 
-        super._setup(s, p, 0);
+        super._setup(s, p, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
       }
 
       /**
@@ -4235,7 +4228,8 @@
           }
           return r;
         })();
-        super._c(p, o, 0, r, 0, 0);
+        super._c(p, o, 0, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -4260,7 +4254,8 @@
           r[1] = st_find_n(b, r[0] + 1, tm);
           return r;
         })();
-        super._p(p, o, 0, r, 0, 0);
+        super._p(p, o, 0, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -4285,7 +4280,8 @@
           r[2] = st_find_f(b, r[1] + 1, t);
           return r;
         })();
-        super._dk(p, o, 0, r, 0, 0);
+        super._dk(p, o, 0, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -4310,7 +4306,8 @@
           r[3] = st_find_f(b, r[2] + 1, t);
           return r;
         })();
-        super._ck(p, 0, r, 0, 0);
+        super._ck(p, 0, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -4323,11 +4320,19 @@
         let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
 
         // 测试：随机选择手里的牌张
-        //let r = (Math.trunc(Math.random() * (14 - a)) + a);
+        //let r = Math.trunc(Math.random() * (14 - a));
 
         // 精准查找手里的牌张
         let r = st_find_f(this.s_, a, t);
-        super._pk(p, 0, r, 0, 0);
+        let s = super._pk(p, 0, r, 0, 0,
+          (o, p)=>{
+            let i = this.f_.getChildIndex(o);
+            this.f_.addChildAt(p, i);
+          },
+          p=>({x:p.x, y:(p.y - H1 - GP), dx:p.x, dy:(p.y - H1)})
+        );
+        this.move();
+        return s;
       }
     }
     HdCtn0.W = W0 * 14 + GP;
@@ -4429,14 +4434,6 @@
       }
 
       /**
-       * 添加一张副露 如要addChildAt(0)，则重写此函数
-       * @param {object} p 牌张精灵
-       */
-      addpt(p) {
-        this.f_.addChildAt(p, 0);
-      }
-
-      /**
        * 抓牌效果
        * @param {number} i 抓牌到手上第几张
        * @param {object} o 牌墙上牌张的坐标
@@ -4479,7 +4476,7 @@
        * @param {array} p 副露
        */
       setup(s, p) {
-        super._setup(s, p, 1);
+        super._setup(s, p, 1, p=>this.f_.addChildAt(p, 0), this.dstpos.bind(this));
       }
 
       /**
@@ -4559,7 +4556,8 @@
        */
       c(p, o) {
         let a = this.p_.length * 3;
-        super._c(p, o, 1, rnd_idx(13 - a, 2), W1S - W1, H1F - H1SF);
+        super._c(p, o, 1, rnd_idx(13 - a, 2), W1S - W1, H1F - H1SF, p=>this.f_.addChildAt(p, 0), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -4569,7 +4567,8 @@
        */
       p(p, o) {
         let a = this.p_.length * 3;
-        super._p(p, o, 1, rnd_idx(13 - a, 2), W1S - W1, H1F - H1SF);
+        super._p(p, o, 1, rnd_idx(13 - a, 2), W1S - W1, H1F - H1SF, p=>this.f_.addChildAt(p, 0), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -4579,7 +4578,8 @@
        */
       dk(p, o) {
         let a = this.p_.length * 3;
-        super._dk(p, o, 1, rnd_idx(13 - a, 3), W1S - W1, H1F - H1SF);
+        super._dk(p, o, 1, rnd_idx(13 - a, 3), W1S - W1, H1F - H1SF, p=>this.f_.addChildAt(p, 0), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -4591,7 +4591,8 @@
         if (!h) {
           r[3] = 13 - a;
         }
-        super._ck(h, 1, r, W1S - W1, H1F - H1SF);
+        super._ck(h, 1, r, W1S - W1, H1F - H1SF, p=>this.f_.addChildAt(p, 0), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -4601,7 +4602,15 @@
        */
       pk(p, h) {
         let a = this.p_.length * 3;
-        super._pk(p, 1, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13, W1S - W1, H1F - H1SF);
+        let s = super._pk(p, 1, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13 - a, W1S - W1, H1F - H1SF,
+          (o, p)=>{
+            let i = this.f_.getChildIndex(o);
+            this.f_.addChildAt(p, i);
+          },
+          p=>({x:0, y:p.y, dx:GP, dy:p.y})
+        );
+        this.move();
+        return s;
       }
     }
     // 一行布局
@@ -4713,7 +4722,7 @@
        * @param {array} p 副露
        */
       setup(s, p) {
-        super._setup(s, p, 2);
+        super._setup(s, p, 2, p=>this.f_.addChild(p), this.dstpos.bind(this));
       }
 
       /**
@@ -4791,7 +4800,8 @@
        */
       c(p, o) {
         let a = this.p_.length * 3;
-        super._c(p, o, 2, rnd_idx(13 - a, 2), 0, 0);
+        super._c(p, o, 2, rnd_idx(13 - a, 2), 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -4801,7 +4811,8 @@
        */
       p(p, o) {
         let a = this.p_.length * 3;
-        super._p(p, o, 2, rnd_idx(13 - a, 2), 0, 0);
+        super._p(p, o, 2, rnd_idx(13 - a, 2), 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -4811,7 +4822,8 @@
        */
       dk(p, o) {
         let a = this.p_.length * 3;
-        super._dk(p, o, 2, rnd_idx(13 - a, 3), 0, 0);
+        super._dk(p, o, 2, rnd_idx(13 - a, 3), 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -4823,7 +4835,8 @@
         if (!h) {
           r[3] = 13 - a;
         }
-        super._ck(h, 2, r, 0, 0);
+        super._ck(h, 2, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -4833,7 +4846,15 @@
        */
       pk(p, h) {
         let a = this.p_.length * 3;
-        super._pk(p, 2, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13, 0, 0);
+        let s = super._pk(p, 2, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13 - a, 0, 0,
+          (o, p)=>{
+            let i = this.f_.getChildIndex(o);
+            this.f_.addChildAt(p, i + 1);
+          },
+          p=>({x:p.x, y:(H1 + GP), dx:p.x, dy:H1})
+        );
+        this.move();
+        return s;
       }
     }
     HdCtn2.W = FW0 + W0 * 2 + GP * 2;
@@ -4967,7 +4988,7 @@
        * @param {array} p 副露
        */
       setup(s, p) {
-        super._setup(s, p, 3);
+        super._setup(s, p, 3, p=>this.f_.addChild(p), this.dstpos.bind(this));
       }
 
       /**
@@ -5045,7 +5066,8 @@
        */
       c(p, o) {
         let a = this.p_.length * 3;
-        super._c(p, o, 3, rnd_idx(13 - a, 2), 0, H1SF - H1F);
+        super._c(p, o, 3, rnd_idx(13 - a, 2), 0, H1SF - H1F, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -5055,7 +5077,8 @@
        */
       p(p, o) {
         let a = this.p_.length * 3;
-        super._p(p, o, 3, rnd_idx(13 - a, 2), 0, H1SF - H1F);
+        super._p(p, o, 3, rnd_idx(13 - a, 2), 0, H1SF - H1F, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -5065,7 +5088,8 @@
        */
       dk(p, o) {
         let a = this.p_.length * 3;
-        super._dk(p, o, 3, rnd_idx(13 - a, 3), 0, H1SF - H1F);
+        super._dk(p, o, 3, rnd_idx(13 - a, 3), 0, H1SF - H1F, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -5077,7 +5101,8 @@
         if (!h) {
           r[3] = 13 - a;
         }
-        super._ck(h, 3, r, 0, H1SF - H1F);
+        super._ck(h, 3, r, 0, H1SF - H1F, p=>this.f_.addChild(p), this.dstpos.bind(this));
+        this.move();
       }
 
       /**
@@ -5087,7 +5112,15 @@
        */
       pk(p, h) {
         let a = this.p_.length * 3;
-        super._pk(p, 3, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13, 0, H1SF - H1F);
+        let s = super._pk(p, 3, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13 - a, 0, H1SF - H1F,
+          (o, p)=>{
+            let i = this.f_.getChildIndex(o);
+            this.f_.addChildAt(p, i);
+          },
+          p=>({x:(W0 + GP), y:p.y, dx:W0, dy:p.y})
+        );
+        this.move();
+        return s;
       }
     }
     // 一行布局
@@ -8911,7 +8944,7 @@ _tapbg() {
           this.onstgchg(r);
           break;
         case 6:  // 抓牌
-          this.ondraw(r);  
+          this.ondraw(r);
           break;
         case 7:  // 出牌
           this.ondscd(r);
