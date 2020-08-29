@@ -2378,11 +2378,19 @@
       }
 
       /**
-       * 设置掉线状态
+       * 设置连接状态
        * @param {boolean} l 掉线状态
        */
       set conn(l) {
         this.l_.visible = !l;
+      }
+
+      /**
+       * 获取连接状态
+       * @param {boolean} l 掉线状态
+       */
+      get conn() {
+        return !this.l_.visible;
       }
 
       /**
@@ -2398,7 +2406,7 @@
        * @return {number} 错和状态
        */
       get flswn() {
-        return w_.visible;
+        return this.w_.visible;
       }
     }
     UsrBrf.W = 180;
@@ -2972,7 +2980,7 @@
        * 设置点击回调
        * @param {function(StTl):void} f 点击回调
        */
-      set cb(f) {
+      setcb(f) {
         this.cb_ = f;
       }
     }
@@ -6574,7 +6582,7 @@
        */
       setup(n) {
         this.nt_.forEach((e, i)=>{ e.visible = true; e.text = n[i]; });
-        this.gt_.forEach(e=>{ e.visible = true; e.text = s; });
+        this.gt_.forEach(e=>{ e.visible = true; e.text = ''; });
         this.bf_.fill([]);  // NOTE: 可能有问题
       }
 
@@ -7141,11 +7149,11 @@ return;
 
             // 使牌张也能点击
             t0.interactive = true;
-            t0.cb = function(n, c) {
+            t0.setcb(function(n, c) {
               if (!(c.sel = c.astl_.visible = !c.sel)) {
                 this.cba_[n].sel = false;
               }
-            }.bind(this, n, c);
+            }.bind(this, n, c));
           }
         };
         row1(0, 9);
