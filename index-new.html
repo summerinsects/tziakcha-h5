@@ -412,7 +412,7 @@
           'snd/06-discard.wav',
           'snd/08-inquire.wav',
           'snd/09-cpk.wav',
-          'snd/10-win.wav',
+          //'snd/10-win.wav',
           'snd/12-flower-m.wav',
           'snd/13-flower-f.wav',
           'snd/14-chow-m.wav',
@@ -1838,7 +1838,6 @@
         //      自摸 和牌 摸打
         // 补花 不吃 不碰 不杠  >
         let cg = new Array(7);
-        let st = new Array(7), x = 0;
         [
           {f:'AutoFlower', p:{x:0,y:160}},
           {f:'NoChow', p:{x:200,y:160}},
@@ -1848,24 +1847,56 @@
           {f:'AutoHu', p:{x:400,y:0}},
           {f:'AutoDiscard', p:{x:600,y:0}}
         ].forEach((e, i)=>{
-          let f = tz.ls(e['f']);
-          let c = cg[i] = new ChkBoxL(200, 160, f, c=>c.v_ = c.sel);
+          let c = cg[i] = new ChkBoxL(200, 160, tz.ls(e['f']), c=>c.v_ = c.sel);
           r.addChild(c);
           c.position = e['p'];
+        });
+        this.cg_ = cg;
+        this.sh_ = false;
 
-          let t = st[i] = new PIXI.Text('['+ f.replace(/\n/g, ' ') +']', bs);
+        // 折起来之后的小文字
+        // 排两行
+        let st = new Array(7), x = 0, y = 0;
+        [
+          'SelfDrawnOnly', 'AutoHu', 'AutoDiscard'
+        ].forEach((e, i)=>{
+          let t = st[4 + i] = new PIXI.Text('['+ tz.ls(e).replace(/\n/g, ' ') +']', bs);
           s.addChild(t);
           t.x = x;
           x += t.width + 10;
         });
-        this.cg_ = cg;
+        [
+          'AutoFlower', 'NoChow', 'NoPung', 'NoKong'
+        ].forEach((e, i)=>{
+          let t = st[i] = new PIXI.Text('['+ tz.ls(e).replace(/\n/g, ' ') +']', bs);
+          s.addChild(t);
+          t.x = x;
+          t.y = 40
+          x += t.width + 10;
+        });
         this.st_ = st;
-        this.sh_ = false;
         r.visible = false;
 
-        s.pivot.x = x;
+        (()=>{
+          // 右对齐
+          let w = s.width, w1 = st[3].x + st[3].width;
+          if (w1 < w) {
+            let d = w - w1;
+            for (let i = 0; i < 4; ++i) {
+              st[i].x += d;
+            }
+          }
+          w1 = st[6].x + st[6].width;
+          if (w1 < w) {
+            let d = w - w1;
+            for (let i = 4; i < 7; ++i) {
+              st[i].x += d;
+            }
+          }
+          s.pivot.x = w;
+        })();
         s.x = OptPop.W - 200;
-        s.y = OptPop.H - 30;
+        s.y = OptPop.H - 70;
 
         // 折叠/展开按钮
         let b = new TxtBtn('\u25b2', {
@@ -3415,9 +3446,10 @@
         this.f_.removeChildren();
         this.s_.forEach(e=>e.visible = false);
         this.o_.children.forEach(e=>e.dsty());
-        //this.g_.forEach(e=>e.dsty());
+        //this.g_.forEach(e=>e.dsty());  // TODO:
         this.g_ = [];
         this.o_.removeChildren();
+        this.c_.visible = true;
       }
 
       /**
@@ -3599,6 +3631,8 @@
         shft_ahd(g, r[0]);
         shft_ahd(g, r[1]);
         shft_ahd(g, 13);
+
+        tz.play('snd/09-cpk.wav');
       }
 
       /**
@@ -3676,6 +3710,8 @@
         shft_ahd(g, r[0]);
         shft_ahd(g, r[1]);
         shft_ahd(g, 13);
+
+        tz.play('snd/09-cpk.wav');
       }
 
       /**
@@ -3752,6 +3788,8 @@
         shft_ahd(g, r[0]);
         shft_ahd(g, r[1]);
         shft_ahd(g, r[2]);
+
+        tz.play('snd/09-cpk.wav');
       }
 
       /**
@@ -3820,6 +3858,8 @@
         shft_ahd(g, r[1]);
         shft_ahd(g, r[2]);
         shft_bhd(g, r[3]);
+
+        tz.play('snd/09-cpk.wav');
       }
 
       /**
@@ -3875,6 +3915,7 @@
         s.dx_ = d['dx'];
         s.dy_ = d['dy'];
 
+        tz.play('snd/09-cpk.wav');
         return s;
       }
 
@@ -3906,7 +3947,7 @@
        * @param {array} s 立牌
        * @param {array} p 副露
        * @param {number} t 和牌张
-       * @param {boolean} m 定时移走
+       * @param {number} m 定时移走
        * @param {number} n 当前是哪个玩家
        * @param {funtion(object,object):void} js 添加摊开立牌结点的回调函数
        * @param {funtion(object,object):void} jp 添加摊开副露结点的回调函数
@@ -3916,9 +3957,9 @@
         const PT0 = PT[n], WA0 = WA[n & 1];
 
         // 立牌
-        let a = this.p_.length * 3;
+        let a = (p && p.length) ? p.length * 3 : 0;
         s.forEach((e, i)=>{
-          let o = this.s_[i], q = (e !== 255) ? new PT0(e) : WA0();
+          let o = this.s_[i + a], q = (e !== 255) ? new PT0(e) : WA0();
           js(q, o);
           this.g_.push(q);
         });
@@ -3949,8 +3990,15 @@
           });
         }
 
+        this.c_.visible = false;
         if (m) {
-
+          setTimeout(()=>{
+            this.c_.visible = true;
+            this.o_.children.forEach(e=>e.dsty());
+            //this.g_.forEach(e=>e.dsty());
+            this.g_ = [];
+            this.o_.removeChildren();
+          }, m);
         }
       }
     }
@@ -4463,7 +4511,7 @@
        * @param {array} s 立牌
        * @param {array} p 副露
        * @param {number} t 和牌张
-       * @param {boolean} m 定时移走
+       * @param {number} m 定时移走
        */
       open(s, p, t, m) {
         super._open(s, p, t, m, 0, (n, o)=>{
@@ -4773,7 +4821,7 @@
        * @param {array} s 立牌
        * @param {array} p 副露
        * @param {number} t 和牌张
-       * @param {boolean} m 定时移走
+       * @param {number} m 定时移走
        */
       open(s, p, t, m) {
         super._open(s, p, t, m, 1, (n, o)=>{
@@ -5049,7 +5097,7 @@
        * @param {array} s 立牌
        * @param {array} p 副露
        * @param {number} t 和牌张
-       * @param {boolean} m 定时移走
+       * @param {number} m 定时移走
        */
       open(s, p, t, m) {
         super._open(s, p, t, m, 2, (n, o)=>{
@@ -5348,7 +5396,7 @@
        * @param {array} s 立牌
        * @param {array} p 副露
        * @param {number} t 和牌张
-       * @param {boolean} m 定时移走
+       * @param {number} m 定时移走
        */
       open(s, p, t, m) {
         super._open(s, p, t, m, 3, (n, o)=>{
@@ -7716,12 +7764,12 @@ return;
         this.wa_.dice(0, [1, 1, 1, 1]);
 
         // 鸣牌字样的位置
-        {
         this.calpos_ = [{x:0,y:0,ax:.5,ay:1},{x:0,y:0,ax:1,ay:.5},{x:0,y:0,ax:.5,ay:0},{x:0,y:0,ax:0,ay:.5}];
         //this.calpos_ = [new PIXI.Sprite(PIXI.Texture.WHITE),new PIXI.Sprite(PIXI.Texture.WHITE),new PIXI.Sprite(PIXI.Texture.WHITE),new PIXI.Sprite(PIXI.Texture.WHITE)];
         //this.calpos_.forEach(e=>{ic.addChild(e); e.width = 200; e.height = 200;});
         //[{x:0,y:0,ax:.5,ay:1},{x:0,y:0,ax:1,ay:.5},{x:0,y:0,ax:.5,ay:0},{x:0,y:0,ax:0,ay:.5}].forEach((e,i)=>{this.calpos_[i].anchor.set(e.ax, e.ay); });
-        }
+        this.catx_ = new Array(4);
+
 
         for (let i = 0; i < 4; ++i) {
           //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[0x21B]);
@@ -8274,7 +8322,7 @@ return;
 
         //this.addcal([0x10000]);
         //262277,262177,219228,219232,202780,327756
-        this.addcal([[262194, 207924, 209976]]);//[5144, 6176]
+        //this.addcal([[262194, 207924, 209976]]);//[5144, 6176]
       }
 
       /**
@@ -8303,7 +8351,11 @@ return;
         this.pl_.forEach(e=>e.init());
         this.ht_.forEach(e=>e.init());
         this.opt1_.init();
+        this.ca1_.visible = false;
+        this.ca2_.visible = false;
+        this.cd_.visible = false;
 
+        this.stpflw_ = false;
         let f = this.fly_;
         if (f) {
           f.dsty();
@@ -8505,6 +8557,11 @@ return;
 
         // 测试归位
         //setTimeout(()=>this._tidy(), DSDT + 3000);
+
+        // 自己打牌后不再阻拦自动补花
+        if (n === 0) {
+          this.stpflw_ = false;
+        }
       }
 
       /**
@@ -8540,6 +8597,7 @@ return;
         }
         let p = !b ? this.wa_.front() : this.wa_.back();
         this.ht_[n].draw(13, p.toGlobal({x:0,y:0}));
+        tz.play('snd/05-draw.wav');
       }
 
       /**
@@ -8824,8 +8882,14 @@ _tapbg() {
        * @param {string} s 文本
        */
       caltxt(n, s) {
+        let t = this.catx_[n];
+        if (t) {
+          // TODO：要先删除动作
+          t.dsty();
+        }
+
         let p = this.calpos_[n];
-        let t = new PIXI.Text(s, {
+        t = this.catx_[n] = new PIXI.Text(s, {
           fontFamily: 'sans-serif',
           fontSize: 84,
           fontWeight: 'bold',
@@ -8850,10 +8914,10 @@ _tapbg() {
         this.ic_.addChild(t);
 
         t.scale.set(2);
-        (new TWEEN.Tween(t)).to({alpha:1}, 100).start();
-        (new TWEEN.Tween(t.scale)).to({x:1,y:1}, 100).onComplete(()=>{
-          (new TWEEN.Tween(t)).to({alpha:0}, 100).delay(1200).start();
-          (new TWEEN.Tween(t.scale)).to({x:2,y:2}, 100).delay(1200).onComplete(()=>{
+        (new TWEEN.Tween(t)).to({alpha:1}, 200).start();
+        (new TWEEN.Tween(t.scale)).to({x:1,y:1}, 200).onComplete(()=>{
+          (new TWEEN.Tween(t)).to({alpha:0}, 200).delay(1500).onComplete(()=>{
+            this.catx_[n] = null;
             t.dsty();
           }).start();
         }).start();
@@ -8964,7 +9028,7 @@ _tapbg() {
         } else {
           // 错和打开手牌给大家看
           let g = h[w];
-          this.ht_[(w + 4 - s) & 3].open(g['s'], g['p'], t);
+          this.ht_[(w + 4 - s) & 3].open(g['s'], g['p'], t, 5000);
         }
       }
 
@@ -9165,6 +9229,7 @@ _tapbg() {
        */
       onwin(r) {
         //r = {d:{f:11,n:[0,0,0,0],p:0,r:0,s:[57,-19,-19,-19],t:[57,-19,-19,-19],w:1},f:2,i:100,m:2,p:{56:4,66:2,70:1,75:1,76:1,81:257},r:12,t:[{s:[12,13,26,28,35,82,83,92,93,94,99,102,104]},{s:[5,21,38,56,58,66,67,79,80,96,119,129,132],{s:[11,22,27,34,45,53,88,90,109,117,121,135,141]},{s:[14,33,42,44,47,60,62,68,87,98,103,114,125]}],v:0,w:81};
+        //{"i":111,"m":2,"r":12,"v":769,"w":62,"f":1,"d":{"r":1,"w":1,"f":21,"p":769,"t":[-8,-29,-8,45],"s":[-8,-29,-8,45],"n":[0,0,0,0]},"t":[{"s":[4,5,24,52,73,81,84,91,102,120,123,133,138]},{"s":[7,14,18,23,48,51,57,58,75,85,87,98,117]},{"s":[22,25,29,34,47,49,74,78,97,100,116,125,141]},{"p":[6221],"s":[0,3,11,13,16,37,43,46,64,70]}],"p":{"28":16,"63":2,"75":1,"77":1,"81":1}}
         let v = r['v'], s = this.cr_.seat, wp = hibyte(v), cp = lobyte(v), n = (wp + 4 - s) & 3;
         let d = r['d'];
         if (!d) {
