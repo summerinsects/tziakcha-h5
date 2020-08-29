@@ -46,6 +46,7 @@
       64,65,66,67,68,69,70,71
     );
     // Seat To Origin
+    // 每盘座位转换为初始座位
     const St2Ogn = [
       Uint8Array.of(0, 1, 2, 3), Uint8Array.of(3, 0, 1, 2), Uint8Array.of(2, 3, 0, 1), Uint8Array.of(1, 2, 3, 0),
       Uint8Array.of(1, 0, 3, 2), Uint8Array.of(0, 3, 2, 1), Uint8Array.of(3, 2, 1, 0), Uint8Array.of(2, 1, 0, 3),
@@ -2330,8 +2331,8 @@
       }
 
       /**
-      * 初始化
-      */
+       * 初始化
+       */
       init() {
         this.flw_ = 0;
         this.f_.text = '\u00D7 0';
@@ -2340,9 +2341,9 @@
       }
 
       /**
-      * 设置名字
-      * @param {string} s 名字
-      */
+       * 设置名字
+       * @param {string} s 名字
+       */
       set name(s) {
         let t = this.n_;
         t.text = s;
@@ -2350,17 +2351,17 @@
       }
 
       /**
-      * 获取名字
-      * @return {string}
-      */
+       * 获取名字
+       * @return {string}
+       */
       get name() {
         return this.n_.text;
       }
 
       /**
-      * 设置花牌数
-      * @param {number} f 花牌数
-      */
+       * 设置花牌数
+       * @param {number} f 花牌数
+       */
       set flower(f) {
         if (this.flw_ !== f) {
           this.flw_ = f;
@@ -2368,24 +2369,36 @@
         }
       }
 
+      /**
+       * 获取花牌数
+       * @return {number} 花牌数
+       */
       get flower() {
         return this.flw_;
       }
 
       /**
-      * 设置掉线状态
-      * @param {boolean} l 掉线状态
-      */
+       * 设置掉线状态
+       * @param {boolean} l 掉线状态
+       */
       set conn(l) {
         this.l_.visible = !l;
       }
 
       /**
-      * 设置错和状态
-      * @param {number} f 错和状态
-      */
+       * 设置错和状态
+       * @param {number} f 错和状态
+       */
       set flswn(f) {
         this.w_.visible = f;
+      }
+
+      /**
+       * 获取错和状态
+       * @return {number} 错和状态
+       */
+      get flswn() {
+        return w_.visible;
       }
     }
     UsrBrf.W = 180;
@@ -3514,8 +3527,10 @@
        * @param {object} o 供牌的起点坐标
        * @param {number} n 当前是哪个玩家
        * @param {array} r 来源下标
+       * @param {number} x 偏移x
+       * @param {number} y 偏移y
        */
-      _c(p, o, n, r) {
+      _c(p, o, n, r, x, y) {
         let t = pk_tl(p);  // 关键牌
 
         // 执行动画的精灵数组
@@ -3540,14 +3555,12 @@
         let m;
         if (n === 0) {
           m = this.c_.scale.x / this.f_.scale.x;
-        } else {
-          r = rnd_idx(13 - a, 2);
         }
         r.forEach((v, i)=>{
           let p = this.s_[a + v];
           // 手牌来源
           let q = s[i + 1];
-          q.position = this.f_.toLocal(p.toGlobal({x:0, y:0}));
+          q.position = this.f_.toLocal(p.toGlobal({x:x, y:y}));
 
           if (n === 0) {
             q.scale.set(m);
@@ -3556,7 +3569,6 @@
 
           // 隐藏手牌
           p.visible = false;
-          p.i_ = -1;
         });
 
         // 执行动画
@@ -3565,9 +3577,9 @@
         });
 
         let g = this.s_;
-        g[13].i_ = -1;
-        shft_ahd(g, r[0]);
-        shft_ahd(g, r[1]);
+        g[13].visible = false;
+        shft_ahd(g, r[0] + a);
+        shft_ahd(g, r[1] + a);
         shft_ahd(g, 13);
 
         // 移动手牌各自实现
@@ -3580,8 +3592,10 @@
        * @param {object} o 供牌的起点坐标
        * @param {number} n 当前是哪个玩家
        * @param {array} r 来源下标
+       * @param {number} x 偏移x
+       * @param {number} y 偏移y
        */
-       _p(p, o, n, r) {
+       _p(p, o, n, r, x, y) {
         let t = pk_tl(p);  // 关键牌
 
         // 执行动画的精灵数组
@@ -3619,14 +3633,12 @@
         let m;
         if (n === 0) {
           m = this.c_.scale.x / this.f_.scale.x;
-        } else {
-          r = rnd_idx(13 - a, 2);
         }
         r.forEach((v, i)=>{
           let p = this.s_[a + v];
           // 手牌来源
           let q = s[i + 1];
-          q.position = this.f_.toLocal(p.toGlobal({x:0, y:0}));
+          q.position = this.f_.toLocal(p.toGlobal({x:x, y:y}));
 
           if (n === 0) {
             q.scale.set(m);
@@ -3635,7 +3647,6 @@
 
           // 隐藏手牌
           p.visible = false;
-          p.i_ = -1;
         });
 
         // 执行动画
@@ -3644,9 +3655,9 @@
         });
 
         let g = this.s_;
-        g[13].i_ = -1;
-        shft_ahd(g, r[0]);
-        shft_ahd(g, r[1]);
+        g[13].visible = false;
+        shft_ahd(g, r[0] + a);
+        shft_ahd(g, r[1] + a);
         shft_ahd(g, 13);
 
         // 移动手牌各自实现
@@ -3659,8 +3670,10 @@
        * @param {object} o 供牌的起点坐标
        * @param {number} n 当前是哪个玩家
        * @param {array} r 来源下标
+       * @param {number} x 偏移x
+       * @param {number} y 偏移y
        */
-      _dk(p, o, n, r) {
+      _dk(p, o, n, r, x, y) {
         let t = pk_tl(p);  // 关键牌
 
         // 执行动画的精灵数组
@@ -3698,14 +3711,12 @@
         let m;
         if (n === 0) {
           m = this.c_.scale.x / this.f_.scale.x;
-        } else {
-          r = rnd_idx(13 - a, 3);
         }
         r.forEach((v, i)=>{
           let p = this.s_[a + v];
           // 手牌来源
           let q = s[i + 1];
-          q.position = this.f_.toLocal(p.toGlobal({x:0, y:0}));
+          q.position = this.f_.toLocal(p.toGlobal({x:x, y:y}));
 
           if (n === 0) {
             q.scale.set(m);
@@ -3714,7 +3725,6 @@
 
           // 隐藏手牌
           p.visible = false;
-          p.i_ = -1;
         });
 
         // 执行动画
@@ -3723,12 +3733,134 @@
         });
 
         let g = this.s_;
-        shft_ahd(g, r[0]);
-        shft_ahd(g, r[1]);
-        shft_ahd(g, r[2]);
+        shft_ahd(g, r[0] + a);
+        shft_ahd(g, r[1] + a);
+        shft_ahd(g, r[2] + a);
 
         // 移动手牌各自实现
         this.move();
+      }
+
+      /**
+       * 暗杠
+       * @param {number|boolean} p 牌组数据（仅对自己有效）|原本手里四个
+       * @param {number} n 当前是哪个玩家
+       * @param {array} r 来源下标
+       * @param {number} x 偏移x
+       * @param {number} y 偏移y
+       */
+      _ck(p, n, r, x, y) {
+        // 执行动画的精灵数组
+        let s = [];
+        new_ck(n, 0, pk_ofr(p), s);
+
+        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
+        if (n === 0) {
+          let t = pk_tl(p);
+          s[1] = new PlTl0(t);
+          s[2] = new PlTl0(t);
+          this.p_.push(p);
+        }
+        else {
+          this.p_.push(0x300);  // 占位
+        }
+
+        // 添加新结点
+        s.forEach(this.addpt.bind(this));
+
+        // 根据横放的牌张，计算应去的位置
+        let d = this.dstpos(3, 3);
+
+        // 执行动画
+
+        // 设置初始位置
+
+        // 手牌来源
+        let m;
+        if (n === 0) {
+          m = this.c_.scale.x / this.f_.scale.x;
+        }
+        r.forEach((v, i)=>{
+          let p = this.s_[a + v];
+          // 手牌来源
+          let q = s[i];
+          q.position = this.f_.toLocal(p.toGlobal({x:x, y:y}));
+
+          if (n === 0) {
+            q.scale.set(m);
+            new TWEEN.Tween(q.scale).to({x:1,y:1}, DSDT).start();
+          }
+
+          // 隐藏手牌
+          p.visible = false;
+        });
+
+        // 执行动画
+        s.forEach((e, i)=>{
+          new TWEEN.Tween(e).to(d[i], DSDT).start();
+        });
+
+        let g = this.s_;
+        shft_ahd(g, r[0] + a);
+        shft_ahd(g, r[1] + a);
+        shft_ahd(g, r[2] + a);
+        shft_bhd(g, r[3] + a);
+
+        // 移动手牌各自实现
+        this.move();
+      }
+
+      /**
+       * 加杠
+       * @param {number} p 牌组数据
+       * @param {number} n 当前是哪个玩家
+       * @param {number} r 来源下标
+       * @param {number} x 偏移x
+       * @param {number} y 偏移y
+       */
+      _pk(p, n, r, x, y) {
+        // 查找应该加在哪组明刻上
+        let t = pk_tl(p);
+        let o = this.f_.children.find(e=>e.pr_ && e.pr_ === t)
+        if (typeof s === 'undefined') {
+          tz.reenter();
+          return;
+        }
+
+        //this.p_[] = p;  // 修改
+
+        delete o.pr_;
+        let s = o.clone();
+
+        // 添加新结点
+        this.addpt(s);
+
+        // 手牌来源
+        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
+        let q = this.s_[a + r];
+
+        s.position = this.f_.toLocal(q.toGlobal({x:x, y:y}));
+
+        if (n === 0) {
+          s.scale.set(this.c_.scale.x / this.f_.scale.x);
+          new TWEEN.Tween(s.scale).to({x:1,y:1}, DSDT).start();
+        }
+
+        // 隐藏手牌
+        q.visible = false;
+
+        // 执行动画
+        new TWEEN.Tween(s).to(d, DSDT).start();
+
+        shft_ahd(this.s_, r + a);
+
+        // 移动手牌各自实现
+        this.move();
+
+        s.dx_ = 0;
+        s.dy_ = 0;
+
+        return s;
       }
     }
 
@@ -3869,7 +4001,7 @@
        * @param {number} n 抓回来的新牌
        * @param {object} o 牌墙上牌张的坐标
        */
-      rpflw(u, n, o) {console.log('rpflw', u, n, o);
+      rpflw(u, n, o) {
         let s = this.s_;
         let i = s.findIndex(e=>e.visible && e.i_ === u);
         if (i === -1) {
@@ -4103,7 +4235,7 @@
           }
           return r;
         })();
-        super._c(p, o, 0, r);
+        super._c(p, o, 0, r, 0, 0);
       }
 
       /**
@@ -4128,7 +4260,7 @@
           r[1] = st_find_n(b, r[0] + 1, tm);
           return r;
         })();
-        super._p(p, o, 0, r);
+        super._p(p, o, 0, r, 0, 0);
       }
 
       /**
@@ -4153,7 +4285,49 @@
           r[2] = st_find_f(b, r[1] + 1, t);
           return r;
         })();
-        super._dk(p, o, 0, r);
+        super._dk(p, o, 0, r, 0, 0);
+      }
+
+      /**
+       * 暗杠
+       * @param {number} p 牌组数据
+       */
+      ck(p) {
+        let t = pk_tl(p);  // 关键牌
+
+        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
+
+        // 测试：随机选择手里的牌张
+        //let r = rnd_idx(14 - a, 4);
+
+        // 精准查找手里的牌张
+        let r = (()=>{
+          let r = new Int8Array(4);
+          let b = this.s_;
+          r[0] = st_find_f(b, a, t);
+          r[1] = st_find_f(b, r[0] + 1, t);
+          r[2] = st_find_f(b, r[1] + 1, t);
+          r[3] = st_find_f(b, r[2] + 1, t);
+          return r;
+        })();
+        super._ck(p, 0, r, 0, 0);
+      }
+
+      /**
+       * 加杠
+       * @param {number} p 牌组数据
+       */
+      pk(p) {
+        let t = pk_tl(p);  // 关键牌
+
+        let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
+
+        // 测试：随机选择手里的牌张
+        //let r = (Math.trunc(Math.random() * (14 - a)) + a);
+
+        // 精准查找手里的牌张
+        let r = st_find_f(this.s_, a, t);
+        super._pk(p, 0, r, 0, 0);
       }
     }
     HdCtn0.W = W0 * 14 + GP;
@@ -4384,7 +4558,8 @@
        * @param {object} o 供牌的起点坐标
        */
       c(p, o) {
-        super._c(p, o, 1);
+        let a = this.p_.length * 3;
+        super._c(p, o, 1, rnd_idx(13 - a, 2), W1S - W1, H1F - H1SF);
       }
 
       /**
@@ -4393,7 +4568,8 @@
        * @param {object} o 供牌的起点坐标
        */
       p(p, o) {
-        super._p(p, o, 1);
+        let a = this.p_.length * 3;
+        super._p(p, o, 1, rnd_idx(13 - a, 2), W1S - W1, H1F - H1SF);
       }
 
       /**
@@ -4402,75 +4578,30 @@
        * @param {object} o 供牌的起点坐标
        */
       dk(p, o) {
-        super._dk(p, o, 1);
+        let a = this.p_.length * 3;
+        super._dk(p, o, 1, rnd_idx(13 - a, 3), W1S - W1, H1F - H1SF);
       }
 
       /**
        * 暗杠
        * @param {boolean} h 手牌四张true，抓来暗杠false
-       * @param {boolean} f 动画效果
        */
-      ck(h, f) {
-        // 执行动画的精灵数组
-        let s = [];
-        for (let i = 0; i < 4; ++i) {
-          let p = wall1();
-          if (i === 1 || i === 2) p.ck_ = true;
-          s.push(p);
+      ck(h) {
+        let a = this.p_.length * 3, r = rnd_idx(13 - a, 4);
+        if (!h) {
+          r[3] = 13 - a;
         }
+        super._ck(h, 1, r, W1S - W1, H1F - H1SF);
+      }
 
-        // 添加新结点
-        s.forEach(p=>this.f_.addChildAt(p, 0));
-
-        // 本次副露起始位置
-        let y = this.y_ - GF - (H1 * 4);
-        this.y_ = y;
-
-        // 需要执行动画
-        if (f) {
-          let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
-
-          let o = h ? rnd_idx(13 - a, 4) : rnd_idx(13 - a, 3);  // 随机选择手牌来源
-          if (!h) o.push(13 - a);
-
-          // 设置初始位置
-          o.forEach((v, i)=>{
-            let p = this.s_[v + a];
-            // 手牌来源 TODO
-            s[i].position = this.f_.toLocal(p.toGlobal({x:(W1S - W1), y:(H1SF - H1F)}));
-            // 隐藏手牌
-            p.visible = false;
-            p.i_ = (v !== 13 - a) ? -1 : 255;
-          });
-
-          // 执行动画
-          s.forEach((e, i)=>{
-            new TWEEN.Tween(e).to({x:(W0 * 2 - W1), y:(y + H1 * (3 - i))}, DSDT).start();
-          });
-
-          // 移动手牌
-          this.s_.sort(function(a, b) { return (a.i_ || 0) - (b.i_ || 0); });
-          this.s_.forEach((p, i)=>{
-            let y = H1 * (13 - i);
-            if (i !== 0) y += GP;
-            if (p.y !== y) {
-              if (p.visible) {
-                new TWEEN.Tween(p).to({y:y}, DSDT).start();
-              }
-              else {
-                p.y = y;
-              }
-            }
-          });
-        }
-        // 否则直接放在该去的位置
-        else {
-          // 设置位置
-          s.forEach((e, i)=>e.position.set(W0 * 2 - W1, y + H1 * (3 - i)));
-        }
-
-        // 占位
-        this.p_.push(0x300);
+      /**
+       * 加杠
+       * @param {number} p 牌组数据
+       * @param {boolean} h 手牌的true，抓来的false
+       */
+      pk(p, h) {
+        let a = this.p_.length * 3;
+        super._pk(p, 1, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13, W1S - W1, H1F - H1SF);
       }
     }
     // 一行布局
@@ -4659,7 +4790,8 @@
        * @param {object} o 供牌的起点坐标
        */
       c(p, o) {
-        super._c(p, o, 2);
+        let a = this.p_.length * 3;
+        super._c(p, o, 2, rnd_idx(13 - a, 2), 0, 0);
       }
 
       /**
@@ -4668,7 +4800,8 @@
        * @param {object} o 供牌的起点坐标
        */
       p(p, o) {
-        super._p(p, o, 2);
+        let a = this.p_.length * 3;
+        super._p(p, o, 2, rnd_idx(13 - a, 2), 0, 0);
       }
 
       /**
@@ -4677,7 +4810,30 @@
        * @param {object} o 供牌的起点坐标
        */
       dk(p, o) {
-        super._dk(p, o, 2);
+        let a = this.p_.length * 3;
+        super._dk(p, o, 2, rnd_idx(13 - a, 3), 0, 0);
+      }
+
+      /**
+       * 暗杠
+       * @param {boolean} h 手牌四张true，抓来暗杠false
+       */
+      ck(h) {
+        let a = this.p_.length * 3, r = rnd_idx(13 - a, 4);
+        if (!h) {
+          r[3] = 13 - a;
+        }
+        super._ck(h, 2, r, 0, 0);
+      }
+
+      /**
+       * 加杠
+       * @param {number} p 牌组数据
+       * @param {boolean} h 手牌的true，抓来的false
+       */
+      pk(p, h) {
+        let a = this.p_.length * 3;
+        super._pk(p, 2, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13, 0, 0);
       }
     }
     HdCtn2.W = FW0 + W0 * 2 + GP * 2;
@@ -4888,7 +5044,8 @@
        * @param {object} o 供牌的起点坐标
        */
       c(p, o) {
-        super._c(p, o, 3);
+        let a = this.p_.length * 3;
+        super._c(p, o, 3, rnd_idx(13 - a, 2), 0, H1SF - H1F);
       }
 
       /**
@@ -4897,7 +5054,8 @@
        * @param {object} o 供牌的起点坐标
        */
       p(p, o) {
-        super._p(p, o, 3);
+        let a = this.p_.length * 3;
+        super._p(p, o, 3, rnd_idx(13 - a, 2), 0, H1SF - H1F);
       }
 
       /**
@@ -4906,75 +5064,30 @@
        * @param {object} o 供牌的起点坐标
        */
       dk(p, o) {
-        super._dk(p, o, 3);
+        let a = this.p_.length * 3;
+        super._dk(p, o, 3, rnd_idx(13 - a, 3), 0, H1SF - H1F);
       }
 
       /**
        * 暗杠
        * @param {boolean} h 手牌四张true，抓来暗杠false
-       * @param {boolean} f 动画效果
        */
-      ck(h, f) {
-        // 执行动画的精灵数组
-        let s = [];
-        for (let i = 0; i < 4; ++i) {
-          let p = wall1();
-          if (i === 1 || i === 2) p.ck_ = true;
-          s.push(p);
+      ck(h) {
+        let a = this.p_.length * 3, r = rnd_idx(13 - a, 4);
+        if (!h) {
+          r[3] = 13 - a;
         }
+        super._ck(h, 3, r, 0, H1SF - H1F);
+      }
 
-        // 添加新结点
-        s.forEach(p=>this.f_.addChild(p));
-
-        // 本次副露起始位置
-        let y = this.y_;
-        this.y_ = y + GF + (H1 * 4);
-
-        // 需要执行动画
-        if (f) {
-          let a = this.p_.length * 3;  // 已经副露组数*3=已经隐藏的手牌
-
-          let o = h ? rnd_idx(13 - a, 4) : rnd_idx(13 - a, 3);  // 随机选择手牌来源
-          if (!h) o.push(13 - a);
-
-          // 设置初始位置
-          o.forEach((v, i)=>{
-            let p = this.s_[v + a];
-            // 手牌来源
-            s[i].position = this.f_.toLocal(p.toGlobal({x:0, y:0}));
-            // 隐藏手牌
-            p.visible = false;
-            p.i_ = (v !== 13 - a) ? -1 : 255;
-          });
-
-          // 执行动画
-          s.forEach((e, i)=>{
-            new TWEEN.Tween(e).to({x:0, y:(y + H1 * i)}, DSDT).start();
-          });
-
-          // 移动手牌
-          this.s_.sort(function(a, b) { return (a.i_ || 0) - (b.i_ || 0); });
-          this.s_.forEach((p, i)=>{
-            let y = H1 * i;
-            if (i !== 0) y += GP;
-            if (p.y !== y) {
-              if (p.visible) {
-                new TWEEN.Tween(p).to({y:y}, DSDT).start();
-              }
-              else {
-                p.y = y;
-              }
-            }
-          });
-        }
-        // 否则直接放在该去的位置
-        else {
-          // 设置位置
-          s.forEach((e, i)=>e.position.set(0, y + H1 * i));
-        }
-
-        // 占位
-        this.p_.push(0x300);
+      /**
+       * 加杠
+       * @param {number} p 牌组数据
+       * @param {boolean} h 手牌的true，抓来的false
+       */
+      pk(p, h) {
+        let a = this.p_.length * 3;
+        super._pk(p, 3, h ? (Math.trunc(Math.random() * (13 - a)) + a) : 13, 0, H1SF - H1F);
       }
     }
     // 一行布局
@@ -6444,7 +6557,16 @@
        */
       add(o, s, p, t, h, w, f) {
         let st = this.st_[o];
-        // TODO: 转换座位
+
+        // 转换座位
+        function os(o, a) {
+          let i = St2Ogn[o];
+          return [a[i[0]], a[i[1]], a[i[2]], a[i[3]]];
+        }
+        s = os(o, s);
+        p = os(o, p);
+        t = os(o, t);
+
         [
           s[0] + p[0], t[0],
           s[1] + p[1], t[1],
@@ -6464,10 +6586,10 @@
             sd = true;
           } else {
             // 扣得最多的人是点炮
-            let m = 0;
+            let n = 0;
             for (let k = (i + 1) & 3; k != i; k = (k + 1) & 3) {
-              if (s[k] < m) {
-                m = s[k];
+              if (s[k] < n) {
+                n = s[k];
                 sh = k;
               }
             }
@@ -8379,6 +8501,8 @@ return;
        * @param {number} p 副露
        */
       pk(n, p) {
+        this.ht_[n].pk(p);
+
         if (n === 0) {
           this.stpflw_ = true;
         }
@@ -8390,6 +8514,8 @@ return;
        * @param {number} p 副露
        */
       ck(n, p) {
+        this.ht_[n].ck(p);
+
         if (n === 0) {
           this.stpflw_ = true;
         }
@@ -8505,7 +8631,7 @@ _tapbg() {
        * @param {number} f 错和番数
        * @param {object} t 番表
        */
-      fwhint(f, t) {
+      fwtip(f, t) {
         let v = new FalseWin(f, t);
         this.sc_.addChild(v);
         let l = this.lyt_;
@@ -8735,7 +8861,7 @@ _tapbg() {
             console.log('错和');
             if (wp === s) {
               // 自己错和，给出死得瞑目界面
-              this.fwhint(d['f'], r['p']);
+              this.fwtip(d['f'], r['p']);
             }
           } else {
             this.cd_.rm();
