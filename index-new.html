@@ -1548,9 +1548,19 @@
        * @param {boolean} 状态
        */
       tgl(s) {
-        this.sh_ = s;
-        this.r_.visible = s;
-        this.b_.fa_.text = s ? '\u25c0 \u25c4' : '\u25b6';
+        if (this.sh_ !== s) {
+          this.sh_ = s;
+          this.r_.visible = s;
+          this.b_.fa_.text = s ? '\u25c0 \u25c4' : '\u25b6';
+        }
+      }
+
+      /**
+       * 当前是否可用
+       * @return {boolean}
+       */
+      ac() {
+        return this.visible && this.sh_;
       }
 
       /**
@@ -1666,8 +1676,10 @@
        * @param {boolean} 状态
        */
       tgl(s) {
-        this.r_.visible = s;
-        this.b_.fa_.text = s ? '\u25bc' : '\u25b2';
+        if (this.r_.visible !== s) {
+          this.r_.visible = s;
+          this.b_.fa_.text = s ? '\u25bc' : '\u25b2';
+        }
       }
 
       /**
@@ -1779,14 +1791,15 @@
           c.x = 200 * i;
         });
         this.cg_ = cg;
-
+/*
+        // 位置测试
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
         g.drawRect(0, 0, 150, 40);
         g.endFill();
         this.addChild(g);
-
+*/
         OptGrp.H = this.height;
         OptGrp.W = this.width;
       }
@@ -1817,8 +1830,15 @@
       // sh_ = false;  // 是否打开
       // b_ = null;  // 开关按钮
 
-      constructor() {
+      /**
+       * 切换的回调
+       * 由于本界面跟鸣牌有重叠，所以要相互关闭
+       * @param {function(OptPop,boolean):void}
+       */
+      constructor(cb) {
         super();
+
+        this.cb_ = cb;
 
         let r = this.r_ = new PIXI.Container();
         this.addChild(r);
@@ -1871,7 +1891,7 @@
           let t = st[i] = new PIXI.Text('['+ tz.ls(e).replace(/\n/g, ' ') +']', bs);
           s.addChild(t);
           t.x = x;
-          t.y = 40
+          t.y = 40;
           x += t.width + 10;
         });
         this.st_ = st;
@@ -1925,7 +1945,7 @@
        */
       init() {
         this.cg_.forEach((e, i)=>e.v_ = e.sel = (i === 0));
-        this.st_[0].style.stroke = '#0066ff';
+        this.st_.forEach((e, i)=>e.style.stroke = (i !== 0) ? '#000000' : '#0066ff');
       }
 
       /**
@@ -1942,12 +1962,15 @@
        * @param {boolean} 状态
        */
       tgl(s) {
-        this.sh_ = s;
-        this.r_.visible = s;
-        this.s_.visible = !s;
-        this.b_.fa_.text = s ? '\u25bc' : '\u25b2';
-        if (!s) {
-          this.cg_.forEach((e, i)=>this.st_[i].style.stroke = e.v_ ? '#0066ff' : '#000000');
+        if (this.sh_ !== s) {
+          this.sh_ = s;
+          this.r_.visible = s;
+          this.s_.visible = !s;
+          this.b_.fa_.text = s ? '\u25bc' : '\u25b2';
+          if (!s) {
+            this.cg_.forEach((e, i)=>this.st_[i].style.stroke = e.v_ ? '#0066ff' : '#000000');
+          }
+          this.cb_(this, s);
         }
       }
 
@@ -2036,9 +2059,11 @@
        * @param {boolean} 状态
        */
       tgl(s) {
-        this.sh_ = s;
-        this.cg_.forEach(e=>e.visible = s);
-        this.b_.fa_.text = s ? '\u25b2' : '\u25bc';
+        if (this.sh_ !== s) {
+          this.sh_ = s;
+          this.cg_.forEach(e=>e.visible = s);
+          this.b_.fa_.text = s ? '\u25b2' : '\u25bc';
+        }
       }
 
       /**
@@ -2609,13 +2634,15 @@
 
       constructor() {
         super();
-
+/*
+        // 范围测试
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
         g.drawRect(0, 0, Wall0.W, Wall0.H);
         g.endFill();
         this.addChild(g);
+*/
 
         let s = this.s_ = new Array(36);
         for (let i = 0; i < 36; ++i) {
@@ -2644,13 +2671,15 @@
 
       constructor() {
         super();
-
+/*
+        // 范围测试
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
         g.drawRect(0, 0, Wall1.W, Wall1.H);
         g.endFill();
         this.addChild(g);
+*/
 
         let s = this.s_ = new Array(36);
         for (let i = 0; i < 36; ++i) {
@@ -2678,13 +2707,15 @@
 
       constructor() {
         super();
-
+/*
+        // 范围测试
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
         g.drawRect(0, 0, Wall2.W, Wall2.H);
         g.endFill();
         this.addChild(g);
+*/
 
         let s = this.s_ = new Array(36);
         for (let i = 0; i < 36; ++i) {
@@ -2713,13 +2744,15 @@
 
       constructor() {
         super();
-
+/*
+        // 范围测试
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
         g.drawRect(0, 0, Wall3.W, Wall3.H);
         g.endFill();
         this.addChild(g);
+*/
 
         let s = this.s_ = new Array(36);
         for (let i = 0; i < 36; ++i) {
@@ -2857,7 +2890,7 @@
           // 当正序和逆序到达同一墩牌时，信息共用
           fp['o'] = o;
           fp['p'] = p;
-          fp['d'] = (fp['o'] !== bp['o'] || fp['p'] === bp['p']) ? false : bp['d'];
+          fp['d'] = (o !== bp['o'] || p !== bp['p']) ? false : bp['d'];
         }
 
         --this.rem_;
@@ -2879,7 +2912,7 @@
           bp['d'] = true;
 
           // 正序和逆序是同一墩牌
-          if (bp['o'] === fp['o'] && bp['p'] === fp['p']) {
+          if (o === fp['o'] && p === fp['p']) {
             fp['d'] = true;
           }
         }
@@ -2899,7 +2932,7 @@
           // 当正序和逆序到达同一墩牌时，信息共用
           bp['o'] = o;
           bp['p'] = p;
-          bp['d'] = (bp['o'] !== fp['o'] || bp['p'] === fp['p']) ? false : fp['d'];
+          bp['d'] = (o !== fp['o'] || p !== fp['p']) ? false : fp['d'];
         }
 
         --this.rem_;
@@ -3871,17 +3904,18 @@
        * @param {number} y 偏移y
        * @param {funtion(object,object):void} ad 添加结点的回调函数
        * @param {function(object):object} ps 获取位置的回调函数
+       * @return {JSON} {s:牌张精灵，p:{目标位置}}
        */
       _pk(p, n, r, x, y, ad, ps) {
         // 查找应该加在哪组明刻上
         let t = pk_tl(p);
-        let o = this.f_.children.find(e=>e.pr_ && e.pr_ === t);  // 测试时去掉牌张检测
+        let o = this.f_.children.find(e=>e.pr_ && e.i_ === t);  // 测试时去掉牌张检测
         if (typeof o === 'undefined') {
           tz.reenter();
           return;
         }
 
-        //this.p_[] = p;  // TODO：修改
+        //this.p_[] = p;  // TODO：修改副露数据
 
         delete o.pr_;
         let s = new PIXI.Sprite(new PIXI.Texture(o.texture, o.texture.frame));
@@ -3908,7 +3942,7 @@
         new TWEEN.Tween(s).to({x:d['x'], y:d['y']}, DSDT).onComplete(e=>e.filters = []).start();
 
         // NOTE：测试归位
-        setTimeout(()=>new TWEEN.Tween(s).to({x:d['dx'], y:d['dy']}, DSDT).start(), 3000);
+        //setTimeout(()=>new TWEEN.Tween(s).to({x:d['dx'], y:d['dy']}, DSDT).start(), 3000);
 
         shft_bhd(this.s_, r);
 
@@ -3916,7 +3950,7 @@
         s.dy_ = d['dy'];
 
         tz.play('snd/09-cpk.wav');
-        return s;
+        return {s:s, p:{x:d['dx'], y:d['dy']}};
       }
 
       /**
@@ -3973,6 +4007,7 @@
 
         // 副露包含暗杠
         if (p && p.length && p.some(e=>(e & 0xffc0) === 0x200)) {
+          // 因为是直接在子结点中查找暗杠标记的牌，为避免新插入的影响，先复制一份
           let c = this.f_.children, u = new Array(c.length);
           c.forEach((e, i)=>u[i] = e);
           p.forEach(e=>{
@@ -4042,7 +4077,8 @@
         //   t.y = HdCtn0.H - H1F;
         //   f.addChild(t);
         // }
-
+/*
+        // 范围测试
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
@@ -4056,15 +4092,16 @@
         g.drawRect(0, 0, HdCtn0.W, HdCtn0.H);
         g.endFill();
         c.addChild(g);
-
+*/
         // 正序设置
         let s = this.s_;
         for (let i = 0; i < 14; ++i) {
           let p = s[i] = new StTl(i, p=>this._c(p));
-          c.addChild(p);
           p.y = HdCtn0.H - H0F;
           p.x = W0 * i;
           if (i === 13) p.x += GP;
+          c.addChild(p);
+          p.visible = false;
         }
 
         this.x_ = 0;
@@ -4107,9 +4144,24 @@
 
       /**
        * 获取摸到的牌
-      */
+       * @return {number} 牌张索引
+       */
       wt() {
         return this.s_[13].i_;
+      }
+
+      /**
+       * 是否能打牌
+       */
+      candscd() {
+        return this.s_[13].visible;
+      }
+
+      /**
+       * 外部调用点击某张牌
+       */
+      clk(i) {
+        this._c(this.s_[i]);
       }
 
       /**
@@ -4476,6 +4528,7 @@
       /**
        * 加杠
        * @param {number} p 牌组数据
+       * @return {JSON} {s:牌张精灵，p:{目标位置}}
        */
       pk(p) {
         let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
@@ -4589,7 +4642,8 @@
         //   t.y = H1 * 3 + (H1 * 3 + H0 + GF) * i;
         //   f.addChild(t);
         // }
-
+/*
+        // 范围测试
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
@@ -4597,13 +4651,13 @@
         g.endFill();
         this.addChild(g);
 
-        /*let*/ g = new PIXI.Graphics();
+        let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
         g.drawRect(0, 0, HdCtn1.W, FH1);
         g.endFill();
         f.addChild(g);
-
+*/
         // 逆序设置
         let s = this.s_;
         for (let i = 0; i < 14; ++i) {
@@ -4612,6 +4666,7 @@
           p.y = H1 * i;
           if (i !== 0) p.y += GP;
           c.addChild(p);
+          p.visible = false;
         }
 
         f.y = H1SF - H1F + (H1 + GP) * 2;
@@ -4793,6 +4848,7 @@
        * 加杠
        * @param {number} p 牌组数据
        * @param {boolean} h 手牌的true，抓来的false
+       * @return {JSON} {s:牌张精灵，p:{目标位置}}
        */
       pk(p, h) {
         let a = this.p_.length * 3;
@@ -4876,12 +4932,15 @@
         //   f.addChild(t);
         // }
 
+/*
+        // 范围测试
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
         g.drawRect(0, 0, HdCtn2.W, HdCtn2.H);
         g.endFill();
         this.addChild(g);
+*/
 
         // 逆序设置
         let s = this.s_;
@@ -4890,6 +4949,7 @@
           p.x = W0 * i;
           if (i !== 0) p.x += GP;
           c.addChild(p);
+          p.visible = false;
         }
 
         f.x = HdCtn2.W - FW0;
@@ -5069,6 +5129,7 @@
        * 加杠
        * @param {number} p 牌组数据
        * @param {boolean} h 手牌的true，抓来的false
+       * @return {JSON} {s:牌张精灵，p:{目标位置}}
        */
       pk(p, h) {
         let a = this.p_.length * 3;
@@ -5173,12 +5234,15 @@
         // t.y = H1 * 13 + GP;
         // c.addChild(t);
 
+/*
+        // 范围测试
         let g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
         g.drawRect(0, 0, HdCtn3.W, HdCtn3.H);
         g.endFill();
         this.addChild(g);
+*/
 
         // 正序设置
         let s = this.s_;
@@ -5187,6 +5251,7 @@
           p.y = H1 * i;
           if (i === 13) p.y += GP;
           c.addChild(p);
+          p.visible = false;
         }
 
         // 4组直杠比立牌放倒多出来的空间，就是手牌的起始位置
@@ -5368,6 +5433,7 @@
        * 加杠
        * @param {number} p 牌组数据
        * @param {boolean} h 手牌的true，抓来的false
+       * @return {JSON} {s:牌张精灵，p:{目标位置}}
        */
       pk(p, h) {
         let a = this.p_.length * 3;
@@ -5465,9 +5531,10 @@
             y += H0;
             x = 0;
           }
-          //p.visible = false;
+          p.visible = false;
         }
 
+        // 范围测试
         // let g = new PIXI.Graphics();
         // g.lineStyle(2, 0x0000FF, 1);
         // g.beginFill(0xFF00BB, .25);
@@ -5499,9 +5566,10 @@
             x += W1;
             y = H1 * 11;
           }
-          //p.visible = false;
+          p.visible = false;
         }
 
+        // 范围测试
         // let g = new PIXI.Graphics();
         // g.lineStyle(2, 0x0000FF, 1);
         // g.beginFill(0xFF00BB, .25);
@@ -5533,9 +5601,10 @@
             y -= H0;
             x = W0 * 11;
           }
-          //p.visible = false;
+          p.visible = false;
         }
 
+        // 范围测试
         // let g = new PIXI.Graphics();
         // g.lineStyle(2, 0x0000FF, 1);
         // g.beginFill(0xFF00BB, .25);
@@ -5567,9 +5636,10 @@
             x -= W1;
             y = 0;
           }
-          //p.visible = false;
+          p.visible = false;
         }
 
+        // 范围测试
         // let g = new PIXI.Graphics();
         // g.lineStyle(2, 0x0000FF, 1);
         // g.beginFill(0xFF00BB, .25);
@@ -5966,7 +6036,7 @@
      */
     class WinHand extends PIXI.Container {
       /**
-       * @param {object} h 手牌
+       * @param {JSON} h 手牌
        * @param {number} w 和牌
        * @param {number} f 花牌数
        */
@@ -6076,6 +6146,8 @@
           t.y = 15;
         }
 
+/*
+        // 范围测试
         {
         let bg = new PIXI.Graphics();
         this.addChild(bg);
@@ -6084,6 +6156,7 @@
         bg.drawRect(0, 0, x, h0);
         bg.endFill();
         }
+*/
       }
     }
 
@@ -6101,7 +6174,7 @@
     /**
      * 创建番表每行3个
      * @param {number} w 宽度
-     * @param {object} f 番表
+     * @param {JSON} f 番表
      */
     function fan_tbl3(w, f) {
       let c = new PIXI.Container();
@@ -6142,10 +6215,10 @@
       // ns = ['东','南','西','北']
       // vs = 1
       /**
-       * @param {object} h 手牌
+       * @param {JSON} h 手牌
        * @param {number} w 和牌
-       * @param {object} f 番表
-       * @param {object} d 详情
+       * @param {JSON} f 番表
+       * @param {JSON} d 详情
        * @param {array} n 玩家名字
        * @param {number} v 视角
        * @param {number} c 倒时计
@@ -6435,7 +6508,7 @@
 
       /**
        * @param {number} n 番数
-       * @param {object} f 番表
+       * @param {JSON} f 番表
        */
       constructor(n, f) {
         super();
@@ -6557,7 +6630,7 @@
     class WinBrf extends PIXI.Container {
       /**
        * @param {number} r 盘序
-       * @param {object} b 和牌详情
+       * @param {JSON} b 和牌详情
        */
       constructor(r, b) {
         super();
@@ -6879,9 +6952,9 @@
        * @param {array} s 本盘得分
        * @param {array} p 本盘罚分
        * @param {array} t 累计
-       * @param {object} h 手牌
+       * @param {JSON} h 手牌
        * @param {number} w 和牌张
-       * @param {object} f 番表
+       * @param {JSON} f 番表
        */
       add(o, s, p, t, h, w, f) {
         let st = this.st_[o];
@@ -6965,10 +7038,10 @@
        * @param {number} l 初始分
        * @param {number} b 负底分（底分的相反数）
        */
+/*
       show(n, s, p, o, l, b) {
         this.visible = true;
-return;
-/*
+
         let nt = this.nt_, gt = this.gt_, st = this.st_, hb = this.hb_;
 
         let tl = new Int16Array(4).fill(l);  // 每盘结束后的分数
@@ -7023,8 +7096,8 @@ return;
           t = gt[i];
           t.text = tl[i];
         }
-*/
       }
+*/
 
       /**
        * 关闭和牌简介
@@ -7053,7 +7126,8 @@ return;
             this.wb_ = null;
           }
 
-//let d = {"f":8,"h":{"p":[0x21B],"s":[69,70,75,76,81,97,104,105,106,107,100]},"t":{"44":8,"46":8,"55":4,"56":4,"58":4,"60":2,"61":2,"64":2,"66":2,"67":2,"72":1,"73":1,"75":1,"78":1,"81":0x101}};
+          // 测试数据
+          //let d = {"f":8,"h":{"p":[0x21B],"s":[69,70,75,76,81,97,104,105,106,107,100]},"t":{"44":8,"46":8,"55":4,"56":4,"58":4,"60":2,"61":2,"64":2,"66":2,"67":2,"72":1,"73":1,"75":1,"78":1,"81":0x101}};
           let d = this.bf_[i];
           if (d && d['f']) {
             let c = this.ic_;
@@ -7571,9 +7645,17 @@ return;
 
       /**
        * 获取设置
+       * @return {JSON}
        */
       opt() {
         return this.opt_;
+      }
+
+      /**
+       * @return {boolean} 右键=弃
+       */
+      rw() {
+        return this.opt_['rw'];
       }
 
       /**
@@ -7603,13 +7685,11 @@ return;
      * @typedef {object} Game
      */
     class Game extends PIXI.Container {
-
-
-
       constructor() {
         super();
 
         (function(){
+/*
           // 透明全屏的按钮，用来监听其他外部的点击事件
           let bg = this.bg_ = new PIXI.Sprite(PIXI.Texture.WHITE);
           bg.alpha = 0;
@@ -7618,30 +7698,15 @@ return;
           bg.interactive = true;
           bg.on('click', this._tapbg.bind(this));
           bg.on('tap', this._tapbg.bind(this));
+*/
+
+          // 牌桌背景
+          let b = this.tbbg_ = new PIXI.Sprite(PIXI.Texture.WHITE);
+          b.tint = 0x89a4c7;
+          b.alpha = .5;
+          this.addChild(b);
+
         }.bind(this))();
-
-      /*{
-        //let p = wall0();
-        //let p = wall1();
-        let p = new StTl(1, s=>console.log(s));
-        //let p = st_tl1();
-        //let p = st_tl2();
-        //let p = st_tl3();
-        //let p = new PlTl0(1);
-        //let p = new PlTl1(1);
-        //let p = new PlTl2(1);
-        //let p = new PlTl3(1);
-        //p.x = p.y = 100;
-        //p.anchor.set(.5);
-        //p.layt();
-        p.updt(80);
-        this.addChild(p);
-
-        let b = new PIXI.filters.BlurFilter();
-        b.blur = 1;
-        p.filters = [b];
-        p.filters = [];
-      }*/
 
         Game.HTI = 40;
 
@@ -7681,7 +7746,7 @@ return;
           //this.dscd(0, p.i_);  // 测试，直接打
           let i = p.i_;
           console.log('discard', i);
-          if (i !== 0xff /*&& this.standing_[0][13].visible*/) {
+          if (i !== 0xff && this.ht_[0].candscd()) {
             tz.ws.send(`{"m":2,"r":2,"v":${i}}`);
             this.cd_.rm();
           }
@@ -7701,14 +7766,15 @@ return;
           Game.WP = W1 * 8 + CtrPnl.W;
           Game.HP = H0 * 6 + H0F * 2 + CtrPnl.H;
 
-          // 背景
+          // 测试背景
+/*
           let bg = new PIXI.Sprite(PIXI.Texture.WHITE);
           bg.tint = 0x89a4c7;
           bg.alpha = .5;
           bg.width = Game.WP;
           bg.height = Game.HP;
           ro.addChild(bg);
-
+*/
           // 中间面板
           let c = this.cr_ = new CtrPnl();
           ro.addChild(c);
@@ -7745,6 +7811,7 @@ return;
           ro.addChild(pl[3]);
           ro.addChild(pl[0]);
 
+/*
           // 测试设置
           for (let i = 0; i < 4; ++i) {
             let u = ub[i];
@@ -7757,6 +7824,7 @@ return;
           c.setup(1, [0, 50, -50, 0]);
           c.remain = 91;
           c.turn = 2;
+*/
         }.bind(this))();
 
         // 四家牌墙
@@ -7770,15 +7838,14 @@ return;
         //[{x:0,y:0,ax:.5,ay:1},{x:0,y:0,ax:1,ay:.5},{x:0,y:0,ax:.5,ay:0},{x:0,y:0,ax:0,ay:.5}].forEach((e,i)=>{this.calpos_[i].anchor.set(e.ax, e.ay); });
         this.catx_ = new Array(4);
 
-
-        for (let i = 0; i < 4; ++i) {
-          //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[0x21B]);
-          //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(0,30,1),mk_pk(0,30,2),mk_pk(0,30,3)]);
-          //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(1,38,1),mk_pk(1,42,2),mk_pk(1,46,3)]);
-          //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(2,50,1),mk_pk(2,54,2),mk_pk(2,58,3),mk_pk(2,62,0)]);
-          ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(2,80,1),mk_pk(2,84,2),mk_pk(2,88,3),mk_pk(2,92,3)]);
-          //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(3,70,1),mk_pk(3,74,2),mk_pk(3,78,3)]);
-        }
+        // 同样的位置放准备按钮
+        this.rdyf_ = new Array(4);
+        this.calpos_.forEach((e, i)=>{
+          let s = this.rdyf_[i] = new PIXI.Sprite(T64.R);
+          this.ic_.addChild(s);
+          s.anchor.set(e['ax'], e['ay']);
+          s.visible = false;
+        });
 
         //['测速', '追分策略', '鸣牌设置', '设置', '计分表']
         let cbs = [
@@ -7808,35 +7875,38 @@ return;
             v.layt(x, y, w, h);
           },
           ()=>{
-            this.hst_.show(['东', '南', '西', '北'],
-              [new Int16Array(16), new Int16Array(16), new Int16Array(16), new Int16Array(16)],
-              [new Int16Array(16), new Int16Array(16), new Int16Array(16), new Int16Array(16)],
-              16, 500, -8);
+            this.hst_.visible = true;
           }
         ];
 
         let v;
         // 手机/PC不同面板
         if (!tz.phn) {
-          v = this.opt1_ = new OptGrp();
-          this.addChild(v);
-
           v = this.hlp_ = new HlpCtn(cbs);
           ic.addChild(v);
 
+          v = this.opt1_ = new OptGrp();
+          this.addChild(v);
+
           v = this.ca1_ = new CalCtn();
           ic.addChild(v);
+          v.visible = false;
         }
         else {
-          // 弹出选项
-          v = this.opt1_ = new OptPop();
+          // 使选项菜单上鸣牌选项上面
+          v = this.hlp_ = new HlpPop(cbs);
           ic.addChild(v);
 
-          v = this.hlp_ = new HlpPop(cbs);
+          v = this.opt1_ = new OptPop((o, s)=>{
+            if (s && this.ca1_.ac()) {
+              this.ca1_.tgl(false);
+            };
+          });
           ic.addChild(v);
 
           v = this.ca1_ = new CalPop();
           ic.addChild(v);
+          v.visible = false;
 
           // 手机钢琴键
           v = this.p3_ = new Piano3(HdCtn0.W, ht[0].s_);
@@ -7850,66 +7920,58 @@ return;
 
         v = this.ca2_ = new CalSel();
         ic.addChild(v);
+        v.visible = false;
 
         v = this.cd_ = new CD();
         ic.addChild(v);
+        v.visible = false;
 
-        // 测试按钮
-        let b = new EptBtn(50, 50, ()=>{
-          // 牌墙测试
-          //let t = this.wa_.back();
-          //console.log('wall', t.position, this.wa_.rem_);
-          //this.cr_.remain = this.wa_.rem_;
+        // 与牌桌大小相等的按钮，置于最顶层，用来监听鼠标右键
+        // NOTE：由于这个优先级高，不能使用这个达到监听外部事件的效果
+        v = this.rcls_ = new PIXI.Sprite(PIXI.Texture.WHITE);
+        v.alpha = 0;
+        this.addChild(v);
 
-          //this.onwin({d:{f:11,n:[0,0,0,0],p:0,r:0,s:[57,-19,-19,-19],t:[57,-19,-19,-19],w:1},f:2,i:100,m:2,p:{56:4,66:2,70:1,75:1,76:1,81:257},r:12,t:[{s:[12,13,26,28,35,82,83,92,93,94,99,102,104]},{s:[5,21,38,56,58,66,67,79,80,96,119,129,132],{s:[11,22,27,34,45,53,88,90,109,117,121,135,141]},{s:[14,33,42,44,47,60,62,68,87,98,103,114,125]}],v:0,w:81});
-          this.cfg_ = {'r30':99};
-          this.onwin({"d":{"f":11,"n":[0,0,0,0],"p":0,"r":0,"s":[57,-19,-19,-19],"t":[57,-19,-19,-19],"w":1},"f":2,"i":100,"m":2,"p":{"56":4,"66":2,"70":1,"75":1,"76":1,"81":257},"r":12,"t":[{"s":[12,13,26,28,35,82,83,92,93,94,99,102,104]},{"s":[5,21,38,56,58,66,67,79,80,96,119,129,132]},{"s":[11,22,27,34,45,53,88,90,109,117,121,135,141]},{"s":[14,33,42,44,47,60,62,68,87,98,103,114,125]}],"v":0,"w":81});
-          //this.onp({v:1,p:2378});
-          return;
-          // 发牌测试
-          this.onxchg(1, [{'n':'东','s':0},{'n':'南','s':0},{'n':'西','s':0},{'n':'北','s':0}]);
-
-          this.init();
-          this.send(0, 3, [
-            Math.trunc(Math.random() * 6) + 1,
-            Math.trunc(Math.random() * 6) + 1,
-            Math.trunc(Math.random() * 6) + 1,
-            Math.trunc(Math.random() * 6) + 1],
-          [1,4,7,109,108,112,58,34,96,25,20,19,35]);
-        });
-        this.addChild(b);
-
-        b = new EptBtn(50, 50, ()=>{
-          // 鸣牌测试
-          let h = this.ht_[3];
-          //h.ca(0x45, {x:0, y:0});  // 吃
-          //h.ca(0x17e, {x:0, y:0});  // 碰上家
-          //h.ca(0x1be, {x:0, y:0});  // 碰对家
-          //h.ca(0x1fe, {x:0, y:0});  // 碰下家
-          //h.ca(0x27e, {x:0, y:0});  // 杠上家
-          //h.ca(0x2be, {x:0, y:0});  // 杠对家
-          //h.ca(0x2fe, {x:0, y:0});  // 杠下家
-          //h.ck(false, true);  // 暗杠
-
-           this.flw123(2);// 碰2378
-          // this.dscd(3, 96, false);
-          // this.draw(1, false);
-        });
-        this.addChild(b);
-        b.y = 100;
-
-        //this.addChild(new Setting2(500, 500));
-        //this.addChild(new Setting(500, 500));
+        v.interactive = true;
+        v.on('rightclick', ()=>this.rclk());
+        // 错误效果
+        //v.on('click', this._tapbg.bind(this));
+        //v.on('tap', this._tapbg.bind(this));
 
         // 所有二级弹出界面的容器结点
         let sc = this.sc_ = new PIXI.Container();
         this.addChild(sc);
 
+        (function(){
+          // 超时标记
+          let t = this.tmot_ = new PIXI.Text(tz.ls('TimeoutHint'), {
+            fontFamily: FF,
+              fontSize: 32,
+              fill: '#dedede',
+              stroke: '#000000',
+              strokeThickness: 2,
+            });
+            t.anchor.set(.5);
+            sc.addChild(t);
+            t.visible = false;
+
+            // 为配合上层容器，实现一个这样的接口
+            t.layt = (x, y, w, h)=>{
+              t.x = x + w * .5;
+              t.y = y + h * .75;
+              scl_txt(t, w - 20);
+            };
+        }.bind(this))();
+
+/*
         // 最顶层的结点，用来监听弹出界面的外部，从而实现点击外面关闭
         let fg = this.fg_ = new PIXI.Sprite(PIXI.Texture.WHITE);
         fg.alpha = .5;
         this.addChild(fg);
         fg.visible = false;
+        fg.interactive = true;
+        fg.on('rightclick', ()=>this.rclk());
+*/
 
         v = this.opt2_ = new CalOpt();
         sc.addChild(v);
@@ -7919,13 +7981,106 @@ return;
         sc.addChild(v);
         v.visible = false;
 
-        v = this.hst_ = new HstTbl(i=>{
-          return {"f":8,"h":{"p":[0x21B],"s":[69,70,75,76,81,97,104,105,106,107,100]},"t":{"44":8,"46":8,"55":4,"56":4,"58":4,"60":2,"61":2,"64":2,"66":2,"67":2,"72":1,"73":1,"75":1,"78":1,"81":0x101}};
-        });
+        v = this.hst_ = new HstTbl();
         sc.addChild(v);
         v.visible = false;
 
+/*
         {
+          {
+            //let p = wall0();
+            //let p = wall1();
+            let p = new StTl(1, s=>console.log(s));
+            //let p = st_tl1();
+            //let p = st_tl2();
+            //let p = st_tl3();
+            //let p = new PlTl0(1);
+            //let p = new PlTl1(1);
+            //let p = new PlTl2(1);
+            //let p = new PlTl3(1);
+            //p.x = p.y = 100;
+            //p.anchor.set(.5);
+            //p.layt();
+            p.updt(80);
+            this.addChild(p);
+
+            let b = new PIXI.filters.BlurFilter();
+            b.blur = 1;
+            p.filters = [b];
+            p.filters = [];
+          }
+
+          for (let i = 0; i < 4; ++i) {
+            ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[0x21B]);
+            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(0,30,1),mk_pk(0,30,2),mk_pk(0,30,3)]);
+            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(1,38,1),mk_pk(1,42,2),mk_pk(1,46,3)]);
+            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(2,50,1),mk_pk(2,54,2),mk_pk(2,58,3),mk_pk(2,62,0)]);
+            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(2,80,1),mk_pk(2,84,2),mk_pk(2,88,3),mk_pk(2,92,3)]);
+            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(3,70,1),mk_pk(3,74,2),mk_pk(3,78,3)]);
+          }
+
+          // 测试按钮
+          let b = new EptBtn(50, 50, ()=>{
+            // 牌墙测试
+            //let t = this.wa_.back();
+            //console.log('wall', t.position, this.wa_.rem_);
+            //this.cr_.remain = this.wa_.rem_;
+
+            this.caltxt(0, '花');
+            return;
+
+            //this.onwin({d:{f:11,n:[0,0,0,0],p:0,r:0,s:[57,-19,-19,-19],t:[57,-19,-19,-19],w:1},f:2,i:100,m:2,p:{56:4,66:2,70:1,75:1,76:1,81:257},r:12,t:[{s:[12,13,26,28,35,82,83,92,93,94,99,102,104]},{s:[5,21,38,56,58,66,67,79,80,96,119,129,132],{s:[11,22,27,34,45,53,88,90,109,117,121,135,141]},{s:[14,33,42,44,47,60,62,68,87,98,103,114,125]}],v:0,w:81});
+            this.cfg_ = {'r30':99};
+            this.pls_ = [
+              {"n":"aaa","l":0,"s":0,"g":0,"o":0,"v":0,"rs":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"rp":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+              {"n":"bbb","l":0,"s":0,"g":0,"o":0,"v":0,"rs":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"rp":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+              {"n":"ccc","l":0,"s":0,"g":0,"o":0,"v":0,"rs":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"rp":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
+              {"n":"ddd","l":0,"s":0,"g":0,"o":0,"v":0,"rs":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"rp":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}
+            ];
+            //this.onwin({"d":{"f":11,"n":[0,0,0,0],"p":0,"r":0,"s":[57,-19,-19,-19],"t":[57,-19,-19,-19],"w":1},"f":2,"i":100,"m":2,"p":{"56":4,"66":2,"70":1,"75":1,"76":1,"81":257},"r":12,"t":[{"s":[12,13,26,28,35,82,83,92,93,94,99,102,104]},{"s":[5,21,38,56,58,66,67,79,80,96,119,129,132]},{"s":[11,22,27,34,45,53,88,90,109,117,121,135,141]},{"s":[14,33,42,44,47,60,62,68,87,98,103,114,125]}],"v":0,"w":81});
+            //this.onp({v:1,p:2378});
+            this.onwin({"i":111,"m":2,"r":12,"v":769,"w":62,"f":1,"d":{"r":1,"w":1,"f":21,"p":769,"t":[-8,-29,-8,45],"s":[-8,-29,-8,45],"n":[0,0,0,0]},"t":[{"s":[4,5,24,52,73,81,84,91,102,120,123,133,138]},{"s":[7,14,18,23,48,51,57,58,75,85,87,98,117]},{"s":[22,25,29,34,47,49,74,78,97,100,116,125,141]},{"p":[6221],"s":[0,3,11,13,16,37,43,46,64,70]}],"p":{"28":16,"63":2,"75":1,"77":1,"81":1}});
+            //this.ontie({"m":2,"r":13,"d":{"r":0,"w":0,"t":[0,0,0,0],"n":[0,0,0,0]},"t":[{"s":[3,10,17,18,25,27,30,45,54,74,76,79,87]},{"s":[19,33,53,56,63,88,102,105,114,117,123,124,140]},{"s":[8,11,22,43,55,75,86,90,93,94,95,108,138]},{"s":[1,12,24,41,47,72,106,110,120,122,125,132,135]}]});
+            return;
+            // 发牌测试
+            this.onxchg(1, [{'n':'东','s':0},{'n':'南','s':0},{'n':'西','s':0},{'n':'北','s':0}]);
+
+            this.init();
+            this.send(0, 3, [
+              Math.trunc(Math.random() * 6) + 1,
+              Math.trunc(Math.random() * 6) + 1,
+              Math.trunc(Math.random() * 6) + 1,
+              Math.trunc(Math.random() * 6) + 1],
+            [1,4,7,109,108,112,58,34,96,25,20,19,35]);
+          });
+          this.addChild(b);
+
+          b = new EptBtn(50, 50, ()=>{
+            // 鸣牌测试
+            let h = this.ht_[0];
+            h.open([69,70,75,76,81,97,104,105,106,107,100],[0x21B],100);
+            //h.win(0x7e, {x:0, y:0});
+            //h.c(0x45, {x:0, y:0});  // 吃
+            //h.p(0x17e, {x:0, y:0});  // 碰上家
+            //h.p(0x1be, {x:0, y:0});  // 碰对家
+            //h.p(0x1fe, {x:0, y:0});  // 碰下家
+            //setTimeout(()=>h.pk(0x1ef, false), 3000);
+            //h.dk(0x27e, {x:0, y:0});  // 杠上家
+            //h.dk(0x2be, {x:0, y:0});  // 杠对家
+            //h.dk(0x2fe, {x:0, y:0});  // 杠下家
+            //h.ck(false);  // 暗杠
+
+            //this.flw123(2);// 碰2378
+            // this.dscd(3, 96, false);
+            // this.draw(1, false);
+          });
+          this.addChild(b);
+          b.y = 100;
+
+          //this.addChild(new Setting2(500, 500));
+          //this.addChild(new Setting(500, 500));
+
+
           // 测试一手和牌
           //let w = new WinHand({"p":[0x21B],"s":[69,70,75,76,81,97,104,105,106,107]},100,5);
           //this.addChild(w);
@@ -7942,17 +8097,19 @@ return;
           // this.sc_.addChild(s);
 
           // 测试错和界面
-          //let f = new FalseWin(1, {"44":8,"46":8,/*"55":4,"56":4,"58":4,"60":2,"61":2,"64":2,"66":2,"67":2,"72":1,"73":1,"75":1,"78":1,"81":0x101*/});
+          //let f = new FalseWin(1, {"44":8,"46":8,/*"55":4,"56":4,"58":4,"60":2,"61":2,"64":2,"66":2,"67":2,"72":1,"73":1,"75":1,"78":1,"81":0x101});
           //this.sc_.addChild(f);
 
           // 测试鸣牌选择界面
-          this.ca2_.setup(5, [0x0001, 0x0102], (a)=>{
+          //this.ca2_.setup(5, [0x0001, 0x0102], (a)=>{
           //this.ca2_.setup(3, [0x21b, 0x21f], (a)=>{
-            console.log('calsel returns', a);
-          });
+          //  console.log('calsel returns', a);
+          //});
 
-          this.cd_.setup(99);
+          // 测试倒计时
+          //this.cd_.setup(99);
         }
+*/
       }
 
       /**
@@ -7962,8 +8119,10 @@ return;
        */
       layt(w, h) {
         console.log('width, height', w, h);
+/*
         this.bg_.width = w;
         this.bg_.height = h;
+*/
 
         let w0 = HdCtn3.W + Pool3.W + CtrPnl.W + Pool1.W + HdCtn1.W,
           h0 = HdCtn2.H + Pool2.H + CtrPnl.H + Pool0.H,
@@ -8292,12 +8451,17 @@ return;
           }
         }
 
-        (function(s, l) {
+        // 桌面背景、右键监听者及所有二级子界面适配
+        (function() {
+          let l = this.lyt_, b = this.tbbg_, r = this.rcls_;
           let x = l['x'], y = l['y'], w = l['w'], h = l['h'];
-          s.children.forEach(v=>v.layt(x, y, w, h));
-        })(this.sc_, this.lyt_);
+          b.x = x; b.y = y; b.width = w; b.height = h;
+          r.x = x; r.y = y; r.width = w; r.height = h;
+          this.sc_.children.forEach(v=>v.layt(x, y, w, h));
+        }.bind(this))();
 
-        // 测试
+/*
+        // 测试范围
         {
           let l = this.lyt_, fg = this.fg_;
           fg.x = l['x'];
@@ -8305,6 +8469,7 @@ return;
           fg.width = l['w'];
           fg.height = l['h'];
         }
+*/
 
         // 牌墙位置
         wa.layt(w0, h0);
@@ -8319,6 +8484,9 @@ return;
         ht[1].y = Math.max(h0 - HdCtn1.H - ht1_yf, 0);
 
         ht[2].x = Math.max(w0 - HdCtn1.W - HdCtn2.W, HdCtn3.W);
+
+        // 准备标记
+        cp.forEach((e, i)=>this.rdyf_[i].position.set(e['x'], e['y']));
 
         //this.addcal([0x10000]);
         //262277,262177,219228,219232,202780,327756
@@ -8335,7 +8503,7 @@ return;
 
       /**
        * 开始
-       * @param {object} 配置
+       * @param {JSON} 配置
        */
       setup(g) {
         this.cfg_ = g;
@@ -8354,6 +8522,7 @@ return;
         this.ca1_.visible = false;
         this.ca2_.visible = false;
         this.cd_.visible = false;
+        this.catx_.forEach(e=>{ if (e) { e.dsty(); }});  // BUG
 
         this.stpflw_ = false;
         let f = this.fly_;
@@ -8540,7 +8709,11 @@ return;
         this.cd_.rm();
         this.rmcal();
 
-        // TODO: 归位旧的飞牌（网络卡顿时会有）
+        // 归位旧的飞牌（网络卡顿时会有）
+        let f = this.fly_;
+        if (f && f.pnd_) {
+          f.pnd_();
+        }
 
         // 从牌池中找一个位置
         let d = this.pl_[n].pick();
@@ -8552,32 +8725,21 @@ return;
         d.updt(t);
 
         // 从手牌中打出
-        let s = this.fly_ = this.ht_[n].dscd(t, h, d);
-        s.dst_ = d;
+        f = this.fly_ = this.ht_[n].dscd(t, h, d);
 
-        // 测试归位
-        //setTimeout(()=>this._tidy(), DSDT + 3000);
+        // 归位回调
+        f.pnd_ = ()=>{
+          this.fly_ = null;
+          d.acpt_ = true;
+          new TWEEN.Tween(f).to({x:d.x, y:d.y}, DRDT).onComplete(()=>{
+            d.visible = true;
+            f.dsty();
+          }).start();
+        };
 
         // 自己打牌后不再阻拦自动补花
         if (n === 0) {
           this.stpflw_ = false;
-        }
-      }
-
-      /**
-       * 使飞牌归位
-       */
-      _tidy() {
-        let s = this.fly_;
-        if (s) {
-          let d = s.dst_;
-          d.acpt_ = true;
-          new TWEEN.Tween(s).to({x:d.x, y:d.y}, DRDT).onComplete(()=>{
-            let s = this.fly_, d = s.dst_;
-            d.visible = true;
-            s.dsty();
-            this.fly_ = null;
-          }).start();
         }
       }
 
@@ -8589,7 +8751,10 @@ return;
        */
       draw(n, b, t) {
         // 使飞牌归位
-        this._tidy();
+        let f = this.fly_;
+        if (f && f.pnd_) {
+          f.pnd_();
+        }
 
         // 摸牌动画
         if (n === 0) {
@@ -8750,6 +8915,7 @@ return;
           c.visible = true;
           if (tz.phn) {
             c.tgl(true);
+            this.opt1_.tgl(false);
           }
           if (!tz.cfg['mutecall']) {
             tz.play('snd/08-inquire.wav');
@@ -8808,6 +8974,11 @@ return;
 
         f.dsty();
         this.fly_ = null;
+
+        this.cr_.turn = n;
+        if (n === 0) {
+          this.cd_.setup(this.cfg_['r30']);
+        }
       }
 
       /**
@@ -8821,6 +8992,11 @@ return;
 
         f.dsty();
         this.fly_ = null;
+
+        this.cr_.turn = n;
+        if (n === 0) {
+          this.cd_.setup(this.cfg_['r30']);
+        }
       }
 
       /**
@@ -8835,6 +9011,8 @@ return;
         f.dsty();
         this.fly_ = null;
 
+        this.cr_.turn = n;
+
         if (n === 0) {
           this.stpflw_ = true;
         }
@@ -8846,7 +9024,17 @@ return;
        * @param {number} p 副露
        */
       pk(n, p) {
-        this.ht_[n].pk(p);
+        let f = this.fly_;
+        if (f && f.pnd_) {
+          f.pnd_();
+        }
+
+        let o = this.ht_[n].pk(p), d = o['p'];
+        f = this.fly_ = o['s'];
+        f.pnd_ = ()=>{
+          this.fly_ = null;
+          new TWEEN.Tween(f).to(d, DRDT).start();
+        };
 
         if (n === 0) {
           this.stpflw_ = true;
@@ -8880,12 +9068,13 @@ _tapbg() {
        * 显示鸣牌字样
        * @param {number} n 玩家
        * @param {string} s 文本
+       * @param {boolean} a 常亮（仅用在和牌后）
        */
-      caltxt(n, s) {
+      caltxt(n, s, a) {
         let t = this.catx_[n];
         if (t) {
-          // TODO：要先删除动作
-          t.dsty();
+          // 直接隐藏就可以了，反正在创建时的TWEEN.Tween动作中会删除
+          t.visible = true;
         }
 
         let p = this.calpos_[n];
@@ -8913,14 +9102,18 @@ _tapbg() {
         t.y = p['y'] + (.5 - p['ay']) * t.height;
         this.ic_.addChild(t);
 
-        t.scale.set(2);
-        (new TWEEN.Tween(t)).to({alpha:1}, 200).start();
-        (new TWEEN.Tween(t.scale)).to({x:1,y:1}, 200).onComplete(()=>{
-          (new TWEEN.Tween(t)).to({alpha:0}, 200).delay(1500).onComplete(()=>{
-            this.catx_[n] = null;
-            t.dsty();
+        if (!a) {
+          t.scale.set(2);
+          (new TWEEN.Tween(t)).to({alpha:1}, 200).start();
+          (new TWEEN.Tween(t.scale)).to({x:1,y:1}, 200).onComplete(()=>{
+            (new TWEEN.Tween(t)).to({alpha:0}, 200).delay(1500).onComplete(()=>{
+              if (this.catx_[n] === t) {
+                this.catx_[n] = null;
+              }
+              t.dsty();
+            }).start();
           }).start();
-        }).start();
+        }
       }
 
       /**
@@ -8943,10 +9136,10 @@ _tapbg() {
       }
 
       /**
-       * @param {object} h 手牌
+       * @param {JSON} h 手牌
        * @param {number} w 和牌张
-       * @param {object} f 番表
-       * @param {object} d 详情
+       * @param {JSON} f 番表
+       * @param {JSON} d 详情
        */
       stl(h, w, f, d){
         let p = this.pls_; 
@@ -8966,10 +9159,6 @@ _tapbg() {
         v.layt(l['x'], l['y'], l['w'], l['h']);
 
         // 把和牌添加到历史记录里
-        console.log('stl h', h);
-        console.log('stl w', w);
-        console.log('stl f', f);
-        console.log('stl d', d);
         this.hst_.add(d['r'], d['s'] || new Uint8Array(4), d['n'], d['t'], h, w, f);
       }
 
@@ -8985,7 +9174,7 @@ _tapbg() {
       /**
        * 显示错和界面
        * @param {number} f 错和番数
-       * @param {object} t 番表
+       * @param {JSON} t 番表
        */
       fwtip(f, t) {
         let v = new FalseWin(f, t);
@@ -9023,21 +9212,52 @@ _tapbg() {
             this.ht_.forEach((e, i)=>{
               let v = (s + i) & 3, g = h[v];
               e.open(g['s'], g['p'], w === v ? t : undefined);
+              if (w === v) {
+                this.caltxt(i, tz.ls('Hu'), true);
+              } else if (c === v) {
+                this.caltxt(i, tz.ls('Shoot'), true);
+              }
             }, DSDT * 3);
           });
         } else {
           // 错和打开手牌给大家看
-          let g = h[w];
-          this.ht_[(w + 4 - s) & 3].open(g['s'], g['p'], t, 5000);
+          let g = h[w], n = (w + 4 - s) & 3;
+          this.ht_[n].open(g['s'], g['p'], t, 5000);
+          this.caltxt(n, tz.ls('FalseHu'));
         }
       }
 
+      /**
+       * 鼠标右键
+       */
+      rclk() {
+        // 正在询问是否要鸣牌
+        if (this.ca1_.visible) {
+          this.rmcal();
+          tz.ws.send(this.opt2_.rw() ? '{"m":2,"r":10,"v":0}' : '{"m":2,"r":9,"v":0}');
+          this.cd_.rm();
+        }
+
+        // 右键出牌
+        if (/*tz.cfg['rightdiscard'] &&*/ this.cr_.self()) {
+          let h = this.ht_[0];
+          if (h.candscd()) {
+            h.clk(13);
+          }
+        }
+      }
+
+      /**
+       * 测速
+       * @param {JSON} r 服务器传回的json
+       */
       echo(r) {
 
       }
 
       /**
        * 开始
+       * @param {JSON} r 服务器传回的json
        */
       onstart(r) {
         this.setup(r['g']);
@@ -9046,6 +9266,7 @@ _tapbg() {
 
       /**
        * 发牌
+       * @param {JSON} r 服务器传回的json
        */
       onsend(r) {
         this.init();
@@ -9055,6 +9276,7 @@ _tapbg() {
 
       /**
        * 询问补花
+       * @param {JSON} r 服务器传回的json
        */
       onask(r) {
         let c = this.cr_;
@@ -9072,6 +9294,7 @@ _tapbg() {
 
       /**
        * 补花
+       * @param {JSON} r 服务器传回的json
        */
       onrpflw(r) {
         let c = this.cr_, v = r['v'], h = r['h'], s = c.seat;
@@ -9098,6 +9321,7 @@ _tapbg() {
 
       /**
        * 开始出牌
+       * @param {JSON} r 服务器传回的json
        */
       onstgchg(r) {
         this.disc_ = true;
@@ -9115,6 +9339,7 @@ _tapbg() {
 
       /**
        * 抓牌
+       * @param {JSON} r 服务器传回的json
        */
       ondraw(r) {
         let v = r['v'], t = r['t'], c = this.cr_, s = c.seat;
@@ -9124,7 +9349,13 @@ _tapbg() {
         if (s === v) {
           // 自己抓牌
           this.cd_.setup(this.cfg_['r30']);
-          this.addcal(r['a']);
+          let a = r['a'];
+          if (a && a.length > 0) {
+            this.addcal(a);
+          }
+          else {
+            this.rmcal();
+          }
         } else {
           // 别人抓牌
           this.rmcal();
@@ -9133,6 +9364,7 @@ _tapbg() {
 
       /**
        * 出牌
+       * @param {JSON} r 服务器传回的json
        */
       ondscd(r) {
         let v = r['v'], a = r['a'], c = this.cr_, s = c.seat;
@@ -9145,6 +9377,7 @@ _tapbg() {
 
       /**
        * 吃牌
+       * @param {JSON} r 服务器传回的json
        */
       onc(r) {
         let v = r['v'], p = r['p'], s = this.cr_.seat, n = (v + 4 - s) & 3;
@@ -9164,6 +9397,7 @@ _tapbg() {
 
       /**
        * 碰牌
+       * @param {JSON} r 服务器传回的json
        */
       onp(r) {
         let v = r['v'], p = r['p'], s = this.cr_.seat, n = (v + 4 - s) & 3;
@@ -9183,6 +9417,7 @@ _tapbg() {
 
       /**
        * 明杠
+       * @param {JSON} r 服务器传回的json
        */
       onmk(r) {
         let v = r['v'], p = r['p'], s = this.cr_.seat, n = (v + 4 - s) & 3;
@@ -9216,6 +9451,7 @@ _tapbg() {
 
       /**
        * 暗杠
+       * @param {JSON} r 服务器传回的json
        */
       onck(r) {
         let v = r['v'], p = r['p'], s = this.cr_.seat, n = (v + 4 - s) & 3;
@@ -9226,8 +9462,10 @@ _tapbg() {
 
       /**
        * 和牌
+       * @param {JSON} r 服务器传回的json
        */
       onwin(r) {
+        // 测试数据
         //r = {d:{f:11,n:[0,0,0,0],p:0,r:0,s:[57,-19,-19,-19],t:[57,-19,-19,-19],w:1},f:2,i:100,m:2,p:{56:4,66:2,70:1,75:1,76:1,81:257},r:12,t:[{s:[12,13,26,28,35,82,83,92,93,94,99,102,104]},{s:[5,21,38,56,58,66,67,79,80,96,119,129,132],{s:[11,22,27,34,45,53,88,90,109,117,121,135,141]},{s:[14,33,42,44,47,60,62,68,87,98,103,114,125]}],v:0,w:81};
         //{"i":111,"m":2,"r":12,"v":769,"w":62,"f":1,"d":{"r":1,"w":1,"f":21,"p":769,"t":[-8,-29,-8,45],"s":[-8,-29,-8,45],"n":[0,0,0,0]},"t":[{"s":[4,5,24,52,73,81,84,91,102,120,123,133,138]},{"s":[7,14,18,23,48,51,57,58,75,85,87,98,117]},{"s":[22,25,29,34,47,49,74,78,97,100,116,125,141]},{"p":[6221],"s":[0,3,11,13,16,37,43,46,64,70]}],"p":{"28":16,"63":2,"75":1,"77":1,"81":1}}
         let v = r['v'], s = this.cr_.seat, wp = hibyte(v), cp = lobyte(v), n = (wp + 4 - s) & 3;
@@ -9263,15 +9501,23 @@ _tapbg() {
 
       /**
        * 荒庄
+       * @param {JSON} r 服务器传回的json
        */
       ontie(r) {
+        // 测试数据
         //{"m":2,"r":13,"d":{"r":0,"w":0,"t":[0,0,0,0],"n":[0,0,0,0]},"t":[{"s":[3,10,17,18,25,27,30,45,54,74,76,79,87]},{"s":[19,33,53,56,63,88,102,105,114,117,123,124,140]},{"s":[8,11,22,43,55,75,86,90,93,94,95,108,138]},{"s":[1,12,24,41,47,72,106,110,120,122,125,132,135]}]}
+        let f = this.fly_;
+        if (f && f.pnd_) {
+          f.pnd_();
+        }
+
         this.shhd(r['t'], true);
         this.stl(null, 0, null, r['d']);
       }
 
       /**
        * 换位
+       * @param {JSON} r 服务器传回的json
        */
       onxchg(r) {
         let v = r['v'], p = r['p'];  // 自己座位（门风），玩家信息
@@ -9291,7 +9537,12 @@ _tapbg() {
         // [{"n":"%s","l":%hhu,"s":%hd,"g":%hhu,"o":%d,"v":%d,"rs":[%hd*16],"rp":[%hd*16]}*4]"
       }
 
+      /**
+       * 消息响应
+       * @param {JSON} r 服务器传回的json
+       */
       onmsg(r) {
+        console.log(JSON.stringify(r));
         let m = r['r'];
         switch (m) {
         case 1:  // 初始化桌子
@@ -9345,6 +9596,7 @@ _tapbg() {
         case 18:  // 玩家离线/上线
           break;
         case 19:  // 超时
+          this.tmot_.visible = true;
           break;
         }
       }
@@ -10001,7 +10253,7 @@ _tapbg() {
 
       /**
        * 测速
-       * @param {object} r 服务器传回的json
+       * @param {JSON} r 服务器传回的json
        */
       echo(r) {
         this.sp_.text = `${new Date().getTime() - r['t']}ms`;
@@ -10187,7 +10439,7 @@ _tapbg() {
 
       /**
        * 刷新大厅状态
-       * @param {object} s 包含空闲、等待、对局、托管四种状态人数的json
+       * @param {JSON} s 包含空闲、等待、对局、托管四种状态人数的json
        */
       _stat(s) {
         if (s) {
@@ -10208,7 +10460,7 @@ _tapbg() {
 
       /**
        * 坐下
-       * @param {object} t 包含桌ID、座位、名字的json
+       * @param {JSON} t 包含桌ID、座位、名字的json
        */
       _sit(t) {
         let i = this._find(t['i']);
@@ -10221,7 +10473,7 @@ _tapbg() {
 
       /**
        * 站起
-       * @param {object} t 包含桌ID、座位的json
+       * @param {JSON} t 包含桌ID、座位的json
        */
       _stand(t) {
         if (typeof t === 'undefined') return;
@@ -10235,7 +10487,7 @@ _tapbg() {
 
       /**
        * 准备
-       * @param {object} t 包含桌ID、座位、准备状态的json
+       * @param {JSON} t 包含桌ID、座位、准备状态的json
        */
       _ready(t) {
         let i = this._find(t['i']);
@@ -10247,7 +10499,7 @@ _tapbg() {
 
       /**
        * 进度
-       * @param {object} t 包含桌ID、进度、总盘数的json
+       * @param {JSON} t 包含桌ID、进度、总盘数的json
        */
       _prog(t) {
         let i = this._find(t['i']);
@@ -10259,7 +10511,7 @@ _tapbg() {
 
       /**
        * 删除桌子
-       * @param {object} t 包含桌ID的json
+       * @param {JSON} t 包含桌ID的json
        */
       _delete(t) {
         let i = this._find(t['i']);
@@ -10381,7 +10633,7 @@ _tapbg() {
      */
     class TblDtl extends PIXI.Container {
       /**
-       * @param {object} d 桌子信息
+       * @param {JSON} d 桌子信息
        * @param {function(number,number,boolean):void} cb 座位回调
        */
       constructor(d, cb) {
