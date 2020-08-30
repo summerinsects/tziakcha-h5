@@ -286,7 +286,7 @@
       app: null,
       ws: null,
       res: null,
-      phn: true,  // 手机PIXI.utils.isMobile.phone
+      phn: false,
       tpvw: null,  // 顶层结点
       game: null,  // 游戏
       lobby: null,  // 大厅
@@ -348,13 +348,20 @@
       strt_load: function() {
         // 显示牌墙：0自动 1有 2无
         // 自动：手机不显示，PC、平板显示
-        let sw = this.cfg['wall'];
-        //this.wall = (typeof sw !== 'number' || sw === 0) ? !tz.phn : (sw === 1);
+        let phn = this.phn = true;//PIXI.utils.isMobile.phone;
+        let sw = this.cfg['wall'] || 0;
 
-        // 手机钢琴键
-        if (tz.phn) {
+        // 手机
+        if (this.phn) {
+          // 牌墙
+          this.wall = (sw === 1);
+
+          // 钢琴键
           let pt = this.cfg['piano'];
           this.piano = (typeof pt === 'number') ? pt : 0;
+        } else {
+          // 牌墙
+          this.wall = (sw !== 2);
         }
 
         // 音量
@@ -1239,11 +1246,11 @@
        */
       layt(x, y, w, h) {
         super.layt();
-        let c = this.ic_;
-        let s = Math.min(w * .75 / XchgRd.W, h * .75 / XchgRd.H, 1);
+        const w0 = XchgRd.W, h0 = XchgRd.H;
+        let c = this.ic_, s = Math.min(w * .75 / w0, h * .75 / h0, 1);
         c.scale.set(s);
-        c.x = x + (w - XchgRd.W * s) * .5;
-        c.y = y + (h - XchgRd.H * s) * .5;
+        c.x = x + (w - w0 * s) * .5;
+        c.y = y + (h - h0 * s) * .5;
         console.log('layout scale XchgRd =', s);
       }
     }
@@ -1915,7 +1922,7 @@
           }
           s.pivot.x = w;
         })();
-        s.x = OptPop.W - 200;
+        s.x = OptPop.W - 210;  // 与按钮间隔10
         s.y = OptPop.H - 70;
 
         // 折叠/展开按钮
@@ -2052,6 +2059,28 @@
         t1.chain(t2);
         t2.chain(t1);
         t1.start();
+
+        // 计时文本
+        let t = this.gt_ = new PIXI.Text('00:00', {
+          fontFamily: FF,
+          fontSize: 22,
+          fill: '#dedede',
+        });
+        b.addChild(t);
+        t.anchor.set(.5);
+        t.x = 100;
+        t.y = 20;
+
+        // 测速文本
+        t = this.ee_ = new PIXI.Text('0ms', {
+          fontFamily: FF,
+          fontSize: 22,
+          fill: '#dedede',
+        });
+        b.addChild(t);
+        t.anchor.set(.5);
+        t.x = 100;
+        t.y = 140;
       }
 
       /**
@@ -2072,6 +2101,41 @@
        */
       get open() {
         return this.sh_;
+      }
+
+      /**
+       * 设置测速文本
+       * @param {number} 时间戳（服务器原样传回来）
+       */
+      spd(t) {
+        this.ee_.text = `${new Date().getTime() - t}ms`;
+      }
+
+      /**
+       * 开始计时
+       * @param {number} 当前时间戳（服务器传过来）
+       */
+      strt(t) {
+        if (this.tm_) {
+          clearInterval(this.tm_);
+        }
+        this.st_ = t;
+        this.tm_ = setInterval(()=>{
+          let s = Math.floor((new Date().getTime() - this.st_) / 1000);
+          let m = Math.floor(s / 60);
+          s -= m * 60;
+          this.gt_.text = `${pad2(m)}:${pad2(s)}`;
+        });
+      }
+
+      /**
+       * 停止计时
+       */
+      stop() {
+        if (this.tm_) {
+          clearInterval(this.tm_);
+          this.tm_ = null;
+        }
       }
     }
     // 2行3列，每个200*160
@@ -2108,6 +2172,61 @@
           this.addChild(b);
         });
         this.btn_ = a;
+
+        // 计时文本
+        let t = this.gt_ = new PIXI.Text('00:00', {
+          fontFamily: FF,
+          fontSize: 22,
+          fill: '#dedede',
+        });
+        this.addChild(t);
+        t.anchor.set(.5);
+        t.x = 40;
+        t.y = 20;
+
+        // 测速文本
+        t = this.ee_ = new PIXI.Text('0ms', {
+          fontFamily: FF,
+          fontSize: 22,
+          fill: '#dedede',
+        });
+        this.addChild(t);
+        t.anchor.set(.5);
+      }
+
+      /**
+       * 设置测速文本
+       * @param {number} 时间戳（服务器原样传回来）
+       */
+      spd(t) {
+        this.ee_.text = `${new Date().getTime() - t}ms`;
+      }
+
+      /**
+       * 开始计时
+       * @param {number} 当前时间戳（服务器传过来）
+       */
+      strt(t) {
+        if (this.tm_) {
+          clearInterval(this.tm_);
+        }
+        this.st_ = t;
+        this.tm_ = setInterval(()=>{
+          let s = Math.floor((new Date().getTime() - this.st_) / 1000);
+          let m = Math.floor(s / 60);
+          s -= m * 60;
+          this.gt_.text = `${pad2(m)}:${pad2(s)}`;
+        });
+      }
+
+      /**
+       * 停止计时
+       */
+      stop() {
+        if (this.tm_) {
+          clearInterval(this.tm_);
+          this.tm_ = null;
+        }
       }
 
       /**
@@ -2116,7 +2235,8 @@
        * @param {number} h
        */
       layt(w, h) {
-        let a = this.btn_;
+        // 按钮120*60
+        let a = this.btn_, t = this.ee_;
         a[0].x = w - 120;
         a[0].y = 70;
         a[1].y = h - 90;
@@ -2124,6 +2244,10 @@
         a[2].x = w - 120;
         a[3].x = w - 120;
         a[4].y = h - 160;
+
+        // 使速度文本与按钮居中对齐
+        t.x = w - 60;
+        t.y = 150;
       }
     }
 
@@ -4317,9 +4441,11 @@
           f.x = c.x = 0;
         }
         c.scale.set(s1);
-        o.scale.set(s1);
         f.y = h - HdCtn0.H * s;
         c.y = h - HdCtn0.H * s1;
+
+        o.scale.set(s1);
+        o.x = c.x;
         o.y = c.y;
         //return s1;
       }
@@ -4651,7 +4777,7 @@
         g.endFill();
         this.addChild(g);
 
-        let g = new PIXI.Graphics();
+        g = new PIXI.Graphics();
         g.lineStyle(2, 0x0000FF, 1);
         g.beginFill(0xFF00BB, .25);
         g.drawRect(0, 0, HdCtn1.W, FH1);
@@ -6488,11 +6614,11 @@
        */
       layt(x, y, w, h) {
         super.layt();
-        let c = this.ic_;
-        let s = Math.min(w * .95 / Settle.W, h * .95 / Settle.H, 1);
+        const w0 = Settle.W, h0 = Settle.H;
+        let c = this.ic_, s = Math.min(w * .95 / w0, h * .95 / h0, 1);
         c.scale.set(s);
-        c.x = x + (w - Settle.W * s) * .5;
-        c.y = y + (h - Settle.H * s) * .5;
+        c.x = x + (w - w0 * s) * .5;
+        c.y = y + (h - h0 * s) * .5;
         console.log('layout scale Settle =', s);
       }
     }
@@ -6622,6 +6748,167 @@
         console.log('layout scale FalseWin =', s);
       }
     }
+
+    /**
+     * 游戏结束界面
+     * @typedef {object} Result
+     */
+    class Result extends PIXI.Container {
+      /**
+       * @param {string} s 标题
+       * @param {number} v 视角
+       * @param {array} p 玩家
+       * @param {Date} u 时间戳（服务器）
+       * @param {function(object):void} cb 关闭回调
+       */
+      constructor(s, v, p, u, cb) {
+        super();
+
+        let g = this.ic_ = new PIXI.Graphics();
+        this.addChild(g);
+
+        // 600*540
+        // 表格与背景边距50，表格行高60
+        // 名次、昵称、得分 列宽80+300+120=500,500+50*2=600
+        const w0 = Result.W, h0 = Result.H;
+
+        g.lineStyle(2, 0x26608C, 1);
+        g.beginFill(0x060F16, .85);
+        g.drawRect(0, 0, w0, h0);
+        g.endFill();
+
+        let cvs = document.createElement('canvas');
+        cvs.width = w0;
+        cvs.height = h0;
+        let ctx = cvs.getContext('2d');
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ffffff';
+        ctx.rect(50, 110, 500, 300);
+
+        // 横线
+        for (let i = 1; i < 5; ++i) {
+          ctx.moveTo(50, 110 + 60 * i);
+          ctx.lineTo(550, 110 + 60 * i);
+        }
+
+        // 竖线
+        ctx.moveTo(130, 110);
+        ctx.lineTo(130, 110 + 60 * 5);
+
+        ctx.moveTo(430, 110);
+        ctx.lineTo(430, 110 + 60 * 5);
+
+        ctx.stroke();
+
+        let sp = new PIXI.Sprite(PIXI.Texture.from(cvs));
+        g.addChild(sp);
+        sp.tint = 0x808080;
+
+        let t = new PIXI.Text(s + '\nGame Result', {
+          fontFamily: FF,
+          fontSize: 32,
+          fill: '#ffffff',
+          stroke: '#0066ff',
+          strokeThickness: 2,
+          align: 'center'
+        });
+        g.addChild(t);
+        t.anchor.set(.5);
+        t.x = w0 * .5;
+        t.y = 60;
+        scl_txt(t, w0 - 20);
+
+        // 每列中心位置
+        const xx = Float32Array.of(90, 280, 490);
+
+        // 表头
+        ['Rank', 'Nickname', 'Scores']
+        .forEach((e, i)=>{
+          let t = new PIXI.Text(tz.ls(e), {
+            fontFamily: FF,
+            fontSize: 24,
+            fill: '#ffffff',
+            stroke: '#0066ff',
+            strokeThickness: 2,
+          });
+          g.addChild(t);
+          t.anchor.set(.5);
+          t.x = xx[i];
+          t.y = 140;
+        });
+
+        p.forEach((e, i)=>{
+          let y = 200 + 60 * i, f = (v !== e['w']);  // 自己显示为青色
+          [i + 1, e['n'], e['s']].forEach((a, k)=>{
+            let t = new PIXI.Text(a, {
+              fontFamily: FF,
+              fontSize: 24,
+              fontWeight: k !== 1 ? 'bold' : '',
+              fill: f ? '#ffffff' : '#5cdbd3'
+            });
+            g.addChild(t);
+            t.x = xx[k];
+            t.y = y;
+            t.anchor.set(.5);
+            if (k === 1) scl_txt(t, 280);
+          });
+        });
+
+        // 时间
+        t = new PIXI.Text(
+          (function(ud) {
+            let y = ud.getFullYear(),
+              m = ud.getMonth() + 1,
+              d = ud.getDate(),
+              h = ud.getHours(),
+              mm = ud.getMinutes(),
+              s = ud.getSeconds(),
+              o = ud.getTimezoneOffset();
+            let oa = Math.abs(o), oh = Math.floor(oa / 60), om = oa - oh * 60;
+            return `${y}-${pad2(m)}-${pad2(d)} ${pad2(h)}:${pad2(mm)}:${pad2(s)}  UTC${o<=0?'+':'-'}${pad2(oh)}:${pad2(om)}`;
+          })(new Date(u)), {
+          fontFamily: FF,
+          fontSize: 20,
+          fill: '#ffffff',
+          stroke: '#0066ff',
+          strokeThickness: 2,
+        });
+        g.addChild(t);
+        t.anchor.set(.5);
+        t.x = w0 * .5;
+        t.y = h0 - 105;
+
+        const w1 = 120, h1 = 50;
+        let b = new TxtBtn('OK', {
+          fontFamily: FF,
+          fontSize: 36,
+          fill: '#ffffff',
+          stroke: '#0066ff',
+          strokeThickness: 2,
+        }, w1, h1, ()=>cb(this));
+        g.addChild(b);
+        b.x = (w0 - w1) * .5;
+        b.y = h0 - h1 - 30;
+      }
+
+      /**
+       * 适配
+       * @param {number} x
+       * @param {number} y
+       * @param {number} w
+       * @param {number} h
+       */
+      layt(x, y, w, h) {
+        const w0 = Result.W, h0 = Result.H;
+        let c = this.ic_, s = Math.min(w * .95 / w0, h * .95 / h0, 1);
+        c.scale.set(s);
+        c.x = x + (w - w0 * s) * .5;
+        c.y = y + (h - h0 * s) * .5;
+        console.log('layout scale Result =', s);
+      }
+    }
+    Result.W = 600;
+    Result.H = 540;
 
     /**
      * 和牌简介
@@ -7170,11 +7457,11 @@
        */
       layt(x, y, w, h) {
         super.layt();
-        let c = this.ic_;
-        let s = Math.min(w * .95 / HstTbl.W, h * .95 / HstTbl.H, 1);
+        const w0 = HstTbl.W, h0 = HstTbl.H;
+        let c = this.ic_, s = Math.min(w * .95 / w0, h * .95 / h0, 1);
         c.scale.set(s);
-        c.x = x + (w - HstTbl.W * s) * .5;
-        c.y = y + (h - HstTbl.H * s) * .5;
+        c.x = x + (w - w0 * s) * .5;
+        c.y = y + (h - h0 * s) * .5;
         console.log('layout scale HstTbl =', s);
       }
     }
@@ -7410,11 +7697,11 @@
        */
       layt(x, y, w, h) {
         super.layt();
-        let c = this.ic_;
-        let s = Math.min(w * .8 / ChsStg.W, h * .8 / ChsStg.H, 1);
+        const w0 = ChsStg.W, h0 = ChsStg.H;
+        let c = this.ic_, s = Math.min(w * .8 / w0, h * .8 / h0, 1);
         c.scale.set(s);
-        c.x = x + (w - ChsStg.W * s) * .5;
-        c.y = y + (h - ChsStg.H * s) * .5;
+        c.x = x + (w - w0 * s) * .5;
+        c.y = y + (h - h0 * s) * .5;
         console.log('layout scale ChsStg =', s);
       }
     }
@@ -7667,11 +7954,11 @@
        */
       layt(x, y, w, h) {
         super.layt();
-        let c = this.ic_;
-        let s = Math.min(w * .95 / CalOpt.W, h * .95 / CalOpt.H, 1);
+        const w0 = CalOpt.W, h0 = CalOpt.H;
+        let c = this.ic_, s = Math.min(w * .95 / w0, h * .95 / h0, 1);
         c.scale.set(s);
-        c.x = x + (w - CalOpt.W * s) * .5;
-        c.y = y + (h - CalOpt.H * s) * .5;
+        c.x = x + (w - w0 * s) * .5;
+        c.y = y + (h - h0 * s) * .5;
         console.log('layout scale CalOpt =', s);
       }
     }
@@ -7706,6 +7993,21 @@
           b.alpha = .5;
           this.addChild(b);
 
+          b.on('rightclick', ()=>this.rclk());
+          //b.on('click', ()=>this._tapbg());
+          //b.on('tap', ()=>this._tapbg());
+
+          // NOTE：本来是想创建一个与牌桌大小相等的按钮，置于最顶层，用来监听鼠标右键
+          // 但由于它优先级高，会把桌面上的牌、按钮的点击事件都拦截了
+          // 所以这里把鼠标右键的事件监听放在桌面背景上
+/*
+          v = this.rcls_ = new PIXI.Sprite(PIXI.Texture.WHITE);
+          v.alpha = 0;
+          this.addChild(v);
+
+          v.interactive = true;
+          v.on('rightclick', (s)=>this.rclk(s));
+*/
         }.bind(this))();
 
         Game.HTI = 40;
@@ -7850,15 +8152,7 @@
         //['测速', '追分策略', '鸣牌设置', '设置', '计分表']
         let cbs = [
           ()=>{
-            console.log('测速');
-            let v = new Setting();
-            this.addChild(v);
-
-            let l = this.lyt_;
-            let s = Math.min(l['w'] / Setting.W, l['h'] / Setting.H, 1);
-            v.scale.set(s);
-            v.x = l['x'] + (l['w'] - Setting.W * s) * .5;
-            v.y = l['y'] + (l['h'] - Setting.H * s) * .5;
+            tz.ws.send(`{"m":5,"t":${new Date().getTime()}}`);
           },
           ()=>{
             this.chs_.show([{'n':'甲','s':0}, {'n':'乙','s':0}, {'n':'丙','s':0}, {'n':'丁','s':0}], [0, 0, 0, 0]);
@@ -7925,18 +8219,6 @@
         v = this.cd_ = new CD();
         ic.addChild(v);
         v.visible = false;
-
-        // 与牌桌大小相等的按钮，置于最顶层，用来监听鼠标右键
-        // NOTE：由于这个优先级高，不能使用这个达到监听外部事件的效果
-        v = this.rcls_ = new PIXI.Sprite(PIXI.Texture.WHITE);
-        v.alpha = 0;
-        this.addChild(v);
-
-        v.interactive = true;
-        v.on('rightclick', ()=>this.rclk());
-        // 错误效果
-        //v.on('click', this._tapbg.bind(this));
-        //v.on('tap', this._tapbg.bind(this));
 
         // 所有二级弹出界面的容器结点
         let sc = this.sc_ = new PIXI.Container();
@@ -8453,10 +8735,10 @@
 
         // 桌面背景、右键监听者及所有二级子界面适配
         (function() {
-          let l = this.lyt_, b = this.tbbg_, r = this.rcls_;
+          let l = this.lyt_, b = this.tbbg_;//, r = this.rcls_;
           let x = l['x'], y = l['y'], w = l['w'], h = l['h'];
           b.x = x; b.y = y; b.width = w; b.height = h;
-          r.x = x; r.y = y; r.width = w; r.height = h;
+          //r.x = x; r.y = y; r.width = w; r.height = h;
           this.sc_.children.forEach(v=>v.layt(x, y, w, h));
         }.bind(this))();
 
@@ -8498,6 +8780,7 @@
        * @param {number} t 当前时间戳（服务器传过来）
        */
       startup(t) {
+        this.hlp_.strt(t);
         this.visible = true;
       }
 
@@ -8523,6 +8806,7 @@
         this.ca2_.visible = false;
         this.cd_.visible = false;
         this.catx_.forEach(e=>{ if (e) { e.dsty(); }});  // BUG
+        this.rdyf_.forEach(e=>e.visible = false);
 
         this.stpflw_ = false;
         let f = this.fly_;
@@ -9148,12 +9432,12 @@ _tapbg() {
         let v = this.stl_ = new Settle(h, w, f, d, [p[0]['n'], p[1]['n'], p[2]['n'], p[3]['n']],
           this.cr_.seat, this.cfg_['r30'], (v)=>{
           // 对局未结束，点OK就是准备；结束了就显示结束界面
-          // if (!this.rp_) {
+          if (!this.rslt_) {
              tz.ws.send('{"m":2,"r":8,"v":0}');
-          // }
-          // else {
-          //   this.showResult();
-          // }
+          }
+          else {
+            this.rslt_.visible = true;
+          }
           this.xstl();
         });
         this.sc_.addChild(v);
@@ -9254,7 +9538,7 @@ _tapbg() {
        * @param {JSON} r 服务器传回的json
        */
       echo(r) {
-
+        this.hlp_.spd(r['t']);
       }
 
       /**
@@ -9348,19 +9632,11 @@ _tapbg() {
         c.turn = v;
         c.remain = r['h'];
         this.draw((v + 4 - s) & 3, hibyte(t), lobyte(t));
+        this.rmcal();
         if (s === v) {
           // 自己抓牌
           this.cd_.setup(this.cfg_['r30']);
-          let a = r['a'];
-          if (a && a.length > 0) {
-            this.addcal(a);
-          }
-          else {
-            this.rmcal();
-          }
-        } else {
-          // 别人抓牌
-          this.rmcal();
+          this.addcal(r['a']);
         }
       }
 
@@ -9372,7 +9648,7 @@ _tapbg() {
         let v = r['v'], a = r['a'], c = this.cr_, s = c.seat;
         this.dscd((v + 4 - s) & 3, r['t'], r['h']);
         if (a && a.length > 0) {
-          this.cd_.setup(this.cfg_[(c.turn + 1 & 3 === s) ? 'r30' : 'r12']);
+          this.cd_.setup(this.cfg_[((c.turn + 1) & 3) === s ? 'r30' : 'r12']);
           this.addcal(a);
         }
       }
@@ -9540,6 +9816,34 @@ _tapbg() {
       }
 
       /**
+       * 游戏结束
+       * @param {JSON} r 服务器传回的json
+       */
+      onrslt(r) {
+        // 测试数据
+        //r={"p":[{"n":"名字1afsdafsdfafdasafdsfadsfads","l":0,"s":100},{"n":"名字2","l":0,"s":50},{"n":"名字3","l":0,"s":-50},{"n":"名字4","l":0,"s":-100}],"t":0};
+        //this.cfg_={"t":"测试标题"};
+
+        let v = this.rslt_ = new Result(this.cfg_['t'], this.cr_.seat, r['p'], r['t'], (v)=>{
+          v.dsty();
+          this.rslt_ = null;
+
+          // 请求大厅信息
+          tz.ws.send('{"m":1,"r":2}');
+          tz.game.visible = false;
+          tz.lobby.visible = true;
+        });
+        this.sc_.addChild(v);
+        v.visible = false;
+
+        let l = this.lyt_;
+        v.layt(l['x'], l['y'], l['w'], l['h']);
+
+        // 停止一局的计时器
+        this.hlp_.stop();
+      }
+
+      /**
        * 消息响应
        * @param {JSON} r 服务器传回的json
        */
@@ -9592,19 +9896,18 @@ _tapbg() {
         case 15:  // 延时
           break;
         case 16:  // 准备
+          this.rdyf_[(r['v'] + 4 - this.cr_.seat) & 3].visible = true;
           break;
         case 17:  // 对局结束
+          this.onrslt(r);
           break;
         case 18:  // 玩家离线/上线
+          this.ub_[(r['v'] + 4 - this.cr_.seat) & 3].conn = r['c'];
           break;
         case 19:  // 超时
           this.tmot_.visible = true;
           break;
         }
-      }
-
-      stand(s) {
-
       }
 
       recon(r) {
@@ -9795,16 +10098,20 @@ _tapbg() {
        */
       layt(x, y, w, h) {
         super.layt();
-        let c = this.ic_;
-        let s = Math.min(w * .95 / Setting2.W, h * .95 / Setting2.H, 1);
+        const w0 = Setting2.W, h0 = Setting2.H;
+        let c = this.ic_, s = Math.min(w * .95 / w0, h * .95 / h0, 1);
         c.scale.set(s);
-        c.x = x + (w - Setting2.W * s) * .5;
-        c.y = y + (h - Setting2.H * s) * .5;
+        c.x = x + (w - w0 * s) * .5;
+        c.y = y + (h - h0 * s) * .5;
         console.log('layout scale Setting2 =', s);
       }
     }
     Setting2.W = 600;
     Setting2.H = 420;
+
+    // =====================================================================================================
+
+    const LBW = 680, LBH = 700;
 
     /**
      * 全局设置界面
@@ -9814,7 +10121,15 @@ _tapbg() {
       constructor() {
         super();
 
-        const w = 450, h = 390;
+        let c = new PIXI.Sprite(PIXI.Texture.WHITE);
+        c.tint = 0;
+        c.alpha = .5;
+        c.width = LBW;
+        c.height = LBH;
+        this.addChild(c);
+        c.interactive = true;
+
+        const w = 550, h = 560;
 
         let bg = new PIXI.Graphics();
         this.addChild(bg);
@@ -9824,6 +10139,9 @@ _tapbg() {
         bg.drawRect(0, 0, w, h);
         bg.endFill();
         bg.interactive = true;
+
+        bg.x = (LBW - w) * .5;
+        bg.y = (LBH - h) * .5;
 
         // 标题
         let t = new PIXI.Text(tz.ls('Setting'), {
@@ -9846,6 +10164,14 @@ _tapbg() {
           fill: '#ffffff',
           stroke: '#0066ff',
           strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
+        }, bs1 = {
+          fontFamily: FF,
+          fontSize: 14,
+          fill: '#ffffff',
+          // stroke: '#0066ff',
+          // strokeThickness: 2,
           lineJoin: 'round',
           padding: 10
         };
@@ -9900,61 +10226,111 @@ _tapbg() {
         b.x = w - 105;
         b.y = 80 - 17.5;
 
+        t = new PIXI.Text(tz.ls('NeedRefreshHint'), bs);
+        bg.addChild(t);
+        bg.addChild(t);
+        t.anchor.set(.5);
+        scl_txt(t, 510);  // 550-20-20
+        t.x = w * .5;
+        t.y = 120;
+
+        // 语言
+        t = new PIXI.Text(tz.ls('Language'), bs);
+        bg.addChild(t);
+        bg.addChild(t);
+        t.anchor.y = .5;
+        t.x = 20;
+        t.y = 160;
+
+        let g = this.grp0_ = new RdoGrp();
+        [tz.ls('Default'), '简', '繁', 'EN']
+        .forEach((e, i)=>{
+          let cb = new ChkBox(e, ()=>this.grp0_.idx = i);
+          bg.addChild(cb);
+          cb.scale.set(.6);
+          cb.x = t.x + t.width + 10 + 100 * i;
+          cb.y = t.y - 13.5;
+          g.add(cb);
+        });
+        g.idx = tz.cfg['lang'] || 0;
+
+        t = new PIXI.Text(tz.ls('DefaultLangHint'), bs1);
+        bg.addChild(t);
+        bg.addChild(t);
+        t.anchor.y = .5;
+        scl_txt(t, 480);  // 550-50-20
+        t.x = 50;
+        t.y = 190;
+
         // 牌面风格
         t = new PIXI.Text(tz.ls('TileStyle'), bs);
         bg.addChild(t);
         t.anchor.y = .5;
         t.x = 20;
-        t.y = 120;
+        t.y = 230;
 
-        let g = this.grp1_ = new RdoGrp();
+        g = this.grp1_ = new RdoGrp();
 
-        let cb1 = new ChkBox(undefined, ()=>this.grp1_.idx = 0);
-        bg.addChild(cb1);
-        cb1.scale.set(.6);
-        cb1.x = 20;
-        cb1.y = 160;
-        cb1.sel = !tz.tlscp;
-        g.add(cb1);
+        let cb = new ChkBox(tz.ls('Default'), ()=>this.grp1_.idx = 0);
+        bg.addChild(cb);
+        cb.scale.set(.6);
+        cb.x = 20;
+        cb.y = 270;
+        g.add(cb);
+
+        cb = new ChkBox(undefined, ()=>this.grp1_.idx = 1);
+        bg.addChild(cb);
+        cb.scale.set(.6);
+        cb.x = 120;
+        cb.y = 270;
+        g.add(cb);
 
         // 无上角标的示范
-        let tmp = tz.tlscp;
+        let tmp = tz.tlscp;  // 保存原有设置，生成样例后恢复
         tz.tlscp = false;
         [16, 108, 130].forEach((e, i)=>{
           let p = new StTl(e);
           bg.addChild(p);
-          p.x = 55 + W0 * i;
-          p.y = 175 - H0F * .5;
+          p.x = 155 + W0 * i;
+          p.y = 285 - H0F * .5;
         });
         tz.tlscp = tmp;
 
-        let cb2 = new ChkBox(undefined, ()=>this.grp1_.idx = 1);
-        bg.addChild(cb2);
-        cb2.scale.set(.6);
-        cb2.x = 220;
-        cb2.y = 160;
-        cb2.sel = tz.tlscp;
-        g.add(cb2);
+        cb = new ChkBox(undefined, ()=>this.grp1_.idx = 2);
+        bg.addChild(cb);
+        cb.scale.set(.6);
+        cb.x = 320;
+        cb.y = 270;
+        g.add(cb);
 
         // 带上角标的示范
         tz.tlscp = true;
         [16, 108, 130].forEach((e, i)=>{
           let p = new StTl(e);
           bg.addChild(p);
-          p.x = 255 + W0 * i;
-          p.y = 175 - H0F * .5;
+          p.x = 355 + W0 * i;
+          p.y = 285 - H0F * .5;
         });
         tz.tlscp = tmp;
+        g.idx = tz.cfg['tilescript'] || 0;
+
+        t = new PIXI.Text(tz.ls('DefaultTileStyleHint'), bs1);
+        bg.addChild(t);
+        bg.addChild(t);
+        t.anchor.y = .5;
+        scl_txt(t, 480);  // 550-50-20
+        t.x = 50;
+        t.y = 340;
 
         // 显示牌墙
         t = new PIXI.Text(tz.ls('ShowWall'), bs);
         bg.addChild(t);
         t.anchor.y = .5;
         t.x = 20;
-        t.y = 240;
+        t.y = 380;
 
         g = this.grp2_ = new RdoGrp();
-        ['Auto', 'Yes', 'No']
+        ['Default', 'Yes', 'No']
         .forEach((e, i)=>{
           let cb = new ChkBox(tz.ls(e), ()=>this.grp2_.idx = i);
           bg.addChild(cb);
@@ -9963,7 +10339,15 @@ _tapbg() {
           cb.y = t.y - 13.5;
           g.add(cb);
         });
-        g.idx = tz.cfg['wall'];
+        g.idx = tz.cfg['wall'] || 0;
+
+        t = new PIXI.Text(tz.ls('DefaultWallHint'), bs1);
+        bg.addChild(t);
+        bg.addChild(t);
+        t.anchor.y = .5;
+        scl_txt(t, 480);  // 550-50-20
+        t.x = 50;
+        t.y = 410;
 
         if (tz.phn) {
           // 钢琴键尺寸
@@ -9971,10 +10355,10 @@ _tapbg() {
           bg.addChild(t);
           t.anchor.y = .5;
           t.x = 20;
-          t.y = 280;
+          t.y = 450;
 
           g = this.grp3_ = new RdoGrp();
-          ['Auto', '3Tabs', '2Tabs']
+          ['Default', '3Tabs', '2Tabs']
           .forEach((e, i)=>{
             let cb = new ChkBox(tz.ls(e), ()=>this.grp3_.idx = i);
             bg.addChild(cb);
@@ -9983,7 +10367,15 @@ _tapbg() {
             cb.y = t.y - 13.5;
             g.add(cb);
           });
-          g.idx = tz.piano;
+          g.idx = tz.cfg['piano'] || 0;
+
+          t = new PIXI.Text(tz.ls('AutoPianoHint'), bs1);
+          bg.addChild(t);
+          bg.addChild(t);
+          t.anchor.y = .5;
+          scl_txt(t, 480);  // 550-50-20
+          t.x = 50;
+          t.y = 480;
         }
 
         const w1 = 90, h1 = 35;
@@ -9991,15 +10383,17 @@ _tapbg() {
           this.dsty();
         });
         bg.addChild(b);
-        b.x = w * .3 - w1;
+        b.x = w * .25 - w1;
         b.y = h - h1 - 15;
 
         b = new TxtBtn(tz.ls('Confirm'), bs, w1, h1, ()=>{
           let cfg = tz.cfg;
           let v = rb.val;
           cfg['volume'] = v;
+          //console.log('grp0', this.grp0_.idx);
           //console.log('grp1', this.grp1_.idx);
           //console.log('grp2', this.grp2_.idx);
+          cfg['lang'] = this.grp0_.idx;
           cfg['superscript'] = this.grp1_.idx;
           cfg['wall'] = this.grp2_.idx;
           if (tz.phn) {
@@ -10012,16 +10406,12 @@ _tapbg() {
           this.dsty();
         });
         bg.addChild(b);
-        b.x = w * .7;
+        b.x = w * .75;
         b.y = h - h1 - 15;
       }
     }
     Setting.W = 450;
     Setting.H = 390;
-
-    // =====================================================================================================
-
-    const LBW = 680, LBH = 700;
 
     /**
      * 最顶层view
@@ -10132,8 +10522,11 @@ _tapbg() {
         b = new TxtBtn(tz.ls('Home'), bs, 70, h0, ()=>{ window.open('/','_blank'); });
         ic.addChild(b);
 
-        b = new TxtBtn(tz.ls('Lang'), bs, 70, h0, ()=>{
-          //window.open('/1/?lang=en', '_self');
+        b = new TxtBtn(tz.ls('Setting'), bs, 70, h0, ()=>{
+          let v = new Setting();
+          this.ic_.addChild(v);
+          v.x = (LBW - v.width) * .5;
+          v.y = (LBH - v.height) * .5;
         });
         ic.addChild(b);
         b.x = 75;
@@ -11421,17 +11814,40 @@ _tapbg() {
       }, 33.333);
 
       (function(){
+        // 屏蔽系统的右键
         document.oncontextmenu = ()=>false;
 
         tz.load();
-        let s = tz.cfg['superscript'];
+        let s = tz.cfg['superscript'] || 0;
+        let l = tz.cfg['lang'] || 0;
+        if (l === 0) {
+          l = (function(){
+            let l = (new URL(location.href)).searchParams.get('lang');
+            l = l ? l.toLowerCase() : (navigator.language || navigator.browserLanguage).toLowerCase();
+            console.log('lang', l);
+            switch (l) {
+              default: return 1;
+              case 'zh-tw':
+              case 'zh-hk':
+              case 'zh-mo':
+              case 'zh-cht': return 2;
+              case 'en':
+              case 'en-au':
+              case 'en-ca':
+              case 'en-nz':
+              case 'en-ph':
+              case 'en-gb':
+              case 'en-us': return 3;
+            }
+          })();
+        }
 
-        let l = (new URL(location.href)).searchParams.get('lang');
-        l = l ? l.toLowerCase() : (navigator.language || navigator.browserLanguage).toLowerCase();
-        console.log('lang', l);
+        // 中文用户默认不显示上角标，其他语言默认显示
+        // 即中文用户强制显示才显示，非中文用户强制不显示才不显示
+        tz.tlscp = (l !== 3) ? (s === 2) : (s !== 1);
+
         switch (l) {
         default:
-          tz.tlscp = (typeof s !== 'undefined') ? parseInt(s) : 0;
           tz.ltrl = {
             "HTMLTitle" : "雀渣——国标麻将",
             "BrowerNotSupport" : "你的浏览器不支持此游戏",
@@ -11615,12 +12031,18 @@ _tapbg() {
             "CountdownEffects" : "倒计时音效",
             "CallHintEffects" : "鸣牌提示音效",
             "RClickDiscard" : "鼠标右键摸切",
+            "NeedRefreshHint" : "以下设置需要刷新生效",
+            "Language" : "语言",
+            "Default": "默认",
+            "DefaultLangHint" : "默认语言取决于你的浏览器和操作系统",
             "TileStyle" : "牌面样式",
+            "DefaultTileStyleHint" : "非中文用户默认显示上角标",
+            "ShowWall" : "牌墙显示",
+            "DefaultWallHint" : "PC和平板上默认显示牌墙，手机上默认不显示牌墙",
             "PianoSize" : "钢琴键尺寸",
-            "Auto" : "自动",
             "3Tabs" : "三格",
             "2Tabs" : "两格",
-            "ShowWall" : "牌墙显示",
+            "AutoPianoHint" : "默认根据手机的屏幕剩余空间调整",
             "Home" : "主页",
             "Setting" : "设置",
             "Free" : "空闲:",
@@ -11686,23 +12108,19 @@ _tapbg() {
             "VerifyQues" : "验证问题：清一色{1}，\n听牌为（包括已经出现4枚的）"
           };
           break;
-        case 'zh-tw':
-        case 'zh-hk':
-        case 'zh-mo':
-        case 'zh-cht':
-          tz.tlscp = (typeof s !== 'undefined') ? parseInt(s) : 0;
+        case 2:
           tz.ltrl = {
             "HTMLTitle" : "雀渣——國標麻雀",
             "BrowerNotSupport" : "你的瀏覽器不支持此遊戲",
-            "NotSynchronized" : "數據與服務器不同步，請刷新重試",
-            "NetworkError" : "網絡錯誤，請刷新重試",
+            "NotSynchronized" : "數據與伺服器不同步，請重繪重試",
+            "NetworkError" : "網絡錯誤，請重繪重試",
             "NoGambling" : "文明遊戲 禁止賭博",
-            "GameSetting" : "遊戲設置",
+            "GameSetting" : "遊戲設定",
             "Speed" : "測速",
-            "CallOpt" : "鳴牌設置",
+            "CallOpt" : "鳴牌設定",
             "History" : "計分表",
             "Chase" : "追分策略",
-            "TimeoutHint" : "你已超時，服務器自動托管，刷新頁面可解除",
+            "TimeoutHint" : "你已超時，伺服器自動託管，重繪頁面可解除",
             "SabotageAllowed" : "有戰術鳴牌",
             "SabotageDisallowed" : "無戰術鳴牌",
             "ShowHandTiles" : "結束顯示手牌",
@@ -11835,7 +12253,7 @@ _tapbg() {
             "AutoDiscard" : "自動摸打",
             "LoseConnect" : "掉線",
             "FanPoint" : "{1}番",
-            "Tie" : "荒莊",
+            "Tie" : "流局",
             "ShootBrief" : "「{1}」和牌 「{2}」放銃  {3}番",
             "SelfDrawnBrief" : "「{1}」自摸  {2}番",
             "CT" : "本盤",
@@ -11858,7 +12276,7 @@ _tapbg() {
             "D-S" : "對銃",
             "O-S" : "旁銃",
             "ChaseHint" : "自摸：(分差-32) / 4\n對銃：(分差-32) / 2\n旁銃：(分差-32)",
-            "CallOptions" : "鳴牌設置",
+            "CallOptions" : "鳴牌設定",
             "NoPrompt" : "不詢問以下選中的牌：",
             "AllCharacters" : "所有萬子",
             "AllBamboos" : "所有索子",
@@ -11866,7 +12284,7 @@ _tapbg() {
             "AllHonors" : "所有字牌",
             "NoPromptEvenSD" : "自摸也不詢問",
             "RClickWaive" : "鼠標右鍵=棄",
-            "CalOptNote" : "註意：此處的設置優先起效。每盤開始前會重置。",
+            "CalOptNote" : "註意：此處的設定優先起效。每盤開始前會重置。",
             "Cancel" : "取消",
             "Confirm" : "確認",
             "Volume" : "音量",
@@ -11874,18 +12292,24 @@ _tapbg() {
             "CountdownEffects" : "倒計時音效",
             "CallHintEffects" : "鳴牌提示音效",
             "RClickDiscard" : "鼠標右鍵摸切",
+            "NeedRefreshHint" : "以下設定需要重繪生效",
+            "Language" : "語言",
+            "Default": "默認",
+            "DefaultLangHint" : "默認語言取決於你的瀏覽器和作業系統",
             "TileStyle" : "牌面樣式",
+            "DefaultTileStyleHint" : "非中文用戶默認顯示上角標",
+            "ShowWall" : "牌墙顯示",
+            "DefaultWallHint" : "PC和平板上默認顯示牌牆，手機上默認不顯示牌牆",
             "PianoSize" : "鋼琴鍵尺寸",
-            "Auto" : "自動",
             "3Tabs" : "三格",
             "2Tabs" : "兩格",
-            "ShowWall" : "牌墙顯示",
+            "AutoPianoHint" : "默認根據手機的荧幕剩餘空間調整",
             "Home" : "主頁",
-            "Setting" : "設置",
+            "Setting" : "設定",
             "Free" : "空閑:",
             "Waiting" : "等待:",
             "Playing" : "對局:",
-            "Offline" : "托管:",
+            "Offline" : "託管:",
             "NewTable" : "創建牌桌",
             "Prev" : "上一頁",
             "Next" : "下一頁",
@@ -11898,7 +12322,7 @@ _tapbg() {
             "ErrorSeatOccupied" : "這個位置已經有人了",
             "ErrorPassword" : "密碼錯誤",
             "ErrorNotInTable" : "你不在牌桌上",
-            "ErrorLoginElsewhere" : "你已在別處登錄",
+            "ErrorLoginElsewhere" : "你已在別處登入",
             "ErrorTooLong" : "用戶名或密碼過長",
             "ErrorGuestEntry" : "該牌桌不允許遊客賬號加入",
             "ErrorSpecialChars" : "不允許使用特殊字符",
@@ -11906,10 +12330,10 @@ _tapbg() {
             "ErrorNotMatch" : "賬號和密碼不匹配",
             "ErrorVerifyExpired" : "驗證碼已過期",
             "ErrorVerifyAns" : "驗證碼錯誤",
-            "ErrorNotSupport" : "不支持的牌桌配置",
+            "ErrorNotSupport" : "不支持的牌桌配寘",
             "ErrorIP" : "IP限制",
             "ErrorNotActivated" : "賬號未激活",
-            "ErrorAutoLogin" : "自動登錄失敗，請手動登錄",
+            "ErrorAutoLogin" : "自動登入失敗，請手動登入",
             "ErrorEmptyTitle" : "對局名稱不能為空",
             "ErrorTitleLength" : "對局名稱最多40個字符",
             "ErrorPasswordChar" : "密碼只允許數字和字母",
@@ -11940,19 +12364,12 @@ _tapbg() {
             "CancelReady" : "取消準備",
             "Anonymous" : "匿名用戶",
             "InputPassword" : "請輸入密碼",
-            "Login" : "登錄",
+            "Login" : "登入",
             "Password" : "密碼",
             "VerifyQues" : "驗證問題：清一色{1}，\n聽牌為（包括已經出現4枚的）"
           };
           break;
-        case 'en':
-        case 'en-au':
-        case 'en-ca':
-        case 'en-nz':
-        case 'en-ph':
-        case 'en-gb':
-        case 'en-us':
-          tz.tlscp = (typeof s !== 'undefined') ? parseInt(s) : 1;
+        case 3:
           tz.ltrl = {
             "HTMLTitle" : "Tziakcha-Chinese Official Mahjong",
             "BrowerNotSupport" : "Your browser does not support this game",
@@ -12136,12 +12553,18 @@ _tapbg() {
             "CountdownEffects" : "Countdown Effects",
             "CallHintEffects" : "Call Hint Effects",
             "RClickDiscard" : "Right-click for discarding drawing tile",
-            "TileStyle" : "Tile style",
-            "PianoSize" : "Piano Key",
-            "Auto" : "Auto",
+            "NeedRefreshHint" : "The following settings need to be refreshed to take effect",
+            "Language" : "Language",
+            "Default": "Default",
+            "DefaultLangHint" : "The default language depends on your browser and operating system",
+            "TileStyle" : "Tile Style",
+            "DefaultTileStyleHint" : "Non Chinese users will display the superscript by default",
+            "ShowWall" : "Show Wall",
+            "DefaultWallHint" : "Tile walls will display on PC and tablet by default, and not on mobile phone",
+            "PianoSize" : "Piano Size",
             "3Tabs" : "3 Tabs",
             "2Tabs" : "2 Tabs",
-            "ShowWall" : "Tile wall display",
+            "AutoPianoHint" : "The default display is based on the remaining screen space of the phone",
             "Home" : "Home",
             "Setting" : "Setting",
             "Free" : "Free:",
