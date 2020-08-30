@@ -1493,6 +1493,7 @@
       constructor() {
         super();
 
+        // 可被折叠的根结点
         let r = this.r_ = new PIXI.Container();
         this.addChild(r);
 
@@ -1548,6 +1549,19 @@
         t1.chain(t2);
         t2.chain(t1);
         t1.start();
+
+        // 指示文本
+        let s = this.s_ = new PIXI.Text('', {
+          fontFamily: FF,
+          fontSize: 24,
+          fill: '#dedede',
+          stroke: '#0066ff',
+          strokeThickness: 2,
+        });
+        this.addChild(s);
+        s.anchor.x = 1;
+        s.x = CalPop.W - 210;
+        s.y = 130;
       }
 
       /**
@@ -1559,6 +1573,7 @@
           this.sh_ = s;
           this.r_.visible = s;
           this.b_.fa_.text = s ? '\u25c0 \u25c4' : '\u25b6';
+          this.s_.visible = !s;
         }
       }
 
@@ -1593,6 +1608,7 @@
         // 6弃，显示为绿色，3和，显示为红色
         c.bg_.tint = (k !== 6 ? (k !== 3 ? 0 : 0xff6a6a) : 0x00cd66);
         c.visible = true;
+        c.ai_ = k;
       }
 
       /**
@@ -1601,6 +1617,24 @@
        */
       hide(i) {
         this.cg_[i].visible = false;
+      }
+
+      /**
+       * 提交设置，以完成小文本更新
+       */
+      commit() {
+        let s = '';
+        this.cg_.forEach(e=>{
+          if (e.visible) {
+            let a = e.ai_;
+            if (typeof a === 'number' && a < 5) {
+              s += tz.ls(ACTION[a]);
+              s += ' / ';
+            }
+          }
+        });
+        //console.log('commit s', s);
+        this.s_.text = (s.length > 3) ? s.substr(0, s.length - 3) : '';
       }
     }
     // 2行4列，每个200*160
@@ -1847,9 +1881,11 @@
 
         this.cb_ = cb;
 
+        // 可被折叠的根结点
         let r = this.r_ = new PIXI.Container();
         this.addChild(r);
 
+        // 折叠后小文本的根结点
         let s = this.s_ = new PIXI.Container();
         this.addChild(s);
 
@@ -7645,31 +7681,21 @@
 
       /**
        * 显示
-       * @param {array} pl 玩家
-       * @param {array} ps 罚分
+       * @param {array} p 玩家[{n:xxx,s:0}*4]
        */
-      show(pl, ps) {
-        this.visible = true;
-
-        // 加上罚分并排序
-        let pls = [
-          {'n':pl[0]['n'],'s':pl[0]['s'] + ps[0]},
-          {'n':pl[1]['n'],'s':pl[1]['s'] + ps[1]},
-          {'n':pl[2]['n'],'s':pl[2]['s'] + ps[2]},
-          {'n':pl[3]['n'],'s':pl[3]['s'] + ps[3]}
-        ];
-        pls.sort(function(a, b) { return b['s'] - a['s']; });
+      show(p) {
+        p.sort(function(a, b) { return b['s'] - a['s']; });
 
         let t;
         let txt = this.txt_;
         for (let i = 0; i < 3; ++i) {
           // 追者昵称
           t = txt[i][0];
-          t.text = pls[i + 1]['n'];
+          t.text = p[i + 1]['n'];
           scl_txt(t, 110);
 
           for (let k = 0; k <= i; ++k) {
-            let dt = pls[i - k]['s'] - pls[i + 1]['s'];
+            let dt = p[i - k]['s'] - p[i + 1]['s'];
             let sd = 8, dd = 8, od = 8;
             if (dt > 32) {
               let oo = dt - 32;
@@ -7679,13 +7705,15 @@
             }
 
             // 被追者的昵称、分差、自摸、对点、旁点
-            [pls[i - k]['n'], dt, sd, dd, od].forEach((e, l)=>{
+            [p[i - k]['n'], dt, sd, dd, od].forEach((e, l)=>{
               let t = txt[i][1][k][l];
               t.text = e;
               if (l == 0) scl_txt(t, 110);
             });
           }
         }
+
+        this.visible = true;
       }
 
       /**
@@ -8155,7 +8183,14 @@
             tz.ws.send(`{"m":5,"t":${new Date().getTime()}}`);
           },
           ()=>{
-            this.chs_.show([{'n':'甲','s':0}, {'n':'乙','s':0}, {'n':'丙','s':0}, {'n':'丁','s':0}], [0, 0, 0, 0]);
+            let p = [], s = this.cr_.seat;
+            this.pls_.forEach(e=>p.push({'n':e['n'], 's':e['s']}));
+            this.ub_.forEach((e, i)=>{
+              if (e.flswn) {
+                p[(i + s) & 3] -= 40;
+              }
+            });
+            this.chs_.show(p);
           },
           ()=>{
             this.opt2_.show();
@@ -8770,9 +8805,23 @@
         // 准备标记
         cp.forEach((e, i)=>this.rdyf_[i].position.set(e['x'], e['y']));
 
+        // 测试鸣牌按钮
         //this.addcal([0x10000]);
         //262277,262177,219228,219232,202780,327756
         //this.addcal([[262194, 207924, 209976]]);//[5144, 6176]
+      }
+
+      /**
+       * 清理，当点击结束界面的OK后执行
+       * @param {JSON} 配置
+       */
+      tidy() {
+        this.ca1_.visible = false;
+        this.ca2_.visible = false;
+        this.cd_.visible = false;
+        this.opt2_.visible = false;
+        this.chs_.visible = false;
+        this.hst_.visible = false;
       }
 
       /**
@@ -9198,6 +9247,7 @@
         if (n > 0) {
           c.visible = true;
           if (tz.phn) {
+            c.commit();
             c.tgl(true);
             this.opt1_.tgl(false);
           }
@@ -9827,13 +9877,16 @@ _tapbg() {
         let v = this.rslt_ = new Result(this.cfg_['t'], this.cr_.seat, r['p'], r['t'], (v)=>{
           v.dsty();
           this.rslt_ = null;
+          this.tidy();
 
           // 请求大厅信息
           tz.ws.send('{"m":1,"r":2}');
           tz.game.visible = false;
           tz.lobby.visible = true;
         });
-        this.sc_.addChild(v);
+
+        // 插入到最开始，以便于有的人还能看计分板
+        this.sc_.addChildAt(v, 0);
         v.visible = false;
 
         let l = this.lyt_;
