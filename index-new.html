@@ -7291,6 +7291,13 @@
         p = os(o, p);
         t = os(o, t);
 
+        // 累计
+        this.gt_.forEach((e, i)=>{
+          e.text = t[i];
+          e.visible = true;
+        });
+
+        // 偶数列是当前盘，奇数列是累计
         [
           s[0] + p[0], t[0],
           s[1] + p[1], t[1],
@@ -8021,6 +8028,7 @@
           b.alpha = .5;
           this.addChild(b);
 
+          b.interactive = true;
           b.on('rightclick', ()=>this.rclk());
           //b.on('click', ()=>this._tapbg());
           //b.on('tap', ()=>this._tapbg());
@@ -8838,6 +8846,8 @@
        * @param {JSON} 配置
        */
       setup(g) {
+        // 测试数据
+        //{"t":"sfda","n":4,"d":false,"i":500,"l":8,"b":8,"r12":5,"r30":10,"dt":0,"d12":false,"fa":true,"fc":false,"s":true,"o":true,"a":false,"r":false}
         this.cfg_ = g;
       }
 
@@ -10225,7 +10235,7 @@ _tapbg() {
           fill: '#ffffff',
           // stroke: '#0066ff',
           // strokeThickness: 2,
-          lineJoin: 'round',
+          //lineJoin: 'round',
           padding: 10
         };
 
