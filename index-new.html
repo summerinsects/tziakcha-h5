@@ -1078,7 +1078,7 @@
       /**
        * @param {number} w 宽
        * @param {number} h 高
-       * @param {function(boolean):void} cb 回调
+       * @param {function(object,boolean):void} cb 回调
        */
       constructor(w, h, cb) {
         super();
@@ -1225,6 +1225,8 @@
           fontWeight:'bold',
           stroke: '#0066ff',
           strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
         });
         t.anchor.set(.5);
         t.x = XchgRd.W * .5;
@@ -1279,6 +1281,8 @@
           fill: '#dedede',
           stroke: '#000000',
           strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
         });
         t.anchor.set(.5);
         this.addChild(t);
@@ -1559,6 +1563,8 @@
           fill: '#dedede',
           stroke: '#0066ff',
           strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
         });
         this.addChild(s);
         s.anchor.x = 1;
@@ -1897,6 +1903,8 @@
           fill: '#dedede',
           stroke: '#000000',
           strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
         };
 
         // 排列方式：
@@ -2045,6 +2053,7 @@
           fontFamily: FF,
           fontSize: 22,
           fill: '#dedede',
+          padding: 10
         });
 
         // 测速文本
@@ -2052,6 +2061,7 @@
           fontFamily: FF,
           fontSize: 22,
           fill: '#dedede',
+          padding: 10
         });
       }
 
@@ -2281,13 +2291,37 @@
       constructor() {
         super();
 
-        // 背景色
-        let b = new PIXI.Sprite(PIXI.Texture.WHITE);
-        b.tint = 0;
-        b.alpha = .5;
-        b.width = 280;
-        b.height = 220;
+        // 背景
+        let b = new PIXI.Container();
         this.addChild(b);
+
+        let s = new PIXI.Sprite(PIXI.Texture.WHITE);
+        s.tint = 0;
+        s.alpha = .5;
+        s.width = 280;
+        s.height = 220;
+        b.addChild(s);
+
+        // 前景，用来显示配置、分差
+        let f = new PIXI.Container();
+        this.addChild(f);
+        f.visible = false;
+
+        s = new PIXI.Sprite(PIXI.Texture.WHITE);
+        s.tint = 0;
+        s.alpha = .5;
+        s.width = 280;
+        s.height = 220;
+        f.addChild(s);
+
+        this.interactive = true;
+        let l = ()=>{ f.visible = true; b.visible = false; };
+        let n = ()=>{ f.visible = false; b.visible = true; };
+        this.on('mouseover', l);
+        this.on('mouseout', n);
+        this.on('touchstart', l);
+        this.on('touchendoutside', n);
+        this.on('touchend', n);
 
         // 当前打：X风X
         let t = this.o_ = new PIXI.Text('', {
@@ -2303,7 +2337,7 @@
         t.anchor.set(.5);
         t.x = 140;
         t.y = 85;//110 - 25;
-        this.addChild(t);
+        b.addChild(t);
 
         // 牌墙剩余
         t = this.r_ = new PIXI.Text('', {
@@ -2318,11 +2352,12 @@
         t.anchor.set(.5);
         t.x = 140;
         t.y = 150;//110 + 40;
-        this.addChild(t);
+        b.addChild(t);
         this.rem_ = 0;
 
-        // 四家门风及得分
+        // 四家门风及得分、分差
         let w = this.w_ = new Array(4);
+        let d = this.d_ = new Array(4);
         [
           {p:{x:140, y:195}, r:0},  // y:220-25=195
           {p:{x:255, y:110}, r:(-Math.PI * .5)},  // x:280-25=255
@@ -2340,11 +2375,45 @@
             padding: 10
           });
           t.anchor.set(.5);
-          this.addChild(t);
+          b.addChild(t);
+          t.position = e['p'];
+          t.rotation = e['r'];
+
+          t = d[i] = new PIXI.Text('', {
+            fontFamily: FF,
+            fontSize: 32,
+            fontWeight: 'bold',
+            fill: '#888888',
+            //stroke: '#0066ff',
+            //strokeThickness: 2,
+            //lineJoin: 'round',
+            padding: 10
+          });
+          t.anchor.set(.5);
+          f.addChild(t);
           t.position = e['p'];
           t.rotation = e['r'];
         });
         this.v_ = 0;
+
+/*
+        // 配置
+        t = new PIXI.Text('16Rds 8 (8)\n15/10s\nSabotage Disallowed\n', {
+          fontFamily: FF,
+          fontSize: 24,
+          fill: '#888888',
+          //stroke: '#0066ff',
+          //strokeThickness: 2,
+          //lineJoin: 'round',
+          lineHeight: 30,
+          align: 'center',
+          padding: 10
+        });
+        t.anchor.set(.5);
+        f.addChild(t);
+        t.x = 140;
+        t.y = 110;
+*/
 
         // 范围测试
         // let g = new PIXI.Graphics();
@@ -2403,6 +2472,13 @@
           let k = (v + i) & 3;
           e.text = `${tz.ls(WIND[k])} ${s[i]}`;
         });
+        let d = this.d_, o = s[0];
+        d[0].text = `${tz.ls(WIND[v])} ${s[0]}`;
+        for (let i = 1; i < 4; ++i) {
+          let t = d[i], l = s[i] - o;
+          t.text = l;
+          t.style.fill = l > 0 ? '#ff6a6a' : (l < 0 ? '#5cdbd3' : '#888888');
+        }
       }
 
       /**
@@ -6344,7 +6420,8 @@
           let t = new PIXI.Text(`\u00D7 ${f}`, {
             fontFamily: FF,
             fontSize: 18,
-            fill: '#ffffff'
+            fill: '#ffffff',
+            padding: 10
           });
           this.addChild(t);
           t.anchor.set(.5);
@@ -6393,7 +6470,8 @@
         let t = new PIXI.Text(fan_item(e, f[e]), {
           fontFamily: FF,
           fontSize: 20,
-          fill: '#99ffff'
+          fill: '#99ffff',
+          padding: 10
         });
         c.addChild(t);
         t.anchor.y = .5;
@@ -6481,6 +6559,8 @@
             fill: '#ffffff',
             stroke: '#0066ff',
             strokeThickness: 2,
+            lineJoin: 'round',
+            padding: 10
           });
           bg.addChild(t);
           t.anchor.x = .5;
@@ -6561,6 +6641,8 @@
               fill: '#ffffff',
               //stroke: '#0066ff',
               //strokeThickness: 2,
+              //lineJoin: 'round',
+              padding: 10
             });
             bg.addChild(t);
             t.anchor.set(.5);
@@ -6577,6 +6659,8 @@
               fill: '#ffffff',
               //stroke: '#0066ff',
               //strokeThickness: 2,
+              //lineJoin: 'round',
+              padding: 10
             });
             bg.addChild(t);
             t.anchor.set(.5);
@@ -6590,6 +6674,8 @@
               fill: '#ffffff',
               //stroke: '#0066ff',
               //strokeThickness: 2,
+              //lineJoin: 'round',
+              padding: 10
             });
             bg.addChild(t);
             t.anchor.set(.5);
@@ -6604,6 +6690,8 @@
                 fill: '#ffffff',
                 stroke: '#000000',
                 strokeThickness: 2,
+                lineJoin: 'round',
+                padding: 10
               });
               bg.addChild(t);
               t.anchor.y = .5;
@@ -6626,6 +6714,8 @@
           fill: '#ffffff',
           stroke: '#0066ff',
           strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
         });
         t.anchor.set(1);
         t.x = w1;
@@ -6660,6 +6750,8 @@
           fill: '#ffffff',
           stroke: '#0066ff',
           strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
         }, w1, h1, ()=> {
           clearInterval(t.timer_);
           t.timer_ = null;
@@ -6732,6 +6824,8 @@
           fill: '#ffffff',
           stroke: '#0066ff',
           strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
         });
         bg.addChild(t);
         t.anchor.x = .5;
@@ -6747,7 +6841,8 @@
           let t = new PIXI.Text(fan_item(e, f[e]), {
             fontFamily: FF,
             fontSize: 22,
-            fill: '#99ffff'
+            fill: '#99ffff',
+            padding: 10
           });
           bg.addChild(t);
           scl_txt(t, frp - 10);
@@ -6765,6 +6860,8 @@
           fill: '#ffffff',
           stroke: '#0066ff',
           strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
         });
         bg.addChild(t);
         t.anchor.x = .5;
@@ -6786,6 +6883,8 @@
           fill: '#ffffff',
           stroke: '#0066ff',
           strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
         }, w1, h1, ()=>{
           this.dsty();
         });
@@ -6890,7 +6989,9 @@
           fill: '#ffffff',
           stroke: '#0066ff',
           strokeThickness: 2,
-          align: 'center'
+          lineJoin: 'round',
+          align: 'center',
+          padding: 10
         });
         g.addChild(t);
         t.anchor.set(.5);
@@ -6910,6 +7011,8 @@
             fill: '#ffffff',
             stroke: '#0066ff',
             strokeThickness: 2,
+            lineJoin: 'round',
+            padding: 10
           });
           g.addChild(t);
           t.anchor.set(.5);
@@ -6924,7 +7027,8 @@
               fontFamily: FF,
               fontSize: 24,
               fontWeight: k !== 1 ? 'bold' : '',
-              fill: f ? '#ffffff' : '#5cdbd3'
+              fill: f ? '#ffffff' : '#5cdbd3',
+              padding: 10
             });
             g.addChild(t);
             t.x = xx[k];
@@ -6952,6 +7056,8 @@
           fill: '#ffffff',
           stroke: '#0066ff',
           strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
         });
         g.addChild(t);
         t.anchor.set(.5);
@@ -6965,6 +7071,8 @@
           fill: '#ffffff',
           stroke: '#0066ff',
           strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
         }, w1, h1, ()=>cb(this));
         g.addChild(b);
         b.x = (w0 - w1) * .5;
@@ -7014,7 +7122,8 @@
             fill: '#ffffff',
             stroke: '#0066ff',
             strokeThickness: 2,
-            align: 'center'
+            lineJoin: 'round',
+            padding: 10
         });
         bg.addChild(t);
         t.anchor.set(.5);
@@ -7054,6 +7163,8 @@
             fill: '#ffffff',
             stroke: '#0066ff',
             strokeThickness: 2,
+            lineJoin: 'round',
+            padding: 10
         });
         bg.addChild(t);
         t.anchor.x = .5;
@@ -7131,7 +7242,7 @@
         bg.on('click', this._xbrf.bind(this));
         bg.on('tap', this._xbrf.bind(this));
 
-        let t = new PIXI.Text('计分表', {
+        let t = new PIXI.Text(tz.ls('History'), {
           fontFamily: FF,
           fontSize: 32,
           fill: '#ffffff',
@@ -8396,21 +8507,23 @@
           // 超时标记
           let t = this.tmot_ = new PIXI.Text(tz.ls('TimeoutHint'), {
             fontFamily: FF,
-              fontSize: 32,
-              fill: '#dedede',
-              stroke: '#000000',
-              strokeThickness: 2,
-            });
-            t.anchor.set(.5);
-            sc.addChild(t);
-            t.visible = false;
+            fontSize: 32,
+            fill: '#dedede',
+            stroke: '#000000',
+            strokeThickness: 2,
+            lineJoin: 'round',
+            padding: 10
+          });
+          t.anchor.set(.5);
+          sc.addChild(t);
+          t.visible = false;
 
-            // 为配合上层容器，实现一个这样的接口
-            t.layt = (x, y, w, h)=>{
-              t.x = x + w * .5;
-              t.y = y + h * .75;
-              scl_txt(t, w - 20);
-            };
+          // 为配合上层容器，实现一个这样的接口
+          t.layt = (x, y, w, h)=>{
+            t.x = x + w * .5;
+            t.y = y + h * .75;
+            scl_txt(t, w - 20);
+          };
         }.bind(this))();
 
 /*
