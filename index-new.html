@@ -1128,7 +1128,7 @@
         super();
 
         let c = this.lsn_ = new PIXI.Sprite(PIXI.Texture.WHITE);
-        //c.tint = 0;
+        c.tint = 0;
         c.alpha = .2;
         c.width = window.innerWidth;
         c.height = window.innerHeight;
@@ -1166,7 +1166,7 @@
         super();
 
         let c = this.lsn_ = new PIXI.Sprite(PIXI.Texture.WHITE);
-        //c.tint = 0;
+        c.tint = 0;
         c.alpha = .2;
         c.width = window.innerWidth;
         c.height = window.innerHeight;
@@ -2265,15 +2265,19 @@
         let a = this.btn_, t = this.ee_;
         a[0].x = w - 120;
         a[0].y = 70;
-        a[1].y = h - 90;
-        a[2].y = h - 90;
+        a[1].y = h - 60;
+        a[2].y = h - 60;
         a[2].x = w - 120;
         a[3].x = w - 120;
-        a[4].y = h - 160;
+        a[4].y = h - 130;
 
         // 使速度文本与按钮居中对齐
         t.x = w - 60;
         t.y = 150;
+
+        t = this.gt_;
+        t.x = w - 160;
+        t.y = 100;
       }
     }
 
@@ -4634,7 +4638,7 @@
           if (i === 13) x += GP;
           if (p.x !== x) {
             if (p.visible) {
-              new TWEEN.Tween(p).to({x:x}, DSDT).start();
+              new TWEEN.Tween(p).to({x:x}, STDT).start();
             }
             else {
               p.i_ = -1;
@@ -4922,9 +4926,11 @@
       }
 
       /**
-       * 理牌
+       * 假的理牌效果
        */
       sort() {
+        shfl(this.s_, 0, 13);
+        this.move();
       }
 
       /**
@@ -5030,13 +5036,13 @@
           if (i === 12) y += GP;
           if (p.y !== y) {
             if (p.visible) {
-              p.parent.setChildIndex(p, 13 - i);
-              new TWEEN.Tween(p).to({y:y}, DSDT).start();
+              new TWEEN.Tween(p).to({y:y}, STDT).start();
             }
             else {
               p.y = y;
             }
           }
+          p.parent.setChildIndex(p, 13 - i);
         });
       }
 
@@ -5219,9 +5225,11 @@
       }
 
       /**
-       * 理牌
+       * 假的理牌效果
        */
       sort() {
+        shfl(this.s_, 0, 13);
+        this.move();
       }
 
       /**
@@ -5326,7 +5334,7 @@
           if (i !== 13) x += GP;
           if (p.x !== x) {
             if (p.visible) {
-              new TWEEN.Tween(p).to({x:x}, DSDT).start();
+              new TWEEN.Tween(p).to({x:x}, STDT).start();
             }
             else {
               p.x = x;
@@ -5537,9 +5545,11 @@
       }
 
       /**
-       * 理牌
+       * 假的理牌效果
        */
       sort() {
+        shfl(this.s_, 0, 13);
+        this.move();
       }
 
       /**
@@ -5643,13 +5653,13 @@
           if (i !== 12) y += GP;
           if (p.y !== y) {
             if (p.visible) {
-              p.parent.setChildIndex(p, i);
-              new TWEEN.Tween(p).to({y:y}, DSDT).start();
+              new TWEEN.Tween(p).to({y:y}, STDT).start();
             }
             else {
               p.y = y;
             }
           }
+          p.parent.setChildIndex(p, i);
         });
       }
 
@@ -6609,7 +6619,7 @@
 
             // 背景板
             let g = new PIXI.Sprite(PIXI.Texture.WHITE);
-            g.tint = (k != wn ? (k != cl ? 0xbbded66 : 0x89a4c7) : 0xffaaa5);
+            g.tint = (k != wn ? (k != cl ? 0xbbded6 : 0x89a4c7) : 0xffaaa5);
             g.alpha = .5;
             g.width = w1;
             g.height = h1;
@@ -6983,20 +6993,31 @@
         g.addChild(sp);
         sp.tint = 0x808080;
 
-        let t = new PIXI.Text(s + '\nGame Result', {
+        let t = new PIXI.Text(tz.ls('GameResult'), {
           fontFamily: FF,
           fontSize: 32,
           fill: '#ffffff',
           stroke: '#0066ff',
           strokeThickness: 2,
           lineJoin: 'round',
-          align: 'center',
           padding: 10
         });
         g.addChild(t);
         t.anchor.set(.5);
         t.x = w0 * .5;
-        t.y = 60;
+        t.y = 35;
+        scl_txt(t, w0 - 20);
+
+        t = new PIXI.Text(s, {
+          fontFamily: FF,
+          fontSize: 22,
+          fill: '#ffffff',
+          padding: 10
+        });
+        g.addChild(t);
+        t.anchor.set(.5);
+        t.x = w0 * .5;
+        t.y = 80;
         scl_txt(t, w0 - 20);
 
         // 每列中心位置
@@ -8770,7 +8791,7 @@
 
             // 倒计时
             cd.x = w0 - 100;
-            cd.y = h0 - 175;
+            cd.y = h0 - 145;
 
             // 下方菜单
             op.x = 0;
@@ -8819,7 +8840,7 @@
 
             // 倒计时
             cd.x = w0 - 100;
-            cd.y = h0 - 175;
+            cd.y = h0 - 145;
 
             // 下方菜单
             op.y = h2 + h3 + 5;
@@ -9139,6 +9160,7 @@
         this.pl_.forEach(e=>e.init());
         this.ht_.forEach(e=>e.init());
         this.opt1_.init();
+        this.opt2_.init();
         this.ca1_.visible = false;
         this.ca2_.visible = false;
         this.cd_.visible = false;
@@ -9187,9 +9209,10 @@
             tz.play('snd/25-xchg.wav');
           }
           else {
+            // 东风东时，设置计分表的人名
             tz.play('snd/01-start.wav');
             let p = this.pls_;
-            this.hst_.setup([p[0]['n'], p[2]['n'], p[1]['n'], p[3]['n']]);
+            this.hst_.setup([p[0]['n'], p[1]['n'], p[2]['n'], p[3]['n']]);
           }
         }
       }
