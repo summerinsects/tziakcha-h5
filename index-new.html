@@ -502,7 +502,7 @@
           this.tpvw.layt(w, h);
         };
 
-        let ws = this.ws = new WebSocket('ws://192.168.0.220:5333/ws');
+        let ws = this.ws = new WebSocket('ws://127.0.0.1:5333/ws');
         ws.onopen = ()=>{
           console.log('open');
           // 测试直接创建桌子/坐下
@@ -12741,7 +12741,7 @@
             "Chase" : "追分策略",
             "TimeoutHint" : "你已超時，伺服器自動託管，重繪頁面可解除",
             "HandTiles" : "手牌",
-            "Calls" : "允許鳴牌",
+            "Calls" : "鳴牌",
             "Remains" : "牌墻剩餘",
             "Sabotage" : "戰術鳴牌",
             "Chow" : "吃",
