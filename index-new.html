@@ -307,6 +307,7 @@
       piano: 0,  // 钢琴键：0自动 1三格 2两格
       hbt: 0,  // 心跳包
       wall: true,  // 显示牌墙
+      ffs: 24,  // 番种字体的尺寸（英文的番种名很长，需要小一号）
 
       cfg: {},  // 所有本地存储的数据
       ltrl: {},  // 语言文本
@@ -6531,7 +6532,7 @@
 
         let t = new PIXI.Text(fan_item(e, f[e]), {
           fontFamily: FF,
-          fontSize: 20,
+          fontSize: tz.ffs,
           fill: '#99ffff',
           padding: 10
         });
@@ -6903,7 +6904,7 @@
 
           let t = new PIXI.Text(fan_item(e, f[e]), {
             fontFamily: FF,
-            fontSize: 22,
+            fontSize: tz.ffs,
             fill: '#99ffff',
             padding: 10
           });
@@ -6917,6 +6918,8 @@
           ++i;
         }
 
+        let h0 = Math.max(y + 150, 340);
+
         t = new PIXI.Text(tz.ls('FalseWinHint'), {
           fontFamily: FF,
           fontSize: 22,
@@ -6929,10 +6932,8 @@
         bg.addChild(t);
         t.anchor.x = .5;
         t.x = w0 * .5;
-        t.y = 220;
+        t.y = h0 - 110;
         scl_txt(t, w0 - gap * 2);
-
-        let h0 = Math.max(y + 110, 340);
 
         bg.lineStyle(2, 0x26608C, 1);
         bg.beginFill(0x060F16, .85);
@@ -12991,6 +12992,7 @@
           };
           break;
         case 3:
+          tz.ffs = 20;
           tz.ltrl = {
             "HTMLTitle" : "Tziakcha-Chinese Official Mahjong",
             "BrowerNotSupport" : "Your browser does not support this game",
