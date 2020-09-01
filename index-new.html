@@ -11769,7 +11769,7 @@
           c.addChild(t);
           w += t.width + gp;
 
-          t = new PIXI.Text(`${tz.ls(g['s']?'SabotageAllowed':'SabotageDisallowed')} | ${tz.ls(g['o']?'ShowHandTiles':'ConcealHandTiles')}`, {
+          t = new PIXI.Text(`${tz.ls('Sabotage')}${g['s']?'\u2713':'\u2715'} | ${tz.ls('HandTiles')}${g['o']?'\u2713':'\u2715'}`, {
             fontFamily: FF,
             fontSize: fs,
             fill: '#00bfff',
@@ -11779,7 +11779,7 @@
           c.addChild(t);
           w += t.width + gp;
 
-          t = new PIXI.Text(`${tz.ls('FalseHu')} ${g['fa']?'-30/+10':'-40/+0'} ${tz.ls(g['fc']?'CallsAllowed':'CallsDisallowed')}`, {
+          t = new PIXI.Text(`${tz.ls('FalseHu')} ${tz.ls('Calls')}${g['fc']?'\u2713':'\u2715'}  ${g['fa']?'-30/+10':'-40/+0'} `, {
             fontFamily: FF,
             fontSize: fs,
             fill: '#cdcdcd',
@@ -12150,7 +12150,7 @@
           {t:tz.ls('BaseScores'), o:['0', '8'], s:95},
           {t:tz.ls('PrimaryTime'), o:[tz.ls('XSecond', 5), tz.ls('XSecond', 8), tz.ls('XSecond', 10), tz.ls('XSecond', 15)], s:95},
           {t:tz.ls('SecondaryTime'), o:[tz.ls('XSecond', 3), tz.ls('XSecond', 5), tz.ls('XSecond', 8), tz.ls('XSecond', 10)], s:95},
-          {t:tz.ls('SabotageAllowed'), o:[tz.ls('Yes'), tz.ls('No')], s:95},
+          {t:tz.ls('Sabotage'), o:[tz.ls('Yes1'), tz.ls('No1')], s:95},
           {t:tz.ls('ShowRoundOver'), o:[tz.ls('Yes'), tz.ls('No')], s:95},
           {t:tz.ls('FalseHuPunishment'), o:['-30/+10', '-40/+0'], s:125},
           {t:tz.ls('FalseHuCallsAllowed'), o:[tz.ls('Yes'), tz.ls('No')], s:95},
@@ -12480,12 +12480,8 @@
             "History" : "计分表",
             "Chase" : "追分策略",
             "TimeoutHint" : "你已超时，服务器自动托管，刷新页面可解除",
-            "SabotageAllowed" : "有战术鸣牌",
-            "SabotageDisallowed" : "无战术鸣牌",
-            "ShowHandTiles" : "结束显示手牌",
-            "ConcealHandTiles" : "结束不显示手牌",
-            "CallsAllowed" : "允许鸣牌",
-            "CallsDisallowed" : "不允许鸣牌",
+            "HandTiles" : "手牌",
+            "Calls" : "鸣牌",
             "Remains" : "牌墙剩余",
             "Sabotage" : "战术鸣牌",
             "Chow" : "吃",
@@ -12700,6 +12696,8 @@
             "ErrorPasswordLength" : "密码最长6位",
             "Yes" : "是",
             "No" : "否",
+            "Yes1" : "有",
+            "No1" : "无",
             "GameTitle" : "对局名称",
             "GameCategory" : "类型",
             "FullGame" : "全庄",
@@ -12742,12 +12740,8 @@
             "History" : "計分表",
             "Chase" : "追分策略",
             "TimeoutHint" : "你已超時，伺服器自動託管，重繪頁面可解除",
-            "SabotageAllowed" : "有戰術鳴牌",
-            "SabotageDisallowed" : "無戰術鳴牌",
-            "ShowHandTiles" : "結束顯示手牌",
-            "ConcealHandTiles" : "結束不顯示手牌",
-            "CallsAllowed" : "允許鳴牌",
-            "CallsDisallowed" : "不允許鳴牌",
+            "HandTiles" : "手牌",
+            "Calls" : "允許鳴牌",
             "Remains" : "牌墻剩餘",
             "Sabotage" : "戰術鳴牌",
             "Chow" : "吃",
@@ -12962,6 +12956,8 @@
             "ErrorPasswordLength" : "密碼最長6位",
             "Yes" : "是",
             "No" : "否",
+            "Yes1" : "有",
+            "No1" : "無",
             "GameTitle" : "對局名稱",
             "GameCategory" : "類型",
             "FullGame" : "全莊",
@@ -13005,12 +13001,8 @@
             "History" : "History",
             "Chase" : "Chase",
             "TimeoutHint" : "Timeout, auto discarding. Refresh to continue",
-            "SabotageAllowed" : "Sabotage allowed",
-            "SabotageDisallowed" : "Sabotage disllowed",
-            "ShowHandTiles" : "Show hand tiles",
-            "ConcealHandTiles" : "Conceal hand tiles",
-            "CallsAllowed" : "Calls allowed",
-            "CallsDisallowed" : "Calls disallowed",
+            "HandTiles" : "Hand tiles",
+            "Calls" : "Calls",
             "Remains" : "Remains",
             "Sabotage" : "Sabotage",
             "Chow" : "Chow",
@@ -13225,6 +13217,8 @@
             "ErrorPasswordLength" : "Passwords should be less than 6 characters",
             "Yes" : "Yes",
             "No" : "No",
+            "Yes1" : "Yes",
+            "No1" : "No",
             "GameTitle" : "New Table",
             "GameCategory" : "Category",
             "FullGame" : "16RDs",
