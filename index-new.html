@@ -216,7 +216,8 @@
      * @return {object}
      */
     function bmp_txt(t, s) {
-      return new PIXI.extras.BitmapText(t, {font:`${s['fontSize']}px ${s['fontName']}`});
+      //return new PIXI.extras.BitmapText(t, {font:`${s['fontSize']}px ${s['fontName']}`});  // v4.x
+      return new PIXI.BitmapText(t, s);  // v5.x
     }
 
     /**
@@ -252,8 +253,16 @@
       p.filters = [b];
     }
 
+    /**
+     * 移除模糊效果
+     * @param {object} p 已经添加过效果的精灵
+     */
+    function rmblur(p) {
+      p.filters = [];
+    }
+
     const FF = [
-      '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif',
+      '-apple-system', /*'BlinkMacSystemFont',*/ 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif',
       'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
     ];
 
@@ -279,7 +288,7 @@
       //R: b64t('data:image/png;base64,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'),
       R: b64t('data:image/png;base64,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'),
 
-      // 左三角形
+      // 左三角形64 * 64
       TL: b64t('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAzUlEQVR4nO3Q2w2EMBBD0ZRMJ5Ts/UJCiEcSSLyauacC+5YCAAAAAADwRyQt7g02khZJcu+w2M6nDLA/ny7A8XyqAGfn0wS4Op8iwN358AGezocOUHM+bIDa8yEDtJwPF6D1fKgAPefDBOg9HyLAm/NRAqypA5TyLoJ7+2d6I7h3f6ongnvz51ojuPcO0RLBvXWY2gjunUPVRHBvHO4pgnvfFHcR3NumuYrg3jXVWQT3pumOEdx7LPYR3FtstgjuHVaSVvcGAAAAAAAQzw/EKywNEzzYSAAAAABJRU5ErkJggg=='),
     });
 
@@ -354,7 +363,8 @@
         // 自动：手机不显示，PC、平板显示
         this.phn = false;
         //this.phn = PIXI.utils.isMobile.phone;
-        let sw = this.cfg['wall'] || 0;
+        let sw = this.cfg['wall'];
+        if (typeof sw !== 'number') sw = 0;
 
         // 手机
         if (this.phn) {
@@ -398,7 +408,8 @@
           layt();
         };
 
-        PIXI.loader.add([
+        //PIXI.loader.add([  // v4.x
+        PIXI.Loader.shared.add([  // v5.x
           'img/tiles/standing1.png',
           'img/tiles/standing3.png',
           'img/tiles/pool0.png',
@@ -441,7 +452,8 @@
           t.dsty();
 
           // 标记一些资源
-          let r = this.res = PIXI.loader.resources;
+          //let r = this.res = PIXI.loader.resources;  // v4.x
+          let r = this.res = PIXI.Loader.shared.resources;  // v5.x
           StTl.tx0 = r['img/tiles/standing0.png'].texture;
           StTl.tx1 = r['img/tiles/standing1.png'].texture;
           StTl.tx3 = r['img/tiles/standing3.png'].texture;
@@ -489,7 +501,7 @@
           this.tpvw.layt(w, h);
         };
 
-        let ws = this.ws = new WebSocket('ws://127.0.0.1:5333/ws');
+        let ws = this.ws = new WebSocket('ws://192.168.0.220:5333/ws');
         ws.onopen = ()=>{
           console.log('open');
           // 测试直接创建桌子/坐下
@@ -1209,8 +1221,10 @@
     class XchgRd extends AutoHide {
       /**
        * @param {number} w 风
+       * @param {array} n 玩家昵称
+       * @param {array} s 玩家分数
        */
-      constructor(w) {
+      constructor(w, n, s) {
         super();
 
         let c = this.ic_ = new PIXI.Graphics();
@@ -1236,6 +1250,9 @@
         t.y = XchgRd.H * .5;
         c.addChild(t);
         scl_txt(t, XchgRd.W * .95);
+
+        // 玩家昵称
+
       }
 
       /**
@@ -1253,8 +1270,8 @@
        */
       layt(x, y, w, h) {
         super.layt();
-        const w0 = XchgRd.W, h0 = XchgRd.H;
-        let c = this.ic_, s = Math.min(w * .75 / w0, h * .75 / h0, 1);
+        const w0 = XchgRd.W, h0 = XchgRd.H, s0 = XchgRd.S;
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -1263,6 +1280,7 @@
     }
     XchgRd.W = 500;
     XchgRd.H = 400;
+    XchgRd.S = .75;
 
     /**
      * 倒计时
@@ -1669,19 +1687,17 @@
         let r = this.r_ = new PIXI.Container();
         this.addChild(r);
 
-        // 最多也就四种杠法+一个取消+折叠，共6个键
+        // 最多也就三种杠法或三种吃法+一个取消+折叠，共5个键
         // 每个跟另外三个界面一样，每个尺寸200*160
         // 排列方式：
-        //   1
-        // 2 3 4 x >
+        // 1 2 3 x >
         // 设置的时候倒序
-        let cg = new Array(5);
+        let cg = new Array(4);
         [
-          {x:0,y:160},
-          {x:0,y:160},
-          {x:200,y:160},
-          {x:400,y:160},
-          {x:600,y:160}
+          {x:0,y:0},
+          {x:200,y:0},
+          {x:400,y:0},
+          {x:600,y:0}
         ].forEach((e, i)=>{
           let c = cg[i] = new EdgBtn(200, 160);
           r.addChild(c);
@@ -1692,7 +1708,7 @@
         //this.cr_.visible = false;
 
         // 最后一个是取消
-        let c = cg[4];
+        let c = cg[3];
         let f = new PIXI.Text('\u00D7', {
           fontFamily: FF,
           fontSize: 30,
@@ -1712,7 +1728,6 @@
         this.addChild(b);
         b.bg_.alpha = .25;
         b.x = 800;
-        b.y = 160;
 
         let p = this.tl_ = new PIXI.Sprite(T64.TL);
         b.addChild(p);
@@ -1758,7 +1773,8 @@
           padding: 10
         };
 
-        let l = a.length, o = 4 - l, cg = this.cg_;
+        // 反向布局，从3-l起
+        let l = a.length, o = 3 - l, cg = this.cg_;
         for (let i = 0; i < o; ++i) {
           cg[i].visible = false;
         }
@@ -1812,7 +1828,7 @@
           }
         }
         // 最后一个取消
-        cg[4].setcb(()=>cb());
+        cg[3].setcb(()=>cb());
       }
 
       /*
@@ -1827,7 +1843,7 @@
       }
     }
     CalSel.W = 1000;
-    CalSel.H = 320;
+    CalSel.H = 160;
 
     /**
      * 下方的菜单
@@ -2036,7 +2052,7 @@
        * 是否打开
        * @return {boolean}
        */
-      get open() {
+      get xtd() {
         return this.sh_;
       }
     }
@@ -2210,7 +2226,7 @@
        * 是否打开
        * @return {boolean}
        */
-      get open() {
+      get xtd() {
         return this.sh_;
       }
     }
@@ -2257,8 +2273,6 @@
         let t = this.gt_;
         this.addChild(t);
         t.anchor.set(.5);
-        t.x = 40;
-        t.y = 20;
 
         // 测速文本
         t = this.ee_;
@@ -2275,20 +2289,22 @@
         // 按钮120*60
         let a = this.btn_, t = this.ee_;
         a[0].x = w - 120;
-        a[0].y = 70;
-        a[1].y = h - 60;
-        a[2].y = h - 60;
+        a[0].y = 50;
+        a[1].y = h - 40;
+        a[2].y = h - 40;
         a[2].x = w - 120;
         a[3].x = w - 120;
-        a[4].y = h - 130;
+        a[3].y = 120;
+        a[4].y = h - 110;
 
-        // 使速度文本与按钮居中对齐
-        t.x = w - 60;
-        t.y = 150;
+        // 速度
+        t.x = w - 50;
+        t.y = 30;
 
+        // 计时
         t = this.gt_;
         t.x = w - 160;
-        t.y = 100;
+        t.y = 80;
       }
     }
 
@@ -2411,12 +2427,11 @@
         });
         this.v_ = 0;
 
-/*
         // 配置
-        t = new PIXI.Text('16Rds 8 (8)\n15/10s\nSabotage Disallowed\n', {
+        t = this.g_ = new PIXI.Text('', {
           fontFamily: FF,
           fontSize: 24,
-          fill: '#888888',
+          fill: '#dedede',
           //stroke: '#0066ff',
           //strokeThickness: 2,
           //lineJoin: 'round',
@@ -2428,7 +2443,6 @@
         f.addChild(t);
         t.x = 140;
         t.y = 110;
-*/
 
         // 范围测试
         // let g = new PIXI.Graphics();
@@ -2447,6 +2461,13 @@
         this.r_.text = '';
         this.o_.text = '';
         //this.w_.forEach(e=>e.text = '');
+      }
+
+      /**
+       * 设置配置信息
+       */
+      cfg(g) {
+        this.g_.text = `${tz.ls('XRounds', g['n'])} ${g['l']} (${g['b']})\n${g['r30']}/${g['r12']}s\n${tz.ls('Sabotage')} ${g['s']?'\u2713':'\u2715'}`;
       }
 
       /**
@@ -3768,7 +3789,7 @@
         p.position = r.toLocal(o.toGlobal({x:x, y:y}));
         addblur(p);
         new TWEEN.Tween(p.position).to({x:(d.x + dx), y:(d.y + dy)}, DSDT).onComplete(()=>{
-          p.filters = [];
+          rmblur(p);
         }).start();
       }
 
@@ -3783,27 +3804,25 @@
       _setup(s, p, n, ad, dp) {
         // 立牌
         if (!p) p = [];
-        let o = p.length * 3;
-        this.s_.forEach((e, i)=>{
-          if (i >= o) {
+        if (n) {  // 自己已经在外面设置过了
+          let o = p.length * 3;
+          this.s_.forEach((e, i)=>{
+            if (i >= o) {
+              e.visible = true;
+            }
+            else {
+              e.visible = false;
+            }
+          });
+          // 摸到的牌
+          let v = s[13 - o], e = this.s_[13];
+          if (typeof v !== 'undefined') {
             e.visible = true;
           }
           else {
             e.visible = false;
           }
-        });
-        // 摸到的牌，再看有没有必要吧
-        // (function(){
-        //   let v = s[13 - o], e = this.s_[13];
-        //   if (typeof v !== 'undefined') {
-        //     e.visible = true;
-        //     e.updt(v);
-        //   }
-        //   else {
-        //     e.visible = false;
-        //     e.i_ = 255;
-        //   }
-        // }.bind(this))();
+        }
 
         // 副露
         p.forEach(e=>{
@@ -3884,7 +3903,7 @@
         // 执行动画
         s.forEach((e, i)=>{
           addblur(e);
-          new TWEEN.Tween(e).to(d[i], DSDT).onComplete(e=>e.filters = []).start();
+          new TWEEN.Tween(e).to(d[i], DSDT).onComplete(rmblur).start();
         });
 
         let g = this.s_;
@@ -3963,7 +3982,7 @@
         // 执行动画
         s.forEach((e, i)=>{
           addblur(e);
-          new TWEEN.Tween(e).to(d[i], DSDT).onComplete(e=>e.filters = []).start();
+          new TWEEN.Tween(e).to(d[i], DSDT).onComplete(rmblur).start();
         });
 
         let g = this.s_;
@@ -4042,7 +4061,7 @@
         // 执行动画
         s.forEach((e, i)=>{
           addblur(e);
-          new TWEEN.Tween(e).to(d[i], DSDT).onComplete(e=>e.filters = []).start();
+          new TWEEN.Tween(e).to(d[i], DSDT).onComplete(rmblur).start();
         });
 
         let g = this.s_;
@@ -4111,7 +4130,7 @@
         // 执行动画
         s.forEach((e, i)=>{
           addblur(e);
-          new TWEEN.Tween(e).to(d[i], DSDT).onComplete(e=>e.filters = []).start();
+          new TWEEN.Tween(e).to(d[i], DSDT).onComplete(rmblur).start();
         });
 
         let g = this.s_;
@@ -4167,7 +4186,7 @@
         // 执行动画
         let d = ps(o);
         addblur(s);
-        new TWEEN.Tween(s).to({x:d['x'], y:d['y']}, DSDT).onComplete(e=>e.filters = []).start();
+        new TWEEN.Tween(s).to({x:d['x'], y:d['y']}, DSDT).onComplete(rmblur).start();
 
         // NOTE：测试归位
         //setTimeout(()=>new TWEEN.Tween(s).to({x:d['dx'], y:d['dy']}, DSDT).start(), 3000);
@@ -4197,7 +4216,7 @@
         s.position = (this.c_.toLocal(o));
         let p = this.s_[13];
         addblur(s);
-        new TWEEN.Tween(s).to({x:(p.x + x), y:(p.y + y)}, DSDT).onComplete(e=>/*e.filters = []*/e.dsty()).start();
+        new TWEEN.Tween(s).to({x:(p.x + x), y:(p.y + y)}, DSDT).onComplete(e=>/*rmblur(e)*/e.dsty()).start();
         if (n === 0) {
           s.scale.set(this.f_.scale.x / this.c_.scale.x);
           new TWEEN.Tween(s.scale).to({x:1,y:1}, DSDT).start();
@@ -4276,7 +4295,7 @@
       constructor(cb) {
         super();
 
-        this.disc_ = cb;
+        this.dscd_ = cb;
 
         // 立牌容器
         let c = this.c_;
@@ -4365,7 +4384,7 @@
       dd() {
         let p = this.s_[13];
         if (p.visible && p.i_ !== 0xff && p.i_ !== -1) {
-          this.disc_(p);
+          this.dscd_(p);
         }
       }
 
@@ -4388,7 +4407,10 @@
        * 外部调用点击某张牌
        */
       clk(i) {
-        this._c(this.s_[i]);
+        let p = this.s_[i];
+        if (p.visible) {
+          this._c(p);
+        }
       }
 
       /**
@@ -4432,6 +4454,13 @@
             }
           }
         });
+
+        // 重新设置index，使得每次摸上来的牌，在参与理牌时，都暂时在最外面
+        setTimeout(()=>{
+          this.s_.forEach((p, i)=>{
+            p.parent.setChildIndex(p, i);
+          });
+        }, STDT);
       }
 
       /**
@@ -4523,7 +4552,7 @@
       _c(p) {
         // 本身高亮，就打出；本身未高亮，就将其切换为高亮
         if (p.hlt) {
-          this.disc_(p);
+          this.dscd_(p);
           p.hlt = false;
         } else {
           this.s_.forEach(e=>e.hlt = (e === p));
@@ -4574,6 +4603,7 @@
        */
       setup(s, p) {
         // 立牌
+        if (!p) p = [];
         let o = p ? p.length * 3 : 0;
         this.s_.forEach((e, i)=>{
           if (i >= o) {
@@ -4585,6 +4615,17 @@
             e.i_ = -1;
           }
         });
+
+        // 摸到的牌
+        let v = s[13 - o], e = this.s_[13];
+        if (typeof v !== 'undefined') {
+          e.visible = true;
+          e.updt(v);
+        }
+        else {
+          e.visible = false;
+          e.i_ = 255;
+        }
 
         super._setup(s, p, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
       }
@@ -6472,7 +6513,7 @@
      */
     function fan_item(f, v) {
       let c = hibyte(v) + 1, p = lobyte(v);
-      return `${tz.ls('FanName'+f)} ${c===1?`${p}`:`${p}\x20\u00D7\x20${c}`}`;
+      return `${tz.ls('FanName'+f)} ${c===1?`${tz.ls('FanPoint', p)}`:`${tz.ls('FanPoint', p)}\x20\u00D7\x20${c}`}`;
     }
 
     /**
@@ -6807,8 +6848,8 @@
        */
       layt(x, y, w, h) {
         super.layt();
-        const w0 = Settle.W, h0 = Settle.H;
-        let c = this.ic_, s = Math.min(w * .95 / w0, h * .95 / h0, 1);
+        const w0 = Settle.W, h0 = Settle.H, s0 = Settle.S;
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -6817,6 +6858,7 @@
     }
     Settle.W = 760;
     Settle.H = 650;
+    Settle.S = .95;
 
     /**
      * 错和界面
@@ -6940,14 +6982,15 @@
        */
       layt(x, y, w, h) {
         super.layt();
-        let c = this.ic_, w0 = this.w_, h0 = this.h_;
-        let s = Math.min(w * .95 / w0, h * .95 / h0, 1);
+        let c = this.ic_, w0 = this.w_, h0 = this.h_, s0 = FalseWin.S;
+        let s = Math.min(w * s0 / w0, h * s0 / h0, 1);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
         console.log('layout scale FalseWin =', s);
       }
     }
+    FalseWin.S = .95;
 
     /**
      * 游戏结束界面
@@ -7119,8 +7162,8 @@
        * @param {number} h
        */
       layt(x, y, w, h) {
-        const w0 = Result.W, h0 = Result.H;
-        let c = this.ic_, s = Math.min(w * .95 / w0, h * .95 / h0, 1);
+        const w0 = Result.W, h0 = Result.H, s0 = Result.S;
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -7129,6 +7172,7 @@
     }
     Result.W = 600;
     Result.H = 540;
+    Result.S = .95;
 
     /**
      * 和牌简介
@@ -7784,8 +7828,8 @@
        */
       layt(x, y, w, h) {
         super.layt();
-        const w0 = HstTbl.W, h0 = HstTbl.H;
-        let c = this.ic_, s = Math.min(w * .95 / w0, h * .95 / h0, 1);
+        const w0 = HstTbl.W, h0 = HstTbl.H, s0 = HstTbl.S;
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -7797,6 +7841,7 @@
     // 标题70，下方110（边距20，按钮70），列高40：70+110+40*19=940
     HstTbl.W = 780;
     HstTbl.H = 940;
+    HstTbl.S = .95;
 
     /**
      * 追分策略界面
@@ -8016,8 +8061,8 @@
        */
       layt(x, y, w, h) {
         super.layt();
-        const w0 = ChsStg.W, h0 = ChsStg.H;
-        let c = this.ic_, s = Math.min(w * .8 / w0, h * .8 / h0, 1);
+        const w0 = ChsStg.W, h0 = ChsStg.H, s0 = ChsStg.S;
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -8028,6 +8073,7 @@
     // 二位1列+三位2列+四位3列+空2列+表头2列=10列，列高40，说明文本+OK按钮210：70+40*10+210=680
     ChsStg.W = 640;
     ChsStg.H = 680;
+    ChsStg.S = .8;
 
     /**
      * 鸣牌设置界面
@@ -8278,8 +8324,8 @@
        */
       layt(x, y, w, h) {
         super.layt();
-        const w0 = CalOpt.W, h0 = CalOpt.H;
-        let c = this.ic_, s = Math.min(w * .95 / w0, h * .95 / h0, 1);
+        const w0 = CalOpt.W, h0 = CalOpt.H, s0 = CalOpt.S;
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -8288,6 +8334,7 @@
     }
     CalOpt.W = (W0 + 50) * 9 + 50;
     CalOpt.H = 860;
+    CalOpt.S = .95;
 
     // =====================================================================================================
 
@@ -8317,10 +8364,15 @@
           b.alpha = .5;
           this.addChild(b);
 
-          b.interactive = true;
-          b.on('rightclick', ()=>this.rclk());
-          //b.on('click', ()=>this._tapbg());
-          //b.on('tap', ()=>this._tapbg());
+          // 只有把监听放在同一棵子树上，才会上向传递
+          // 这里竟然不用额外判断就神奇地达到了牌桌等大的监听范围！！！
+          this.interactive = true;
+          if (!tz.phn) {
+            this.on('rightclick', ()=>this.rclk());
+          } else {
+            this.on('tap', (e)=>this.tapbg(e));
+            this.on('click', (e)=>this.tapbg(e));
+          }
 
           // NOTE：本来是想创建一个与牌桌大小相等的按钮，置于最顶层，用来监听鼠标右键
           // 但由于它优先级高，会把桌面上的牌、按钮的点击事件都拦截了
@@ -8371,7 +8423,7 @@
         let ht = this.ht_ = [new HdCtn0(p=>{
           //this.dscd(0, p.i_);  // 测试，直接打
           let i = p.i_;
-          console.log('discard', i);
+          //console.log('discard', i);
           if (i !== 0xff && this.ht_[0].candscd()) {
             tz.ws.send(`{"m":2,"r":2,"v":${i}}`);
             this.cd_.rm();
@@ -8485,8 +8537,17 @@
         });
 
         let v;
-        // 手机/PC不同面板
+        // 手机/PC不同面板，不同的缩放比
         if (!tz.phn) {
+          XchgRd.S = .65;
+          Settle.S = .75;
+          FalseWin.S = .75;
+          Result.S = .75;
+          HstTbl.S = .75;
+          ChsStg.S = .65;
+          CalOpt.S = .75;
+          Setting2.S = .65;
+
           v = this.hlp_ = new HlpCtn(this);
           ic.addChild(v);
 
@@ -8496,21 +8557,46 @@
           v = this.ca1_ = new CalCtn();
           ic.addChild(v);
           v.visible = false;
+
+          v = this.ca2_ = new CalSel();
+          ic.addChild(v);
+          v.visible = false;
+
+          v = this.cd_ = new CD();
+          ic.addChild(v);
+          v.visible = false;
         }
         else {
+          XchgRd.S = .75;
+          Settle.S = .95;
+          FalseWin.S = .95;
+          Result.S = .95;
+          HstTbl.S = .95;
+          ChsStg.S = .8;
+          CalOpt.S = .95;
+          Setting2.S = .95;
+
           // 使选项菜单上鸣牌选项上面
           v = this.hlp_ = new HlpPop(this);
-          ic.addChild(v);
+          this.addChild(v);
 
           v = this.opt1_ = new OptPop((o, s)=>{
             if (s && this.ca1_.ac()) {
               this.ca1_.tgl(false);
             }
           });
-          ic.addChild(v);
+          this.addChild(v);
 
           v = this.ca1_ = new CalPop();
-          ic.addChild(v);
+          this.addChild(v);
+          v.visible = false;
+
+          v = this.ca2_ = new CalSel();
+          this.addChild(v);
+          v.visible = false;
+
+          v = this.cd_ = new CD();
+          this.addChild(v);
           v.visible = false;
 
           // 手机钢琴键
@@ -8522,14 +8608,6 @@
           this.addChild(v);
           v.visible = false;
         }
-
-        v = this.ca2_ = new CalSel();
-        ic.addChild(v);
-        v.visible = false;
-
-        v = this.cd_ = new CD();
-        ic.addChild(v);
-        v.visible = false;
 
         // 所有二级弹出界面的容器结点
         let sc = this.sc_ = new PIXI.Container();
@@ -8891,22 +8969,28 @@
             cp[3].y = h0 * .5;
 
             // 鸣牌按钮
-            ca1.x = w0 - CalPop.W;
-            ca1.y = h0 - CD.R - CalPop.H;
+            ca1.scale.set(s);
+            ca1.x = w - CalPop.W * s;
+            ca1.y = cy + h2 - (CD.R + CalPop.H) * s;
 
-            ca2.x = w0 - CalSel.W;
-            ca2.y = h0 - CD.R - (CalPop.H + CalSel.H);
+            ca2.scale.set(s);
+            ca2.x = w - CalSel.W * s;
+            ca2.y = cy + h2 - (CD.R + CalPop.H + CalSel.H) * s;
 
             // 倒计时
-            cd.x = w0 - CD.R - 20;
-            cd.y = h0 - CD.R;
+            cd.scale.set(s);
+            cd.x = w - (CD.R + 20) * s;
+            cd.y = cy + h2 - CD.R * s;
 
             // 弹出式菜单
-            op.x = w0 - OptPop.W;
-            op.y = h0 - CD.R - OptPop.H;
+            op.scale.set(s);
+            op.x = w - OptPop.W * s;
+            op.y = cy + h2 - (CD.R + OptPop.H) * s;
 
             // 弹出式操作按钮
-            hl.x = w0 - HlpPop.W;
+            hl.scale.set(s);
+            hl.x = w - HlpPop.W * s;
+            hl.y = cy;
 
             // 覆盖桌面宽度
             this.lyt_ = {x:cx, y:cy, w:w2, h:(h2 + h3 - cy)};
@@ -9002,32 +9086,41 @@
             cp[3].x = 40;
             cp[3].y = h0 * .5;
 
-            // 鸣牌按钮
-            let dx = cx * .5;  // 使之稍微能超出桌面范围一点
-            ca1.x = w0 - CalPop.W + dx;
-            ca1.y = h0 - 40 - CalPop.H;
+            // 弹出式操作按钮、鸣牌选择按钮、弹出式菜单三者占满屏幕高度
+            // 由于手牌宽容了15，这里再保持一点距离
+            let s1 = Math.max(s, (h2 - 25) / (HlpPop.H + CalSel.H + CalPop.H));
 
-            ca2.x = w0 - CalSel.W + dx;
-            ca2.y = h0 - 40 - (CalPop.H + CalSel.H);
+            // 鸣牌按钮
+            let dx = cx * .25;  // 使之稍微能超出桌面范围一点
+            ca1.scale.set(s1);
+            ca1.x = cx + w2 - CalPop.W * s1 + dx;
+            ca1.y = (h2 - 25) - CalPop.H * s1;
+
+            ca2.scale.set(s1);
+            ca2.x = cx + w2 - CalSel.W * s1 + dx;
+            ca2.y = (h2 - 25) - (CalPop.H + CalSel.H) * s1;
 
             // 倒计时
+            cd.scale.set(s1);
             // 能够放在超出桌面的范围内
-            // cx + (w0 + dx + CD.R) * s
-            if (cx + w2 + (dx + CD.R) * s <= w) {
-              cd.x = w0 + dx;
-              cd.y = h0 - 130;
+            if (cx + w2 + dx + (10 + CD.R) * s1 <= w) {
+              cd.x = cx + w2 + dx + 10 * s1;
+              cd.y = h2 - 25 - CD.R * s1;
             }
             else {
-              cd.x = w0 - CD.R;
-              cd.y = h0 - CD.R * .5;
+              cd.x = cx + w2 - (CD.R + 10) * s1;
+              cd.y = h2 - 25;
             }
 
             // 弹出式菜单
-            op.x = w0 - OptPop.W + dx;
-            op.y = h0 - 40 - OptPop.H;
+            op.scale.set(s1);
+            op.x = cx + w2 - OptPop.W * s1 + dx;
+            op.y = (h2 - 25) - OptPop.H * s1;
 
             // 弹出式操作按钮
-            hl.x = w0 - HlpPop.W + dx;
+            hl.scale.set(s1);
+            hl.x = cx + w2 - HlpPop.W * s1 + dx;
+            hl.y = 0;
 
             // 覆盖桌面宽度
             this.lyt_ = {x:cx, y:0, w:w2, h:(h2 + h3)};
@@ -9159,6 +9252,7 @@
         //{"t":"sfda","n":4,"d":false,"i":500,"l":8,"b":8,"r12":5,"r30":10,"dt":0,"d12":false,"fa":true,"fc":false,"s":true,"o":true,"a":false,"r":false}
         this.cfg_ = g;
         this.ti_.text = `${g['t']} [${g['n']} | ${g['l']} (${g['b']}) | ${g['r30']}/${g['r12']}s]`;
+        this.cr_.cfg(g);
       }
 
       /**
@@ -9206,7 +9300,8 @@
           this._send1(d, h);
         }
         else {
-          let b = new XchgRd(o >> 2);
+          let p = this.pls_, n = [p[0]['n'], p[1]['n'], p[2]['n'], p[3]['n']];
+          let b = new XchgRd(o >> 2, n, [p[0]['s'], p[1]['s'], p[2]['s'], p[3]['s']]);
           this.sc_.addChild(b);
 
           let l = this.lyt_;
@@ -9222,8 +9317,7 @@
           else {
             // 东风东时，设置计分表的人名
             tz.play('snd/01-start.wav');
-            let p = this.pls_;
-            this.hst_.setup([p[0]['n'], p[1]['n'], p[2]['n'], p[3]['n']]);
+            this.hst_.setup(n);
           }
         }
       }
@@ -9235,7 +9329,7 @@
        */
       _send1(d, h) {
         let c = this.cr_;
-        let dice = n=>{
+        let dca = n=>{
           let t = tz.res[`img/dice/${n}.png`].texture;
           let f = [];
           [
@@ -9244,7 +9338,8 @@
             new PIXI.Rectangle(2,204,72,200),new PIXI.Rectangle(74,204,70,200),new PIXI.Rectangle(146,204,58,200)
           ]
           .forEach(e=>f.push(new PIXI.Texture(t, e)));
-          let a = new PIXI.extras.AnimatedSprite(f);
+          //let a = new PIXI.extras.AnimatedSprite(f);  // v4.x
+          let a = new PIXI.AnimatedSprite(f);  // v4.x
           a.x = 100;
           a.y = 100;
           a.animationSpeed = .4;
@@ -9256,10 +9351,11 @@
         // 第一次掷骰子
         c.turn = 0;
         for (let i = 0; i < 2; ++i) {
-          let s = dice(d[i]);
+          let s = dca(d[i]);
           this.ro_.addChild(s);
+          // 让位置看起来随机一些
           s.x = this.cr_.x + 30 + 120 * i + Math.random() * 50;
-          s.y = this.cr_.y - Math.random() * 80;
+          s.y = this.cr_.y - Math.random() * 100;
           setTimeout(s.dsty.bind(s), DCDT * .5);
         }
         tz.play('snd/02-dice.wav');
@@ -9276,10 +9372,11 @@
           // 第二次掷骰子
         setTimeout(()=>{
           for (let i = 0; i < 2; ++i) {
-            let s = dice(d[i + 2]);
+            let s = dca(d[i + 2]);
             this.ro_.addChild(s);
+            // 让位置看起来随机一些
             s.x = this.cr_.x + 30 + 120 * i + Math.random() * 50;
-            s.y = this.cr_.y - Math.random() * 80;
+            s.y = this.cr_.y - Math.random() * 100;
             setTimeout(s.dsty.bind(s), DCDT * .5);
           }
           tz.play('snd/02-dice.wav');
@@ -9547,7 +9644,7 @@
         });
 
         // 出牌阶段
-        if (this.disc_) {
+        if (this.phs_) {
           // 轮到自己打牌时，隐藏“过”和“弃”
           if (s) {
             c.hide(0);
@@ -9709,18 +9806,6 @@
           this.stpflw_ = true;
         }
       }
-
-/*
-_tapbg() {
-  console.log('_tapbg');
-  return;
-  this.sc_.children.forEach(v=>v.visible = false);
-  if (tz.phn) {
-    this.opt1_.tgl(false);
-    this.hlp_.tgl(false);
-  }
-}
-*/
 
       /**
        * 显示鸣牌字样
@@ -9896,11 +9981,26 @@ _tapbg() {
           this.cd_.rm();
         }
 
-        // 右键出牌
-        if (/*tz.cfg['rightdiscard'] &&*/ this.cr_.self()) {
-          let h = this.ht_[0];
-          if (h.candscd()) {
-            h.clk(13);
+        // 右键摸切牌
+        if (tz.cfg['rightdiscard'] && this.cr_.self()) {
+          this.ht_[0].dd();
+        }
+      }
+
+      /**
+       * 点击桌面（手机用）
+       */
+      tapbg(e) {
+        // 当target!==this时，说明是点击到了其他控件上
+        if (e.target === this) {
+          // TODO: 收起所有展开的面板
+          //this.sc_.children.forEach(v=>v.visible = false);
+          //if (tz.phn) {
+          //  this.opt1_.tgl(false);
+          //  this.hlp_.tgl(false);
+          //}
+          if (this.cr_.self()) {
+            this.ht_[0].clk(13);
           }
         }
       }
@@ -9930,7 +10030,7 @@ _tapbg() {
       onsend(r) {
         this.init();
         this.send(r['h'], r['p'], r['d'], r['v']);
-        this.disc_ = false;
+        this.phs_ = false;
         this.stp_ = 3;
       }
 
@@ -9975,7 +10075,7 @@ _tapbg() {
           let t = r['t'];
           this.flw0(lobyte(t), hibyte(t));
           this.addcal(r['a']);
-          this.cd_.setup(this.cfg_[this.disc_ ? 'r30' : 'r12']);
+          this.cd_.setup(this.cfg_[this.phs_ ? 'r30' : 'r12']);
         }
       }
 
@@ -9984,7 +10084,7 @@ _tapbg() {
        * @param {JSON} r 服务器传回的json
        */
       onstgchg(r) {
-        this.disc_ = true;
+        this.phs_ = true;
         this.cr_.turn = 0;
         if (this.cr_.seat !== 0) {
           // 庄家是别人
@@ -10327,6 +10427,7 @@ _tapbg() {
 
         this.setup(r['g']);
         this.init();
+        this.hlp_.strt(r['s']);
 
         // 基本信息
         (function(){
@@ -10353,7 +10454,7 @@ _tapbg() {
           let c = this.cr_;
           c.order(d['d']);
           c.turn = d['t'];
-          this.disc_ = d['e'];  // 出牌阶段or配牌补花阶段
+          this.phs_ = d['e'];  // 出牌阶段or配牌补花阶段
 
           // 牌池
           let s = c.seat, p = d['p'];
@@ -10541,18 +10642,21 @@ _tapbg() {
         cb2.sel = !tz.cfg['mutecall'];
 
         // 右键摸切
-        t = new PIXI.Text(tz.ls('RClickDiscard'), bs);
-        bg.addChild(t);
-        t.anchor.y = .5;
-        t.x = 30;
-        t.y = 260;
+        let cb3;
+        if (!tz.phn) {
+          t = new PIXI.Text(tz.ls('RClickDiscard'), bs);
+          bg.addChild(t);
+          t.anchor.y = .5;
+          t.x = 30;
+          t.y = 260;
 
-        let cb3 = new ChkBox();
-        bg.addChild(cb3);
-        cb3.scale.set(.75);
-        cb3.x = t.x + t.width + 40;
-        cb3.y = t.y - 18;
-        cb3.sel = tz.cfg['rightdiscard'];
+          cb3 = new ChkBox();
+          bg.addChild(cb3);
+          cb3.scale.set(.75);
+          cb3.x = t.x + t.width + 40;
+          cb3.y = t.y - 18;
+          cb3.sel = tz.cfg['rightdiscard'];
+        }
 
         // 确认和取消
         const w1 = 120, h1 = 50;
@@ -10569,7 +10673,9 @@ _tapbg() {
           cfg['volume'] = v;
           cfg['mutecd'] = cb1.sel ? 0 : 1;
           cfg['mutecall'] = cb2.sel ? 0 : 1;
-          cfg['rightdiscard'] = cb3.sel ? 1 : 0;
+          if (!tz.phn) {
+            cfg['rightdiscard'] = cb3.sel ? 1 : 0;
+          }
           tz.save();
           PIXI.sound.volumeAll = v / 100;
           this.ovrwrt_ = true;
@@ -10598,8 +10704,8 @@ _tapbg() {
        */
       layt(x, y, w, h) {
         super.layt();
-        const w0 = Setting2.W, h0 = Setting2.H;
-        let c = this.ic_, s = Math.min(w * .95 / w0, h * .95 / h0, 1);
+        const w0 = Setting2.W, h0 = Setting2.H, s0 = Setting2.S;
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -10608,6 +10714,7 @@ _tapbg() {
     }
     Setting2.W = 600;
     Setting2.H = 420;
+    Setting2.S = .95;
 
     // =====================================================================================================
 
@@ -11160,26 +11267,38 @@ _tapbg() {
         case 1:{
           let tp = tz.tpvw;
           switch (r['e']) {
-          default: tp.err(tz.ls('')); break;
-          case 1: tp.err(tz.ls('')); break;
-          case 2: tp.err(tz.ls('')); break;
-          case 3: tp.err(tz.ls('')); break;
-          case 4: tp.err(tz.ls('')); break;
-          case 5: tp.err(tz.ls('')); break;
-          case 6: tp.err(tz.ls('')); break;
-          case 7: tp.err(tz.ls('')); break;
-          case 8: tp.err(tz.ls('')); break;
-          case 9: tp.err(tz.ls('')); break;
-          case 10: tp.err(tz.ls('')); break;
-          case 11: tp.err(tz.ls('')); break;
-          case 12: tp.err(tz.ls('')); break;
-          case 13: tp.err(tz.ls('')); break;
-          case 14: tp.err(tz.ls('')); break;
-          case 15: tp.err(tz.ls('')); break;
-          case 17: tp.err(tz.ls('')); break;
-          case 18: tp.err(tz.ls('')); break;
-          case 19: tp.err(tz.ls('')); break;
+          default: tp.err(tz.ls('ErrorUnknownX', r['e'])); break;
+          case 1: tp.err(tz.ls('ErrorUnknown')); break;
+          case 1: tp.err(tz.ls('ErrorInTable')); break;
+          case 2: tp.err(tz.ls('ErrorInGame')); break;
+          case 3: tp.err(tz.ls('ErrorTableNotExist')); break;
+          case 4: tp.err(tz.ls('ErrorWrongSeat')); break;
+          case 5: tp.err(tz.ls('ErrorSeatOccupied')); break;
+          case 6: tp.err(tz.ls('ErrorPassword')); break;
+          case 7: tp.err(tz.ls('ErrorNotInTable')); break;
+          case 8: tp.err(tz.ls('ErrorLoginElsewhere'), true); break;
+          case 9: tp.err(tz.ls('ErrorTooLong')); break;
+          case 10: tp.err(tz.ls('ErrorGuestEntry')); break;
+          case 11: tp.err(tz.ls('ErrorSpecialChars')); break;
+          case 12: tp.err(tz.ls('ErrorTimeSetting')); break;
+          case 13: tp.err(tz.ls('ErrorNotMatch')); break;
+          case 14: tp.err(tz.ls('ErrorVerifyExpired')); break;
+          case 15: tp.err(tz.ls('ErrorVerifyAns')); break;
+          case 17: tp.err(tz.ls('ErrorNotSupport')); break;
+          case 18: tp.err(tz.ls('ErrorIP')); break;
+          case 19: tp.err(tz.ls('ErrorNotActivated')); break;
           case 16: {
+            document.cookie = '__p=;Path=/;Max-Age=0';
+            let un, pw;
+            // 使用token登录失败后，尝试用本地保存的账号密码登录
+            // 如果本地无账号密码，提示手动登录
+            if (this.tlr_ && (un = tz.cfg['username']) && (pw = tz.cfg['token'])) {
+              this.tlr_ = false;
+              tz.ws.send(`{"m":1,"r":12,"u":"${un}","p":"${pw}"}`);
+            }
+            else {
+              tp.err('ErrorAutoLogin');
+            }
             break;
           }
           }
@@ -11301,7 +11420,7 @@ _tapbg() {
           }
           else {
             tv.visible = true;
-            tv.y = 50 + (tv.height + 10) * (k - s);
+            tv.y = 50 + (tv.height + 5) * (k - s);
           }
         });
 
@@ -12367,6 +12486,7 @@ _tapbg() {
             "CallsAllowed" : "允许鸣牌",
             "CallsDisallowed" : "不允许鸣牌",
             "Remains" : "牌墙剩余",
+            "Sabotage" : "战术鸣牌",
             "Chow" : "吃",
             "Pung" : "碰",
             "Kong" : "杠",
@@ -12628,6 +12748,7 @@ _tapbg() {
             "CallsAllowed" : "允許鳴牌",
             "CallsDisallowed" : "不允許鳴牌",
             "Remains" : "牌墻剩餘",
+            "Sabotage" : "戰術鳴牌",
             "Chow" : "吃",
             "Pung" : "碰",
             "Kong" : "槓",
@@ -12889,6 +13010,7 @@ _tapbg() {
             "CallsAllowed" : "Calls allowed",
             "CallsDisallowed" : "Calls disallowed",
             "Remains" : "Remains",
+            "Sabotage" : "Sabotage",
             "Chow" : "Chow",
             "Pung" : "Pung",
             "Kong" : "Kong",
