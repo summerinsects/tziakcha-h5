@@ -362,8 +362,8 @@
       strt_load: function() {
         // 显示牌墙：0自动 1有 2无
         // 自动：手机不显示，PC、平板显示
-        this.phn = false;
-        //this.phn = PIXI.utils.isMobile.phone;
+        //this.phn = false;
+        this.phn = PIXI.utils.isMobile.phone;
         let sw = this.cfg['wall'];
         if (typeof sw !== 'number') sw = 0;
 
