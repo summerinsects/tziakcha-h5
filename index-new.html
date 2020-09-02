@@ -2290,26 +2290,26 @@
         // 按钮120*60
         let a = this.btn_, t = this.ee_;
         // 测速
-        a[0].x = w - 120;
-        a[0].y = 55;
+        a[0].y = h - 190;
         // 设置
         a[3].x = w - 120;
-        a[3].y = 125;
+        a[3].y = 55;
         // 鸣牌
+        a[2].x = w - 120;
         a[2].y = h - 50;
         // 追分
-        a[1].y = h - 120;
+        a[1].y = h - 50;
         // 历史
-        a[4].y = h - 190;
+        a[4].y = h - 120;
 
         // 速度
-        t.x = w - 160;
-        t.y = 85;
+        t.x = 160;
+        t.y = h - 160;
 
         // 计时
         t = this.gt_;
         t.x = w - 160;
-        t.y = 155;
+        t.y = 85;
       }
     }
 
@@ -8826,8 +8826,6 @@
         let ti = this.ti_, ht = this.ht_, ic = this.ic_, op = this.opt1_, hl = this.hlp_, ca1 = this.ca1_, ca2 = this.ca2_, cd = this.cd_, cp = this.calpos_;
         let ht0 = ht[0];
 
-        let ht1_yf = 0;  // 手机横屏时下家调整
-
         // PC、平板适配
         if (!tz.phn) {
           // 标题放最上方
@@ -8875,7 +8873,7 @@
             // 覆盖桌面宽度
             this.lyt_ = {x:0, y:cy, w:w, h:(h2 + h3 - cy)};
 
-            // 手牌
+            // 自己手牌
             ht0.x = 0;
             ht0.y = h2;
             ht0.layt(sx, w, h3);
@@ -8886,7 +8884,7 @@
 
             // 倒计时
             cd.x = w0 - 110;
-            cd.y = h0 - 80;
+            cd.y = h0 - 140;
 
             // 下方菜单
             op.x = 0;
@@ -8925,7 +8923,7 @@
             ti.y = cy * .5;
             ti.scale.set(sy);
 
-            // 手牌
+            // 自己手牌
             ht0.y = h2;
             ht0.layt(sy, w2, h3);
 
@@ -8935,15 +8933,23 @@
 
             // 倒计时
             cd.x = w0 - 110;
-            cd.y = h0 - 80;
+            cd.y = h0 - 140;
 
             // 下方菜单
             op.y = h2 + h3 + 5;
             op.scale.set(w2 / OptGrp.W);
           }
+
+          // 其他人手牌位置
+          ht[1].x = w0 - HdCtn1.W;
+          ht[1].y = HdCtn2.H;
+
+          ht[2].x = Math.max(w0 - HdCtn1.W - HdCtn2.W, HdCtn3.W);
         }
         // 手机适配
         else {
+          //let ht1_yf = 0;  // 手机横屏时下家调整
+
           // 竖屏
           if (w < h) {
             // 按桌面与手牌的最大宽度适配
@@ -9010,10 +9016,16 @@
             ti.rotation = 0;
             ti.scale.set(s);
 
-            // 手牌
+            // 自己手牌
             ht0.x = 0;
             ht0.y = h2;
             ht0.layt(s, w, h3);
+
+            // 其他人手牌位置
+            ht[1].x = w0 - HdCtn1.W;
+            ht[1].y = HdCtn2.H;
+
+            ht[2].x = Math.max(w0 - HdCtn1.W - HdCtn2.W, HdCtn3.W);
 
             // 钢琴键
             let y = h2 + h3, s1 = w / HdCtn0.W, p3 = this.p3_, p2 = this.p2_;
@@ -9137,12 +9149,18 @@
             ti.y = 0;
             ti.scale.set(s);
 
-            // 手牌，再宽容15像素
+            // 自己手牌，再宽容15像素
             ht0.y = h2 - 15;
             ht0.layt(s, w, h3 + 15);
 
             // 下家手牌校正高度
-            ht1_yf = (1 - s) * (h3 + 15 - H0F);
+            //let yf = (1 - s) * (h3 + 15 - H0F);
+
+            // 其他人手牌位置
+            ht[1].x = w0 - HdCtn1.W;
+            ht[1].y = 0;
+
+            ht[2].x = Math.max(w0 - HdCtn1.W - HdCtn2.W, HdCtn3.W);
 
             this.p3_.visible = false;
             this.p2_.visible = false;
@@ -9177,11 +9195,14 @@
         ro.x = (w0 - Game.WP) * .5;
         ro.y = (h0 + HdCtn2.H - Game.HP) * .5;
 
+/*
+        // 旧方案
         // 手牌位置
         ht[1].x = w0 - HdCtn1.W;
         ht[1].y = Math.max(h0 - HdCtn1.H - ht1_yf, 0);
 
         ht[2].x = Math.max(w0 - HdCtn1.W - HdCtn2.W, HdCtn3.W);
+*/
 
         // 准备标记
         cp.forEach((e, i)=>this.rdyf_[i].position.set(e['x'], e['y']));
