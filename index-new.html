@@ -262,7 +262,7 @@
     }
 
     const FF = [
-      '-apple-system', /*'BlinkMacSystemFont',*/ 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif',
+      '-apple-system', /*'BlinkMacSystemFont',*/ 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'DSF', 'sans-serif',
       'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
     ];
 
@@ -1272,7 +1272,7 @@
       layt(x, y, w, h) {
         super.layt();
         const w0 = XchgRd.W, h0 = XchgRd.H, s0 = XchgRd.S;
-        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -1393,7 +1393,7 @@
         fg.visible = false;
 
         let f = this.fa_ = new PIXI.Text('', {
-          fontFamily: 'sans-serif',
+          fontFamily: ['DSF', 'sans-serif'],
           fontSize: 64,
           fontWeight: 'bold',
           fill: '#ffffff',
@@ -2304,12 +2304,12 @@
 
         // 速度
         t.x = w - 160;
-        t.y = 155;
+        t.y = 85;
 
         // 计时
         t = this.gt_;
         t.x = w - 160;
-        t.y = 85;
+        t.y = 155;
       }
     }
 
@@ -2361,7 +2361,7 @@
 
         // 当前打：X风X
         let t = this.o_ = new PIXI.Text('', {
-          fontFamily: 'sans-serif',
+          fontFamily: ['DSF', 'sans-serif'],
           fontSize: 54,
           fontWeight: 'bold',
           fill: '#ffffff',
@@ -2472,7 +2472,7 @@
        * 设置配置信息
        */
       cfg(g) {
-        this.g_.text = `${tz.ls('XRounds', g['n'])} ${g['l']} (${g['b']})\n${g['r30']}/${g['r12']}s\n${tz.ls('Sabotage')} ${g['s']?'\u2713':'\u2715'}`;
+        this.g_.text = `${tz.ls('XRounds', g['n'])} ${g['l']} (${g['b']})\n${g['r30']}/${g['r12']}s\n${tz.ls('Sabotage')} ${g['s']?'\u2713':'\u2715'}\n${tz.ls('HandTiles')} ${g['o']?'\u2713':'\u2715'}`;
       }
 
       /**
@@ -4106,7 +4106,7 @@
         s.forEach(ad);
 
         // 根据横放的牌张，计算应去的位置
-        let d = dp(3, 3);
+        let d = dp(2, 3);
 
         // 执行动画
 
@@ -6416,12 +6416,12 @@
             case 0:  // 鸣上家
               p.push({x:x, y:y0}, {x:(x + W1), y:y}, {x:(x + W1 + W0), y:y});
               x += W0 * 2 + W1;
-              if (c === 2) { p.push({x:(x + W1 + W0 * 2), y:y}); x += W0; }
+              if (c === 2) { p.push({x:x, y:y}); x += W0; }
               break;
             case 1:  // 鸣对家
               p.push({x:x, y:y}, {x:(x + W0), y:y0}, {x:(x + W1 + W0), y:y});
               x += W0 * 2 + W1;
-              if (c === 2) { p.push({x:(x + W1 + W0 * 2), y:y}); x += W0; }
+              if (c === 2) { p.push({x:x, y:y}); x += W0; }
               break;
             case 2:  // 鸣下家
               p.push({x:x, y:y}, {x:(x + W0), y:y});
@@ -6652,7 +6652,7 @@
 
           // 中间的x风x
           let t = new PIXI.Text(tz.ls('Order' + d['r']), {
-            fontFamily: 'sans-serif',
+            fontFamily: ['DSF', 'sans-serif'],
             fontSize: 32,
             fontWeight: 'bold',
             fill: '#ffffff',
@@ -6685,8 +6685,8 @@
             g.y = cy[i] - h1 * .5;
 
             // 门风
-            let t = new PIXI.Text(tz.ls(WIND[i]), {
-              fontFamily: 'sans-serif',
+            let t = new PIXI.Text(tz.ls(WIND[k]), {
+              fontFamily: ['DSF', 'sans-serif'],
               fontSize: 48,
               fontWeight: 'bold',
               fill: '#ffffff',
@@ -6854,7 +6854,7 @@
       layt(x, y, w, h) {
         super.layt();
         const w0 = Settle.W, h0 = Settle.H, s0 = Settle.S;
-        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -6988,7 +6988,7 @@
       layt(x, y, w, h) {
         super.layt();
         let c = this.ic_, w0 = this.w_, h0 = this.h_, s0 = FalseWin.S;
-        let s = Math.min(w * s0 / w0, h * s0 / h0, 1);
+        let s = Math.min(w * s0 / w0, h * s0 / h0);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -7168,7 +7168,7 @@
        */
       layt(x, y, w, h) {
         const w0 = Result.W, h0 = Result.H, s0 = Result.S;
-        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -7704,7 +7704,7 @@
         this.nt_.forEach((e, i)=>{ e.visible = true; e.text = p[m[i]]['n']; });
 
         let t = [0, 0, 0, 0];  // 累计
-        b.forEach((e, o)=>{
+        b.forEach((w, o)=>{
           // 本盘得分，罚分，本盘小计
           let s = [0, 0, 0, 0], n = [0, 0, 0, 0], a = [0, 0, 0, 0];
           for (let k = 0; k < 4; ++k) {
@@ -7751,7 +7751,7 @@
               }
             });
 
-            this.bf_[o] = {h:e['h'], w:e['w'], f:e['t']};
+            this.bf_[o] = {h:w['h'], w:w['w'], f:w['t']};
             this.hb_[o].visible = true;
           } else {
             // 荒庄
@@ -7835,7 +7835,7 @@
       layt(x, y, w, h) {
         super.layt();
         const w0 = HstTbl.W, h0 = HstTbl.H, s0 = HstTbl.S;
-        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -8068,7 +8068,7 @@
       layt(x, y, w, h) {
         super.layt();
         const w0 = ChsStg.W, h0 = ChsStg.H, s0 = ChsStg.S;
-        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -8331,7 +8331,7 @@
       layt(x, y, w, h) {
         super.layt();
         const w0 = CalOpt.W, h0 = CalOpt.H, s0 = CalOpt.S;
-        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -8885,8 +8885,8 @@
             ca2.layt(w0, h0);
 
             // 倒计时
-            cd.x = w0 - 100;
-            cd.y = h0 - 145;
+            cd.x = w0 - 110;
+            cd.y = h0 - 80;
 
             // 下方菜单
             op.x = 0;
@@ -8934,8 +8934,8 @@
             ca2.layt(w0, h0);
 
             // 倒计时
-            cd.x = w0 - 100;
-            cd.y = h0 - 145;
+            cd.x = w0 - 110;
+            cd.y = h0 - 80;
 
             // 下方菜单
             op.y = h2 + h3 + 5;
@@ -9275,7 +9275,8 @@
         this.ca1_.visible = false;
         this.ca2_.visible = false;
         this.cd_.visible = false;
-        this.catx_.forEach(e=>{ if (e) { e.dsty(); }});  // BUG
+        this.catx_.forEach(e=>{ if (e && !e.tw_) { e.dsty(); }});
+        this.catx_.fill(null);
         this.rdyf_.forEach(e=>e.visible = false);
 
         this.stpflw_ = false;
@@ -9734,7 +9735,6 @@
         f.dsty();
         this.fly_ = null;
 
-        this.cr_.turn = n;
         if (n === 0) {
           this.cd_.setup(this.cfg_['r30']);
         }
@@ -9752,7 +9752,6 @@
         f.dsty();
         this.fly_ = null;
 
-        this.cr_.turn = n;
         if (n === 0) {
           this.cd_.setup(this.cfg_['r30']);
         }
@@ -9769,8 +9768,6 @@
 
         f.dsty();
         this.fly_ = null;
-
-        this.cr_.turn = n;
 
         if (n === 0) {
           this.stpflw_ = true;
@@ -9822,13 +9819,17 @@
       caltxt(n, s, a) {
         let t = this.catx_[n];
         if (t) {
-          // 直接隐藏就可以了，反正在创建时的TWEEN.Tween动作中会删除
-          t.visible = true;
+          if (t.tw_) {
+            // 直接隐藏就可以了，反正在创建时的TWEEN.Tween动作中会删除
+            t.visible = true;
+          } else {
+            t.dsty();
+          }
         }
 
         let p = this.calpos_[n];
         t = this.catx_[n] = new PIXI.Text(s, {
-          fontFamily: 'sans-serif',
+          fontFamily: ['DSF', 'sans-serif'],
           fontSize: 84,
           fontWeight: 'bold',
           fill: '#ffffff',
@@ -9849,9 +9850,10 @@
         t.anchor.set(.5);
         t.x = p['x'] + (.5 - p['ax']) * t.width;
         t.y = p['y'] + (.5 - p['ay']) * t.height;
-        this.ic_.addChild(t);
+        this.ic_.addChildAt(t, this.ic_.getChildIndex(this.rdyf_[n]));
 
         if (!a) {
+          t.tw_ = true;
           t.scale.set(2);
           (new TWEEN.Tween(t)).to({alpha:1}, 200).start();
           (new TWEEN.Tween(t.scale)).to({x:1,y:1}, 200).onComplete(()=>{
@@ -10138,9 +10140,10 @@
        * @param {JSON} r 服务器传回的json
        */
       onc(r) {
-        let v = r['v'], p = r['p'], s = this.cr_.seat, n = (v + 4 - s) & 3;
+        let v = r['v'], p = r['p'], c = this.cr_, s = c.seat, n = (v + 4 - s) & 3;
         if (p) {
           this.c(n, p);
+          c.turn = v;
         } else {
           // 只知道有人要吃
           tz.play(!this.pls_[v]['g'] ? 'snd/14-chow-m.wav' : 'snd/15-chow-f.wav');
@@ -10158,9 +10161,10 @@
        * @param {JSON} r 服务器传回的json
        */
       onp(r) {
-        let v = r['v'], p = r['p'], s = this.cr_.seat, n = (v + 4 - s) & 3;
+        let v = r['v'], p = r['p'], c = this.cr_, s = c.seat, n = (v + 4 - s) & 3;
         if (p) {
           this.p(n, p);
+          c.turn = v;
         } else {
           // 只知道有人要碰
           tz.play(!this.pls_[v]['g'] ? 'snd/16-pung-m.wav' : 'snd/17-pung-f.wav');
@@ -10178,7 +10182,7 @@
        * @param {JSON} r 服务器传回的json
        */
       onmk(r) {
-        let v = r['v'], p = r['p'], s = this.cr_.seat, n = (v + 4 - s) & 3;
+        let v = r['v'], p = r['p'], c = this.cr_, s = c.seat, n = (v + 4 - s) & 3;
         if (!p) {
           // 只知道有人要杠
           tz.play(!this.pls_[v]['g'] ? 'snd/18-kong-m.wav' : 'snd/19-kong-f.wav');
@@ -10193,6 +10197,7 @@
           if (!pro_k(p)) {
             // 直杠
             this.dk(n, p);
+            c.turn = v;
           } else {
             // 加杠（并且可能的抢杠动作）
             tz.play(!this.pls_[v]['g'] ? 'snd/18-kong-m.wav' : 'snd/19-kong-f.wav');
@@ -10712,7 +10717,7 @@
       layt(x, y, w, h) {
         super.layt();
         const w0 = Setting2.W, h0 = Setting2.H, s0 = Setting2.S;
-        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0, 1);
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0);
         c.scale.set(s);
         c.x = x + (w - w0 * s) * .5;
         c.y = y + (h - h0 * s) * .5;
@@ -13180,7 +13185,7 @@
             "Default": "Default",
             "DefaultLangHint" : "The default language depends on your browser and operating system",
             "TileStyle" : "Tile Style",
-            "DefaultTileStyleHint" : "Non Chinese users will display the superscript by default",
+            "DefaultTileStyleHint" : "Non-Chinese users will display the superscript by default",
             "ShowWall" : "Show Wall",
             "DefaultWallHint" : "Tile walls will display on PC and tablet by default, and not on mobile phone",
             "PianoSize" : "Piano Size",
@@ -13259,7 +13264,26 @@
 
       document.title = tz.ls('HTMLTitle');
       document.getElementsByTagName('canvas')[0].innerText = tz.ls('BrowerNotSupport');
-      tz.strt_load();
+
+      try {
+        if (window['FontFace']) {
+          new FontFace('DSF', 'url(\'../../public/fnt/DroidSansFallback.ttf\')')
+          .load()
+          .then(f=>{
+            document.fonts.add(f);
+            tz.strt_load();
+          })
+          .catch(e=>{
+            console.log('FontFace error 1', e);
+            tz.strt_load();
+          });
+        } else {
+          tz.strt_load();
+        }
+      } catch (e) {
+        console.log('FontFace error 2', e);
+        tz.strt_load();
+      }
     })();
   </script>
 </body>
