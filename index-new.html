@@ -7709,10 +7709,10 @@
           let s = [0, 0, 0, 0], n = [0, 0, 0, 0], a = [0, 0, 0, 0];
           for (let k = 0; k < 4; ++k) {
             let i = m[k], u = p[i];  // 转换座位
-            s[i] = u['rs'][o];
-            n[i] = u['rp'][o];
-            a[i] = s[i] + n[i];
-            t[i] += a[i];  // 累计
+            s[k] = u['rs'][o];
+            n[k] = u['rp'][o];
+            a[k] = s[k] + n[k];
+            t[k] += a[k];  // 累计
           }
 
           let st = this.st_[o];
