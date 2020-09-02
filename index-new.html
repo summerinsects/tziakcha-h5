@@ -6434,15 +6434,15 @@
               break;
             case 4:  // 碰上家，加杠
               p.push({x:x, y:(y0 - H1)}, {x:x, y:y0}, {x:(x + W1), y:y}, {x:(x + W1 + W0), y:y});
-              x += W0 * 3 + W1;
+              x += W0 * 2 + W1;
               break;
             case 5:  // 碰对家，加杠
               p.push({x:x, y:y}, {x:(x + W0), y:(y0 - H1)}, {x:(x + W0), y:y0}, {x:(x + W1 + W0), y:y});
-              x += W0 * 3 + W1;
+              x += W0 * 2 + W1;
               break;
             case 6:  // 碰下家，加杠
               p.push({x:x, y:y}, {x:(x + W0), y:y}, {x:(x + W0 * 2), y:(y0 - H1)}, {x:(x + W0 * 2), y:y0});
-              x += W0 * 3 + W1;
+              x += W0 * 2 + W1;
               break;
             }
             s.forEach((e, i)=>{
@@ -7709,8 +7709,8 @@
           let s = [0, 0, 0, 0], n = [0, 0, 0, 0], a = [0, 0, 0, 0];
           for (let k = 0; k < 4; ++k) {
             let i = m[k], u = p[i];  // 转换座位
-            s[i] = u['rs'];
-            n[i] = u['rp'];
+            s[i] = u['rs'][o];
+            n[i] = u['rp'][o];
             a[i] = s[i] + n[i];
             t[i] += a[i];  // 累计
           }
@@ -7719,7 +7719,6 @@
           a.forEach((v, i)=>{
             let e = st[i << 1];
             e.text = v;
-            e.style.fill = '#dcdcdc';
             e.visible = true;
           });
 
@@ -7732,9 +7731,11 @@
           let r = calcwc(s), i = r['w'];
           if (i !== -1) {
             let c = r['c'];
-            for (let k = 0; k < 8; ++k) {
-              if (!(k & 1)) {
-                let e = st[k], l = k >> 1;
+            st.forEach((e, k)=>{
+              if (k & 1) {
+                e.style.fill = '#dcdcdc';
+              } else {
+                let l = k >> 1;
                 if (l === i) {
                   e.style.fill = '#ff6a6a';
                 }
@@ -7748,9 +7749,9 @@
                   e.style.fill = '#00cd66';
                 }
               }
-            }
+            });
 
-            this.bf_[o] = {h:e['h'], w:e['w'], f:e['f']};
+            this.bf_[o] = {h:e['h'], w:e['w'], f:e['t']};
             this.hb_[o].visible = true;
           } else {
             // 荒庄
