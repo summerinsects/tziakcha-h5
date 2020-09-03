@@ -2358,8 +2358,9 @@
 
       /**
        * @param {object} p 代理onspd onchs oncal onset onhst
+       * @param {object} c 理牌复选框
        */
-      constructor(p) {
+      constructor(p, c) {
         super();
 
         const s = {
@@ -2393,6 +2394,9 @@
         t = this.ee_;
         this.addChild(t);
         t.anchor.set(.5);
+
+        this.addChild(c);
+        this.ac_ = c;
       }
 
       /**
@@ -2404,7 +2408,9 @@
         // 按钮120*60
         let a = this.btn_, t = this.ee_;
         // 测速
-        a[0].y = h - 190;
+        a[0].x = w - 120;
+        a[0].y = 125;
+
         // 设置
         a[3].x = w - 120;
         a[3].y = 55;
@@ -2416,9 +2422,12 @@
         // 历史
         a[4].y = h - 120;
 
+        // 理牌
+        this.ac_.y = h - 180;
+
         // 速度
-        t.x = 160;
-        t.y = h - 160;
+        t.x = w - 160;
+        t.y = 155;
 
         // 计时
         t = this.gt_;
@@ -3323,13 +3332,12 @@
       // i_ = 0;  // 牌张索引
       // s_ = null;  // 角标
       // fg_ = null;  // 高亮前景
-      // cb_ = null;  // 点击回调
 
       /**
        * @param {number} i 牌张索引
-       * @param {function(StTl):void} cb 点击回调
+       * @param {boolean} f 是否显示高亮前景
        */
-      constructor(i, cb) {
+      constructor(i, f) {
         let v = TlTbl[i];
         super(new PIXI.Texture(StTl.tx0.baseTexture, new PIXI.Rectangle(
           (W0 + 2) * (v & 0xF) + 2, (H0F + 2) * ((v & 0xF0) >> 4) + 2,
@@ -3343,33 +3351,14 @@
           s.y = 18;
         }
 
-        if (!cb) {
-          return;
+        if (f) {
+          let fg = this.fg_ = new PIXI.Sprite(new PIXI.Texture(StTl.tx0.baseTexture, new PIXI.Rectangle(
+            (W0 + 2) * 7 + 2, (H0F + 2) * 3 + 2,
+            W0, H0F)));
+          this.addChild(fg);
+          fg.alpha = .3;
+          fg.visible = false;
         }
-
-        let fg = this.fg_ = new PIXI.Sprite(new PIXI.Texture(StTl.tx0.baseTexture, new PIXI.Rectangle(
-          (W0 + 2) * 7 + 2, (H0F + 2) * 3 + 2,
-          W0, H0F)));
-        this.addChild(fg);
-        fg.alpha = .3;
-        fg.visible = false;
-
-        this.cb_ = cb;
-        let l = ()=>this.fg_.visible = true;
-        let n = ()=>this.fg_.visible = false;
-
-        this.interactive = true;
-        this.on('click', ()=>this.cb_(this));
-        this.on('mouseover', l);
-        this.on('mouseout', n);
-        this.on('tap', ()=>this.cb_(this));
-        // 手指要点两下才能出牌
-        //this.on('touchstart', l);
-        //this.on('touchendoutside', n);
-        //this.on('touchend', n);
-        //this.on('touchcancel', n);
-
-        //this.anchor = new PIXI.ObservablePoint(this.ly, this, 0, 0);
       }
 
       /**
@@ -3414,21 +3403,6 @@
       get hlt() {
         return this.fg_.visible;
       }
-
-      /**
-       * 点击这张牌，由手机钢琴键调用
-       */
-      click() {
-        this.cb_(this);
-      }
-
-      // /**
-      //  * 设置点击回调
-      //  * @param {function(StTl):void} f 点击回调
-      //  */
-      // setcb(f) {
-      //   this.cb_ = f;
-      // }
     }
 
     /**
@@ -4411,7 +4385,7 @@
      */
     class HdCtn0 extends HdCtn {
       /**
-       * @param {function(object)} 点击牌张回调
+       * @param {function(object):void} cb 点击牌张回调
        */
       constructor(cb) {
         super();
@@ -4460,18 +4434,135 @@
         g.endFill();
         c.addChild(g);
 */
+        this.drg_ = false;
+        this.dgx_ = -1;
+        this.mst_ = false;
+
         // 正序设置
         let s = this.s_;
         for (let i = 0; i < 14; ++i) {
-          let p = s[i] = new StTl(i, p=>this._c(p));
+          let p = s[i] = new StTl(i, true);
           p.y = HdCtn0.H - H0F;
           p.x = W0 * i;
           if (i === 13) p.x += GP;
           c.addChild(p);
           p.visible = false;
+          p.interactive = true;
+          // 不再处理这两个事件，改为自己处理，同时实现拖动
+          //p.on('click', this._c.bind(this, p));
+          //p.on('tap', this._c.bind(this, p));
+          p.on('mousedown', this._bg.bind(this, p));
+          p.on('mouseup', this._ed.bind(this, p, true));
+          p.on('mouseupoutside', this._ed.bind(this, p, false));
+          p.on('mousemove', this._mv.bind(this, p));
+          p.on('mouseover', function(p){ p.fg_.visible = true; }.bind(this, p));
+          p.on('mouseout', function(p){ p.fg_.visible = false; }.bind(this, p));
+
+          p.on('touchstart', this._bg.bind(this, p));
+          p.on('touchend', this._ed.bind(this, p, true));
+          p.on('touchendoutside', this._ed.bind(this, p, false));
+          p.on('touchcancel', this._ed.bind(this, p, false));
+          p.on('touchmove', this._mv.bind(this, p));
         }
 
         this.x_ = 0;
+
+        // 外部使用的控制理牌的开关
+        let ac, cb1 = c=>{
+          if (c.sel) {
+            this.mst_ = false;
+            this.sort();
+          } else {
+            this.mst_ = true;
+          }
+        };
+        if (tz.phn) {
+          ac = new ChkBoxL(200, 160, tz.ls('AutoSort'), cb1);
+        } else {
+          ac = new ChkBox(tz.ls('AutoSort'), cb1);
+          ac.scale.set(.9);
+        }
+        (this.ast_ = ac).sel = true;
+      }
+
+      /**
+       * 按下
+       * @param {object} p 牌
+       */
+      _bg(p) {
+        // 记录拖动的下标
+        this.dgx_ = this.s_.indexOf(p);
+        this.drg_ = false;
+
+        // 便于拖动时在最上层显示
+        this.c_.setChildIndex(p, 13);
+        //console.log('drag began', this.dgx_);
+      }
+
+      /**
+       * 移动
+       * @param {object} p 牌
+       * @param {object} e 鼠标/手指所在坐标等详情
+       */
+      _mv(p, e) {
+        let s = this.s_;
+        let i = s.indexOf(p);
+        // 正在拖的是当前牌
+        if (this.dgx_ === i) {
+          let d = Math.trunc(this.c_.toLocal(e.data.global).x / W0);
+          //console.log('drag move dst', this.dgx_, d);
+          if (d > i) {
+            // 往右拖
+            let t = s[i];  // 记录拖动起点位置原来的牌
+            while (i < 13 && d > i) {  // 把右边的牌移过来
+              new TWEEN.Tween(s[i] = s[i + 1]).to({x:(W0 * i)}, STDT).start();
+              ++i;
+            }
+            // 最后把拖动的牌放到目的地
+            s[i] = t;
+            new TWEEN.Tween(t).to({x:(W0 * i)}, STDT).start();
+            this.dgx_ = d;
+            this.drg_ = true;
+            this.mst_ = true;
+          } else if (d < i) {
+            // 往左拖
+            let a = this.p_.length * 3;
+            let t = s[i];  // 记录拖动起点位置原来的牌
+            while (i > a && d < i) {  // 把左边的牌移过来
+              new TWEEN.Tween(s[i] = s[i - 1]).to({x:(W0 * i)}, STDT).start();
+              --i;
+            }
+            // 最后把拖动的牌放到目的地
+            s[i] = t;
+            new TWEEN.Tween(t).to({x:(W0 * i)}, STDT).start();
+            this.dgx_ = d;
+            this.drg_ = true;
+            this.mst_ = true;
+          }
+        }
+      }
+
+      /**
+       * 松开
+       * @param {object} p 牌
+       * @param {boolean} f 执行打牌动作
+       * @param {object} e 鼠标/手指所在坐标等详情
+       */
+      _ed(p, f, e) {
+        //console.log('drag ended', e.type, f, this.drg_);
+        // 如果没有拖动过，并且是正常松开，就执行打牌动作
+        if (f && !this.drg_) {
+          this._c(p);
+        }
+
+        this.dgx_ = -1;
+        this.drg_ = false;
+
+        // 还原zindex
+        let c = this.c_;
+        this.s_.forEach((e, i)=>{
+          c.setChildIndex(e, i);
+        });
       }
 
       /**
@@ -4562,6 +4653,8 @@
        */
       sort() {
         let s = this.s_;
+        // 如果最后一张牌不可见，说明手里只有13张牌
+        if (!s[13].visible) s[13].i_ = 0xff;
         s.sort(function(a, b) { return a.i_ - b.i_; });
         s.forEach((p, i)=>{
           let x = W0 * i;
@@ -4605,19 +4698,13 @@
           s[13].updt(n);
           this.draw(13, o);
         } else {  // 手里的牌补花
-          if (s[13].visible) {  // 摸到牌时
-            // 先把13位置的牌转移走，再补花
-            this.sort();
-
-            s[13].updt(n);
-            this.draw(13, o);
-          } else {  // 未摸到牌时（只会出现在配牌补花过程中）
+          if (!s[13].visible) {  // 未摸到牌时（只会出现在配牌补花过程中）
             s[13].i_ = 0xff;
+          }
+          q.updt(n);
+          this.draw(i, o);
 
-            q.updt(n);
-            this.draw(i, o);
-
-            // 移动手牌动画
+          if (!this.mst_) {
             this.sort();
           }
         }
@@ -4648,7 +4735,18 @@
 
         s[i].i_ = 0xff;
         if (i !== 13) {
-          setTimeout(()=>this.sort(), 500);
+          if (!this.mst_) {
+            setTimeout(()=>this.sort(), 500);
+          } else {
+            // 依次向左移动
+            let t = s[i];
+            while (i < 13) {
+              s[i] = s[i + 1];
+              ++i;
+            }
+            s[13] = t;
+            setTimeout(()=>this.move(), 500);
+          }
         }
 
         return p;
@@ -4851,6 +4949,7 @@
           r[1] = st_find(s, a, t1);
           break;
         }
+        if (r[0] > r[1]) swp(r, 0, 1);
 
         s[r[0]].i_ = -1;
         s[r[1]].i_ = -1;
@@ -4929,7 +5028,9 @@
         s[r[2]].i_ = -1;
         s[r[3]].i_ = 0xff;
         super._ck(p, 0, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
-        if (r[3] === 13) {
+        if (r[3] === 13 || this.mst_) {
+          this.move();
+        } else {
           this.sort();
         }
       }
@@ -4956,7 +5057,11 @@
           p=>({x:p.x, y:(p.y - H1 - GP), dx:p.x, dy:(p.y - H1)})
         );
         if (r !== 13) {
-          this.sort();
+          if (!this.mst_) {
+            this.sort();
+          } else {
+            this.move();
+          }
         }
         return q;
       }
@@ -6182,8 +6287,9 @@
       /**
        * @param {number} w 总宽度
        * @param {array} s 手牌
+       * @param {function(object):void} cb 点击手牌回调
        */
-      constructor(w, s) {
+      constructor(w, s, cb) {
         super();
 
         //this.width = w;
@@ -6206,6 +6312,7 @@
         this.addChild(b);
 
         this.s_ = s;
+        this.cb_ = cb;
         this.bc_ = new Array(3);  // 三组状态的钢琴相互切换
         this.o_ = -1;  // 当前偏移
 
@@ -6252,7 +6359,7 @@
               let p = s[b.ri_];
               if (p && p.visible) {
                 if (p.hlt) {
-                  p.click();
+                  this.cb_(p);
                   p.hlt = false;
                 }
                 else {
@@ -6397,8 +6504,9 @@
       /**
        * @param {number} w 总宽度
        * @param {array} s 手牌
+       * @param {function(object):void} cb 点击手牌回调
        */
-      constructor(w, s) {
+      constructor(w, s, cb) {
         super();
 
         //this.width = w;
@@ -6412,15 +6520,16 @@
         this.addChild(bg);
 
         this.s_ = s;
+        this.cb_ = cb;
         this.ky_ = new Array(14);
 
         const WB = W0 * 2;
-        let cb = (b)=>{
+        let cb1 = (b)=>{
           let s = this.s_;
           let p = s[b.ri_];
           if (p && p.visible) {
             if (p.hlt) {
-              p.click();
+              this.cb_(p);
               p.hlt = false;
             }
             else {
@@ -6441,7 +6550,7 @@
 
         for (let i = 0; i < 7; ++i) {
           let x = WB * i;
-          let b = this.ky_[i * 2] = new PnoKy(WB, 100, cb);
+          let b = this.ky_[i * 2] = new PnoKy(WB, 100, cb1);
           b.x = x;
           this.addChild(b);
           b.ri_ = i * 2;
@@ -6453,7 +6562,7 @@
 
         for (let i = 0; i < 6; ++i) {
           let x = W0 + WB * i;
-          let b = this.ky_[i * 2 + 1] = new PnoKy(WB, 100, cb);
+          let b = this.ky_[i * 2 + 1] = new PnoKy(WB, 100, cb1);
           b.x = x;
           b.y = 100;
           this.addChild(b);
@@ -6467,7 +6576,7 @@
         {
           let x = W0 + WB * 6;
           let w1 = w - WB * 6.5;
-          let b = this.ky_[13] = new PnoKy(w1, 100, cb);
+          let b = this.ky_[13] = new PnoKy(w1, 100, cb1);
           b.x = x;
           b.y = 100;
           this.addChild(b);
@@ -8678,7 +8787,7 @@
           CalOpt.S = .75;
           Setting2.S = .65;
 
-          v = this.hlp_ = new HlpCtn(this);
+          v = this.hlp_ = new HlpCtn(this, ht[0].ast_);
           ic.addChild(v);
 
           v = this.opt1_ = new OptGrp();
@@ -8716,6 +8825,7 @@
             }
           });
           this.addChild(v);
+          v.r_.addChild(ht[0].ast_);
 
           v = this.ca1_ = new CalPop();
           this.addChild(v);
@@ -8730,11 +8840,11 @@
           v.visible = false;
 
           // 手机钢琴键
-          v = this.p3_ = new Piano3(HdCtn0.W, ht[0].s_);
+          v = this.p3_ = new Piano3(HdCtn0.W, ht[0].s_, ht[0]._c.bind(ht[0]));
           this.addChild(v);
           v.visible = false;
 
-          v = this.p2_ = new Piano2(HdCtn0.W, ht[0].s_);
+          v = this.p2_ = new Piano2(HdCtn0.W, ht[0].s_, ht[0]._c.bind(ht[0]));
           this.addChild(v);
           v.visible = false;
         }
@@ -9597,7 +9707,7 @@
 
         // 理牌
         setTimeout(()=>{
-          this.ht_.forEach(e=>e.sort());
+          this.ht_.forEach(e=>{ if (!e.mst_) { e.sort(); } });
           tz.play('snd/05-draw.wav');
         }, DRDT * 17);
       }
@@ -12634,6 +12744,7 @@
             "CallOpt" : "鸣牌设置",
             "History" : "计分表",
             "Chase" : "追分策略",
+            "AutoSort" : "自动理牌",
             "TimeoutHint" : "你已超时，服务器自动托管，刷新页面可解除",
             "HandTiles" : "手牌",
             "Calls" : "鸣牌",
@@ -12895,6 +13006,7 @@
             "CallOpt" : "鳴牌設定",
             "History" : "計分表",
             "Chase" : "追分策略",
+            "AutoSort" : "自動理牌",
             "TimeoutHint" : "你已超時，伺服器自動託管，重繪頁面可解除",
             "HandTiles" : "手牌",
             "Calls" : "鳴牌",
@@ -13157,6 +13269,7 @@
             "CallOpt" : "Call Opt",
             "History" : "History",
             "Chase" : "Chase",
+            "AutoSort" : "Auto Sort",
             "TimeoutHint" : "Timeout, auto discarding. Refresh to continue",
             "HandTiles" : "Hand tiles",
             "Calls" : "Calls",
