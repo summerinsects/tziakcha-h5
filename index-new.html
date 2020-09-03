@@ -7806,8 +7806,9 @@
        * 掉线重联时的恢复
        * @param {JSON} p 玩家
        * @param {JSON} b 和牌信息
+       * @param {number} d 正在结算
        */
-      rcvr(p, b) {
+      rcvr(p, b, d) {
         //测试数据
         //p=
         //[
@@ -7821,7 +7822,7 @@
         this.init();
 
         // 根据当前盘序，将座位转换成开局座位
-        let o = b.length, m = St2Ogn[o];
+        let o = b.length, m = St2Ogn[o - d];
 
         // 昵称
         this.nt_.forEach((e, i)=>{ e.visible = true; e.text = p[m[i]]['n']; });
@@ -10599,8 +10600,6 @@
           });
           this.cr_.setup(v, s);
           this.pls_ = p;
-
-          this.hst_.rcvr(p, r['b']);  // 历史和牌记录
         }.bind(this))();
 
         // 正在进行的一盘牌
@@ -10669,6 +10668,7 @@
         if (d) {
           rvt.bind(this)(d);
         }
+        this.hst_.rcvr(p, r['b'], d ? 0 : 1);  // 历史和牌记录
       }
     }
 
