@@ -682,6 +682,7 @@
         this.on('touchstart', l);
         this.on('touchendoutside', n);
         this.on('touchend', n);
+        this.on('touchcancel', n);
       }
 
       /**
@@ -786,6 +787,7 @@
         this.on('touchstart', l);
         this.on('touchendoutside', n);
         this.on('touchend', n);
+        this.on('touchcancel', n);
       }
     }
 
@@ -874,6 +876,7 @@
         this.on('touchstart', l);
         this.on('touchendoutside', n);
         this.on('touchend', n);
+        this.on('touchcancel', n);
       }
 
       /**
@@ -1049,10 +1052,17 @@
         };
 
         t.interactive = true;
-        t.on('pointerdown', ()=>{ this.drag_ = true; });
-        t.on('pointerup', ()=>{ this.drag_ = false; });
-        t.on('pointerupoutside', ()=>{ this.drag_ = false; });
-        t.on('pointermove', (e)=>{
+        t.on('mousedown', ()=>this.drag_ = true);
+        t.on('mouseup', ()=>this.drag_ = false);
+        t.on('mouseupoutside', ()=>this.drag_ = false);
+        t.on('mousemove', (e)=>{
+          if (this.drag_) c(e.data.global);
+        });
+        t.on('touchstart', ()=>this.drag_ = true);
+        t.on('touchend', ()=>this.drag_ = false);
+        t.on('touchendoutside', ()=>this.drag_ = false);
+        t.on('touchcancel', ()=>this.drag_ = false);
+        t.on('touchmove', (e)=>{
           if (this.drag_) c(e.data.global);
         });
 
@@ -1127,6 +1137,7 @@
         this.on('touchstart', l);
         this.on('touchendoutside', n);
         this.on('touchend', n);
+        this.on('touchcancel', n);
       }
     }
 
@@ -1188,9 +1199,13 @@
         c.height = window.innerHeight;
         this.addChild(c);
         c.interactive = true;
-        c.on('pointerdown', this.outdown.bind(this));
-        c.on('pointerup', this.outup.bind(this));
-        c.on('pointerupoutside', this.outup.bind(this));
+        c.on('mousedown', this.outdown.bind(this));
+        c.on('mouseup', this.outup.bind(this));
+        c.on('mouseupoutside', this.outup.bind(this));
+        c.on('touchstart', this.outdown.bind(this));
+        c.on('touchend', this.outup.bind(this));
+        c.on('touchendoutside', this.outup.bind(this));
+        c.on('touchcancel', this.outup.bind(this));
       }
 
       /**
@@ -1222,38 +1237,136 @@
     class XchgRd extends AutoHide {
       /**
        * @param {number} w 风
+       * @param {number} v 自己门风
        * @param {array} n 玩家昵称
        * @param {array} s 玩家分数
        */
-      constructor(w, n, s) {
+      constructor(w, v, n, s) {
         super();
+
+        const w0 = XchgRd.W, h0 = XchgRd.H;
 
         let c = this.ic_ = new PIXI.Graphics();
         this.addChild(c);
 
         c.lineStyle(2, 0x26608C, 1);
         c.beginFill(0x060F16, .85);
-        c.drawRect(0, 0, XchgRd.W, XchgRd.H);
+        c.drawRect(0, 0, w0, h0);
         c.endFill();
 
         let t = new PIXI.Text(tz.ls('Round' + WIND[w]), {
-          fontFamily: FF,
-          fontSize: 128,
+          fontFamily: ['DSF', 'sans-serif'],
+          fontSize: 32,
           fill: '#ffffff',
           fontWeight:'bold',
-          stroke: '#0066ff',
+          stroke: '#808080',
           strokeThickness: 2,
           lineJoin: 'round',
           padding: 10
         });
         t.anchor.set(.5);
-        t.x = XchgRd.W * .5;
-        t.y = XchgRd.H * .5;
+        t.x = w0 * .5;
+        t.y = h0 * .5;
         c.addChild(t);
-        scl_txt(t, XchgRd.W * .95);
+        scl_txt(t, w0 * .95);
 
-        // 玩家昵称
+        // 计算顺位
+        let r = (function(s) {
+          let r = [1, 1, 1, 1];
+          for (let i = 0; i < 4; ++i) {
+            for (let j = 0; j < 4; ++j) {
+              if (i !== j) {
+                if (s[i] < s[j]) {
+                  ++r[i];
+                }
+              }
+            }
+          }
+          return r;
+        })(s);
 
+        // 玩家昵称、顺位、分数
+        const w1 = 160, h1 = 100;
+        [
+          {x:((w0 - w1) * .5), y:(h0 - h1 - 20)},
+          {x:(w0 - w1 - 20), y:((h0 - h1) * .5)},
+          {x:((w0 - w1) * .5), y:20},
+          {x:20, y:((h0 - h1) * .5)}
+        ].forEach((e, k)=>{
+          let x = e['x'], y = e['y'], i = (v + k) & 3;
+
+          // 背景板
+          let b = new PIXI.Sprite(PIXI.Texture.WHITE);
+          b.alpha = .25;
+          b.width = w1;
+          b.height = h1;
+          c.addChild(b);
+          b.position = e;
+
+          // 门风
+          let t = new PIXI.Text(tz.ls(WIND[i]), {
+            fontFamily: ['DSF', 'sans-serif'],
+            fontSize: 40,
+            fill: '#ffffff',
+            fontWeight:'bold',
+            stroke: '#808080',
+            strokeThickness: 2,
+            lineJoin: 'round',
+            padding: 10
+          });
+          t.anchor.set(.5);
+          t.x = x + 30;
+          t.y = y + h1 - 30;
+          c.addChild(t);
+
+          // 昵称
+          t = new PIXI.Text(n[i], {
+            fontFamily: FF,
+            fontSize: 22,
+            fill: '#ffffff',
+            fontWeight:'bold',
+            //stroke: '#808080',
+            //strokeThickness: 2,
+            //lineJoin: 'round',
+            padding: 10
+          });
+          t.anchor.set(.5);
+          t.x = x + w1 * .5;
+          t.y = y + 20;
+          c.addChild(t);
+          scl_txt(t, w1 - 10);
+
+          // 累计得分、顺位
+          t = new PIXI.Text(tz.ls('RankX', r[i]), {
+            fontFamily: FF,
+            fontSize: 18,
+            fill: '#ffffff',
+            fontWeight:'bold',
+            //stroke: '#808080',
+            //strokeThickness: 2,
+            //lineJoin: 'round',
+            padding: 10
+          });
+          t.anchor.set(.5);
+          t.x = x + (w1 + 40) * .5;
+          t.y = y + h1 * .5;
+          c.addChild(t);
+
+          t = new PIXI.Text(`${tz.ls('Scores')} ${s[i]}`, {
+            fontFamily: FF,
+            fontSize: 18,
+            fill: '#ffffff',
+            fontWeight:'bold',
+            //stroke: '#808080',
+            //strokeThickness: 2,
+            //lineJoin: 'round',
+            padding: 10
+          });
+          t.anchor.set(.5);
+          t.x = x + (w1 + 40) * .5;
+          t.y = y + h1 - 20;
+          c.addChild(t);
+        });
       }
 
       /**
@@ -1280,7 +1393,7 @@
       }
     }
     XchgRd.W = 500;
-    XchgRd.H = 400;
+    XchgRd.H = 380;
     XchgRd.S = .75;
 
     /**
@@ -1419,6 +1532,7 @@
         this.on('touchstart', l);
         this.on('touchendoutside', n);
         this.on('touchend', n);
+        this.on('touchcancel', n);
       }
 
       /**
@@ -2358,6 +2472,7 @@
         this.on('touchstart', l);
         this.on('touchendoutside', n);
         this.on('touchend', n);
+        this.on('touchcancel', n);
 
         // 当前打：X风X
         let t = this.o_ = new PIXI.Text('', {
@@ -3252,6 +3367,7 @@
         //this.on('touchstart', l);
         //this.on('touchendoutside', n);
         //this.on('touchend', n);
+        //this.on('touchcancel', n);
 
         //this.anchor = new PIXI.ObservablePoint(this.ly, this, 0, 0);
       }
@@ -4531,7 +4647,9 @@
         new TWEEN.Tween(p.scale).to({x:1,y:1}, DSDT).start();
 
         s[i].i_ = 0xff;
-        setTimeout(()=>this.sort(), 500);
+        if (i !== 13) {
+          setTimeout(()=>this.sort(), 500);
+        }
 
         return p;
       }
@@ -4809,9 +4927,11 @@
         s[r[0]].i_ = -1;
         s[r[1]].i_ = -1;
         s[r[2]].i_ = -1;
-        s[r[3]].i_ = -1;
+        s[r[3]].i_ = 0xff;
         super._ck(p, 0, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
-        this.move();
+        if (r[3] === 13) {
+          this.sort();
+        }
       }
 
       /**
@@ -4827,7 +4947,7 @@
 
         // 精准查找手里的牌张
         let r = st_find_f(s, a, t);
-        s[r].i_ = -1;
+        s[r].i_ = 0xff;
         let q = super._pk(p, 0, r, 0, 0,
           (o, p)=>{
             let i = this.f_.getChildIndex(o);
@@ -4835,7 +4955,9 @@
           },
           p=>({x:p.x, y:(p.y - H1 - GP), dx:p.x, dy:(p.y - H1)})
         );
-        this.move();
+        if (r !== 13) {
+          this.sort();
+        }
         return q;
       }
 
@@ -6044,6 +6166,7 @@
         this.on('touchstart', l);
         this.on('touchendoutside', n);
         this.on('touchend', n);
+        this.on('touchcancel', n);
       }
     }
 
@@ -9329,7 +9452,7 @@
         }
         else {
           let p = this.pls_, n = [p[0]['n'], p[1]['n'], p[2]['n'], p[3]['n']];
-          let b = new XchgRd(o >> 2, n, [p[0]['s'], p[1]['s'], p[2]['s'], p[3]['s']]);
+          let b = new XchgRd(o >> 2, v, n, [p[0]['s'], p[1]['s'], p[2]['s'], p[3]['s']]);
           this.sc_.addChild(b);
 
           let l = this.lyt_;
@@ -12533,6 +12656,7 @@
             "RoundSouth" : "南风圈",
             "RoundWest" : "西风圈",
             "RoundNorth" : "北风圈",
+            "RankX" : "{1}位",
             "Order0" : "东风东",
             "Order1" : "东风南",
             "Order2" : "东风西",
@@ -12793,6 +12917,7 @@
             "RoundSouth" : "南風圈",
             "RoundWest" : "西風圈",
             "RoundNorth" : "北風圈",
+            "RankX" : "{1}位",
             "Order0" : "東風東",
             "Order1" : "東風南",
             "Order2" : "東風西",
@@ -13054,6 +13179,7 @@
             "RoundSouth" : "South",
             "RoundWest" : "West",
             "RoundNorth" : "North",
+            "RankX" : "Rank {1}",
             "Order0" : "E-E",
             "Order1" : "E-S",
             "Order2" : "E-W",
