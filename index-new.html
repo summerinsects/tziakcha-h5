@@ -4508,7 +4508,7 @@
         let s = this.s_;
         let i = s.indexOf(p);
         // 正在拖的是当前牌
-        if (this.dgx_ === i) {
+        if (i !== -1 && this.dgx_ === i) {
           let d = Math.trunc(this.c_.toLocal(e.data.global).x / W0);
           //console.log('drag move dst', this.dgx_, d);
           if (d > i) {
@@ -4524,6 +4524,7 @@
             this.dgx_ = d;
             this.drg_ = true;
             this.mst_ = true;
+            this.ast_.sel = false;
           } else if (d < i) {
             // 往左拖
             let a = this.p_.length * 3;
@@ -4538,6 +4539,7 @@
             this.dgx_ = d;
             this.drg_ = true;
             this.mst_ = true;
+            this.ast_.sel = false;
           }
         }
       }
@@ -4546,12 +4548,11 @@
        * 松开
        * @param {StTl} p 牌
        * @param {boolean} f 执行打牌动作
-       * @param {object} e 鼠标/手指所在坐标等详情
        */
-      _ed(p, f, e) {
+      _ed(p, f) {
         //console.log('drag ended', e.type, f, this.drg_);
         // 如果没有拖动过，并且是正常松开，就执行打牌动作
-        if (f && !this.drg_) {
+        if (f && !this.drg_ && this.dgx_ !== -1) {
           this._c(p);
         }
 
@@ -4563,6 +4564,43 @@
         this.s_.forEach((e, i)=>{
           c.setChildIndex(e, i);
         });
+      }
+
+      /**
+       * 钢琴键代理：点击
+       * @param {Piano3|Piano2} p 钢琴键
+       * @param {number} i 第几张
+       */
+      pclk(p, i) {
+        let s = this.s_[i];
+        if (s && s.visible) {
+          this._c(s);
+          if (s.fg_.visible) {
+            p.rfsh(i);
+          }
+        }
+      }
+
+      /**
+       * 钢琴键代理：左右移（仅在三格钢琴中）
+       * @param {Piano3} p 钢琴键
+       * @param {number} b 原本偏移
+       * @param {number} o 调整偏移
+       */
+      shft(p, b, o) {
+        let s = this.s_, l = s.findIndex(e=>e.fg_.visible);
+        // 有高亮的牌，并且对齐当前钢琴组的时候，才执行移动
+        // 什么时候会不对齐：有高亮的时候，又理牌了
+        if (l !== -1 && (l + 1 - b) % 3 == 0) {
+          l += o;
+          s.forEach((e, i)=>e.fg_.visible = e.visible ? (i === l) : false);
+          let t = s[l];
+          if (t && t.visible) {
+            p.rfsh(l);
+            return;
+          }
+        }
+        p.rfsh();
       }
 
       /**
@@ -4636,6 +4674,9 @@
         this.c_.addChild(p);
         p.scale.set(this.f_.scale.x / this.c_.scale.x);
         new TWEEN.Tween(p.scale).to({x:1,y:1}, DRDT).start();
+
+        this.dgx_ = -1;
+        this.drg_ = false;
       }
 
       /**
@@ -4775,17 +4816,14 @@
         if (p.hlt) {
           this.dscd_(p);
           p.hlt = false;
+          this.rp();
         } else {
-          this.s_.forEach(e=>e.hlt = (e === p));
+          this.s_.forEach((e, i)=>{
+            if ((e.hlt = (e === p))) {
+              this.rp(i);
+            }
+          });
         }
-
-        // 刷新钢琴键
-        (function(){
-          let gm = tz.game;
-          let p3 = gm.p3_, p2 = gm.p2_;
-          if (p3 && p3.visible) p3.rfsh();
-          else if (p2 && p2.visible) p2.rfsh();
-        })();
       }
 
       /**
@@ -6249,9 +6287,10 @@
         let l = ()=>this.fg_.visible = true;
         let n = ()=>this.fg_.visible = false;
 
+        // 这个是必要的，否则点击会穿透
         let bg = new PIXI.Sprite(PIXI.Texture.WHITE);
         bg.tint = 0;
-        bg.alpha = .25;
+        bg.alpha = 0;
         bg.width = w;
         bg.height = h;
         this.addChild(bg);
@@ -6280,16 +6319,14 @@
      * @typedef {object} Piano3
      */
     class Piano3 extends PIXI.Container {
-      // s_ = null;  // 手牌
       // bc_ = null;  // 三组状态的钢琴相互切换
       // o_ = -1;  // 当前偏移
 
       /**
        * @param {number} w 总宽度
-       * @param {array} s 手牌
-       * @param {function(object):void} cb 点击手牌回调
+       * @param {object} d 代理 pclk shft
        */
-      constructor(w, s, cb) {
+      constructor(w, d) {
         super();
 
         //this.width = w;
@@ -6302,17 +6339,16 @@
         bg.alpha = .85;
         this.addChild(bg);
 
-        let b = new EptBtn(w * .5, 80, ()=>this._o(-1));
+        let b = new PnoKy(w * .5, 80, ()=>this._o(-1));
         b.y = 140;
         this.addChild(b);
 
-        b = new EptBtn(w * .5, 80, ()=>this._o(1));
+        b = new PnoKy(w * .5, 80, ()=>this._o(1));
         b.x = w * .5;
         b.y = 140;
         this.addChild(b);
 
-        this.s_ = s;
-        this.cb_ = cb;
+        this.d_ = d;
         this.bc_ = new Array(3);  // 三组状态的钢琴相互切换
         this.o_ = -1;  // 当前偏移
 
@@ -6353,23 +6389,7 @@
               break;
             }
 
-            b = new PnoKy(w1, 140, function(k, b){
-              let bc = this.bc_[k];
-              let s = this.s_;
-              let p = s[b.ri_];
-              if (p && p.visible) {
-                if (p.hlt) {
-                  this.cb_(p);
-                  p.hlt = false;
-                }
-                else {
-                  p.hlt = true;
-                  s.forEach(e=>e.hlt = (e === p));
-                  bc.ky_.forEach(k=>k.fg_.visible = false);
-                  b.fg_.visible = true;
-                }
-              }
-            }.bind(this, k));
+            b = new PnoKy(w1, 140, b=>this.d_.pclk(this, b.ri_));
             b.x = x;
             bc.addChild(b);
             ky.push(b);
@@ -6437,56 +6457,24 @@
        * @param {number} o 方向+右，-左
        */
       _o(o) {
-        let s = this.s_;
-
-        // 找到高亮的牌
-        let hlt = s.findIndex(p=>(p && p.visible && p.hlt));
-
-        if (hlt !== -1) {
-          // 高亮的牌对应的钢琴
-          let bc = this.bc_[(hlt + 2) % 3];
-          if (bc.visible) {
-            s[hlt].hlt = false;
-
-            let p = s[hlt + o];
-            if (p && p.visible) {
-              p.hlt = true;
-            }
-          }
-        }
-
+        let b = this.o_, f = o;
         o = this.o_ + o;
         if (o > 1) o = -1;
         if (o < -1) o = 1;
         this.o_ = o;
 
-        this.bc_.forEach((bc, k)=>{
-          if (k !== (o + 1)) {
-            bc.visible = false;
-          }
-          else {
-            bc.visible = true;
-            bc.ky_.forEach((k, i)=>{
-              let ri = i * 3 + k - 2;
-              let p = s[ri];
-              k.fg_.visible = (p && p.visible && p.hlt);
-            });
-          }
-        });
+        this.bc_.forEach((e, k)=>e.visible = k === (o + 1));
+        this.d_.shft(this, b, f);
       }
 
       /**
        * 刷新
+       * @param {number} 高亮的牌张下标
        */
-      rfsh() {
-        this.bc_.forEach((b)=>{
+      rfsh(i) {
+        this.bc_.forEach(b=>{
           if (b.visible) {
-            let s = this.s_;
-            b.ky_.forEach((k, i)=>{
-              let ri = i * 3 + k - 2;
-              let p = s[ri];
-              k.fg_.visible = (p && p.visible && p.hlt);
-            });
+            b.ky_.forEach(k=>k.fg_.visible = (k.ri_ === i));
           }
         });
       }
@@ -6498,15 +6486,13 @@
      * @typedef {object} Piano2
      */
     class Piano2 extends PIXI.Container {
-      // s_ = null;  // 立牌
       // ky_ = null;  // 琴键
 
       /**
        * @param {number} w 总宽度
-       * @param {array} s 手牌
-       * @param {function(object):void} cb 点击手牌回调
+       * @param {object} d 代理 pclk
        */
-      constructor(w, s, cb) {
+      constructor(w, d) {
         super();
 
         //this.width = w;
@@ -6519,28 +6505,10 @@
         bg.alpha = .85;
         this.addChild(bg);
 
-        this.s_ = s;
-        this.cb_ = cb;
+        this.d_ = d;
         this.ky_ = new Array(14);
 
         const WB = W0 * 2;
-        let cb1 = (b)=>{
-          let s = this.s_;
-          let p = s[b.ri_];
-          if (p && p.visible) {
-            if (p.hlt) {
-              this.cb_(p);
-              p.hlt = false;
-            }
-            else {
-              p.hlt = true;
-              s.forEach(e=>e.hlt = (e === p));
-              this.ky_.forEach(k=>k.fg_.visible = false);
-              b.fg_.visible = true;
-            }
-          }
-        };
-
         let cvs = document.createElement('canvas');
         cvs.width = w;
         cvs.height = 200;
@@ -6548,39 +6516,39 @@
         ctx.lineWidth = 3;
         ctx.fillStyle = '#ffffff';
 
+        // 上面一行
         for (let i = 0; i < 7; ++i) {
           let x = WB * i;
-          let b = this.ky_[i * 2] = new PnoKy(WB, 100, cb1);
+          let b = this.ky_[i * 2] = new PnoKy(WB, 100, function(i) { this.d_.pclk(this, i); }.bind(this, i * 2));
           b.x = x;
           this.addChild(b);
-          b.ri_ = i * 2;
 
           ctx.fillRect(x, 0, W0, 10);
           ctx.moveTo(x + WB, 0);
           ctx.lineTo(x + WB, 100);
         }
 
+        // 下面一行
         for (let i = 0; i < 6; ++i) {
           let x = W0 + WB * i;
-          let b = this.ky_[i * 2 + 1] = new PnoKy(WB, 100, cb1);
+          let b = this.ky_[i * 2 + 1] = new PnoKy(WB, 100, function(i) { this.d_.pclk(this, i); }.bind(this, i * 2 + 1));
           b.x = x;
           b.y = 100;
           this.addChild(b);
-          b.ri_ = i * 2 + 1;
 
           ctx.fillRect(x, 100, W0, 10);
           ctx.moveTo(x, 100);
           ctx.lineTo(x, 200);
         }
 
+        // 最右边一个
         {
           let x = W0 + WB * 6;
           let w1 = w - WB * 6.5;
-          let b = this.ky_[13] = new PnoKy(w1, 100, cb1);
+          let b = this.ky_[13] = new PnoKy(w1, 100, function() { this.d_.pclk(this, 13); }.bind(this));
           b.x = x;
           b.y = 100;
           this.addChild(b);
-          b.ri_ = 13;
 
           ctx.fillRect(x, 100, W0, 10);
           ctx.moveTo(x, 100);
@@ -6599,13 +6567,10 @@
 
       /**
        * 刷新
+       * @param {number} 高亮的牌张下标
        */
-      rfsh() {
-        let s = this.s_;
-        this.ky_.forEach((k, i)=>{
-          let p = s[i];
-          k.fg_.visible = (p && p.visible && p.hlt);
-        });
+      rfsh(i) {
+        this.ky_.forEach((k, j)=>k.fg_.visible = j === i);
       }
     }
     Piano2.H = 200;
@@ -8606,12 +8571,12 @@
           // 只有把监听放在同一棵子树上，才会上向传递
           // 这里竟然不用额外判断就神奇地达到了牌桌等大的监听范围！！！
           this.interactive = true;
-          if (!tz.phn) {
+          //if (!tz.phn) {
             this.on('rightclick', ()=>this.rclk());
-          } else {
+          //} else {
             this.on('tap', (e)=>this.tapbg(e));
             this.on('click', (e)=>this.tapbg(e));
-          }
+          //}
 
           // NOTE：本来是想创建一个与牌桌大小相等的按钮，置于最顶层，用来监听鼠标右键
           // 但由于它优先级高，会把桌面上的牌、按钮的点击事件都拦截了
@@ -8804,6 +8769,9 @@
           v = this.cd_ = new CD();
           ic.addChild(v);
           v.visible = false;
+
+          // 刷新钢琴键函数
+          ht[0].rp = function() { };
         }
         else {
           XchgRd.S = .75;
@@ -8840,13 +8808,20 @@
           v.visible = false;
 
           // 手机钢琴键
-          v = this.p3_ = new Piano3(HdCtn0.W, ht[0].s_, ht[0]._c.bind(ht[0]));
+          v = this.p3_ = new Piano3(HdCtn0.W, ht[0]);
           this.addChild(v);
           v.visible = false;
 
-          v = this.p2_ = new Piano2(HdCtn0.W, ht[0].s_, ht[0]._c.bind(ht[0]));
+          v = this.p2_ = new Piano2(HdCtn0.W, ht[0]);
           this.addChild(v);
           v.visible = false;
+
+          // 刷新钢琴键函数
+          ht[0].rp = function(i) {
+            let gm = tz.game, p3 = gm.p3_, p2 = gm.p2_;
+            if (p3.visible) p3.rfsh(i);
+            else if (p2.visible) p2.rfsh(i);
+          };
         }
 
         // 所有二级弹出界面的容器结点
