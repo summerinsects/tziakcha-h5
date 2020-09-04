@@ -4514,7 +4514,7 @@
           if (d > i) {
             // 往右拖
             let t = s[i];  // 记录拖动起点位置原来的牌
-            while (i < 13 && d > i) {  // 把右边的牌移过来
+            while (i < 12 && d > i) {  // 把右边的牌移过来，不让往最右边一张拖（第14张）
               new TWEEN.Tween(s[i] = s[i + 1]).to({x:(W0 * i)}, STDT).start();
               ++i;
             }
