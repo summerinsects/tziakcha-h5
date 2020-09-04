@@ -201,7 +201,7 @@
     /**
      * 根据base64字符串生成PIXI纹理
      * @param {string} b base64的图片
-     * @return {object}
+     * @return {PIXI.Texture}
      */
     function b64t(b) {
       let img = new Image();
@@ -213,7 +213,7 @@
      * 创建BitmapText
      * @param {string} t 文本
      * @param {object} s 5.x版本的BitmapText.style
-     * @return {object}
+     * @return {PIXI.BitmapText}
      */
     function bmp_txt(t, s) {
       //return new PIXI.extras.BitmapText(t, {font:`${s['fontSize']}px ${s['fontName']}`});  // v4.x
@@ -222,7 +222,7 @@
 
     /**
      * 缩小文本以适配宽度
-     * @param {object} t 文本
+     * @param {PIXI.Text} t 文本
      * @param {number} w 宽度
      */
     function scl_txt(t, w) {
@@ -245,7 +245,7 @@
 
     /**
      * 添加模糊效果
-     * @param {object} p 待添加效果的精灵
+     * @param {PIXI.Sprite} p 待添加效果的精灵
      */
     function addblur(p) {
       let b = new PIXI.filters.BlurFilter();
@@ -255,7 +255,7 @@
 
     /**
      * 移除模糊效果
-     * @param {object} p 已经添加过效果的精灵
+     * @param {PIXI.Sprite} p 已经添加过效果的精灵
      */
     function rmblur(p) {
       p.filters = [];
@@ -718,7 +718,7 @@
 
       /**
        * 添加一个按钮
-       * @param {object} cb 一个ChkBox
+       * @param {ChkBox} cb 一个ChkBox
        */
       add(cb) {
         this.cb_.push(cb);
@@ -2358,7 +2358,7 @@
 
       /**
        * @param {object} p 代理onspd onchs oncal onset onhst
-       * @param {object} c 理牌复选框
+       * @param {ChkBox} c 理牌复选框
        */
       constructor(p, c) {
         super();
@@ -2898,7 +2898,7 @@
       // i_ = -1;  // 牌张索引
 
       /**
-       * @param {object} t 纹理
+       * @param {PIXI.Texture} t 纹理
        * @param {number} i 牌张索引
        */
       constructor(t, i) {
@@ -2909,7 +2909,7 @@
 
     /**
      * 更新牌张（自己、对家）
-     * @param {object} p 要更新的牌（精灵）
+     * @param {PIXI.Texture} p 要更新的牌（精灵）
      * @param {number} i 牌张索引
      */
     function updt_t0(p, i) {
@@ -2929,7 +2929,7 @@
 
     /**
      * 更新牌张（下家、上家）
-     * @param {object} p 要更新的牌（精灵）
+     * @param {PIXI.Texture} p 要更新的牌（精灵）
      * @param {number} i 牌张索引
      */
     function updt_t1(p, i) {
@@ -3801,15 +3801,15 @@
       constructor() {
         super();
 
-        /** @member {object} 立牌容器 */
+        /** @member {PIXI.Container} 立牌容器 */
         this.c_ = new PIXI.Container();
-        /** @member {object} 副露容器 */
+        /** @member {PIXI.Container} 副露容器 */
         this.f_ = new PIXI.Container();
         /** @member {array} 立牌精灵 */
         this.s_ = [];
         /** @member {array} 副露数据 */
         this.p_ = [];
-        /** @member {object} 打开的立牌精灵 */
+        /** @member {PIXI.Container} 打开的立牌精灵 */
         this.o_ = new PIXI.Container();
         /** @member {array} 打开的精灵容器 */
         this.g_ = [];
@@ -3832,7 +3832,7 @@
        * 抓牌效果
        * @param {number} i 抓牌到手上第几张
        * @param {object} o 牌墙上牌张的坐标
-       * @param {object} p 牌张精灵
+       * @param {PIXI.Sprite} p 牌张精灵
        * @param {number} x 偏移x
        * @param {number} y 偏移y
        */
@@ -3871,8 +3871,8 @@
       /**
        * 打牌效果
        * @param {number} i 打出牌在手牌中的下标
-       * @param {object} p 打出牌精灵
-       * @param {object} d 目标牌池精灵
+       * @param {PlTl0|PlTl1|PlTl2|PlTl3} p 打出牌精灵
+       * @param {PlTl0|PlTl1|PlTl2|PlTl3} d 目标牌池精灵
        * @param {number} x 转换世界坐标的基准点
        * @param {number} y 转换世界坐标的基准点
        * @param {number} dx 飞到牌池后的偏移
@@ -3952,7 +3952,7 @@
        * @param {array} r 来源下标
        * @param {number} x 偏移x
        * @param {number} y 偏移y
-       * @param {function(object):void} ad 添加副露牌张结点的回调函数
+       * @param {function(PIXI.Sprite):void} ad 添加副露牌张结点的回调函数
        * @param {function(number,number):array} dp 获取最终应该去到位置的回调函数
        */
       _c(p, o, n, r, x, y, ad, dp) {
@@ -4018,7 +4018,7 @@
        * @param {array} r 来源下标
        * @param {number} x 偏移x
        * @param {number} y 偏移y
-       * @param {function(object):void} ad 添加副露牌张结点的回调函数
+       * @param {function(PIXI.Sprite):void} ad 添加副露牌张结点的回调函数
        * @param {function(number,number):array} dp 获取最终应该去到位置的回调函数
        */
        _p(p, o, n, r, x, y, ad, dp) {
@@ -4097,7 +4097,7 @@
        * @param {array} r 来源下标
        * @param {number} x 偏移x
        * @param {number} y 偏移y
-       * @param {function(object):void} ad 添加副露牌张结点的回调函数
+       * @param {function(PIXI.Sprite):void} ad 添加副露牌张结点的回调函数
        * @param {function(number,number):array} dp 获取最终应该去到位置的回调函数
        */
       _dk(p, o, n, r, x, y, ad, dp) {
@@ -4244,7 +4244,7 @@
        * @param {number} r 来源下标
        * @param {number} x 偏移x
        * @param {number} y 偏移y
-       * @param {funtion(object,object):void} ad 添加结点的回调函数
+       * @param {function(object,object):void} ad 添加结点的回调函数
        * @param {function(object):object} ps 获取位置的回调函数
        * @return {JSON} {s:牌张精灵，p:{目标位置}}
        */
@@ -4302,7 +4302,7 @@
        * @param {number} n 当前是哪个玩家
        * @param {number} x 偏移x
        * @param {number} y 偏移y
-       * @param {function(object):void} ad 添加和牌张结点的回调函数
+       * @param {function(PlTl0|PlTl1|PlTl2|PlTl3):void} ad 添加和牌张结点的回调函数
        */
       _win(t, o, n, x, y, ad) {
         const PT = [PlTl0, PlTl1, PlTl2, PlTl3];
@@ -4325,8 +4325,8 @@
        * @param {number} t 和牌张
        * @param {number} m 定时移走
        * @param {number} n 当前是哪个玩家
-       * @param {funtion(object,object):void} js 添加摊开立牌结点的回调函数
-       * @param {funtion(object,object):void} jp 添加摊开副露结点的回调函数
+       * @param {function(object,object):void} js 添加摊开立牌结点的回调函数
+       * @param {function(object,object):void} jp 添加摊开副露结点的回调函数
        */
       _open(s, p, t, m, n, js, jp) {
         const PT = [PlTl0, PlTl1, PlTl2, PlTl3], WA = [wall0, wall1];
@@ -4487,7 +4487,7 @@
 
       /**
        * 按下
-       * @param {object} p 牌
+       * @param {StTl} p 牌
        */
       _bg(p) {
         // 记录拖动的下标
@@ -4501,7 +4501,7 @@
 
       /**
        * 移动
-       * @param {object} p 牌
+       * @param {StTl} p 牌
        * @param {object} e 鼠标/手指所在坐标等详情
        */
       _mv(p, e) {
@@ -4544,7 +4544,7 @@
 
       /**
        * 松开
-       * @param {object} p 牌
+       * @param {StTl} p 牌
        * @param {boolean} f 执行打牌动作
        * @param {object} e 鼠标/手指所在坐标等详情
        */
@@ -4714,8 +4714,8 @@
        * 打牌效果
        * @param {number} t 牌张索引
        * @param {boolean} h 手摸切（对于自己来说，这个参数并不使用，反正要从手牌中查找）
-       * @param {object} d 目标牌池精灵
-       * @return {object} 飞牌
+       * @param {PlTl0} d 目标牌池精灵
+       * @return {PlTl0} 飞牌
        */
       dscd(t, h, d) {
         let s = this.s_;
@@ -4756,7 +4756,7 @@
        * 创建断线重联后的飞牌
        * @param {number} t 牌张索引
        * @param {object} d 目标牌池精灵
-       * @return {object} 飞牌
+       * @return {PlTl0} 飞牌
        */
       fly(t, d) {
         let p = new PlTl0(t);
@@ -4768,7 +4768,7 @@
 
       /**
        * 点击手牌回调
-       * @param {object} p 牌张（精灵）
+       * @param {StTl} p 牌张（精灵）
        */
       _c(p) {
         // 本身高亮，就打出；本身未高亮，就将其切换为高亮
@@ -5221,8 +5221,8 @@
        * 打牌效果
        * @param {number} t 牌张索引
        * @param {boolean} h 手摸切
-       * @param {object} d 目标牌池精灵
-       * @return {object} 飞牌
+       * @param {PlTl1} d 目标牌池精灵
+       * @return {PlTl1} 飞牌
        */
       dscd(t, h, d) {
         let a = this.p_.length * 3;
@@ -5240,8 +5240,8 @@
       /**
        * 创建断线重联后的飞牌
        * @param {number} t 牌张索引
-       * @param {object} d 目标牌池精灵
-       * @return {object} 飞牌
+       * @param {PlTl1} d 目标牌池精灵
+       * @return {PlTl1} 飞牌
        */
       fly(t, d) {
         let p = new PlTl1(t);
@@ -5520,8 +5520,8 @@
        * 打牌效果
        * @param {number} t 牌张索引
        * @param {boolean} h 手摸切
-       * @param {object} d 目标牌池精灵
-       * @return {object} 飞牌
+       * @param {PlTl2} d 目标牌池精灵
+       * @return {PlTl2} 飞牌
        */
       dscd(t, h, d) {
         let a = this.p_.length * 3;
@@ -5539,8 +5539,8 @@
       /**
        * 创建断线重联后的飞牌
        * @param {number} t 牌张索引
-       * @param {object} d 目标牌池精灵
-       * @return {object} 飞牌
+       * @param {PlTl2} d 目标牌池精灵
+       * @return {PlTl2} 飞牌
        */
       fly(t, d) {
         let p = new PlTl2(t);
@@ -5840,8 +5840,8 @@
        * 打牌效果
        * @param {number} t 牌张索引
        * @param {boolean} h 手摸切
-       * @param {object} d 目标牌池精灵
-       * @return {object} 飞牌
+       * @param {PlTl3} d 目标牌池精灵
+       * @return {PlTl3} 飞牌
        */
       dscd(t, h, d) {
         let a = this.p_.length * 3;
@@ -5859,8 +5859,8 @@
       /**
        * 创建断线重联后的飞牌
        * @param {number} t 牌张索引
-       * @param {object} d 目标牌池精灵
-       * @return {object} 飞牌
+       * @param {PlTl3} d 目标牌池精灵
+       * @return {PlTl3} 飞牌
        */
       fly(t, d) {
         let p = new PlTl3(t);
@@ -9660,7 +9660,7 @@
          * @param {object} ctx
          * @param {number} k 谁的手牌（以庄家为0）
          * @param {number} o 手牌偏移
-         * @param {object} p 抓到的牌（精灵）
+         * @param {array} p 抓到的牌（精灵）
          */
         function draw(ctx, k, o, p) {
           let c = ctx.cr_, h = ctx.ht_[(k + 4 - c.seat) & 3];  // 转换成自己的视角
@@ -11488,7 +11488,7 @@
 
       /**
        * 启用/禁用上下一页按钮
-       * @param {object} b 上下一页
+       * @param {TxtBtn} b 上下一页
        * @param {boolean} e 启用true；禁用false
        */
       _enable(b, e) {
@@ -12370,7 +12370,7 @@
      */
     class NewTbl extends PIXI.Container {
       /**
-       * @param {function(object):void} cb 回调
+       * @param {function(JSON):void} cb 回调
        */
       constructor(cb) {
         super();
