@@ -1394,7 +1394,7 @@
     }
     XchgRd.W = 500;
     XchgRd.H = 380;
-    XchgRd.S = .75;
+    XchgRd.S = .65;
 
     /**
      * 倒计时
@@ -7069,7 +7069,7 @@
     }
     Settle.W = 760;
     Settle.H = 650;
-    Settle.S = .95;
+    Settle.S = .75;
 
     /**
      * 错和界面
@@ -7201,7 +7201,7 @@
         console.log('layout scale FalseWin =', s);
       }
     }
-    FalseWin.S = .95;
+    FalseWin.S = .5;
 
     /**
      * 游戏结束界面
@@ -7383,7 +7383,7 @@
     }
     Result.W = 600;
     Result.H = 540;
-    Result.S = .95;
+    Result.S = .65;
 
     /**
      * 和牌简介
@@ -8054,7 +8054,7 @@
     // 标题70，下方110（边距20，按钮70），列高40：70+110+40*19=940
     HstTbl.W = 780;
     HstTbl.H = 940;
-    HstTbl.S = .95;
+    HstTbl.S = .75;
 
     /**
      * 追分策略界面
@@ -8286,7 +8286,7 @@
     // 二位1列+三位2列+四位3列+空2列+表头2列=10列，列高40，说明文本+OK按钮210：70+40*10+210=680
     ChsStg.W = 640;
     ChsStg.H = 680;
-    ChsStg.S = .8;
+    ChsStg.S = .65;
 
     /**
      * 鸣牌设置界面
@@ -8547,7 +8547,7 @@
     }
     CalOpt.W = (W0 + 50) * 9 + 50;
     CalOpt.H = 860;
-    CalOpt.S = .95;
+    CalOpt.S = .75;
 
     // =====================================================================================================
 
@@ -8752,15 +8752,6 @@
         let v;
         // 手机/PC不同面板，不同的缩放比
         if (!tz.phn) {
-          XchgRd.S = .65;
-          Settle.S = .75;
-          FalseWin.S = .75;
-          Result.S = .75;
-          HstTbl.S = .75;
-          ChsStg.S = .65;
-          CalOpt.S = .75;
-          Setting2.S = .65;
-
           v = this.hlp_ = new HlpCtn(this, ht[0].ast_);
           ic.addChild(v);
 
@@ -8783,14 +8774,15 @@
           ht[0].rp = function() { };
         }
         else {
+          // 手机的要更大一些
           XchgRd.S = .75;
           Settle.S = .95;
-          FalseWin.S = .95;
-          Result.S = .95;
+          FalseWin.S = .7;
+          Result.S = .8;
           HstTbl.S = .95;
           ChsStg.S = .8;
           CalOpt.S = .95;
-          Setting2.S = .95;
+          Setting2.S = .75;
 
           // 使选项菜单上鸣牌选项上面
           v = this.hlp_ = new HlpPop(this);
@@ -10964,7 +10956,7 @@
     }
     Setting2.W = 600;
     Setting2.H = 420;
-    Setting2.S = .95;
+    Setting2.S = .65;
 
     // =====================================================================================================
 
