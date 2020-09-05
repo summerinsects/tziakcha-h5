@@ -800,7 +800,7 @@
 
       /**
        * @param {string} t 文本
-       * @param {object} s 文本样式
+       * @param {object|PIXI.TextStyle} s 文本样式
        * @param {number} w 宽
        * @param {number} h 高
        * @param {function(TxtBtn):void} cb 回调
@@ -2949,6 +2949,7 @@
 
     /**
      * 创建牌墙（自己、对家）
+     * @return {PIXI.Sprite}
      */
     function wall0() {
       return new PIXI.Sprite(new PIXI.Texture(PlTl.tx0.baseTexture, new PIXI.Rectangle(
@@ -2958,6 +2959,7 @@
 
     /**
      * 创建牌墙（下家、上家）
+     * @return {PIXI.Sprite}
      */
     function wall1() {
       return new PIXI.Sprite(new PIXI.Texture(PlTl.tx1.baseTexture, new PIXI.Rectangle(
@@ -2967,6 +2969,7 @@
 
     /**
      * 创建立牌（下家）
+     * @return {PIXI.Sprite}
      */
     function st_tl1() {
       return new PIXI.Sprite(StTl.tx1);
@@ -2974,6 +2977,7 @@
 
     /**
      * 创建立牌（对家）
+     * @return {PIXI.Sprite}
      */
     function st_tl2() {
       return new PIXI.Sprite(new PIXI.Texture(PlTl.tx2.baseTexture, new PIXI.Rectangle(
@@ -2983,6 +2987,7 @@
 
     /**
      * 创建立牌（上家）
+     * @return {PIXI.Sprite}
      */
     function st_tl3() {
       return new PIXI.Sprite(StTl.tx3);
@@ -2993,6 +2998,7 @@
      * @param {number} s 总大小
      * @param {number} n 随机几个
      * @param {number} o 统计增加的值
+     * @return {array}
      */
     function rnd_idx(s, n, o) {
       // 算法为：先生成一个0,1,2,3,...(s-1)的数组，随机打乱，取最开头的n个
@@ -3831,7 +3837,7 @@
       /**
        * 抓牌效果
        * @param {number} i 抓牌到手上第几张
-       * @param {object} o 牌墙上牌张的坐标
+       * @param {PIXI.Point} o 牌墙上牌张的坐标
        * @param {PIXI.Sprite} p 牌张精灵
        * @param {number} x 偏移x
        * @param {number} y 偏移y
@@ -3849,7 +3855,7 @@
 
       /**
        * 补花效果
-       * @param {object} o 牌墙上牌张的坐标
+       * @param {PIXI.Point} o 牌墙上牌张的坐标
        */
       rpflw(o) {
         let s = this.s_;
@@ -3947,7 +3953,7 @@
       /**
        * 吃
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        * @param {number} n 当前是哪个玩家
        * @param {array} r 来源下标
        * @param {number} x 偏移x
@@ -4013,7 +4019,7 @@
       /**
        * 碰
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        * @param {number} n 当前是哪个玩家
        * @param {array} r 来源下标
        * @param {number} x 偏移x
@@ -4092,7 +4098,7 @@
       /**
        * 直杠
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        * @param {number} n 当前是哪个玩家
        * @param {array} r 来源下标
        * @param {number} x 偏移x
@@ -4298,7 +4304,7 @@
       /**
        * 和牌
        * @param {number} t 牌张
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        * @param {number} n 当前是哪个玩家
        * @param {number} x 偏移x
        * @param {number} y 偏移y
@@ -4502,7 +4508,7 @@
       /**
        * 移动
        * @param {StTl} p 牌
-       * @param {object} e 鼠标/手指所在坐标等详情
+       * @param {PIXI.InteractionEvent} e 鼠标/手指所在坐标等详情
        */
       _mv(p, e) {
         let s = this.s_;
@@ -4666,7 +4672,7 @@
       /**
        * 抓牌效果
        * @param {number} i 抓牌到手上第几张
-       * @param {object} o 牌墙上牌张的坐标
+       * @param {PIXI.Point} o 牌墙上牌张的坐标
        */
       draw(i, o) {
         let p = wall0();
@@ -4722,7 +4728,7 @@
        * 补花效果
        * @param {number} u 使用的花牌
        * @param {number} n 抓回来的新牌
-       * @param {object} o 牌墙上牌张的坐标
+       * @param {PIXI.Point} o 牌墙上牌张的坐标
        */
       rpflw(u, n, o) {
         let s = this.s_;
@@ -4796,7 +4802,7 @@
       /**
        * 创建断线重联后的飞牌
        * @param {number} t 牌张索引
-       * @param {object} d 目标牌池精灵
+       * @param {PlTl0} d 目标牌池精灵
        * @return {PlTl0} 飞牌
        */
       fly(t, d) {
@@ -4962,7 +4968,7 @@
       /**
        * 吃
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       c(p, o) {
         let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
@@ -4999,7 +5005,7 @@
       /**
        * 碰
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       p(p, o) {
         let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
@@ -5023,7 +5029,7 @@
       /**
        * 直杠
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       dk(p, o) {
         let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
@@ -5107,7 +5113,7 @@
       /**
        * 和牌
        * @param {number} t 牌张
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       win(t, o) {
         super._win(t, o, 0, 0, 0, p=>this.c_.addChild(p));
@@ -5239,7 +5245,7 @@
       /**
        * 抓牌效果
        * @param {number} i 抓牌到手上第几张
-       * @param {object} o 牌墙上牌张的坐标
+       * @param {PIXI.Point} o 牌墙上牌张的坐标
        */
       draw(i, o) {
         let p = wall1();
@@ -5371,7 +5377,7 @@
       /**
        * 吃
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       c(p, o) {
         let a = this.p_.length * 3;
@@ -5382,7 +5388,7 @@
       /**
        * 碰
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       p(p, o) {
         let a = this.p_.length * 3;
@@ -5393,7 +5399,7 @@
       /**
        * 直杠
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       dk(p, o) {
         let a = this.p_.length * 3;
@@ -5436,7 +5442,7 @@
       /**
        * 和牌
        * @param {number} t 牌张
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       win(t, o) {
         super._win(t, o, 1, W1S - W1, H1SF - H1F, p=>this.c_.addChildAt(p, 0));
@@ -5538,7 +5544,7 @@
       /**
        * 抓牌效果
        * @param {number} i 抓牌到手上第几张
-       * @param {object} o 牌墙上牌张的坐标
+       * @param {PIXI.Point} o 牌墙上牌张的坐标
        */
       draw(i, o) {
         let p = wall0();
@@ -5668,7 +5674,7 @@
       /**
        * 吃
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       c(p, o) {
         let a = this.p_.length * 3;
@@ -5679,7 +5685,7 @@
       /**
        * 碰
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       p(p, o) {
         let a = this.p_.length * 3;
@@ -5690,7 +5696,7 @@
       /**
        * 直杠
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       dk(p, o) {
         let a = this.p_.length * 3;
@@ -5733,7 +5739,7 @@
       /**
        * 和牌
        * @param {number} t 牌张
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       win(t, o) {
         super._win(t, o, 2, 0, 0, p=>this.c_.addChild(p));
@@ -5858,7 +5864,7 @@
       /**
        * 抓牌效果
        * @param {number} i 抓牌到手上第几张
-       * @param {object} o 牌墙上牌张的坐标
+       * @param {PIXI.Point} o 牌墙上牌张的坐标
        */
       draw(i, o) {
         let p = wall1();
@@ -5988,7 +5994,7 @@
       /**
        * 吃
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       c(p, o) {
         let a = this.p_.length * 3;
@@ -5999,7 +6005,7 @@
       /**
        * 碰
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       p(p, o) {
         let a = this.p_.length * 3;
@@ -6010,7 +6016,7 @@
       /**
        * 直杠
        * @param {number} p 牌组数据
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       dk(p, o) {
         let a = this.p_.length * 3;
@@ -6053,7 +6059,7 @@
       /**
        * 和牌
        * @param {number} t 牌张
-       * @param {object} o 供牌的起点坐标
+       * @param {PIXI.Point} o 供牌的起点坐标
        */
       win(t, o) {
         super._win(t, o, 3, 0, H1SF - H1F, p=>this.c_.addChild(p));
