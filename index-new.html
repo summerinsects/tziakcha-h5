@@ -4554,9 +4554,12 @@
        * 松开
        * @param {StTl} p 牌
        * @param {boolean} f 执行打牌动作
+       * @param {PIXI.InteractionEvent} e 鼠标/手指所在坐标等详情
        */
-      _ed(p, f) {
+      _ed(p, f, e) {
         //console.log('drag ended', e.type, f, this.drg_);
+        e.stopPropagation();
+
         // 如果没有拖动过，并且是正常松开，就执行打牌动作
         if (f && !this.drg_ && this.dgx_ !== -1) {
           this._c(p);
@@ -4630,7 +4633,7 @@
           }
         });
         if (!e) {
-          this.s_[13].i_ = 0xff;
+          this.s_[13].i_ = 255;
         }
       }
 
@@ -4639,7 +4642,7 @@
        */
       dd() {
         let p = this.s_[13];
-        if (p.visible && p.i_ !== 0xff && p.i_ !== -1) {
+        if (p.visible && p.i_ !== 255 && p.i_ !== -1) {
           this.dscd_(p);
         }
       }
@@ -4701,7 +4704,7 @@
       sort() {
         let s = this.s_;
         // 如果最后一张牌不可见，说明手里只有13张牌
-        if (!s[13].visible) s[13].i_ = 0xff;
+        //if (!s[13].visible) s[13].i_ = 255;
         s.sort(function(a, b) { return a.i_ - b.i_; });
         s.forEach((p, i)=>{
           let x = W0 * i;
@@ -4739,14 +4742,14 @@
         }
 
         let q = s[i];
-        q.i_ = 0xff;
+        q.i_ = 255;
         q.visible = false;
         if (i === 13) {  // 抓到的牌补花
           s[13].updt(n);
           this.draw(13, o);
         } else {  // 手里的牌补花
           if (!s[13].visible) {  // 未摸到牌时（只会出现在配牌补花过程中）
-            s[13].i_ = 0xff;
+            s[13].i_ = 255;
           }
           q.updt(n);
           this.draw(i, o);
@@ -4780,7 +4783,7 @@
         p.scale.set(this.c_.scale.x / this.f_.scale.x);
         new TWEEN.Tween(p.scale).to({x:1,y:1}, DSDT).start();
 
-        s[i].i_ = 0xff;
+        s[i].i_ = 255;
         if (i !== 13) {
           if (!this.mst_) {
             setTimeout(()=>this.sort(), 500);
@@ -4958,7 +4961,7 @@
               new TWEEN.Tween(p).to({x:x}, STDT).start();
             }
             else {
-              p.i_ = -1;
+              //p.i_ = (i !== 13) ? -1 : 255;
               p.x = x;
             }
           }
@@ -5070,7 +5073,7 @@
         s[r[0]].i_ = -1;
         s[r[1]].i_ = -1;
         s[r[2]].i_ = -1;
-        s[r[3]].i_ = 0xff;
+        s[r[3]].i_ = 255;
         super._ck(p, 0, r, 0, 0, p=>this.f_.addChild(p), this.dstpos.bind(this));
         if (r[3] === 13 || this.mst_) {
           this.move();
@@ -5092,7 +5095,7 @@
 
         // 精准查找手里的牌张
         let r = st_find_f(s, a, t);
-        s[r].i_ = 0xff;
+        s[r].i_ = 255;
         let q = super._pk(p, 0, r, 0, 0,
           (o, p)=>{
             let i = this.f_.getChildIndex(o);
@@ -8634,7 +8637,7 @@
           //this.dscd(0, p.i_);  // 测试，直接打
           let i = p.i_;
           //console.log('discard', i);
-          if (i !== 0xff && this.ht_[0].candscd()) {
+          if (i !== 255 && this.ht_[0].candscd()) {
             tz.ws.send(`{"m":2,"r":2,"v":${i}}`);
             this.cd_.rm();
           }
