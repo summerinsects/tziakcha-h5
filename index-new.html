@@ -3666,7 +3666,12 @@
      function new_ck(n, t, o, s) {
       const WA = [wall0, wall1];
       const WA0 = WA[n & 1];
-      s.push(WA0()); s.push(WA0()); s.push(WA0()); s.push(WA0()); s[1].ck_ = true; s[2].ck_ = true;
+      if (n !== 0) {
+        s.push(WA0()); s.push(WA0()); s.push(WA0()); s.push(WA0()); s[1].ck_ = true; s[2].ck_ = true;
+      }
+      else {
+        s.push(WA0()); s.push(new PlTl0(t)); s.push(new PlTl0(t)); s.push(WA0());
+      }
       return 3;
     }
 
@@ -3934,12 +3939,6 @@
           // z横放的张。012 上、对、下家，3自己暗杠 456上、对、下家碰牌的加杠
           z = new_ca(n, c, t, o, s);
 
-          // 自己的暗杠要显示出来
-          if (n === 0 && c === 2 && o === 0) {
-            s[1] = new PlTl0(t);
-            s[2] = new PlTl0(t);
-          }
-
           // 添加新结点
           s.forEach(ad);
 
@@ -4186,17 +4185,9 @@
       _ck(p, n, r, x, y, ad, dp) {
         // 执行动画的精灵数组
         let s = [];
-        new_ck(n, 0, pk_ofr(p), s);
+        new_ck(n, pk_tl(p), pk_ofr(p), s);
 
-        if (n === 0) {
-          let t = pk_tl(p);
-          s[1] = new PlTl0(t);
-          s[2] = new PlTl0(t);
-          this.p_.push(p);
-        }
-        else {
-          this.p_.push(0x300);  // 占位
-        }
+        this.p_.push(n === 0 ? p : 0x300);  // 占位
 
         // 添加新结点
         s.forEach(ad);
@@ -4303,25 +4294,16 @@
 
       /**
        * 和牌
-       * @param {number} t 牌张
+       * @param {PIXI.Sprite} p 和牌张
        * @param {PIXI.Point} o 供牌的起点坐标
-       * @param {number} n 当前是哪个玩家
        * @param {number} x 偏移x
        * @param {number} y 偏移y
-       * @param {function(PlTl0|PlTl1|PlTl2|PlTl3):void} ad 添加和牌张结点的回调函数
        */
-      _win(t, o, n, x, y, ad) {
-        const PT = [PlTl0, PlTl1, PlTl2, PlTl3];
-        let s = new PT[n](t);
-        ad(s);
-        s.position = (this.c_.toLocal(o));
-        let p = this.s_[13];
-        addblur(s);
-        new TWEEN.Tween(s).to({x:(p.x + x), y:(p.y + y)}, DSDT).onComplete(e=>/*rmblur(e)*/e.dsty()).start();
-        if (n === 0) {
-          s.scale.set(this.f_.scale.x / this.c_.scale.x);
-          new TWEEN.Tween(s.scale).to({x:1,y:1}, DSDT).start();
-        }
+      _win(p, o, x, y) {
+        p.position = (this.c_.toLocal(o));
+        let d = this.s_[13];
+        addblur(p);
+        new TWEEN.Tween(p).to({x:(d.x + x), y:(d.y + y)}, DSDT).onComplete(e=>/*rmblur(e)*/e.dsty()).start();
       }
 
       /**
@@ -5119,7 +5101,12 @@
        * @param {PIXI.Point} o 供牌的起点坐标
        */
       win(t, o) {
-        super._win(t, o, 0, 0, 0, p=>this.c_.addChild(p));
+        let p = new PlTl0(t);
+        this.c_.addChild(p);
+        super._win(p, o, 0, 0);
+
+        p.scale.set(this.f_.scale.x / this.c_.scale.x);
+        new TWEEN.Tween(p.scale).to({x:1,y:1}, DSDT).start();
       }
 
       /**
@@ -5448,7 +5435,9 @@
        * @param {PIXI.Point} o 供牌的起点坐标
        */
       win(t, o) {
-        super._win(t, o, 1, W1S - W1, H1SF - H1F, p=>this.c_.addChildAt(p, 0));
+        let p = new PlTl1(t);
+        this.c_.addChildAt(p, 0);
+        super._win(p, o, W1S - W1, H1SF - H1F);
       }
 
       /**
@@ -5745,7 +5734,9 @@
        * @param {PIXI.Point} o 供牌的起点坐标
        */
       win(t, o) {
-        super._win(t, o, 2, 0, 0, p=>this.c_.addChild(p));
+        let p = new PlTl2(t);
+        this.c_.addChild(p);
+        super._win(p, o, 0, 0);
       }
 
       /**
@@ -6065,7 +6056,9 @@
        * @param {PIXI.Point} o 供牌的起点坐标
        */
       win(t, o) {
-        super._win(t, o, 3, 0, H1SF - H1F, p=>this.c_.addChild(p));
+        let p = new PlTl3(t);
+        this.c_.addChild(p);
+        super._win(p, o, 0, H1SF - H1F);
       }
 
       /**
@@ -6608,12 +6601,6 @@
           p.forEach(e=>{
             let s = [], c = pk_tp(e), t = pk_tl(e), o = pk_ofr(e);
             let z = new_ca(0, c, t, o, s);
-
-            // 自己的暗杠要显示出来
-            if (c === 2 && o === 0) {
-              s[1] = new PlTl0(t);
-              s[2] = new PlTl0(t);
-            }
 
             if (x !== 0) x += GF;
 
@@ -8583,8 +8570,8 @@
           //if (!tz.phn) {
             this.on('rightclick', ()=>this.rclk());
           //} else {
-            this.on('tap', (e)=>this.tapbg(e));
-            this.on('click', (e)=>this.tapbg(e));
+            this.on('tap', e=>this.tapbg(e));
+            this.on('click', e=>this.tapbg(e));
           //}
 
           // NOTE：本来是想创建一个与牌桌大小相等的按钮，置于最顶层，用来监听鼠标右键
@@ -10199,8 +10186,8 @@
               } else if (c === v) {
                 this.caltxt(i, tz.ls('Shoot'), true);
               }
-            }, DSDT * 3);
-          });
+            });
+          }, DSDT * 2);
         } else {
           // 错和打开手牌给大家看
           let g = h[w], n = (w + 4 - s) & 3;
