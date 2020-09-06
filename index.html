@@ -2,12 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>雀渣——国标麻将 (旧版)</title>
+    <title>Tziakcha-Chinese Official Mahjong (Legacy)</title>
     <style>*{padding:0;margin:0}</style>
     <meta name="viewport" content="user-scalable=no,initial-scale=.4,maximum-scale=.4,minimum-scale=.4,width=device-width,height=device-height">
 </head>
 <body>
-    <canvas>你的浏览器不支持此游戏</canvas>
+    <canvas>Your browser does not support this game</canvas>
     <script src="js/pixi.min.js"></script>
     <script src="js/pixi-sound.js"></script>
     <script src="js/Tween.min.js"></script>
@@ -202,7 +202,7 @@
          * 提示数据不同步（以前的版本是直接重新加载页面，但效果不好）
          */
         function reenter() {
-            tz.topmost.error('数据与服务器不同步，请刷新重试', true);
+            tz.topmost.error('Data not synchronized, please refresh and try again', true);
             //ws.send('{"m":4}');
         }
 
@@ -413,7 +413,7 @@
                 }, 1000);
             };
             ws.onerror = (e)=>{
-                topmost.error('网络错误，请刷新重试', true);
+                topmost.error('Network error, please refresh and try again', true);
                 console.log('error',e);
             };
             ws.onclose = ()=>{
@@ -674,7 +674,7 @@
                     pool.option_.reset();
                     pool.seat_ = parseInt(resp['p']);
                     let h = pool.rd_ = resp['h'];
-                    pool.roundText_.text = WIND[h >> 2] + '风' + WIND[h & 3];
+                    pool.roundText_.text = WIND[h >> 2] + '-' + WIND[h & 3];
                     if (h & 3) {
                         pool.sendHandTiles(resp['d'], resp['v']);
                     }
@@ -800,7 +800,7 @@
                     }
                     else {
                         play_snd(!pool.players_[v]['g'] ? (r == 8 ? 'snd/14-chow-m.wav' : 'snd/16-pung-m.wav') : (r == 8 ? 'snd/15-chow-f.wav' : 'snd/17-pung-f.wav'));
-                        pool.showCall(idx, r == 8 ? '吃' : '碰');
+                        pool.showCall(idx, r == 8 ? 'Chow' : 'Pung');
 
                         let a = resp['a'];
                         if (a && a.length > 0) {
@@ -823,7 +823,7 @@
                     let p = resp['p'];
                     if (!p) {
                         play_snd(!pool.players_[v]['g'] ? 'snd/18-kong-m.wav' : 'snd/19-kong-f.wav');
-                        pool.showCall(idx, '杠');
+                        pool.showCall(idx, 'Kong');
 
                         let a = resp['a'];
                         if (a && a.length > 0) {
@@ -836,7 +836,7 @@
                     }
                     else {
                         play_snd(!pool.players_[v]['g'] ? 'snd/18-kong-m.wav' : 'snd/19-kong-f.wav');
-                        pool.showCall(idx, '杠');
+                        pool.showCall(idx, 'Kong');
 
                         pool['pk' + idx].call(pool, p, false);
                         let a = resp['a'];
@@ -857,7 +857,7 @@
                     let v = resp['v'];
                     play_snd(!pool.players_[v]['g'] ? 'snd/18-kong-m.wav' : 'snd/19-kong-f.wav');
                     let idx = (v + 4 - pool.seat_) & 3;
-                    pool.showCall(idx, '杠');
+                    pool.showCall(idx, 'Kong');
                     pool['ck' + idx].call(pool, resp['p'], false);
                     break;
                 }
@@ -876,7 +876,7 @@
                     let dt = resp['d'];
                     if (dt == undefined) {
                         play_snd(!pool.players_[wp]['g'] ? 'snd/20-win-m.wav' : 'snd/21-win-f.wav');
-                        pool.showCall(n, '和');
+                        pool.showCall(n, 'Hu');
                         let a = resp['a'];
                         if (a && a.length > 0) {
                             pool.addCD(pool.cfg_['r12']);
@@ -975,8 +975,9 @@
 
         const HAND_SCALE = 1.7;//1 + (WIDTH_13 + GAP_T) / (WIDTH_02 * 3);
 
-        const WIND = ['东', '南', '西', '北'];
-        const ACTION = ['吃', '碰', '杠', '和', '花', '过', '弃'];
+        const WIND = ['E', 'S', 'W', 'N'];
+        const WIND_F = ['EAST', 'SOUTH', 'WEST', 'NORTH'];
+        const ACTION = ['Chow', 'Pung', 'Kong', 'Hu', 'Flower', 'Pass', 'Waive'];
 
         const EXT_CP_02 = (WIDTH_13 + GAP_T - WIDTH_02) * .5; // (WIDTH_02 * 2 + WIDTH_13 + GAP_T - WIDTH_02 * 3) * .5
         const EXT_DK_02 = (WIDTH_13 + GAP_T) * .5;  // (WIDTH_02 * 3 + WIDTH_13 + GAP_T - WIDTH_02 * 3) * .5
@@ -1397,7 +1398,7 @@
 
                 this.cfgText2_ = text = new PIXI.Text('', {
                     fontFamily: FF,
-                    fontSize: 22,
+                    fontSize: 20,
                     fill: '#ffffff',
                     padding: 10
                 });
@@ -1420,7 +1421,7 @@
 
                 this.ready_ = ready;
 
-                text = new PIXI.Text('文明游戏 禁止赌博', {
+                text = new PIXI.Text('Civilized Game & No Gambling', {
                     fontFamily: FF,
                     fontSize: 22,
                     fill: '#ffffff',
@@ -1874,7 +1875,7 @@
                 btn.zIndex = 500;
 */
 
-                let btn = new TextButton('设置', {
+                let btn = new TextButton('Settings', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
@@ -1886,7 +1887,7 @@
                 this.addChild(btn);
                 btn.zIndex = 500;
 
-                btn = new TextButton('测速', {
+                btn = new TextButton('Speed', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
@@ -1904,7 +1905,7 @@
                 btn.y = 70;
                 btn.zIndex = 500;
 
-                btn = new TextButton('鸣牌设置', {
+                btn = new TextButton('Call Opt', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
@@ -1920,7 +1921,7 @@
                 btn.x = MAX_WIDTH - 120;
                 btn.y = MAX_HEIGHT - 200;
 
-                btn = new TextButton('计分表', {
+                btn = new TextButton('History', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
@@ -1935,7 +1936,7 @@
                 btn.zIndex = 500;
                 btn.y = MAX_HEIGHT - 270;
 
-                btn = new TextButton('追分策略', {
+                btn = new TextButton('Chase', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
@@ -2008,7 +2009,7 @@
                 view.zIndex = 500;
                 view.visible = false;
 
-                text = this.timeout_ = new PIXI.Text('你已超时，服务器自动托管，刷新页面可解除', {
+                text = this.timeout_ = new PIXI.Text('Timeout, auto discarding. Refresh to continue', {
                     fontFamily: FF,
                     fontSize: 50,
                     fill: '#dedede',
@@ -2051,8 +2052,8 @@
              * @param {object} cfg 配置
              */
             setCfg(cfg) {
-                this.cfgText1_.text = `${cfg['n']}盘 ${cfg['l']}番 (${cfg['b']}) ${cfg['r30']}/${cfg['r12']}秒`;
-                this.cfgText2_.text = `${((cfg['s'])?'有':'无')}战术鸣牌 结束${(cfg['o'])?'':'不'}显示手牌\n错和${(cfg['fa'])?'-30/+10':'-40/+0'} ${cfg['fc']?'':'不'}允许鸣牌`;
+                this.cfgText1_.text = `${cfg['n']}RDs ${cfg['l']}Fan(s) (${cfg['b']}) ${cfg['r30']}/${cfg['r12']}s`;
+                this.cfgText2_.text = `Sabotage ${((cfg['s'])?'allowed':'disallowed')} ${(cfg['o'])?'Show':'Conceal'} Hand tiles\nFalse Hu ${(cfg['fa'])?'-30/+10':'-40/+0'} Calls ${cfg['fc']?'allowed':'disallowed'}`;
             }
 
             /**
@@ -2141,7 +2142,7 @@
                 this.rdfsh_ = false;
                 this.closeSettleView();
 
-                this.remainText_.text = '牌墙剩余：144';
+                this.remainText_.text = 'Remains : 144';
 
                 let seat = this.seat_;
                 this.windTexts_.forEach((wt, i)=>{
@@ -2358,9 +2359,9 @@
                 bg.drawRect((ww - w2) * .5, (hh - h2) * .5, w2, h2);
                 bg.endFill();
 
-                let text = new PIXI.Text(WIND[this.rd_ >> 2] + '风圈', {
+                let text = new PIXI.Text(WIND_F[this.rd_ >> 2], {
                     fontFamily: FF,
-                    fontSize: 128,
+                    fontSize: 100,
                     fill: '#ffffff',
                     fontWeight:'bold',
                     stroke: '#0066ff',
@@ -2702,7 +2703,7 @@
 
                 (new TWEEN.Tween(sp)).to({x:x,y:y}, DRAW_DT).delay(10).onComplete(()=>{
                     dst.visible = true;
-                    this.remainText_.text = '牌墙剩余：' + this.remainCnt_;
+                    this.remainText_.text = 'Remains : ' + this.remainCnt_;
                     sp.dstry();
                 }).start();
             }
@@ -3168,7 +3169,7 @@
                 let pos = this.callTextPos_[n];
                 let text = new PIXI.Text(s, {
                     fontFamily: FF1,
-                    fontSize: 72,
+                    fontSize: 64,
                     fontWeight: 'bold',
                     fill: '#ffffff',
                     stroke: '#000000',
@@ -3205,7 +3206,7 @@
              * @param {number} rm 牌墙剩余
              */
             flower123(n, rm) {
-                this.showCall(n, '花');
+                this.showCall(n, 'Flower');
                 this.infoPanels_[n].setFlower(++this.flowers_[n]);
                 this.remainCnt_ = rm;
 
@@ -3263,7 +3264,7 @@
              * @param {number} rm 牌墙剩余
              */
             flower0(ot, nt, rm) {
-                this.showCall(0, '花');
+                this.showCall(0, 'Flower');
                 this.infoPanels_[0].setFlower(++this.flowers_[0]);
                 this.remainCnt_ = rm;
 
@@ -4774,9 +4775,9 @@
                         }
 
                         let pos = this.callTextPos_[n1];
-                        let text = new PIXI.Text('点炮', {
+                        let text = new PIXI.Text('Shoot', {
                             fontFamily: FF1,
-                            fontSize: 72,
+                            fontSize: 64,
                             fontWeight: 'bold',
                             fill: '#ffffff',
                             stroke: '#000000',
@@ -4800,9 +4801,9 @@
                     if (wp != undefined) {
                         let n0 = (wp + 4 - this.seat_) & 3;
                         let pos = this.callTextPos_[n0];
-                        let text = new PIXI.Text('和', {
+                        let text = new PIXI.Text('Hu', {
                             fontFamily: FF1,
-                            fontSize: 72,
+                            fontSize: 64,
                             fontWeight: 'bold',
                             fill: '#ffffff',
                             stroke: '#000000',
@@ -4827,7 +4828,7 @@
                 }
                 else {
                     let n = (wp + 4 - this.seat_) & 3;
-                    this.showCall(n, '错和');
+                    this.showCall(n, 'False Hu');
                     switch (n) {
                     case 0: this._open0(ts[this.seat_], wt); break;
                     case 1: this._open1(ts[(this.seat_ + 1) & 3], wt); break;
@@ -5091,7 +5092,7 @@
                 this.setupPool(dtl['p']);
 
                 let rd = this.rd_ = dtl['d'];
-                this.roundText_.text = WIND[rd >> 2] + '风' + WIND[rd & 3];
+                this.roundText_.text = WIND[rd >> 2] + '-' + WIND[rd & 3];
                 this.setTurn(dtl['t']);
 
                 this.isDiscarding_ = dtl['e'];
@@ -5131,7 +5132,7 @@
                 let f = w['f'];
                 let b = w['b'];
                 this.remainCnt_ = 144 - f - b;
-                this.remainText_.text = '牌墙剩余：' + this.remainCnt_;
+                this.remainText_.text = 'Remains : ' + this.remainCnt_;
                 for (; f > 0; --f) {
                     this._draw_f();
                 }
@@ -5992,7 +5993,7 @@
                 super();
 
                 let btns = new Array(7);
-                const btnTitle = ['自动补花', '不 吃', '不 碰', '不 杠', '只和自摸', '自动和牌', '自动摸打'];
+                const btnTitle = ['Auto\nFlower', 'No\nChow', 'No\nPung', 'No\nKong', 'Self-Drawn\nOnly', 'Auto\nHu', 'Auto\nDiscard'];
                 for (let i = 0; i < 7; ++i) {
                     let cb = new CheckBox(btnTitle[i]);
                     this.addChild(cb);
@@ -6045,7 +6046,7 @@
                 bg.height = h0;
                 this.addChild(bg);
 
-                let text = this.lcText_ = new PIXI.Text('掉线', {
+                let text = this.lcText_ = new PIXI.Text('Offline', {
                     fontFamily: FF,
                     fontSize: 60,
                     fill: '#ffffff',
@@ -6090,7 +6091,7 @@
                 text.x = w0 * .5 + 17;
                 text.y = h0 - 25;
 
-                text = this.fwText_ = new PIXI.Text('错和', {
+                text = this.fwText_ = new PIXI.Text('False Hu', {
                     fontFamily: FF,
                     fontSize: 26,
                     fill: '#ffffff',
@@ -6350,7 +6351,7 @@
 
                 let f = this.face_ = new PIXI.Text('', {
                     fontFamily: FF1,
-                    fontSize: 72,
+                    fontSize: 64,
                     fontWeight: 'bold',
                     fill: '#ffffff',
                     stroke: '#000000',
@@ -6440,7 +6441,7 @@
                     if (ai != undefined) {
                         switch (t) {
                         case 3:
-                            tl = '吃';
+                            tl = 'Chow';
 
                             t0 = new StandingTile(hi_byte(ai));
                             btn.addChild(t0);
@@ -6455,7 +6456,7 @@
                             t0.y = h0 - h1 - 5;
                             break;
                         case 5:
-                            tl = '杠';
+                            tl = 'Kong';
                             t0 = new StandingTile(lo_byte(ai));
                             btn.addChild(t0);
                             t0.scale.set(HAND_SCALE);
@@ -6467,7 +6468,7 @@
                         }
                     }
                     else {
-                        tl = '取消';
+                        tl = 'Cancel';
                         py = h0 * .5;
                     }
 
@@ -6671,21 +6672,22 @@
             }
         }
 
-        const FAN_NAME = ['无',
-            '大四喜', '大三元', '绿一色', '九莲宝灯', '四杠', '连七对', '十三幺',
-            '清幺九', '小四喜', '小三元', '字一色', '四暗刻', '一色双龙会',
-            '一色四同顺', '一色四节高',
-            '一色四步高', '三杠', '混幺九',
-            '七对', '七星不靠', '全双刻', '清一色', '一色三同顺', '一色三节高', '全大', '全中', '全小',
-            '清龙', '三色双龙会', '一色三步高', '全带五', '三同刻', '三暗刻',
-            '全不靠', '组合龙', '大于五', '小于五', '三风刻',
-            '花龙', '推不倒', '三色三同顺', '三色三节高', '无番和', '妙手回春', '海底捞月', '杠上开花', '抢杠和',
-            '碰碰和', '混一色', '三色三步高', '五门齐', '全求人', '双暗杠', '双箭刻',
-            '全带幺', '不求人', '双明杠', '和绝张',
-            '箭刻', '圈风刻', '门风刻', '门前清', '平和', '四归一', '双同刻', '双暗刻', '暗杠', '断幺',
-            '一般高', '喜相逢', '连六', '老少副', '幺九刻', '明杠', '缺一门', '无字', '边张', '嵌张', '单钓将', '自摸',
-            '花牌'
-            , '明暗杠'
+        const FAN_NAME = ['None',
+            'Big Four Winds', 'Big Three Dragons', 'All Green', 'Nine Gates', 'Four Kongs', 'Seven Shifted Pairs', 'Thirteen Orphans',
+            'All Terminals', 'Little Four Winds', 'Little Three Dragons', 'All Honors', 'Four Concealed Pungs', 'Pure Terminal Chows',
+            'Quadruple Chow', 'Four Pure Shifted Pungs',
+            'Four Pure Shifted Chows', 'Three Kongs', 'All Terminals and Honors',
+            'Seven Pairs', 'Greater Honors and Knitted Tiles', 'All Even Pungs', 'Full Flush', 'Pure Triple Chow', 'Pure Shifted Pungs', 'Upper Tiles', 'Middle Tiles', 'Lower Tiles',
+            'Pure Straight', 'Three-Suited Terminal Chows', 'Pure Shifted Chows', 'All Five', 'Triple Pung', 'Three Concealed Pungs',
+            'Lesser Honors and Knitted Tiles', 'Knitted Straight', 'Upper Four', 'Lower Four', 'Big Three Winds',
+            'Mixed Straight', 'Reversible Tiles', 'Mixed Triple Chow', 'Mixed Shifted Pungs', 'Chicken Hand', 'Last Tile Draw', 'Last Tile Claim', 'Out with Replacement Tile', 'Robbing The Kong',
+            'All Pungs', 'Half Flush', 'Mixed Shifted Chows', 'All Types', 'Melded Hand', 'Two Concealed Kongs', 'Two Dragons Pungs',
+            'Outside Hand', 'Fully Concealed Hand', 'Two Melded Kongs', 'Last Tile',
+            'Dragon Pung', 'Prevalent Wind', 'Seat Wind', 'Concealed Hand', 'All Chows', 'Tile Hog', 'Double Pung',
+            'Two Concealed Pungs', 'Concealed Kong', 'All Simples',
+            'Pure Double Chow', 'Mixed Double Chow', 'Short Straight', 'Two Terminal Chows', 'Pung of Terminals or Honors', 'Melded Kong', 'One Voided Suit', 'No Honors', 'Edge Wait', 'Closed Wait', 'Single Wait', 'Self-Drawn',
+            'Flower Tiles'
+            , 'Concealed Kong and Melded Kong'
         ];
 
         /**
@@ -6695,7 +6697,7 @@
          */
         function fan_item(f, v) {
             let c = ((v >> 8) & 0xFF) + 1;
-            return `${FAN_NAME[f]} ${c==1?`${v&0xFF}番`:`${v&0xFF}番\x20\u00D7\x20${c}`}`;
+            return `${FAN_NAME[f]} ${c==1?`${v&0xFF}`:`${v&0xFF}\x20\u00D7\x20${c}`}`;
         }
 
         /**
@@ -6715,16 +6717,15 @@
                 let v = ft[f];
                 let t = new PIXI.Text(fan_item(f, v), {
                     fontFamily: FF,
-                    fontSize: 22,
-                    fill: '#99ffff',
-                    padding: 10
+                    fontSize: 20,
+                    fill: '#99ffff'
                 });
                 ctn.addChild(t);
                 t.anchor.y = .5;
                 t.x = x0;
                 //t.x = w0 + gap; t.anchor.x = 1;
                 t.y = y0;
-                //scaleText(t, w0 - 10);
+                scaleText(t, w0 - 10);
 
                 ++i;
             }
@@ -6802,10 +6803,10 @@
                     let tx = '';
                     let f = dt['f'];
                     if (p < 0) {
-                        tx = '荒庄';
+                        tx = 'Tie';
                     }
                     else {
-                        tx = `「${ns[wn]}」${cl!=wn?`和牌 「${ns[cl]}」点炮`:'自摸'}  ${f}番`;
+                        tx = `「${ns[wn]}」 ${cl!=wn?`Hu 「${ns[cl]}」 Shoot`:'Self-Drawn'}  ${f} Fan(s)`;
                     }
                     let t = new PIXI.Text(tx, {
                         fontFamily: FF,
@@ -6836,7 +6837,7 @@
 
                 {
                     let rd = dt['r'];
-                    let t = new PIXI.Text(WIND[rd >> 2] + '风' + WIND[rd & 3], {
+                    let t = new PIXI.Text(WIND[rd >> 2] + '-' + WIND[rd & 3], {
                         fontFamily: FF1,
                         fontSize: 32,
                         fontWeight: 'bold',
@@ -6917,7 +6918,7 @@
                         ss = new Uint8Array(4);
                     }
                     let ss0 = ss[ri], ps0 = ps[ri];
-                    t = new PIXI.Text(`本盘 ${plus_sign(ss0)}${ps0==0?'':plus_sign(ps0)}`, {
+                    t = new PIXI.Text(`MP ${plus_sign(ss0)}${ps0==0?'':plus_sign(ps0)}`, {
                         fontFamily: FF,
                         fontSize: 20,
                         fill: '#ffffff',
@@ -6932,7 +6933,7 @@
                     t.y = cy[i] + 2;
 
                     let ts0 = ts[ri];
-                    t = new PIXI.Text(`累计 ${plus_sign(ts0)}`, {
+                    t = new PIXI.Text(`Total ${plus_sign(ts0)}`, {
                         fontFamily: FF,
                         fontSize: 20,
                         fill: '#ffffff',
@@ -6947,7 +6948,7 @@
                     t.y = cy[i] + 32;
 
                     if (ps0 < 0) {
-                        t = new PIXI.Text('错和', {
+                        t = new PIXI.Text('False Hu', {
                             fontFamily: FF,
                             fontSize: 16,
                             fill: '#ffffff',
@@ -7061,7 +7062,7 @@
                 ctn.on('pointerup', ()=>bg.visible = true);
                 ctn.on('pointerupoutside', ()=>bg.visible = true);
 
-                let t = new PIXI.Text(fn + '番错和', {
+                let t = new PIXI.Text(fn + ' Fan(s) False Hu', {
                     fontFamily: FF,
                     fontSize: 26,
                     fill: '#ffffff',
@@ -7089,6 +7090,7 @@
                         padding: 10
                     });
                     bg.addChild(t);
+                    scaleText(t, frp - 10);
                     t.x = x0;
                     //t.x = frp + gap; t.anchor.x = 1;
                     t.y = y0;
@@ -7097,7 +7099,7 @@
                     ++i;
                 }
 
-                t = new PIXI.Text('你已错和，本盘失去和牌权', {
+                t = new PIXI.Text('You\'ve False Hu-ed, cannot Hu during current hand', {
                     fontFamily: FF,
                     fontSize: 22,
                     fill: '#ffffff',
@@ -7157,7 +7159,7 @@
                 this.addChild(bg);
                 bg.interactive = true;
 
-                let t = new PIXI.Text(WIND[rd >> 2] + '风' + WIND[rd & 3], {
+                let t = new PIXI.Text(WIND[rd >> 2] + '-' + WIND[rd & 3], {
                     fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
@@ -7199,7 +7201,7 @@
 
                 let h0 = 210 + ftb.height;
 
-                t = new PIXI.Text(`共${f}番`, {
+                t = new PIXI.Text(`Total: ${f} Fan(s)`, {
                     fontFamily: FF,
                     fontSize: 26,
                     fill: '#ffffff',
@@ -7312,7 +7314,7 @@
                 bg.addChild(sp);
                 sp.tint = 0x808080;
 
-                let t = new PIXI.Text(ti + '\n对战结果', {
+                let t = new PIXI.Text(ti + '\nGame Result', {
                     fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
@@ -7328,7 +7330,7 @@
                 t.y = 60;
                 scaleText(t, w0 - 20);
 
-                const pfx = ['名次', '昵称', '分数'];
+                const pfx = ['Rank', 'Nickname', 'Scores'];
                 let xx = Float32Array.of(gap + 40, w0 * .5 + 40 - 60, w0 - gap - 60);
                 let yy = oy + gy * .5;
                 for (let i = 0; i < 3; ++i) {
@@ -7484,7 +7486,7 @@
                 bg.on('click', this._closeBrief.bind(this));
                 bg.on('tap', this._closeBrief.bind(this));
 
-                let t = new PIXI.Text('计分表', {
+                let t = new PIXI.Text('Score Table', {
                     fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
@@ -7506,7 +7508,7 @@
                 ctx.strokeStyle = '#ffffff';
                 ctx.rect(40, 70, w0 - 80, 760);
 
-                t = new PIXI.Text('昵称', {
+                t = new PIXI.Text('Nickname', {
                     fontFamily: FF,
                     fontSize: 20,
                     fontWeight: 'bold',
@@ -7517,6 +7519,7 @@
                 t.anchor.set(.5);
                 t.x = 75;
                 t.y = 90;
+                scaleText(t, 65);
 
                 let ntt = new Array(4), ttt = new Array(4);
                 for (let i = 0; i < 4; ++i) {
@@ -7547,7 +7550,7 @@
                 this.ntt_ = ntt;
                 this.ttt_ = ttt;
 
-                t = new PIXI.Text('盘序', {
+                t = new PIXI.Text('Order', {
                     fontFamily: FF,
                     fontSize: 20,
                     fontWeight: 'bold',
@@ -7560,7 +7563,7 @@
                 t.y = 130;
 
                 for (let i = 0; i < 8; ++i) {
-                    t = new PIXI.Text(i & 1 ? '累计' : '本盘', {
+                    t = new PIXI.Text(i & 1 ? 'CP' : 'MP', {
                         fontFamily: FF,
                         fontSize: 20,
                         fontWeight: 'bold',
@@ -7586,7 +7589,7 @@
                     btn.x = 40;
                     btn.y = yy - 20;
 
-                    t = new PIXI.Text(WIND[i >> 2] + '风' + WIND[i & 3], {
+                    t = new PIXI.Text(WIND[i >> 2] + '-' + WIND[i & 3], {
                         fontFamily: FF,
                         fontSize: 20,
                         fontWeight: 'bold',
@@ -7618,7 +7621,7 @@
                 this.btns_ = btns;
                 this.rtt_ = rtt;
 
-                t = new PIXI.Text('合计', {
+                t = new PIXI.Text('Total', {
                     fontFamily: FF,
                     fontSize: 20,
                     fontWeight: 'bold',
@@ -7821,7 +7824,7 @@
                 bg.y = (h - h0) * .5;
                 bg.interactive = true;
 
-                let t = new PIXI.Text('追分策略', {
+                let t = new PIXI.Text('Chase Strategy', {
                     fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
@@ -7872,7 +7875,7 @@
                 sp.tint = 0x808080;
 
                 const cls = ['#FFD700', '#FFD700', '#DCDCDC', '#FF6A6A', '#00BFFF', '#00CD66'];
-                const tix = ['追者', '被追', '分差', '自摸', '对点', '旁点'];
+                const tix = ['Chaser', 'Chasee', 'Diff', 'S-D', 'D-S', 'O-S'];
                 const xps2 = Uint16Array.of(100, 220, 320, 400, 480, 560);
                 for (let i = 0; i < 6; ++i) {
                     t = new PIXI.Text(tix[i], {
@@ -7925,7 +7928,7 @@
                 }
                 this.texts_ = texts;
 
-                t = new PIXI.Text('自摸：(分差-32) / 4\n对点：(分差-32) / 2\n旁点：(分差-32)', {
+                t = new PIXI.Text('Self-Drawn: (Diff-32) / 4\nDirect Shoot: (Diff-32) / 2\nOther Shoot: (Diff-32)', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
@@ -8038,7 +8041,7 @@
                 bg.y = (h - h0) * .5;
                 bg.interactive = true;
 
-                let t = new PIXI.Text('鸣牌设置', {
+                let t = new PIXI.Text('Call Options', {
                     fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
@@ -8052,7 +8055,7 @@
                 t.x = w0 * .5;
                 t.y = 35;
 
-                t = new PIXI.Text('不询问以下选中的牌：', {
+                t = new PIXI.Text('No prompt calls for the selected tiles below:', {
                     fontFamily: FF,
                     fontSize: 28,
                     fill: '#ffffff',
@@ -8108,7 +8111,7 @@
                 this.tiles_ = tiles;
                 this.cbs_ = cbs;
 
-                const ti = ['所有万子', '所有条子', '所有饼子', '所有字牌'];
+                const ti = ['All Characters', 'All Bamboos', 'All Dots', 'All Honors'];
                 let cba = [null, null, null, null];
                 for (let i = 0; i < 4; ++i) {
                     cbx = cba[i] = new CheckBox(ti[i], function(i, cb) {
@@ -8125,19 +8128,19 @@
                 }
                 this.cba_ = cba;
 
-                cbx = this.ign_ = new CheckBox('自摸也不询问');
+                cbx = this.ign_ = new CheckBox('No prompt even Self-Drawn');
                 bg.addChild(cbx);
                 cbx.x = 20;
                 cbx.y = h0 - 310;
 
-                cbx = this.rw_ = new CheckBox('鼠标右键=弃');
+                cbx = this.rw_ = new CheckBox('Right-click for Waiving');
                 bg.addChild(cbx);
                 cbx.x = 20;
                 cbx.y = h0 - 230;
 
-                t = new PIXI.Text('注意：此处的设置优先。每盘开始前会重置。', {
+                t = new PIXI.Text('Note：Options here have the highest priority.\nThese options will be reset before the start of each hand', {
                     fontFamily: FF,
-                    fontSize: 24,
+                    fontSize: 22,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -8150,7 +8153,7 @@
                 t.y = h0 - 160;
 
                 const wb0 = 120, wh0 = 50;
-                let btn = new TextButton('取消', {
+                let btn = new TextButton('Cancel', {
                     fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
@@ -8163,7 +8166,7 @@
                 btn.x = w0 * .25 - wb0;
                 btn.y = h0 - wh0 - 20;
 
-                btn = new TextButton('确定', {
+                btn = new TextButton('Confirm', {
                     fontFamily: FF,
                     fontSize: 32,
                     fill: '#ffffff',
@@ -8331,7 +8334,7 @@
                 bg.y = (h - h0) * .5;
                 bg.interactive = true;
 
-                let t = new PIXI.Text('设置', {
+                let t = new PIXI.Text('Settings', {
                     fontFamily: FF,
                     fontSize: 24,
                     fill: '#ffffff',
@@ -8345,7 +8348,7 @@
                 t.x = w0 * .5;
                 t.y = 30;
 
-                t = new PIXI.Text('音量', {
+                t = new PIXI.Text('Volume', {
                     fontFamily: FF,
                     fontSize: 18,
                     fill: '#ffffff',
@@ -8387,7 +8390,7 @@
 
                 this.overwritten_ = false;
                 this.playing_ = false;
-                let btn = new TextButton('试听', {
+                let btn = new TextButton('Test', {
                     fontFamily: FF,
                     fontSize: 18,
                     fill: '#ffffff',
@@ -8418,7 +8421,7 @@
                 btn.x = w0 - 105;
                 btn.y = 80 - 17.5;
 
-                t = new PIXI.Text('倒计时音效', {
+                t = new PIXI.Text('Countdown Effects', {
                     fontFamily: FF,
                     fontSize: 18,
                     fill: '#ffffff',
@@ -8439,7 +8442,7 @@
                 cb1.y = t.y - 13.5;
                 cb1.setSelected(!tz.cfg['mutecd']);
 
-                t = new PIXI.Text('鸣牌提示音效', {
+                t = new PIXI.Text('Call Hint Effects', {
                     fontFamily: FF,
                     fontSize: 18,
                     fill: '#ffffff',
@@ -8460,7 +8463,7 @@
                 cb2.y = t.y - 13.5;
                 cb2.setSelected(!tz.cfg['mutecall']);
 
-                t = new PIXI.Text('鼠标右键摸打', {
+                t = new PIXI.Text('Right-click for discarding drawing tile', {
                     fontFamily: FF,
                     fontSize: 18,
                     fill: '#ffffff',
@@ -8481,7 +8484,7 @@
                 cb3.y = t.y - 13.5;
                 cb3.setSelected(tz.cfg['rightdiscard']);
 
-                t = new PIXI.Text('牌面上角标（刷新后生效）', {
+                t = new PIXI.Text('Tile superscript (refresh needed)', {
                     fontFamily: FF,
                     fontSize: 18,
                     fill: '#ffffff',
@@ -8502,7 +8505,7 @@
                 cb4.y = t.y - 13.5;
                 cb4.setSelected(tz.nht);
 
-                t = new PIXI.Text('钢琴键尺寸（刷新后生效）', {
+                t = new PIXI.Text('Piano Key (refresh needed)', {
                     fontFamily: FF,
                     fontSize: 18,
                     fill: '#ffffff',
@@ -8516,7 +8519,7 @@
                 t.x = 20;
                 t.y = 280;
 
-                let ti = ['三格', '两格'];
+                let ti = ['3 tabs', '2 tabs'];
                 let piacbs = [];
                 for (let i = 0; i < 2; ++i) {
                     let cbx = new CheckBox(ti[i], function(i) {
@@ -8535,7 +8538,7 @@
                 this.piacbs_ = piacbs;
 
                 const wb0 = 90, wh0 = 35;
-                btn = new TextButton('取消', {
+                btn = new TextButton('Cancel', {
                     fontFamily: FF,
                     fontSize: 18,
                     fill: '#ffffff',
@@ -8548,7 +8551,7 @@
                 btn.x = 15;
                 btn.y = h0 - wh0 - 15;
 
-                btn = new TextButton('确定', {
+                btn = new TextButton('Confirm', {
                     fontFamily: FF,
                     fontSize: 18,
                     fill: '#ffffff',
@@ -9018,7 +9021,7 @@
                 ctn.addChild(btn);
                 btn.x = LOBBY_WIDTH - wb0;
 
-                btn = new TextButton('测速', {
+                btn = new TextButton('Speed', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
@@ -9035,7 +9038,7 @@
                 ctn.addChild(btn);
                 btn.x = LOBBY_WIDTH - wb0 - 75;
 
-                btn = new TextButton('主页', {
+                btn = new TextButton('Home', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
@@ -9046,7 +9049,7 @@
                 }, 70, wh0, ()=>{ window.open('/', '_blank'); });
                 ctn.addChild(btn);
 
-                btn = new TextButton('EN', {
+                btn = new TextButton('ZH', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
@@ -9054,7 +9057,7 @@
                     strokeThickness: 2,
                     lineJoin: 'round',
                     padding: 10
-                }, 70, wh0, ()=>{ window.open('/1/?lang=en', '_self'); });
+                }, 70, wh0, ()=>{ window.open('/1/?lang=zh', '_self'); });
                 ctn.addChild(btn);
                 btn.x = 75;
 
@@ -9070,7 +9073,7 @@
                 t.x = LOBBY_WIDTH - wb0 - 80;
                 t.y = 20;
 
-                const title = ['空闲：', '等待：', '对局：', '托管：'];
+                const title = ['free : ', 'waiting : ', 'playing : ', 'offline : '];
                 let status = [null, null, null, null];
                 for (let i = 0; i < 4; ++i) {
                     let t0 = new PIXI.Text(title[i], {
@@ -9097,7 +9100,7 @@
                 }
                 this.status_ = status;
 
-                t = new PIXI.Text('文明游戏 禁止赌博', {
+                t = new PIXI.Text('Civilized Game & No Gambling', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
@@ -9108,7 +9111,7 @@
                 t.x = LOBBY_WIDTH * .5;
                 t.y = LOBBY_HEIGHT - wh0 - 75;
 
-                btn = new TextButton('创建牌桌', {
+                btn = new TextButton('New Table', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
@@ -9121,7 +9124,7 @@
                 btn.x = (LOBBY_WIDTH - wb0) * .5;
                 btn.y = LOBBY_HEIGHT - wh0 - 10;
 
-                btn = this.prevBtn_ = new TextButton('上一页', {
+                btn = this.prevBtn_ = new TextButton('PREV', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
@@ -9134,7 +9137,7 @@
                 btn.x = LOBBY_WIDTH * .25 - wb0 * .5;
                 btn.y = LOBBY_HEIGHT - wh0 - 60;
 
-                btn = this.nextBtn_ = new TextButton('下一页', {
+                btn = this.nextBtn_ = new TextButton('NEXT', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
@@ -9186,26 +9189,26 @@
                 switch (r) {
                 case 1:
                     switch (resp['e']) {
-                    default: topmost.error('未知错误'); break;
-                    case 0: topmost.error('未知错误0'); break;
-                    case 1: topmost.error('你已经在桌子上'); break;
-                    case 2: topmost.error('你已经在对局中'); break;
-                    case 3: topmost.error('桌子不存在'); break;
-                    case 4: topmost.error('不正确的位置'); break;
-                    case 5: topmost.error('这个位置已经有人了'); break;
-                    case 6: topmost.error('密码错误'); break;
-                    case 7: topmost.error('你不在桌子上'); break;
-                    case 8: topmost.error('你已在别处登录', true); break;
-                    case 9: topmost.error('用户名或密码过长'); break;
-                    case 10: topmost.error('该桌不允许游客账号加入'); break;
-                    case 11: topmost.error('不允许使用特殊字符'); break;
-                    case 12: topmost.error('次要时限不能超过首要时限');break;
-                    case 13: topmost.error('账号和密码不匹配'); break;
-                    case 14: topmost.error('验证码已过期'); break;
-                    case 15: topmost.error('验证码错误'); break;
-                    case 17: topmost.error('不支持该配置'); break;
-                    case 18: topmost.error('该桌IP限制'); break;
-                    case 19: topmost.error('账号未激活'); break;
+                    default: topmost.error('Unknown error'); break;
+                    case 0: topmost.error('Unknown error 0'); break;
+                    case 1: topmost.error('You are in table'); break;
+                    case 2: topmost.error('You are in game'); break;
+                    case 3: topmost.error('Table is not exist'); break;
+                    case 4: topmost.error('Wrong seat'); break;
+                    case 5: topmost.error('This seat is already occupied'); break;
+                    case 6: topmost.error('Password is incorrect'); break;
+                    case 7: topmost.error('You are not in table'); break;
+                    case 8: topmost.error('You have already logged in elsewhere', true); break;
+                    case 9: topmost.error('Username or password too long'); break;
+                    case 10: topmost.error('No entry for guest'); break;
+                    case 11: topmost.error('Special Characters not allowed'); break;
+                    case 12: topmost.error('Secondary time should less than primary time'); break;
+                    case 13: topmost.error('Account and Password not match'); break;
+                    case 14: topmost.error('Verification Code Expired'); break;
+                    case 15: topmost.error('Incorrect Verification Code'); break;
+                    case 17: topmost.error('Config is not supported'); break;
+                    case 18: topmost.error('IP restrictions'); break;
+                    case 19: topmost.error('User account is not activated'); break;
                     case 16: {
                         document.cookie = '__p=;Path=/;Max-Age=0';
                         let un, pw;
@@ -9214,7 +9217,7 @@
                             tz.ws.send(`{"m":1,"r":12,"u":"${un}","p":"${pw}"}`);
                         }
                         else {
-                            topmost.error('自动登录失败，请输入账号密码登录');
+                            topmost.error('Auto login failed, Please login manually');
                         }
                         break;
                     }
@@ -9357,20 +9360,20 @@
                         let bl = bytes_len(cfg['t']);
                         let topmost = tz.topmost;
                         if (bl == 0) {
-                            topmost.error('对局名称不能为空');
+                            topmost.error('Title should not be empty');
                             return;
                         }
                         if (bl > 40) {
-                            topmost.error('对局名称最多40个字符');
+                            topmost.error('Title should be less than 40 characters');
                             return;
                         }
                         let p = cfg['p'];
                         if (p.length > 0 && !p.match('[0-9a-zA-Z]')) {
-                            topmost.error('密码只允许数字和字母');
+                            topmost.error('Password only allow numbers and letters');
                             return;
                         }
                         if (p.length > 6) {
-                            topmost.error('密码最长6位');
+                            topmost.error('Passwords should be less than 6 characters');
                             return;
                         }
                         tz.ws.send(JSON.stringify({'m':1,'r':3,'g':cfg}));
@@ -9608,7 +9611,7 @@
                 bg.drawRect(5, 5, LOBBY_WIDTH - 10, LOBBY_HEIGHT - 10);
                 bg.endFill();
 
-                let t = new PIXI.Text('创建牌桌', {
+                let t = new PIXI.Text('New Table', {
                     fontFamily: FF,
                     fontSize: 28,
                     fill: '#ffffff',
@@ -9623,21 +9626,21 @@
                 t.y = 35;
 
                 const items = [
-                    {t:'对局名称'},
-                    {t:'类型', o:['全庄', '半庄', '东风'], s:95},
-                    {t:'起和番', o:['1番', '8番', '16番', '24番', '32番'], s:95},
-                    {t:'底分', o:['0', '8'], s:95},
-                    {t:'首要时限', o:['5秒', '8秒', '10秒', '15秒'], s:95},
-                    {t:'次要时限', o:['3秒', '5秒', '8秒', '10秒'], s:95},
-                    {t:'战术鸣牌', o:['有', '无'], s:95},
-                    {t:'一盘结束后显示手牌', o:['是', '否'], s:95},
-                    {t:'错和处罚策略', o:['-30/+10', '-40/+0'], s:125},
-                    {t:'错和后允许鸣牌', o:['是', '否'], s:95},
-                    {t:'对局初始分', o:['0', '500'], s:95},
-                    {t:'随机分配初始座位', o:['是', '否'], s:95},
-                    {t:'对外隐藏玩家昵称', o:['是', '否'], s:95},
-                    {t:'允许游客加入', o:['是', '否'], s:95},
-                    {t:'密码（可选）'}
+                    {t:'Game Title'},
+                    {t:'Category', o:['16RDs', '8RDs', '4RDs'], s:95},
+                    {t:'Limited Fan(s)', o:['1', '8', '16', '24', '32'], s:95},
+                    {t:'Base scores', o:['0', '8'], s:95},
+                    {t:'Primary Time', o:['5s', '8s', '10s', '15s'], s:95},
+                    {t:'Secondary Time', o:['3s', '5s', '8s', '10s'], s:95},
+                    {t:'Sabotage allowed', o:['Yes', 'No'], s:95},
+                    {t:'Show hand tiles after round over', o:['Yes', 'No'], s:95},
+                    {t:'False Hu punishment', o:['-30/+10', '-40/+0'], s:125},
+                    {t:'False Hu calls allowed', o:['Yes', 'No'], s:95},
+                    {t:'Initial scores', o:['0', '500'], s:95},
+                    {t:'Random seat', o:['Yes', 'No'], s:95},
+                    {t:'Hide nickname', o:['Yes', 'No'], s:95},
+                    {t:'Guest allowed', o:['Yes', 'No'], s:95},
+                    {t:'Password (optional)'}
                 ];
 
                 let ctrls = new Array(items.length);
@@ -9719,7 +9722,7 @@
                 ctrls[14].text = dv(defcfg['p'], '');
 
                 const wb0 = 100, wh0 = 40;
-                let btn = new TextButton('取消', {
+                let btn = new TextButton('Cancel', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
@@ -9732,7 +9735,7 @@
                 btn.x = gap;
                 btn.y = LOBBY_HEIGHT - wh0 - 20;
 
-                btn = new TextButton('确定', {
+                btn = new TextButton('Confirm', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
@@ -9797,7 +9800,7 @@
             let ctn = new PIXI.Container();
             let t, w = 0, gp = fs * .4;
 
-            t = new PIXI.Text(`${cfg['n']}盘 | ${cfg['l']}番 (${cfg['b']})`, {
+            t = new PIXI.Text(`${cfg['n']}RDs | ${cfg['l']}Fan(s) (${cfg['b']})`, {
                 fontFamily: FF,
                 fontSize: fs,
                 fill: '#ffd700',
@@ -9807,7 +9810,7 @@
             ctn.addChild(t);
             w += t.width + gp;
 
-            t = new PIXI.Text(`${cfg['r30']}/${cfg['r12']}秒`, {
+            t = new PIXI.Text(`${cfg['r30']}/${cfg['r12']}s`, {
                 fontFamily: FF,
                 fontSize: fs,
                 fill: '#ff6a6a',
@@ -9817,7 +9820,7 @@
             ctn.addChild(t);
             w += t.width + gp;
 
-            t = new PIXI.Text(`${cfg['s']?'有':'无'}战术鸣牌 | 结束${cfg['o']?'':'不'}显示手牌`, {
+            t = new PIXI.Text(`Sabotage ${cfg['s']?'allowed':'disallowed'} | ${cfg['o']?'Show':'Conceal'} hand tiles`, {
                 fontFamily: FF,
                 fontSize: fs,
                 fill: '#00bfff',
@@ -9827,7 +9830,7 @@
             ctn.addChild(t);
             w += t.width + gp;
 
-            t = new PIXI.Text(`错和${cfg['fa']?'-30/+10':'-40/+0'} ${cfg['fc']?'':'不'}允许鸣牌`, {
+            t = new PIXI.Text(`False Hu ${cfg['fa']?'-30/+10':'-40/+0'} Calls ${cfg['fc']?'allowed':'disallowed'}`, {
                 fontFamily: FF,
                 fontSize: fs,
                 fill: '#cdcdcd',
@@ -9928,9 +9931,9 @@
                     t.text = `${rd}/${cfg['n']}`;
                 }
 
-                let btn = new TextButton('准备', {
+                let btn = new TextButton('Ready', {
                     fontFamily: FF,
-                    fontSize: 20,
+                    fontSize: 18,
                     fill: '#ffffff',
                     stroke: '#0066ff',
                     strokeThickness: 2,
@@ -9946,7 +9949,7 @@
                 btn.value_ = 1;
                 this.readyBtn_ = btn;
 
-                let ctn = cfg_richtext(18, cfg);
+                let ctn = cfg_richtext(16, cfg);
                 ctn.x = gap;
                 ctn.y = 70;
                 ctn.pivot.y = ctn.height * .5;
@@ -9992,7 +9995,7 @@
                     tick[i] = sp;
                     sp.visible = (ready & (1 << i));
 
-                    t = new PIXI.Text((!this.anonym_ || p[i].length == 0) ? p[i] : '匿名用户', {
+                    t = new PIXI.Text((!this.anonym_ || p[i].length == 0) ? p[i] : 'anonymous', {
                         fontFamily: FF,
                         fontSize: 20,
                         fill: '#ffffff',
@@ -10024,11 +10027,11 @@
                 if (id == this.tableid_) {
                     if (this.seat_ != s) {
                         if (!this.tick_[s].visible) {
-                            btn.face_.text = '准备';
+                            btn.face_.text = 'Ready';
                             btn.value_ = 1;
                         }
                         else {
-                            btn.face_.text = '取消准备';
+                            btn.face_.text = 'Cancel Ready';
                             btn.value_ = 0;
                         }
                     }
@@ -10054,7 +10057,7 @@
              */
             sitDown(s, n) {
                 let t = this.name_[s];
-                t.text = !this.anonym_ ? n : '匿名用户';
+                t.text = !this.anonym_ ? n : 'anonymous';
                 scaleText(t, t.w_);
             }
 
@@ -10078,11 +10081,11 @@
                 if (id == this.tableid_ && s == this.seat_) {
                     let btn = this.readyBtn_;
                     if (r) {
-                        btn.face_.text = '取消准备';
+                        btn.face_.text = 'Cancel Ready';
                         btn.value_ = 0;
                     }
                     else {
-                        btn.face_.text = '准备';
+                        btn.face_.text = 'Ready';
                         btn.value_ = 1;
                     }
                 }
@@ -10132,7 +10135,7 @@
                 bg.x = (LOBBY_WIDTH - w0) * .5;
                 bg.y = (LOBBY_HEIGHT - h0) * .5;
 
-                let t = new PIXI.Text('请输入密码', {
+                let t = new PIXI.Text('Input password', {
                     fontFamily: FF,
                     fontSize: 28,
                     fill: '#ffffff',
@@ -10161,7 +10164,7 @@
                 bg.addChild(ti);
 
                 const wb0 = 100, wh0 = 40;
-                let btn = new TextButton('取消', {
+                let btn = new TextButton('Cancel', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
@@ -10174,7 +10177,7 @@
                 btn.x = gap;
                 btn.y = h0 - wh0 - 20;
 
-                btn = new TextButton('确定', {
+                btn = new TextButton('Confirm', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
@@ -10234,7 +10237,7 @@
                 bg.x = (LOBBY_WIDTH - w0) * .5;
                 bg.y = (LOBBY_HEIGHT - h0) * .5;
 
-                let t = new PIXI.Text('登录', {
+                let t = new PIXI.Text('Login', {
                     fontFamily: FF,
                     fontSize: 28,
                     fill: '#ffffff',
@@ -10248,7 +10251,7 @@
                 t.x = w0 * .5;
                 t.y = 40;
 
-                const prefix = ['昵称', '密码'];
+                const prefix = ['Nickname', 'Password'];
                 let tis = [null, null, null];
                 let plh = [tz.cfg['username']];
                 for (let i = 0; i < 2; ++i) {
@@ -10284,7 +10287,7 @@
                 }
                 tis[1]._dom_input.setAttribute('type', 'password');
                 if (pzl) {
-                    t = new PIXI.Text(`验证问题：清一色${pzl}，\n听牌为（包括已出现4枚的）`, {
+                    t = new PIXI.Text(`Q: What does '${pzl}' wait?`, {
                         fontFamily: FF,
                         fontSize: 18,
                         fill: '#ffffff',
@@ -10315,7 +10318,7 @@
                 }
 
                 const wb0 = 100, wh0 = 40;
-                let btn = new TextButton('取消', {
+                let btn = new TextButton('Cancel', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
@@ -10330,7 +10333,7 @@
 
                 let cfm = ()=>cb(tis[0].text.trim(), tis[1].text, pzl ? tis[2].text : '');
 
-                btn = new TextButton('确定', {
+                btn = new TextButton('Confirm', {
                     fontFamily: FF,
                     fontSize: 20,
                     fill: '#ffffff',
