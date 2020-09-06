@@ -261,8 +261,13 @@
     }
 
     const FF = [
-      '-apple-system', /*'BlinkMacSystemFont',*/ 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'DSF', 'sans-serif',
+      '-apple-system', /*'BlinkMacSystemFont',*/ 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial',
+      'Noto Sans', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans', 'WenQuanYi Micro Hei', 'sans-serif',
       'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'
+    ],
+    FF1 = [
+      '-apple-system', /*'BlinkMacSystemFont',*/ 'Helvetica Neue',
+      'Noto Sans', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans', 'WenQuanYi Micro Hei', 'sans-serif'
     ];
 
     console.log('location.search', location.search);
@@ -1371,7 +1376,7 @@
         c.endFill();
 
         let t = new PIXI.Text(tz.ls('Round' + WIND[w]), {
-          fontFamily: ['DSF', 'sans-serif'],
+          fontFamily: FF1,
           fontSize: 32,
           fill: '#ffffff',
           fontWeight:'bold',
@@ -1421,7 +1426,7 @@
 
           // 门风
           let t = new PIXI.Text(tz.ls(WIND[i]), {
-            fontFamily: ['DSF', 'sans-serif'],
+            fontFamily: FF1,
             fontSize: 40,
             fill: '#ffffff',
             fontWeight:'bold',
@@ -1622,7 +1627,7 @@
         fg.visible = false;
 
         let f = this.fa_ = new PIXI.Text('', {
-          fontFamily: ['DSF', 'sans-serif'],
+          fontFamily: FF1,
           fontSize: 64,
           fontWeight: 'bold',
           fill: '#ffffff',
@@ -2601,7 +2606,7 @@
 
         // 当前打：X风X
         let t = this.o_ = new PIXI.Text('', {
-          fontFamily: ['DSF', 'sans-serif'],
+          fontFamily: FF1,
           fontSize: 54,
           fontWeight: 'bold',
           fill: '#ffffff',
@@ -6961,7 +6966,7 @@
 
           // 中间的x风x
           let t = new PIXI.Text(tz.ls('Order' + d['r']), {
-            fontFamily: ['DSF', 'sans-serif'],
+            fontFamily: FF1,
             fontSize: 32,
             fontWeight: 'bold',
             fill: '#ffffff',
@@ -6995,7 +7000,7 @@
 
             // 门风
             let t = new PIXI.Text(tz.ls(WIND[k]), {
-              fontFamily: ['DSF', 'sans-serif'],
+              fontFamily: FF1,
               fontSize: 48,
               fontWeight: 'bold',
               fill: '#ffffff',
@@ -10163,7 +10168,7 @@
 
         let p = this.calpos_[n];
         t = this.catx_[n] = new PIXI.Text(s, {
-          fontFamily: ['DSF', 'sans-serif'],
+          fontFamily: FF1,
           fontSize: 84,
           fontWeight: 'bold',
           fill: '#ffffff',
@@ -13574,7 +13579,8 @@
 
       document.title = tz.ls('HTMLTitle');
       document.getElementsByTagName('canvas')[0].innerText = tz.ls('BrowerNotSupport');
-
+      tz.strt_load();
+/*
       try {
         if (window['FontFace']) {
           new FontFace('DSF', 'url(\'../../public/fnt/DroidSansFallback.ttf\')')
@@ -13594,6 +13600,7 @@
         console.log('FontFace error 2', e);
         tz.strt_load();
       }
+*/
     })();
   </script>
 </body>
