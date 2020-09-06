@@ -137,8 +137,13 @@
         }
 
         const FF = [
-            '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif',
+            '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial',
+            'Noto Sans', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans', 'WenQuanYi Micro Hei', 'sans-serif',
             'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', 'FF'
+        ],
+        FF1 = [
+            '-apple-system', 'BlinkMacSystemFont', 'Helvetica Neue',
+            'Noto Sans', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans', 'WenQuanYi Micro Hei', 'sans-serif'
         ];
 
         console.log('location.search', location.search);
@@ -1271,7 +1276,7 @@
 
                 // 当前打：X风X
                 let text = this.roundText_ = new PIXI.Text('', {
-                    fontFamily: 'sans-serif',
+                    fontFamily: FF1,
                     fontSize: 54,
                     fontWeight: 'bold',
                     fill: '#ffffff',
@@ -3162,7 +3167,7 @@
             showCall(n, s) {
                 let pos = this.callTextPos_[n];
                 let text = new PIXI.Text(s, {
-                    fontFamily: 'sans-serif',
+                    fontFamily: FF1,
                     fontSize: 72,
                     fontWeight: 'bold',
                     fill: '#ffffff',
@@ -4770,7 +4775,7 @@
 
                         let pos = this.callTextPos_[n1];
                         let text = new PIXI.Text('点炮', {
-                            fontFamily: 'sans-serif',
+                            fontFamily: FF1,
                             fontSize: 72,
                             fontWeight: 'bold',
                             fill: '#ffffff',
@@ -4796,7 +4801,7 @@
                         let n0 = (wp + 4 - this.seat_) & 3;
                         let pos = this.callTextPos_[n0];
                         let text = new PIXI.Text('和', {
-                            fontFamily: 'sans-serif',
+                            fontFamily: FF1,
                             fontSize: 72,
                             fontWeight: 'bold',
                             fill: '#ffffff',
@@ -6344,7 +6349,7 @@
                 fg.visible = false;
 
                 let f = this.face_ = new PIXI.Text('', {
-                    fontFamily: 'sans-serif',
+                    fontFamily: FF1,
                     fontSize: 72,
                     fontWeight: 'bold',
                     fill: '#ffffff',
@@ -6832,7 +6837,7 @@
                 {
                     let rd = dt['r'];
                     let t = new PIXI.Text(WIND[rd >> 2] + '风' + WIND[rd & 3], {
-                        fontFamily: 'sans-serif',
+                        fontFamily: FF1,
                         fontSize: 32,
                         fontWeight: 'bold',
                         fill: '#ffffff',
@@ -6863,7 +6868,7 @@
                     g.y = cy[i] - h1 * .5;
 
                     let t = new PIXI.Text(WIND[ri], {
-                        fontFamily: 'sans-serif',
+                        fontFamily: FF1,
                         fontSize: 44,
                         fontWeight: 'bold',
                         fill: '#ffffff',
@@ -10432,6 +10437,8 @@
         }
 
         (function(){
+            start_load();
+/*
             (new FontFace('FF', 'url(\'../../public/fnt/DroidSansFallback.ttf\')'))
             .load()
             .then(ff=>{
@@ -10442,6 +10449,7 @@
                 console.log(e);
                 start_load();
             });
+*/
         })();
     </script>
 </body>
