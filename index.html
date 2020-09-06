@@ -298,7 +298,7 @@
                 'snd/06-discard.wav',
                 'snd/08-inquire.wav',
                 'snd/09-cpk.wav',
-                'snd/10-win.wav',
+                //'snd/10-win.wav',
                 'snd/12-flower-m.wav',
                 'snd/13-flower-f.wav',
                 'snd/14-chow-m.wav',
@@ -6963,20 +6963,7 @@
                 bg.drawRect(0, 0, w0, h0);
                 bg.endFill();
 
-                const wb0 = 120, wh0 = 50;
-                let btn = new TextButton('OK', {
-                    fontFamily: FF,
-                    fontSize: 36,
-                    fill: '#ffffff',
-                    stroke: '#0066ff',
-                    strokeThickness: 2,
-                    lineJoin: 'round',
-                    padding: 10
-                }, wb0, wh0, ()=>{ cb(); });
-                bg.addChild(btn);
-                btn.x = w0 - wb0 - gap;
-                btn.y = h0 - wh0 - gap;
-
+                // 倒计时
                 let t = new PIXI.Text(cd, {
                     fontFamily: FF,
                     fontSize: 18,
@@ -6986,11 +6973,6 @@
                     lineJoin: 'round',
                     padding: 10
                 });
-                t.anchor.set(1);
-                t.x = wb0;
-                t.y = wh0;
-                btn.addChild(t);
-
                 t.end_ = new Date().getTime() + cd * 1000;
                 t.timer_ = setInterval(()=>{
                     let n = (t.end_ - new Date().getTime());
@@ -7007,8 +6989,32 @@
                     else {
                         cb();
                         clearInterval(t.timer_);
+                        t.timer_ = null;
                     }
                 }, 100);
+
+                const wb0 = 120, wh0 = 50;
+                let btn = new TextButton('OK', {
+                    fontFamily: FF,
+                    fontSize: 36,
+                    fill: '#ffffff',
+                    stroke: '#0066ff',
+                    strokeThickness: 2,
+                    lineJoin: 'round',
+                    padding: 10
+                }, wb0, wh0, ()=>{
+                    cb();
+                    clearInterval(t.timer_);
+                    t.timer_ = null;
+                });
+                bg.addChild(btn);
+                btn.x = w0 - wb0 - gap;
+                btn.y = h0 - wh0 - gap;
+
+                t.anchor.set(1);
+                t.x = wb0;
+                t.y = wh0;
+                btn.addChild(t);
 
                 bg.scale.set(1.25);
                 bg.x = (w - w0 * 1.25) * .5;
