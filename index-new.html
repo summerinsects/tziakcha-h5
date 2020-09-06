@@ -11,7 +11,6 @@
   <script src="js/pixi.min.js"></script>
   <script src="js/pixi-sound.js"></script>
   <script src="js/Tween.min.js"></script>
-  <script src="js/PIXI.TextInput.min.js"></script>
   <script>
 'use strict';
 /* jshint esversion: 6 */
@@ -590,6 +589,123 @@
 
     // =====================================================================================================
     // 通用控件
+
+    function mtcmp(m1, m2) {
+      if (!m1 || !m2) return false;
+      return (m1.a === m2.a && m1.b === m2.b && m1.c === m2.c && m1.d === m2.d
+        && m1.tx === m2.tx && m1.ty === m2.ty);
+    }
+
+    function crcmp(r1, r2) {
+      if (!r1 || !r2) return false;
+      return (r1.l === r2.l && r1.t === r2.t && r1.w === r2.w && r1.h === r2.h);
+    }
+
+    /**
+     * 输入框
+     * @typedef {object} EditBox
+     */
+    class EditBox extends PIXI.Container {
+      /**
+       * @param {number} w
+       * @param {number} h
+       */
+      constructor(w, h) {
+        super();
+
+        let b = new PIXI.Sprite(PIXI.Texture.WHITE);
+        b.tint = 0xcdcdcd;
+        b.width = w;
+        b.height = h;
+        this.addChild(b);
+
+        // 密码要放在form中
+        let f = this.fm_ = document.createElement('form');
+        f.autocomplete = 'off';
+        // 阻止回车键提交
+        f.onkeydown = function(e) {
+          if (e.keyCode === 13) {
+            e.preventDefault();
+          }
+        };
+        f.style.position = 'absolute';
+
+        let i = this.ipt_ = document.createElement('input');
+        i.type = 'text';
+
+        let s = i.style;
+        s.position = 'absolute';
+        s.background = 'none';
+        s.border = 'none';
+        s.outline = 'none';
+        s.transformOrigin = '0 0';
+        s.lineHeight = '1';
+        s.width = w + 'px';
+        s.height = h + 'px';
+        s.paddingLeft = s.paddingRight = Math.trunc(h * .2) + 'px';
+        s.fontSize = Math.trunc(h * .6) + 'px';
+
+        f.appendChild(i);
+
+        this.on('added', ()=>{
+          document.body.appendChild(this.fm_);
+        });
+        this.on('removed', ()=>{
+          document.body.removeChild(this.fm_);
+        });
+
+        // 上一次的一系列状态
+        this.prev_ = {};
+      }
+
+      render(r) {
+        super.render(r);
+
+        // 上一次的一系列状态
+        let pr = this.prev_;
+        pr.renderer = r;
+
+        // 窗口大小
+        let rc = r.view.getBoundingClientRect();
+        let cb = {t:(rc.top), l:(rc.left), w:(rc.width), h:(rc.height)};
+        cb.l += window.scrollX;
+        cb.t += window.scrollY;
+
+        // 有变化，就调整原生input控件位置
+        let wt = this.worldTransform, wa = this.worldAlpha, wv = this.worldVisible;
+        if (!mtcmp(wt, pr.wt) || !crcmp(cb, pr.cb) || wa !== pr.wa || wv !== pr.wv) {
+          let f = this.fm_, i = this.ipt_, m = wt.clone(), s = r.resolution;
+
+          f.style.top = `${cb.t||0}px`;
+          f.style.left = `${cb.l||0}px`;
+
+          m.scale(s, s);
+          m.scale(cb.w / r.width, cb.h / r.height);
+          i.style.transform = `matrix(${m.a},${m.b},${m.c},${m.d},${m.tx},${m.ty})`;
+          i.style.opacity = wa;
+          i.style.display = wv ? 'block' : 'none';
+
+          pr.cb = cb;
+          pr.wt = wt.clone();
+          pr.wa = wa;
+          pr.wv = wv;
+        }
+      }
+
+      get text() {
+        return this.ipt_.value;
+      }
+
+      set text(s) {
+        this.ipt_.value = s;
+      }
+
+      setpassword() {
+        let i = this.ipt_;
+        i.type = 'password';
+        i.autocomplete = 'new-password';
+      }
+    }
 
     /**
      * 复选框
@@ -12241,21 +12357,13 @@
           t.x = gap + 10;
           t.y = yy;
 
-          let ti = tis[i] = new PIXI.TextInput({
-            fontSize: '18px',
-            width: '355px',
-            height: '20px',
-            padding: '6px',
-            paddingLeft: '10px',
-          });
+          let ti = tis[i] = new EditBox(w0 - (gap + 10) * 2, 32);
           ti.x = gap + 10;
           ti.y = yy + 20;
           bg.addChild(ti);
           ti.text = plh[i] || '';
-          ti.substituteText = false;
-          ti.destroyBoxCache = ()=>{};
         }
-        tis[1]._dom_input.setAttribute('type', 'password');
+        tis[1].setpassword();
         if (z) {
           t = new PIXI.Text(tz.ls('VerifyQues', z), {
             fontFamily: FF,
@@ -12272,13 +12380,7 @@
           t.x = w0 * .5;
           t.y = 230;
 
-          let ti = tis[2] = new PIXI.TextInput({
-            fontSize: '18px',
-            width: '355px',
-            height: '20px',
-            padding: '6px',
-            paddingLeft: '10px',
-          });
+          let ti = tis[2] = new EditBox(w0 - (gap + 10) * 2, 32);
           ti.x = gap + 10;
           ti.y = 235 + t.height;
           bg.addChild(ti);
@@ -12419,21 +12521,14 @@
             cs.push(g);
           }
           else {
-            let ti = new PIXI.TextInput({
-              fontSize: '18px',
-              width: (LBW - xx - gap * 2) + 'px',
-              height: '18px',
-              padding: '6px',
-            });
+            let ti = new EditBox((LBW - xx - gap * 2), 32);
             ti.x = xx;
-            ti.y = yy - 15;
-            ti.substituteText = false;
-            ti.destroyBoxCache = ()=>{};
+            ti.y = yy - 16;
             this.addChild(ti);
             cs.push(ti);
           }
         });
-        cs[14]._dom_input.setAttribute('type', 'password');
+        cs[14].setpassword();
         this.cs_ = cs;
 
         let dg = tz.cfg['default'] || {};
@@ -12578,18 +12673,10 @@
         t.x = w0 * .5;
         t.y = 40;
 
-        let ti = new PIXI.TextInput({
-          fontSize: '18px',
-          width: '200px',
-          height: '20px',
-          padding: '6px',
-          paddingLeft: '10px',
-        });
-        ti.x = 75;
+        let ti = new EditBox(240, 32);
+        ti.x = (w0 - 240) * .5;
         ti.y = 90;
-        ti.substituteText = false;
-        ti.destroyBoxCache = ()=>{};
-        ti._dom_input.setAttribute('type', 'password');
+        ti.setpassword();
         bg.addChild(ti);
 
         const w1 = 100, h1 = 40;
