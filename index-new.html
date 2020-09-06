@@ -9168,16 +9168,6 @@
             ic.y = cy;
             ic.scale.set(sx);
 
-            // 鸣牌字样位置
-            cp[0].x = w0 * .5;
-            cp[0].y = h0 - 40;
-            cp[1].x = w0 - 40;
-            cp[1].y = h0 * .5;
-            cp[2].x = w0 * .5;
-            cp[2].y = 40;
-            cp[3].x = 40;
-            cp[3].y = h0 * .5;
-
             // 桌面式操作按钮
             hl.layt(w0, h0);
 
@@ -9220,16 +9210,6 @@
             ht0.x = op.x = ic.x = ti.x = cx;
             ic.y = cy;
             ic.scale.set(sy);
-
-            // 鸣牌字样位置
-            cp[0].x = w0 * .5;
-            cp[0].y = h0 - 40;
-            cp[1].x = w0 - 40;
-            cp[1].y = h0 * .5;
-            cp[2].x = w0 * .5;
-            cp[2].y = 40;
-            cp[3].x = 40;
-            cp[3].y = h0 * .5;
 
             // 桌面式操作按钮
             hl.layt(w0, h0);
@@ -9287,16 +9267,6 @@
             ic.x = cx;
             ic.y = cy;
             ic.scale.set(s);
-
-            // 鸣牌字样位置
-            cp[0].x = w0 * .5;
-            cp[0].y = h0 - 40;
-            cp[1].x = w0 - 40;
-            cp[1].y = h0 * .5;
-            cp[2].x = w0 * .5;
-            cp[2].y = 40;
-            cp[3].x = 40;
-            cp[3].y = h0 * .5;
 
             // 鸣牌按钮
             ca1.scale.set(s);
@@ -9412,16 +9382,6 @@
             ic.y = 0;
             ic.scale.set(s);
 
-            // 鸣牌字样位置
-            cp[0].x = w0 * .5;
-            cp[0].y = h0 - 40;
-            cp[1].x = w0 - 40;
-            cp[1].y = h0 * .5;
-            cp[2].x = w0 * .5;
-            cp[2].y = 40;
-            cp[3].x = 40;
-            cp[3].y = h0 * .5;
-
             // 弹出式操作按钮、鸣牌选择按钮、弹出式菜单三者占满屏幕高度
             // 由于手牌宽容了15，这里再保持一点距离
             let s1 = Math.max(s, (h2 - 25) / (HlpPop.H + CalSel.H + CalPop.H));
@@ -9521,6 +9481,16 @@
 
         ht[2].x = Math.max(w0 - HdCtn1.W - HdCtn2.W, HdCtn3.W);
 */
+
+        // 鸣牌字样位置
+        cp[0].x = w0 * .5;
+        cp[0].y = h0 - 55;
+        cp[1].x = w0 - 55;
+        cp[1].y = h0 * .5;
+        cp[2].x = w0 * .5;
+        cp[2].y = 55;
+        cp[3].x = 55;
+        cp[3].y = h0 * .5;
 
         // 准备标记
         cp.forEach((e, i)=>this.rdyf_[i].position.set(e['x'], e['y']));
