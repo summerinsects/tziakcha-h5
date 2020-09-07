@@ -597,8 +597,7 @@
 
     function mtcmp(m1, m2) {
       if (!m1 || !m2) return false;
-      return (m1.a === m2.a && m1.b === m2.b && m1.c === m2.c && m1.d === m2.d
-        && m1.tx === m2.tx && m1.ty === m2.ty);
+      return (m1.a === m2.a && m1.b === m2.b && m1.c === m2.c && m1.d === m2.d && m1.tx === m2.tx && m1.ty === m2.ty);
     }
 
     function crcmp(r1, r2) {
@@ -4434,30 +4433,23 @@
        * @param {number} t 和牌张
        * @param {number} m 定时移走
        * @param {number} n 当前是哪个玩家
-       * @param {function(object,object):void} js 添加摊开立牌结点的回调函数
-       * @param {function(object,object):void} jp 添加摊开副露结点的回调函数
+       * @param {function(number,number):void} ht 生成摊开的立牌结点的回调函数
+       * @param {function(number,object):void} ck 添加摊开副露结点的回调函数
        */
-      _open(s, p, t, m, n, js, jp) {
-        const PT = [PlTl0, PlTl1, PlTl2, PlTl3], WA = [wall0, wall1];
-        const PT0 = PT[n], WA0 = WA[n & 1];
-
+      _open(s, p, t, m, n, ht, ck) {
         // 立牌
         let a = (p && p.length) ? p.length * 3 : 0;
         s.forEach((e, i)=>{
-          let o = this.s_[i + a], q = (e !== 255) ? new PT0(e) : WA0();
-          js(q, o);
-          this.g_.push(q);
+          this.g_.push(ht(e, i + a));
         });
 
         // 和牌
         if (typeof t !== 'undefined') {
-          let o = this.s_[13], q = new PT0(t);
-          js(q, o);
-          this.g_.push(q);
+          this.g_.push(ht(t, 13));
         }
 
         // 副露包含暗杠
-        if (p && p.length && p.some(e=>(e & 0xffc0) === 0x200)) {
+        if (n !== 0 && p && p.length && p.some(e=>(e & 0xffc0) === 0x200)) {
           // 因为是直接在子结点中查找暗杠标记的牌，为避免新插入的影响，先复制一份
           let c = this.f_.children, u = new Array(c.length);
           c.forEach((e, i)=>u[i] = e);
@@ -4467,9 +4459,7 @@
               for (let k = 0, g = 0, l = c.length; k < l && g < 2; ++k) {
                 let b = u[k];
                 if (b.ck_) {
-                  let q = new PT0(pk_tl(e));
-                  jp(q, b);
-                  this.g_.push(q);
+                  this.g_.push(ck(pk_tl(e), b));
                 }
               }
             }
@@ -4597,15 +4587,20 @@
       /**
        * 按下
        * @param {StTl} p 牌
+       * @param {PIXI.InteractionEvent} e 鼠标/手指所在坐标等详情
        */
-      _bg(p) {
-        // 记录拖动的下标
-        this.dgx_ = this.s_.indexOf(p);
-        this.drg_ = false;
+      _bg(p, e) {
+        if (p === e.target) {
+          // 记录拖动的下标
+          this.dgx_ = this.s_.indexOf(p);
 
-        // 便于拖动时在最上层显示
-        this.c_.setChildIndex(p, 13);
-        //console.log('drag began', this.dgx_);
+          // 便于拖动时在最上层显示
+          this.c_.setChildIndex(p, 13);
+          //console.log('drag began', this.dgx_);
+        } else {
+          this.dgx_ = -1;
+        }
+        this.drg_ = false;
       }
 
       /**
@@ -4614,41 +4609,42 @@
        * @param {PIXI.InteractionEvent} e 鼠标/手指所在坐标等详情
        */
       _mv(p, e) {
-        let s = this.s_;
-        let i = s.indexOf(p);
-        // 正在拖的是当前牌
-        if (i !== -1 && this.dgx_ === i) {
-          let d = Math.trunc(this.c_.toLocal(e.data.global).x / W0);
-          //console.log('drag move dst', this.dgx_, d);
-          if (d > i) {
-            // 往右拖
-            let t = s[i];  // 记录拖动起点位置原来的牌
-            while (i < 12 && d > i) {  // 把右边的牌移过来，不让往最右边一张拖（第14张）
-              new TWEEN.Tween(s[i] = s[i + 1]).to({x:(W0 * i)}, STDT).start();
-              ++i;
+        if (this.dgx_ !== -1) {
+          let s = this.s_, i = s.indexOf(p);
+          // 正在拖的是当前牌
+          if (this.dgx_ === i) {
+            let d = Math.trunc(this.c_.toLocal(e.data.global).x / W0);
+            //console.log('drag move dst', this.dgx_, d);
+            if (d > i) {
+              // 往右拖
+              let t = s[i];  // 记录拖动起点位置原来的牌
+              while (i < 12 && d > i) {  // 把右边的牌移过来，不让往最右边一张拖（第14张）
+                new TWEEN.Tween(s[i] = s[i + 1]).to({x:(W0 * i)}, STDT).start();
+                ++i;
+              }
+              // 最后把拖动的牌放到目的地
+              s[i] = t;
+              new TWEEN.Tween(t).to({x:(W0 * i)}, STDT).start();
+              this.dgx_ = d;
+              this.drg_ = true;
+              this.mst_ = true;
+              this.ast_.sel = false;
+            } else if (d < i) {
+              // 往左拖
+              let a = this.p_.length * 3;
+              let t = s[i];  // 记录拖动起点位置原来的牌
+              while (i > a && d < i) {  // 把左边的牌移过来
+                new TWEEN.Tween(s[i] = s[i - 1]).to({x:(W0 * i)}, STDT).start();
+                --i;
+              }
+              // 最后把拖动的牌放到目的地
+              s[i] = t;
+              new TWEEN.Tween(t).to({x:(W0 * i)}, STDT).start();
+              this.dgx_ = d;
+              this.drg_ = true;
+              this.mst_ = true;
+              this.ast_.sel = false;
             }
-            // 最后把拖动的牌放到目的地
-            s[i] = t;
-            new TWEEN.Tween(t).to({x:(W0 * i)}, STDT).start();
-            this.dgx_ = d;
-            this.drg_ = true;
-            this.mst_ = true;
-            this.ast_.sel = false;
-          } else if (d < i) {
-            // 往左拖
-            let a = this.p_.length * 3;
-            let t = s[i];  // 记录拖动起点位置原来的牌
-            while (i > a && d < i) {  // 把左边的牌移过来
-              new TWEEN.Tween(s[i] = s[i - 1]).to({x:(W0 * i)}, STDT).start();
-              --i;
-            }
-            // 最后把拖动的牌放到目的地
-            s[i] = t;
-            new TWEEN.Tween(t).to({x:(W0 * i)}, STDT).start();
-            this.dgx_ = d;
-            this.drg_ = true;
-            this.mst_ = true;
-            this.ast_.sel = false;
           }
         }
       }
@@ -5238,14 +5234,13 @@
        * @param {number} m 定时移走
        */
       open(s, p, t, m) {
-        super._open(s, p, t, m, 0, (n, o)=>{
-          this.o_.addChild(n);
-          n.x = o.x;
-          n.y = o.y;
-        }, (n, o)=>{
-          this.f_.addChild(n);
-          n.x = o.x;
-          n.y = o.y;
+        super._open(s, p, t, m, 0, (t, i)=>{
+          let p = (t !== 255) ? new PlTl0(t) : wall0();
+          this.o_.addChild(p);
+          p.y = HdCtn0.H - H0F;
+          p.x = W0 * i;
+          if (i === 13) p.x += GP;
+          return p;
         });
       }
 
@@ -5569,14 +5564,19 @@
        * @param {number} m 定时移走
        */
       open(s, p, t, m) {
-        super._open(s, p, t, m, 1, (n, o)=>{
-          this.o_.addChildAt(n, 0);
-          n.x = o.x + (W1S - W1);
-          n.y = o.y + (H1SF - H1F);
-        }, (n, o)=>{
-          this.f_.addChildAt(n, this.f_.getChildIndex(o) + 1);
-          n.x = o.x;
-          n.y = o.y;
+        super._open(s, p, t, m, 1, (t, i)=>{
+          let p = t !== 255 ? new PlTl1(t) : wall1();
+          this.o_.addChildAt(p, 0);
+          p.x = HdCtn1.W - W1;
+          p.y = H1 * (13 - i) + (H1SF - H1F);
+          if (i !== 13) p.y += GP;
+          return p;
+        }, (t, o)=>{
+          let p = new PlTl1(t);
+          this.f_.addChildAt(p, this.f_.getChildIndex(o) + 1);
+          p.x = o.x;
+          p.y = o.y;
+          return p;
         });
       }
 
@@ -5868,14 +5868,18 @@
        * @param {number} m 定时移走
        */
       open(s, p, t, m) {
-        super._open(s, p, t, m, 2, (n, o)=>{
-          this.o_.addChild(n);
-          n.x = o.x;
-          n.y = o.y;
-        }, (n, o)=>{
-          this.f_.addChild(n);
-          n.x = o.x;
-          n.y = o.y;
+        super._open(s, p, t, m, 2, (t, i)=>{
+          let p = (t !== 255) ? new PlTl2(t) : wall0();
+          this.o_.addChild(p);
+          p.x = W0 * (13 - i);
+          if (i !== 13) p.x += GP;
+          return p;
+        }, (t, o)=>{
+          let p = new PlTl2(t);
+          this.f_.addChild(p);
+          p.x = o.x;
+          p.y = o.y;
+          return p;
         });
       }
 
@@ -6190,14 +6194,18 @@
        * @param {number} m 定时移走
        */
       open(s, p, t, m) {
-        super._open(s, p, t, m, 3, (n, o)=>{
-          this.o_.addChild(n);
-          n.x = o.x;
-          n.y = o.y + (H1SF - H1F);
-        }, (n, o)=>{
-          this.f_.addChildAt(n, this.f_.getChildIndex(o) + 1);
-          n.x = o.x;
-          n.y = o.y;
+        super._open(s, p, t, m, 3, (t, i)=>{
+          let p = t !== 255 ? new PlTl3(t) : wall1();
+          this.o_.addChild(p);
+          p.y = H1 * i + (H1SF - H1F);
+          if (i === 13) p.y += GP;
+          return p;
+        }, (t, o)=>{
+          let p = new PlTl3(t);
+          this.f_.addChildAt(p, this.f_.getChildIndex(o) + 1);
+          p.x = o.x;
+          p.y = o.y;
+          return p;
         });
       }
 
@@ -10063,6 +10071,8 @@
 
         if (n === 0) {
           this.cd_.setup(this.cfg_['r30']);
+        } else {
+          this.rmcal();
         }
       }
 
@@ -10080,6 +10090,8 @@
 
         if (n === 0) {
           this.stpflw_ = true;
+        } else {
+          this.rmcal();
         }
       }
 
