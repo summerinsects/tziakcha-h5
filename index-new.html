@@ -3938,6 +3938,8 @@
         this.f_ = new PIXI.Container();
         /** @member {array} 立牌精灵 */
         this.s_ = [];
+        /** @member {array} 暗杠精灵 */
+        this.k_ = [];
         /** @member {array} 副露数据 */
         this.p_ = [];
         /** @member {PIXI.Container} 打开的立牌精灵 */
@@ -3951,6 +3953,7 @@
        */
       init() {
         this.p_ = [];
+        this.k_ = [];
         this.f_.removeChildren().forEach(e=>e.dsty());
         this.s_.forEach(e=>e.visible = false);
         this.o_.removeChildren().forEach(e=>e.dsty());
@@ -4065,6 +4068,10 @@
           // 设置位置
           dp(c, z).forEach((p, i)=>s[i].position = p);
 
+          if (n !== 0 && c === 2 && z === 3) {
+            this.k_.push(s[1]);
+            this.k_.push(s[2]);
+          }
           this.p_.push(e);
         });
       }
@@ -4323,6 +4330,9 @@
         let m;
         if (n === 0) {
           m = this.c_.scale.x / this.f_.scale.x;
+        } else {
+          this.k_.push(s[1]);
+          this.k_.push(s[2]);
         }
         r.forEach((v, i)=>{
           let p = this.s_[v];
@@ -4450,17 +4460,12 @@
 
         // 副露包含暗杠
         if (n !== 0 && p && p.length && p.some(e=>(e & 0xffc0) === 0x200)) {
-          // 因为是直接在子结点中查找暗杠标记的牌，为避免新插入的影响，先复制一份
-          let c = this.f_.children, u = new Array(c.length);
-          c.forEach((e, i)=>u[i] = e);
+          let k = this.k_, l = k.length, c = 0;
           p.forEach(e=>{
-            // 暗杠
-            if ((e & 0xffc0) === 0x200) {
-              for (let k = 0, g = 0, l = c.length; k < l && g < 2; ++k) {
-                let b = u[k];
-                if (b.ck_) {
-                  this.g_.push(ck(pk_tl(e), b));
-                }
+            if ((e & 0xffc0) == 0x200) {
+              for (let g = 0; c < l && g < 2; ++c) {
+                this.g_.push(ck(pk_tl(e), k[c]));
+                ++g;
               }
             }
           });
