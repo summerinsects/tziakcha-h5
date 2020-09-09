@@ -66,28 +66,28 @@
      * @param {number} p pack
      * @return {number}
      */
-    function pk_tp(p) { return (p >> 8) & 3; }
+    function fptp(p) { return (p >> 8) & 3; }
 
     /**
      * 获取pack的牌 0x3f=63
      * @param {number} p pack
      * @return {number}
      */
-    function pk_tl(p) { return (p & 63) << 2; }
+    function fptl(p) { return (p & 63) << 2; }
 
     /**
      * 获取pack的供牌者
      * @param {number} p pack
      * @return {number}
      */
-    function pk_ofr(p) { return (p >> 6) & 3; }
+    function fpofr(p) { return (p >> 6) & 3; }
 
     /**
      * pack是否为加杠 0x300=768
      * @param {number} p pack
      * @return {boolean}
      */
-    function pro_k(p) { return (p & 768) === 768; }
+    function fppk(p) { return (p & 768) === 768; }
 
     /**
      * 生成一个pack，测试用
@@ -95,7 +95,7 @@
      * @param {number} t 牌
      * @param {number} o 供牌（对于碰杠：0自己，1上家，2对家，3下家；对于吃牌表示第几张）
      */
-    function mk_pk(p, t, o) {
+    function mk_fp(p, t, o) {
       return ((p & 3) << 8) | ((t & 63) >> 2) | ((o & 3) << 6);
     }
 
@@ -1677,8 +1677,6 @@
      * @typedef {object} CalCtn
      */
     class CalCtn extends PIXI.Container {
-      // cb_ = null;  // 回调
-
       constructor() {
         super();
 
@@ -1750,7 +1748,6 @@
     class CalPop extends PIXI.Container {
       // cg_ = null;  // 按钮组
       // sh_ = false;  // 是否打开
-      // b_ = null;  // 开关按钮
 
       constructor() {
         super();
@@ -2135,7 +2132,6 @@
     class OptPop extends PIXI.Container {
       // cg_ = null;  // 按钮组
       // sh_ = false;  // 是否打开
-      // b_ = null;  // 开关按钮
 
       /**
        * 切换的回调
@@ -2364,7 +2360,6 @@
     class HlpPop extends HlpBs {
       // cg_ = null;  // 按钮组
       // sh_ = false;  // 是否打开
-      // b_ = null;  // 开关按钮
 
       /**
        * @param {object} p 代理onspd onchs oncal onset onhst
@@ -2993,19 +2988,6 @@
 
     // 02副露宽度、高度
     const FW0 = W0 * 12 + GF * 3 + W1 * 4, FH0 = H1 + H1F;
-
-    //const HAND_SCALE = 1.7;//1 + (W1 + GP) / (W0 * 3);
-
-    //const EXT_CP_02 = (W1 + GP - W0) * .5; // (W0 * 2 + W1 + GP - W0 * 3) * .5
-    //const EXT_DK_02 = (W1 + GP) * .5;  // (W0 * 3 + W1 + GP - W0 * 3) * .5
-    //const EXT_CK_02 = (W0 + GP) * .5;
-
-    //const EXT_CP_13 = (H0 + GP - H1) * .5; // (H1 * 2 + H0 + GP - H1 * 3) * .5
-    //const EXT_DK_13 = (H0 + GP) * .5;  //  (H1 * 3 + H0 + GP - H1 * 3) * .5
-    //const EXT_CK_13 = (H1 + GP) * .5;
-
-    //const DOX = [10, 10, -10, -10];
-    //const DOY = [10, -10, -10, 10];
 
     // 骰子时间、抓牌时间、理牌时间、出牌时间
     const DCDT = 2000, DRDT = 100, STDT = 200, DSDT = 100;
@@ -4056,7 +4038,7 @@
         // 副露
         p.forEach(e=>{
           // 副露类型、关键牌
-          let c = pk_tp(e), t = pk_tl(e), o = pk_ofr(e);
+          let c = fptp(e), t = fptl(e), o = fpofr(e);
 
           let s = [], z = 0;
           // z横放的张。012 上、对、下家，3自己暗杠 456上、对、下家碰牌的加杠
@@ -4088,11 +4070,11 @@
        * @param {function(number,number):array} dp 获取最终应该去到位置的回调函数
        */
       _c(p, o, n, r, x, y, ad, dp) {
-        let t = pk_tl(p);  // 关键牌
+        let t = fptl(p);  // 关键牌
 
         // 执行动画的精灵数组
         let s = [];
-        new_c(n, t, pk_ofr(p), s);
+        new_c(n, t, fpofr(p), s);
 
         this.p_.push(p);
 
@@ -4154,11 +4136,11 @@
        * @param {function(number,number):array} dp 获取最终应该去到位置的回调函数
        */
        _p(p, o, n, r, x, y, ad, dp) {
-        let t = pk_tl(p);  // 关键牌
+        let t = fptl(p);  // 关键牌
 
         // 执行动画的精灵数组
         let s = [];
-        let z = new_p(n, t, pk_ofr(p), s);
+        let z = new_p(n, t, fpofr(p), s);
 
         this.p_.push(p);
 
@@ -4233,11 +4215,11 @@
        * @param {function(number,number):array} dp 获取最终应该去到位置的回调函数
        */
       _dk(p, o, n, r, x, y, ad, dp) {
-        let t = pk_tl(p);  // 关键牌
+        let t = fptl(p);  // 关键牌
 
         // 执行动画的精灵数组
         let s = [];
-        let z = new_dk(n, t, pk_ofr(p), s);
+        let z = new_dk(n, t, fpofr(p), s);
 
         this.p_.push(p);
 
@@ -4312,7 +4294,7 @@
       _ck(p, n, r, x, y, ad, dp) {
         // 执行动画的精灵数组
         let s = [];
-        new_ck(n, pk_tl(p), pk_ofr(p), s);
+        new_ck(n, fptl(p), fpofr(p), s);
 
         this.p_.push(n === 0 ? p : 0x300);  // 占位
 
@@ -4377,7 +4359,7 @@
        */
       _pk(p, n, r, x, y, ad, ps) {
         // 查找应该加在哪组明刻上
-        let t = pk_tl(p);
+        let t = fptl(p);
         let o = this.f_.children.find(e=>e.pr_ && e.i_ === t);  // 测试时去掉牌张检测
         if (typeof o === 'undefined') {
           tz.reenter();
@@ -4464,7 +4446,7 @@
           p.forEach(e=>{
             if ((e & 0xffc0) == 0x200) {
               for (let g = 0; c < l && g < 2; ++c) {
-                this.g_.push(ck(pk_tl(e), k[c]));
+                this.g_.push(ck(fptl(e), k[c]));
                 ++g;
               }
             }
@@ -5078,7 +5060,7 @@
        * @param {PIXI.Point} o 供牌的起点坐标
        */
       c(p, o) {
-        let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
+        let t = fptl(p), s = this.s_, a = this.p_.length * 3;
 
         // 测试：随机选择手里的牌张
         //let r = rnd_idx(13 - a, 2, a);
@@ -5086,7 +5068,7 @@
         // 精准查找手里的牌张
         let r = new Int8Array(2);
         let t0 = t - 4 + ((p >> 10) & 3), t1 = t + ((p >> 12) & 3), t2 = t + 4 + ((p >> 14) & 3);
-        switch (pk_ofr(p)) {
+        switch (fpofr(p)) {
         default:
           r[0] = st_find(s, a, t1);
           r[1] = st_find(s, a, t2);
@@ -5115,7 +5097,7 @@
        * @param {PIXI.Point} o 供牌的起点坐标
        */
       p(p, o) {
-        let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
+        let t = fptl(p), s = this.s_, a = this.p_.length * 3;
 
         // 测试：随机选择手里的牌张
         //let r = rnd_idx(13 - a, 2, a);
@@ -5139,7 +5121,7 @@
        * @param {PIXI.Point} o 供牌的起点坐标
        */
       dk(p, o) {
-        let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
+        let t = fptl(p), s = this.s_, a = this.p_.length * 3;
 
         // 测试：随机选择手里的牌张
         //let r = rnd_idx(13 - a, 3, a);
@@ -5162,7 +5144,7 @@
        * @param {number} p 牌组数据
        */
       ck(p) {
-        let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
+        let t = fptl(p), s = this.s_, a = this.p_.length * 3;
 
         // 测试：随机选择手里的牌张
         //let r = rnd_idx(14 - a, 4, a);
@@ -5192,7 +5174,7 @@
        * @return {JSON} {s:牌张精灵，p:{目标位置}}
        */
       pk(p) {
-        let t = pk_tl(p), s = this.s_, a = this.p_.length * 3;
+        let t = fptl(p), s = this.s_, a = this.p_.length * 3;
 
         // 测试：随机选择手里的牌张
         //let r = Math.trunc(Math.random() * (14 - a));
@@ -6733,7 +6715,7 @@
         if (p) {
           const y = h0 - H0F, y0 = h0 - H1F;
           p.forEach(e=>{
-            let s = [], c = pk_tp(e), t = pk_tl(e), o = pk_ofr(e);
+            let s = [], c = fptp(e), t = fptl(e), o = fpofr(e);
             let z = new_ca(0, c, t, o, s);
 
             if (x !== 0) x += GF;
@@ -9026,11 +9008,11 @@
 
           for (let i = 0; i < 4; ++i) {
             ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[0x21B]);
-            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(0,30,1),mk_pk(0,30,2),mk_pk(0,30,3)]);
-            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(1,38,1),mk_pk(1,42,2),mk_pk(1,46,3)]);
-            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(2,50,1),mk_pk(2,54,2),mk_pk(2,58,3),mk_pk(2,62,0)]);
-            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(2,80,1),mk_pk(2,84,2),mk_pk(2,88,3),mk_pk(2,92,3)]);
-            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_pk(3,70,1),mk_pk(3,74,2),mk_pk(3,78,3)]);
+            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_fp(0,30,1),mk_fp(0,30,2),mk_fp(0,30,3)]);
+            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_fp(1,38,1),mk_fp(1,42,2),mk_fp(1,46,3)]);
+            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_fp(2,50,1),mk_fp(2,54,2),mk_fp(2,58,3),mk_fp(2,62,0)]);
+            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_fp(2,80,1),mk_fp(2,84,2),mk_fp(2,88,3),mk_fp(2,92,3)]);
+            //ht[i].setup([69,70,75,76,81,97,104,105,106,107,100],[mk_fp(3,70,1),mk_fp(3,74,2),mk_fp(3,78,3)]);
           }
 
           // 测试按钮
@@ -10521,7 +10503,7 @@
             this.addcal(a);
           }
         } else {
-          if (!pro_k(p)) {
+          if (!fppk(p)) {
             // 直杠
             this.dk(n, p);
             c.turn = v;
