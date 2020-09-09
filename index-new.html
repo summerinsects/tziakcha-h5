@@ -1699,7 +1699,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每次弹出时，调用
        */
       init() {
         this.cb_.forEach(e=>e.visible = false);
@@ -1853,7 +1853,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每次弹出时，调用
        */
       init() {
         this.cg_.forEach(e=>e.visible = false);
@@ -2698,13 +2698,21 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每盘牌开始时，调用
        */
       init() {
         this.rem_ = 0;
         this.r_.text = '';
         this.o_.text = '';
         //this.w_.forEach(e=>e.text = '');
+      }
+
+      /**
+       * 清理，当点击结束界面的OK后执行
+       */
+      tidy() {
+        this.g_.text = '';
+        this.w_.forEach(e=>e.text = '');
       }
 
       /**
@@ -2884,7 +2892,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每盘牌开始时，调用
        */
       init() {
         this.flw_ = 0;
@@ -3303,7 +3311,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每盘牌开始时，调用
        */
       init() {
         // 如果用起牌墙效果，则需要先隐藏牌墙
@@ -3931,7 +3939,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每盘牌开始时，调用
        */
       init() {
         this.p_ = [];
@@ -4699,7 +4707,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每盘牌开始时，调用
        */
       init() {
         super.init();
@@ -5328,7 +5336,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每盘牌开始时，调用
        */
       init() {
         super.init();
@@ -5634,7 +5642,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每盘牌开始时，调用
        */
       init() {
         super.init();
@@ -5960,7 +5968,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每盘牌开始时，调用
        */
       init() {
         super.init();
@@ -6217,7 +6225,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每盘牌开始时，调用
        */
       init() {
         this.s_.forEach(e=>e.visible = e.acpt_ = false);
@@ -7824,7 +7832,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，一局牌开始时（或断线重联时），调用
        */
       init() {
         this.nt_.forEach(e=>e.visible = false);
@@ -8580,7 +8588,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每盘牌开始时，调用
        */
       init() {
         let o = this.opt_;
@@ -8651,6 +8659,206 @@
     CalOpt.W = (W0 + 50) * 9 + 50;
     CalOpt.H = 860;
     CalOpt.S = .75;
+
+    /**
+     * 游戏设置界面
+     * @typedef {object} Setting2
+     */
+    class Setting2 extends AutoHide {
+      constructor() {
+        super();
+
+        const w = Setting2.W, h = Setting2.H;
+
+        //this.width = w;
+        //this.height = h;
+
+        let bg = this.ic_ = new PIXI.Graphics();
+        this.addChild(bg);
+
+        bg.lineStyle(2, 0x26608C, 1);
+        bg.beginFill(0x060F16, .85);
+        bg.drawRect(0, 0, w, h);
+        bg.endFill();
+        bg.interactive = true;
+
+        // 标题
+        let t = new PIXI.Text(tz.ls('GameSetting'), {
+          fontFamily: FF,
+          fontSize: 32,
+          fill: '#ffffff',
+          stroke: '#0066ff',
+          strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
+        });
+        bg.addChild(t);
+        t.anchor.set(.5);
+        t.x = w * .5;
+        t.y = 40;
+
+        const bs =  {
+          fontFamily: FF,
+          fontSize: 24,
+          fill: '#ffffff',
+          stroke: '#0066ff',
+          strokeThickness: 2,
+          lineJoin: 'round',
+          padding: 10
+        };
+
+        // 音量
+        t = new PIXI.Text(tz.ls('Volume'), bs);
+        bg.addChild(t);
+        t.anchor.y = .5;
+        t.x = 30;
+        t.y = 110;
+
+        let t0 = new PIXI.Text('100%', bs);
+        bg.addChild(t0);
+        t0.anchor.x = 1;
+        t0.anchor.y = .5;
+        t0.x = w - 145;
+        t0.y = 110;
+
+        let rb = new RngBr(t0.x - t0.width - t.x - t.width - 15, 30, 15, (v)=>{
+          t0.text = Math.round(v) + '%';
+        });
+        bg.addChild(rb);
+        rb.x = t.x + t.width + 10;
+        rb.y = 95;
+        let v = tz.cfg['volume'];
+        v = (typeof v === 'number') ? Math.max(0, Math.min(100, v)) : 100;
+        t0.text = Math.round(v) + '%';
+        rb.val = v;
+
+        this.ovrwrt_ = false;
+        this.playing_ = false;
+        let b = new TxtBtn(tz.ls('VolumeTest'), bs, 120, 50, ()=>{
+          if (this.playing_) return;
+          let v0 = PIXI.sound.volumeAll;
+          PIXI.sound.volumeAll = rb.val / 100;
+          try {
+            this.playing_ = true;
+            tz.res['snd/01-start.wav'].sound.play(()=>{
+              if (!this.ovrwrt_) {
+                PIXI.sound.volumeAll = v0;
+              }
+              this.playing_ = false;
+            });
+          }
+          catch (e) {
+            this.playing_ = false;
+            console.log(e);
+            PIXI.sound.volumeAll = v0;
+          }
+        });
+        bg.addChild(b);
+        b.x = w - 140;
+        b.y = 80 + 5;
+
+        // 倒计时音效
+        t = new PIXI.Text(tz.ls('CountdownEffects'), bs);
+        bg.addChild(t);
+        t.anchor.y = .5;
+        t.x = 30;
+        t.y = 160;
+
+        let cb1 = new ChkBox();
+        bg.addChild(cb1);
+        cb1.scale.set(.75);
+        cb1.x = t.x + t.width + 40;
+        cb1.y = t.y - 18;
+        cb1.sel = !tz.cfg['mutecd'];
+
+        // 鸣牌提示音效
+        t = new PIXI.Text(tz.ls('CallHintEffects'), bs);
+        bg.addChild(t);
+        t.anchor.y = .5;
+        t.x = 30;
+        t.y = 210;
+
+        let cb2 = new ChkBox();
+        bg.addChild(cb2);
+        cb2.scale.set(.75);
+        cb2.x = t.x + t.width + 40;
+        cb2.y = t.y - 18;
+        cb2.sel = !tz.cfg['mutecall'];
+
+        // 右键摸切
+        let cb3;
+        if (!tz.phn) {
+          t = new PIXI.Text(tz.ls('RClickDiscard'), bs);
+          bg.addChild(t);
+          t.anchor.y = .5;
+          t.x = 30;
+          t.y = 260;
+
+          cb3 = new ChkBox();
+          bg.addChild(cb3);
+          cb3.scale.set(.75);
+          cb3.x = t.x + t.width + 40;
+          cb3.y = t.y - 18;
+          cb3.sel = tz.cfg['rightdiscard'];
+        }
+
+        // 确认和取消
+        const w1 = 120, h1 = 50;
+        b = new TxtBtn(tz.ls('Cancel'), bs, w1, h1, ()=>{
+          this.dsty();
+        });
+        bg.addChild(b);
+        b.x = w * .3 - w1;
+        b.y = h - h1 - 20;
+
+        b = new TxtBtn(tz.ls('Confirm'), bs, w1, h1, ()=>{
+          let cfg = tz.cfg;
+          let v = rb.val;
+          cfg['volume'] = v;
+          cfg['mutecd'] = cb1.sel ? 0 : 1;
+          cfg['mutecall'] = cb2.sel ? 0 : 1;
+          if (!tz.phn) {
+            cfg['rightdiscard'] = cb3.sel ? 1 : 0;
+          }
+          tz.save();
+          PIXI.sound.volumeAll = v / 100;
+          this.ovrwrt_ = true;
+
+          this.dsty();
+        });
+        bg.addChild(b);
+        b.x = w * .7;
+        b.y = h - h1 - 20;
+      }
+
+      /**
+       * 点击外部
+       */
+      tapout() {
+        console.log('Setting2 tapout');
+        this.dsty();
+      }
+
+      /**
+       * 适配
+       * @param {number} x
+       * @param {number} y
+       * @param {number} w
+       * @param {number} h
+       */
+      layt(x, y, w, h) {
+        super.layt();
+        const w0 = Setting2.W, h0 = Setting2.H, s0 = Setting2.S;
+        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0);
+        c.scale.set(s);
+        c.x = x + (w - w0 * s) * .5;
+        c.y = y + (h - h0 * s) * .5;
+        console.log('layout scale Setting2 =', s);
+      }
+    }
+    Setting2.W = 600;
+    Setting2.H = 420;
+    Setting2.S = .65;
 
     // =====================================================================================================
 
@@ -9533,15 +9741,13 @@
 
       /**
        * 清理，当点击结束界面的OK后执行
-       * @param {JSON} 配置
        */
       tidy() {
-        this.ca1_.visible = false;
-        this.ca2_.visible = false;
-        this.cd_.visible = false;
-        this.opt2_.visible = false;
-        this.chs_.visible = false;
-        this.hst_.visible = false;
+        this.cr_.tidy();
+
+        // 因为init函数是在收到发牌信息后才调用的，
+        // 在切换的一瞬间还会残留上一局牌的东西，这里清理一下效果更好
+        this.init();
       }
 
       /**
@@ -9566,7 +9772,7 @@
       }
 
       /**
-       * 初始化
+       * 初始化，每盘牌开始时，调用
        */
       init() {
         this.wa_.init();
@@ -10835,206 +11041,6 @@
         this.hst_.rcvr(this.pls_, r['b'], d ? 0 : 1);  // 历史和牌记录
       }
     }
-
-    /**
-     * 游戏设置界面
-     * @typedef {object} Setting2
-     */
-    class Setting2 extends AutoHide {
-      constructor() {
-        super();
-
-        const w = Setting2.W, h = Setting2.H;
-
-        //this.width = w;
-        //this.height = h;
-
-        let bg = this.ic_ = new PIXI.Graphics();
-        this.addChild(bg);
-
-        bg.lineStyle(2, 0x26608C, 1);
-        bg.beginFill(0x060F16, .85);
-        bg.drawRect(0, 0, w, h);
-        bg.endFill();
-        bg.interactive = true;
-
-        // 标题
-        let t = new PIXI.Text(tz.ls('GameSetting'), {
-          fontFamily: FF,
-          fontSize: 32,
-          fill: '#ffffff',
-          stroke: '#0066ff',
-          strokeThickness: 2,
-          lineJoin: 'round',
-          padding: 10
-        });
-        bg.addChild(t);
-        t.anchor.set(.5);
-        t.x = w * .5;
-        t.y = 40;
-
-        const bs =  {
-          fontFamily: FF,
-          fontSize: 24,
-          fill: '#ffffff',
-          stroke: '#0066ff',
-          strokeThickness: 2,
-          lineJoin: 'round',
-          padding: 10
-        };
-
-        // 音量
-        t = new PIXI.Text(tz.ls('Volume'), bs);
-        bg.addChild(t);
-        t.anchor.y = .5;
-        t.x = 30;
-        t.y = 110;
-
-        let t0 = new PIXI.Text('100%', bs);
-        bg.addChild(t0);
-        t0.anchor.x = 1;
-        t0.anchor.y = .5;
-        t0.x = w - 145;
-        t0.y = 110;
-
-        let rb = new RngBr(t0.x - t0.width - t.x - t.width - 15, 30, 15, (v)=>{
-          t0.text = Math.round(v) + '%';
-        });
-        bg.addChild(rb);
-        rb.x = t.x + t.width + 10;
-        rb.y = 95;
-        let v = tz.cfg['volume'];
-        v = (typeof v === 'number') ? Math.max(0, Math.min(100, v)) : 100;
-        t0.text = Math.round(v) + '%';
-        rb.val = v;
-
-        this.ovrwrt_ = false;
-        this.playing_ = false;
-        let b = new TxtBtn(tz.ls('VolumeTest'), bs, 120, 50, ()=>{
-          if (this.playing_) return;
-          let v0 = PIXI.sound.volumeAll;
-          PIXI.sound.volumeAll = rb.val / 100;
-          try {
-            this.playing_ = true;
-            tz.res['snd/01-start.wav'].sound.play(()=>{
-              if (!this.ovrwrt_) {
-                PIXI.sound.volumeAll = v0;
-              }
-              this.playing_ = false;
-            });
-          }
-          catch (e) {
-            this.playing_ = false;
-            console.log(e);
-            PIXI.sound.volumeAll = v0;
-          }
-        });
-        bg.addChild(b);
-        b.x = w - 140;
-        b.y = 80 + 5;
-
-        // 倒计时音效
-        t = new PIXI.Text(tz.ls('CountdownEffects'), bs);
-        bg.addChild(t);
-        t.anchor.y = .5;
-        t.x = 30;
-        t.y = 160;
-
-        let cb1 = new ChkBox();
-        bg.addChild(cb1);
-        cb1.scale.set(.75);
-        cb1.x = t.x + t.width + 40;
-        cb1.y = t.y - 18;
-        cb1.sel = !tz.cfg['mutecd'];
-
-        // 鸣牌提示音效
-        t = new PIXI.Text(tz.ls('CallHintEffects'), bs);
-        bg.addChild(t);
-        t.anchor.y = .5;
-        t.x = 30;
-        t.y = 210;
-
-        let cb2 = new ChkBox();
-        bg.addChild(cb2);
-        cb2.scale.set(.75);
-        cb2.x = t.x + t.width + 40;
-        cb2.y = t.y - 18;
-        cb2.sel = !tz.cfg['mutecall'];
-
-        // 右键摸切
-        let cb3;
-        if (!tz.phn) {
-          t = new PIXI.Text(tz.ls('RClickDiscard'), bs);
-          bg.addChild(t);
-          t.anchor.y = .5;
-          t.x = 30;
-          t.y = 260;
-
-          cb3 = new ChkBox();
-          bg.addChild(cb3);
-          cb3.scale.set(.75);
-          cb3.x = t.x + t.width + 40;
-          cb3.y = t.y - 18;
-          cb3.sel = tz.cfg['rightdiscard'];
-        }
-
-        // 确认和取消
-        const w1 = 120, h1 = 50;
-        b = new TxtBtn(tz.ls('Cancel'), bs, w1, h1, ()=>{
-          this.dsty();
-        });
-        bg.addChild(b);
-        b.x = w * .3 - w1;
-        b.y = h - h1 - 20;
-
-        b = new TxtBtn(tz.ls('Confirm'), bs, w1, h1, ()=>{
-          let cfg = tz.cfg;
-          let v = rb.val;
-          cfg['volume'] = v;
-          cfg['mutecd'] = cb1.sel ? 0 : 1;
-          cfg['mutecall'] = cb2.sel ? 0 : 1;
-          if (!tz.phn) {
-            cfg['rightdiscard'] = cb3.sel ? 1 : 0;
-          }
-          tz.save();
-          PIXI.sound.volumeAll = v / 100;
-          this.ovrwrt_ = true;
-
-          this.dsty();
-        });
-        bg.addChild(b);
-        b.x = w * .7;
-        b.y = h - h1 - 20;
-      }
-
-      /**
-       * 点击外部
-       */
-      tapout() {
-        console.log('Setting2 tapout');
-        this.dsty();
-      }
-
-      /**
-       * 适配
-       * @param {number} x
-       * @param {number} y
-       * @param {number} w
-       * @param {number} h
-       */
-      layt(x, y, w, h) {
-        super.layt();
-        const w0 = Setting2.W, h0 = Setting2.H, s0 = Setting2.S;
-        let c = this.ic_, s = Math.min(w * s0 / w0, h * s0 / h0);
-        c.scale.set(s);
-        c.x = x + (w - w0 * s) * .5;
-        c.y = y + (h - h0 * s) * .5;
-        console.log('layout scale Setting2 =', s);
-      }
-    }
-    Setting2.W = 600;
-    Setting2.H = 420;
-    Setting2.S = .65;
 
     // =====================================================================================================
 
