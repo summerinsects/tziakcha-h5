@@ -4604,7 +4604,7 @@
        * @param {PIXI.InteractionEvent} e 鼠标/手指所在坐标等详情
        */
       _mv(p, e) {
-        if (this.dgx_ !== -1) {
+        if (this.dgx_ !== -1 && !this.ast_.sel) {
           let s = this.s_, i = s.indexOf(p);
           // 正在拖的是当前牌
           if (this.dgx_ === i) {
@@ -4623,7 +4623,6 @@
               this.dgx_ = d;
               this.drg_ = true;
               this.mst_ = true;
-              this.ast_.sel = false;
             } else if (d < i) {
               // 往左拖
               let a = this.p_.length * 3;
@@ -4638,7 +4637,6 @@
               this.dgx_ = d;
               this.drg_ = true;
               this.mst_ = true;
-              this.ast_.sel = false;
             }
           }
         }
