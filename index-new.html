@@ -506,7 +506,10 @@
           this.tpvw.layt(w, h);
         };
 
-        let ws = this.ws = new WebSocket('ws://127.0.0.1:5333/ws');
+        let ws = this.ws = new WebSocket((function(){
+          let l = location, p = l.protocol;
+          return `${p.replace(/http/, 'ws')}//${l.hostname}:${p === 'http:' ? 5333 : 5334}/ws`;
+        })());
         ws.onopen = ()=>{
           console.log('open');
           // 测试直接创建桌子/坐下
