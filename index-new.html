@@ -9251,7 +9251,7 @@
             this.onxchg(1, [{'n':'东','s':0},{'n':'南','s':0},{'n':'西','s':0},{'n':'北','s':0}]);
 
             this.init();
-            this.send(0, 3, [
+            this.deal(0, 3, [
               Math.trunc(Math.random() * 6) + 1,
               Math.trunc(Math.random() * 6) + 1,
               Math.trunc(Math.random() * 6) + 1,
@@ -9805,7 +9805,7 @@
        * @param {array} d 骰子
        * @param {array} h 自己的手牌
        */
-      send(o, v, d, h) {
+      deal(o, v, d, h) {
         let w = this.wa_, c = this.cr_;
         c.remain = 144;
         c.order(o);
@@ -9815,7 +9815,7 @@
 
         // 换圈后多一个提示
         if (o & 3) {
-          this._send1(d, h);
+          this._deal1(d, h);
         }
         else {
           let p = this.pls_, n = [p[0]['n'], p[1]['n'], p[2]['n'], p[3]['n']];
@@ -9827,7 +9827,7 @@
 
           new TWEEN.Tween(b).to({alpha:0}, 200).delay(1300).start();
 
-          setTimeout(()=>{ b.dsty(); this._send1(d, h); }, 1500);
+          setTimeout(()=>{ b.dsty(); this._deal1(d, h); }, 1500);
 
           if (o) {
             tz.play('snd/25-xchg.wav');
@@ -9845,7 +9845,7 @@
        * @param {array} d 骰子
        * @param {number} h 自己的手牌
        */
-      _send1(d, h) {
+      _deal1(d, h) {
         let c = this.cr_;
         let dca = n=>{
           let t = tz.res[`img/dice/${n}.png`].texture;
@@ -9903,14 +9903,14 @@
         //this.wa_.prep();  // 起牌墙效果
 
         // 发牌第二步
-        setTimeout(this._send2.bind(this, h), DCDT);
+        setTimeout(this._deal2.bind(this, h), DCDT);
       }
 
       /**
        * 发牌第二步
        * @param {number} h 自己的手牌
        */
-      _send2(h) {
+      _deal2(h) {
         /**
          * 抓牌效果
          * @param {object} ctx
@@ -10550,9 +10550,9 @@
        * 发牌
        * @param {JSON} r 服务器传回的json
        */
-      onsend(r) {
+      ondeal(r) {
         this.init();
-        this.send(r['h'], r['p'], r['d'], r['v']);
+        this.deal(r['h'], r['p'], r['d'], r['v']);
         this.phs_ = false;
         this.stp_ = 3;
       }
@@ -10871,7 +10871,7 @@
           this.onstart(r);
           break;
         case 2:  // 起手
-          this.onsend(r);
+          this.ondeal(r);
           break;
         case 3:  // 询问补花
           this.chkstp(r);
