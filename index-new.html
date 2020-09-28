@@ -1832,6 +1832,18 @@
         s.anchor.x = 1;
         s.x = CalPop.W - 210;
         s.y = 130;
+
+        // 前景：防止切换时误触
+        let fg = this.fg_ = new PIXI.Sprite(PIXI.Texture.WHITE);
+        fg.tint = 0;
+        fg.alpha = 0;
+        fg.width = CalPop.W;
+        fg.height = CalPop.H;
+        fg.interactive = true;
+        fg.on('click', ()=>this.fg_.visible = false);
+        fg.on('tap', ()=>this.fg_.visible = false);
+        this.addChild(fg);
+        fg.visible = false;
       }
 
       /**
@@ -2459,9 +2471,9 @@
        * 是否打开
        * @return {boolean}
        */
-      get xtd() {
-        return this.sh_;
-      }
+      //get xtd() {
+      //  return this.sh_;
+      //}
     }
     // 2行3列，每个200*160
     HlpPop.W = 600;
@@ -8892,12 +8904,11 @@
           // 只有把监听放在同一棵子树上，才会上向传递
           // 这里竟然不用额外判断就神奇地达到了牌桌等大的监听范围！！！
           this.interactive = true;
-          //if (!tz.phn) {
-            this.on('rightclick', ()=>this.rclk());
-          //} else {
+          this.on('rightclick', ()=>this.rclk());
+          if (tz.phn) {
             this.on('tap', e=>this.tapbg(e));
             this.on('click', e=>this.tapbg(e));
-          //}
+          }
 
           // NOTE：本来是想创建一个与牌桌大小相等的按钮，置于最顶层，用来监听鼠标右键
           // 但由于它优先级高，会把桌面上的牌、按钮的点击事件都拦截了
@@ -10186,6 +10197,7 @@
           if (tz.phn) {
             c.commit();
             c.tgl(true);
+            c.fg_.visible = this.opt1_.xtd;
             this.opt1_.tgl(false);
           }
           if (!tz.cfg['mutecall']) {
