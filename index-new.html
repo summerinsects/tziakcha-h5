@@ -9166,12 +9166,14 @@
           t.anchor.set(.5);
           sc.addChild(t);
           t.visible = false;
+          t.w_ = t.width;
 
           // 为配合上层容器，实现一个这样的接口
           t.layt = (x, y, w, h)=>{
+            let s = w / (t.w_ + 100);
             t.x = x + w * .5;
-            t.y = y + h * .75;
-            scl_txt(t, w - 20);
+            t.y = y + h * .78;
+            t.scale.set(s);
           };
         }.bind(this))();
 
