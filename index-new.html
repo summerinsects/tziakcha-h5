@@ -10848,7 +10848,7 @@
           // 请求大厅信息
           tz.ws.send('{"m":1,"r":2}');
           tz.game.visible = false;
-          tz.lobby.visible = true;
+          tz.lobby.ret();
         });
 
         // 插入到最开始，以便于有的人还能看计分板
@@ -11979,6 +11979,14 @@
         else {
           tz.ws.send('{"m":1,"r":5}');
         }
+      }
+
+      /**
+       * 返回到大厅
+       */
+      ret() {
+        delete this.se_;
+        this.visible = true;
       }
     }
 
