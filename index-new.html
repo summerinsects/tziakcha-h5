@@ -2495,7 +2495,7 @@
 
         const s = {
           fontFamily: FF,
-          fontSize: 24,
+          fontSize: 22,
           fill: '#ffffff',
           stroke: '#0066ff',
           strokeThickness: 2,
@@ -2510,7 +2510,7 @@
           {t:'GameSetting', f:'onset'},
           {t:'History', f:'onhst'}
         ].forEach((e, i)=>{
-          let b = a[i] = new TxtBtn(tz.ls(e['t']), s, 120, 60, ()=>p[e['f']].call(p));
+          let b = a[i] = new TxtBtn(tz.ls(e['t']), s, 100, 50, ()=>p[e['f']].call(p));
           this.addChild(b);
         });
         this.btn_ = a;
@@ -2535,34 +2535,34 @@
        * @param {number} h
        */
       layt(w, h) {
-        // 按钮120*60
+        // 按钮100*50
         let a = this.btn_, t = this.ee_;
         // 测速
-        a[0].x = w - 120;
-        a[0].y = 125;
+        a[0].x = w - 100;
+        a[0].y = 100;
 
         // 设置
-        a[3].x = w - 120;
-        a[3].y = 55;
+        a[3].x = w - 100;
+        a[3].y = 40;
         // 鸣牌
-        a[2].x = w - 120;
+        a[2].x = w - 100;
         a[2].y = h - 50;
         // 追分
         a[1].y = h - 50;
         // 历史
-        a[4].y = h - 120;
+        a[4].y = h - 110;
 
         // 理牌
-        this.ac_.y = h - 180;
+        this.ac_.y = h - 160;
 
         // 速度
-        t.x = w - 160;
-        t.y = 155;
+        t.x = w - 140;
+        t.y = 125;
 
         // 计时
         t = this.gt_;
-        t.x = w - 160;
-        t.y = 85;
+        t.x = w - 140;
+        t.y = 65;
       }
     }
 
