@@ -9981,7 +9981,8 @@
                     tick[i] = sp;
                     sp.visible = (ready & (1 << i));
 
-                    t = new PIXI.Text((!this.anonym_ || p[i].length == 0) ? p[i] : '匿名用户', {
+                    let pn = p[i]['n'] || '';
+                    t = new PIXI.Text((!this.anonym_ || pn.length == 0) ? pn : '匿名用户', {
                         fontFamily: FF,
                         fontSize: 20,
                         fill: '#ffffff',

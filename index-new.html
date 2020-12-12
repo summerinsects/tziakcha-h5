@@ -2931,9 +2931,9 @@
        * 获取名字
        * @return {string}
        */
-      get name() {
-        return this.n_.text;
-      }
+      //get name() {
+      //  return this.n_.text;
+      //}
 
       /**
        * 设置花牌数
@@ -10820,7 +10820,7 @@
           let k = (i + 4 - v) & 3, u = this.ub_[k];
           u.flswn = false;
           u.flower = 0;
-          u.name = e['n'];
+          u.name = e['n'] = (e['v'] ? '\u2605 ' : '') + e['n'];
           u.conn = !e['o'];
           s[k] = e['s'];
         });
@@ -10978,7 +10978,7 @@
           let v = r['v'], p = r['u'], s = [0, 0, 0, 0];
           p.forEach((e, i)=>{
             let k = (i + 4 - v) & 3, u = this.ub_[k];
-            u.name = e['n'];
+            u.name = e['n'] = (e['v'] ? '\u2605 ' : '') + e['n'];
             u.flower = e['f'];
             u.conn = !e['o'];
             u.flswn = e['w'];
@@ -11705,7 +11705,7 @@
         case 9: {
           // 登录
           let t = this.nb_.fa_;
-          t.text = r['u'];
+          t.text = (r['v'] ? '\u2605 ' : '') + r['u'];
           scl_txt(t, 95);
           let k = r['t'];
           if (k) {
@@ -11822,7 +11822,7 @@
         let i = this._find(t['i']);
         if (i !== -1) {
           let tv = this.tb_[i];
-          tv.sit(t['s'], t['n']);
+          tv.sit(t['s'], (t['v'] ? '\u2605 ' : '' ) + t['n']);
           tv.rfsh(this.id_, this.se_);
         }
       }
@@ -12188,7 +12188,8 @@
           this.addChild(sp);
           sp.visible = (ready & (1 << i));
 
-          t = na[i] = new PIXI.Text((!this.an_ || p[i].length === 0) ? p[i] : tz.ls('Anonymous'), {
+          let pn = p[i]['n'] || '';
+          t = na[i] = new PIXI.Text((!this.an_ || pn.length === 0) ? ((p[i]['v'] ? '\u2605 ' : '') + pn) : tz.ls('Anonymous'), {
             fontFamily: FF,
             fontSize: 20,
             fill: '#ffffff',
