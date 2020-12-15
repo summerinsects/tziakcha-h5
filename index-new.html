@@ -6715,6 +6715,14 @@
     }
     Piano2.H = 200;
 
+    /**
+     * 花牌数
+     * @param {number} f 第81番
+     * @return {number} 花牌数
+     */
+    function flw(f) {
+      return f ? (hibyte(f) + 1) : 0;
+    }
 
     /**
      * 一手和牌
@@ -6918,7 +6926,7 @@
         // 和牌展示
         if (h && f) {
           (function(){
-            let wh = new WinHand(h, w, hibyte(f['81']) + 1);
+            let wh = new WinHand(h, w, flw(f['81']));
             bg.addChild(wh);
             wh.y = gap;
             if (wh.width > w0 - gap * 2) {
@@ -7551,7 +7559,7 @@
           }
           return n;
         })(f);
-        let wh = new WinHand(h, w, hibyte(f['81']) + 1);
+        let wh = new WinHand(h, w, flw(f['81']));
         bg.addChild(wh);
         wh.y = 65;
         if (wh.width > w0 - gap * 2) {
