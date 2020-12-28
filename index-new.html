@@ -665,9 +665,7 @@
         this.prev_ = {};
       }
 
-      render(r) {
-        super.render(r);
-
+      _render(r) {
         // 上一次的一系列状态
         let pr = this.prev_;
         pr.renderer = r;
@@ -697,6 +695,24 @@
           pr.wa = wa;
           pr.wv = wv;
         }
+      }
+
+      // v4.x
+      renderCanvas(r) {
+        super.renderCanvas(r);
+        this._render(r);
+      }
+
+      // v4.x
+      renderWebGL(r) {
+        super.renderWebGL(r);
+        this._render(r);
+      }
+
+      // v5.x
+      render(r) {
+        super.render(r);
+        this._render(r);
       }
 
       get text() {
