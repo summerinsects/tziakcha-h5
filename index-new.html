@@ -7457,7 +7457,7 @@
 
         p.forEach((e, i)=>{
           let y = 200 + 60 * i, f = (v !== e['w']);  // 自己显示为青色
-          [i + 1, e['n'], e['s']].forEach((a, k)=>{
+          [i + 1, (e['v'] ? '\u2605 ' : '') + e['n'], e['s']].forEach((a, k)=>{
             let t = new PIXI.Text(a, {
               fontFamily: FF,
               fontSize: 24,
