@@ -8919,8 +8919,20 @@
 */
 
           // 牌桌背景
-          let b = this.tbbg_ = new PIXI.Sprite(PIXI.Texture.WHITE);
-          b.tint = 0x89a4c7;
+          let b = this.tbbg_ = new PIXI.Sprite((function(){
+            let cvs = document.createElement('canvas');
+            cvs.width = 500;
+            cvs.height = 500;
+            let ctx = cvs.getContext('2d');
+            let lg = ctx.createLinearGradient(0, 0, 0, 500);
+            lg.addColorStop(0, '#677ea1');
+            lg.addColorStop(1, '#89a4c7');
+            ctx.fillStyle = lg;
+            ctx.fillRect(0, 0, 500, 500);
+            return PIXI.Texture.from(cvs);
+          })());
+          //let b = this.tbbg_ = new PIXI.Sprite(PIXI.Texture.WHITE);
+          //b.tint = 0x89a4c7;
           b.alpha = .5;
           this.addChild(b);
 
