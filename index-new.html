@@ -9764,7 +9764,7 @@
         this.pls_.forEach(e=>p.push({'n':e['n'], 's':e['s']}));
         this.ub_.forEach((e, i)=>{
           if (e.flswn) {
-            p[(i + s) & 3] -= 40;
+            p[(i + s) & 3]['s'] -= 40;
           }
         });
         this.chs_.show(p);
