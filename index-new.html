@@ -8105,7 +8105,8 @@
               }
             });
 
-            this.bf_[o] = {h:w['h'], w:w['w'], f:w['t']};
+            let ht = w['h'], wt = ht['s'].pop();
+            this.bf_[o] = {h:ht, w:wt, f:w['t']};
             this.hb_[o].visible = true;
           } else {
             // 荒庄
