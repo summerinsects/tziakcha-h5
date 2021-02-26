@@ -2927,7 +2927,7 @@
       init() {
         this.flw_ = 0;
         this.f_.text = '\u00D7 0';
-        this.l_.visible = false;
+        //this.l_.visible = false;
         this.w_.visible = false;
       }
 
@@ -9790,21 +9790,15 @@
       // 一堆代理函数结束
 
       /**
-       * 清理，当点击结束界面的OK后执行
-       */
-      tidy() {
-        this.cr_.tidy();
-
-        // 因为init函数是在收到发牌信息后才调用的，
-        // 在切换的一瞬间还会残留上一局牌的东西，这里清理一下效果更好
-        this.init();
-      }
-
-      /**
        * 开始当前局计时
        * @param {number} t 当前时间戳（服务器传过来）
        */
       startup(t) {
+        // 因为init函数是在收到发牌信息后才调用的，
+        // 在切换的一瞬间还会残留上一局牌的东西，这里清理一下效果更好
+        this.init();
+        this.cr_.tidy();
+
         this.hlp_.strt(t);
         this.visible = true;
       }
@@ -10881,7 +10875,6 @@
         let v = this.rslt_ = new Result(this.cfg_['t'], this.cr_.seat, r['p'], r['t'], v=>{
           v.dsty();
           this.rslt_ = null;
-          this.tidy();
 
           // 请求大厅信息
           tz.ws.send('{"m":1,"r":2}');
@@ -11003,7 +10996,6 @@
         this.setTitle(cfg);
         pool.reconnect(resp);
         */
-        this.visible = true;
 
         this.setup(r['g']);
         this.init();
@@ -11092,6 +11084,9 @@
           rvt.bind(this)(d);
         }
         this.hst_.rcvr(this.pls_, r['b'], d ? 0 : 1);  // 历史和牌记录
+
+        // 初始化完成后再显示
+        this.visible = true;
       }
     }
 
